@@ -88,8 +88,6 @@
     color: var(--ink-3);
     font-size: var(--fs-label);
     font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
   .ib {
     display: grid;

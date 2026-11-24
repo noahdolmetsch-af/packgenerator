@@ -234,9 +234,9 @@
   }
   .bchip[aria-pressed='true'],
   .chip[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .note {
     margin: 0 0 14px;
@@ -365,8 +365,6 @@
     margin: 14px 0 0;
     color: var(--ink-2);
     font-size: var(--fs-small);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
   .srow {
     display: flex;

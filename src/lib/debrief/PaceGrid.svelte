@@ -6,6 +6,7 @@
    * km/h of the rule in use.
    */
   import { t, tn, num } from '../i18n.svelte.js';
+  import Empty from '../ui/Empty.svelte';
   import { n1 } from '../review/fmt.js';
   import { SURFACES, CELL_MIN } from '../review/werte.js';
   import { Bike, Info } from '@lucide/svelte';
@@ -39,7 +40,7 @@
         {/each}
       </ul>
     {:else}
-      <p class="none">{t('Rides with a bike and a moving time show up here: from Strava, or a GPX file on the same day as a ride of the bike.')}</p>
+      <Empty size="klein" text={t('Rides with a bike and a moving time show up here: from Strava, or a GPX file on the same day as a ride of the bike.')} action={{ label: t('Upload a ride'), href: '#/debrief/ride' }} />
     {/if}
   </div>
   <p class="rv-note"><Info size={16} aria-hidden="true" /><span>{t('The surface comes from the Strava sport type (Ride, Gravel, Mountain bike) and can be changed per ride.')}{#if example && rule}{' '}{t('A new trip with {bike} on {surface}: {kmh} km/h instead of {rule}.', { bike: example.bike, surface: example.surface, kmh: n1(example.kmh), rule: num(rule) })}{/if}</span></p>
@@ -102,11 +103,6 @@
   }
   .rl {
     color: var(--ink-2);
-  }
-  .none {
-    margin: 0;
-    color: var(--ink-2);
-    font-size: var(--fs-small);
   }
   .pg .rv-note {
     margin-top: 10px;

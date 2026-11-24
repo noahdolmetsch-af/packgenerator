@@ -52,8 +52,6 @@
     margin: 4px 0 8px;
     font-size: var(--fs-small);
     font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
     color: var(--ink-3);
   }
   ul {

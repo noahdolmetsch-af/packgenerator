@@ -222,9 +222,9 @@
     font-weight: 400;
   }
   .fchip[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .fchip[aria-pressed='true'] .num {
     color: var(--paper);

@@ -502,7 +502,6 @@
     color: var(--ink-3);
   }
   .fresh {
-    text-transform: uppercase;
     padding: 2px 8px;
     border-radius: 6px;
     background: var(--hi);

@@ -1288,7 +1288,7 @@
   /* v0.27.0 (AP21): the kind of ride, weather presets and overnight sets lost their look with the calm
      Pack (PR #32): browser-grey 22 px buttons and no visible "chosen". Again 40 px pills, the chosen one dark. */
   .toggle { min-height: 40px; padding: 5px 14px; border: 1.5px solid var(--ink-3); border-radius: 999px; background: var(--paper); color: var(--ink); font: 600 var(--fs-body) var(--font-body); cursor: pointer; }
-  .toggle[aria-pressed='true'] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  .toggle[aria-pressed='true'] { background: var(--hi); border-color: var(--hi); color: var(--hi-ink); }
   .toggle:disabled { opacity: 0.5; cursor: default; }
   .aidset { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin-top: 12px; }
   .aidset .hint { flex-basis: 100%; }

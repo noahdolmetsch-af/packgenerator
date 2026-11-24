@@ -148,9 +148,9 @@
     cursor: pointer;
   }
   .fsh-c[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .fsh-items {
     display: flex;

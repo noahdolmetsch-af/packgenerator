@@ -73,8 +73,8 @@
     border-right: 0;
   }
   .seg button[aria-pressed='true'] {
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .ck {
     display: flex;

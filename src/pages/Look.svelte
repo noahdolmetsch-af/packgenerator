@@ -485,8 +485,6 @@
     margin: var(--sp-2) 0 var(--sp-3);
     color: var(--ink-2);
     font: 600 var(--fs-tiny) / 1.4 var(--font-body);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
   }
   .pvbox {
     display: grid;

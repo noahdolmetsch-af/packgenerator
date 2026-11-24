@@ -936,8 +936,6 @@
     margin: 12px 0 4px;
     font-size: var(--fs-small);
     color: var(--ink-3);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
   }
   .vals {
     display: grid;

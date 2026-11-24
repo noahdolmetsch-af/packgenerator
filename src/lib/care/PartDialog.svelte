@@ -370,8 +370,8 @@
     border-left: 1px solid var(--line);
   }
   .seg button[aria-pressed='true'] {
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .hist {
     list-style: none;

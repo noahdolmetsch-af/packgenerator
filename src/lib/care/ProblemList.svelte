@@ -151,7 +151,7 @@
               </span>
             </div>
           {:else if prioSaved?.id === task.id}
-            <p class="extra saved-prio" role="status">✓ {prioSaved.text}</p>
+            <p class="extra saved-prio" role="status"><Check size={14} class="ic-in" aria-hidden="true" /> {prioSaved.text}</p>
           {/if}
         </li>
       {/each}
@@ -363,7 +363,7 @@
     border-left: 1px solid var(--line);
   }
   .seg button[aria-pressed='true'] {
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
 </style>

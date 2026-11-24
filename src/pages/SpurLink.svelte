@@ -102,8 +102,6 @@
     margin: 0;
     color: var(--ink-2);
     font-size: var(--fs-small);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
   }
   .sub {
     margin: 4px 0 0;

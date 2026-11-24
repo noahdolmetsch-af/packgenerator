@@ -203,10 +203,10 @@
     color: var(--ink-2);
   }
   .chip[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
+    background: var(--hi);
+    border-color: var(--hi);
     border-style: solid;
-    color: var(--paper);
+    color: var(--hi-ink);
   }
   .time {
     width: 120px;

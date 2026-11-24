@@ -1359,8 +1359,6 @@
   .th {
     color: var(--ink-3);
     font: 500 var(--fs-tiny)/1.3 var(--font-body);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
   /* ---------- Design-Refresh P7 (V7): the open bike is the page (path and title above) ---------- */
   .acc:not(.open):last-child {

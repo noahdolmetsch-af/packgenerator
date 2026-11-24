@@ -561,8 +561,6 @@
     margin: 0;
     font-size: var(--fs-small);
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
     color: var(--accent);
   }
   .tb-q-text {
@@ -675,7 +673,6 @@
   .tb-date small {
     margin-top: 4px;
     font-size: var(--fs-tiny);
-    text-transform: uppercase;
     color: var(--ink-3);
   }
   .tb-main {
@@ -782,7 +779,6 @@
     font-size: var(--fs-tiny);
     font-weight: 600;
     color: var(--ink-3);
-    text-transform: uppercase;
   }
   .tb-grid td {
     padding: 0;

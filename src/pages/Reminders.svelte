@@ -204,8 +204,6 @@
     margin: 14px 16px 2px;
     color: var(--ink-2);
     font: 600 var(--fs-tiny) / 1.4 var(--font-body);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
   .row {
     display: flex;

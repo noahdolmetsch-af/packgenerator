@@ -107,8 +107,6 @@
   .pl {
     color: var(--ink-3);
     font-size: var(--fs-label);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
   }
   .chips {
     display: flex;

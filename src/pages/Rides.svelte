@@ -1133,8 +1133,6 @@
     color: var(--ok);
     font-size: var(--fs-tiny);
     font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
   .sk.warn {
     color: var(--warn);

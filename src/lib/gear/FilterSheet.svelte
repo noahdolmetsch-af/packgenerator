@@ -188,9 +188,9 @@
   }
   /* v0.102.0 Design-Refresh P3 (M3): the chosen chip filled in ink */
   .fchip[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
     font-weight: 600;
   }
   .fchip[aria-pressed='true'] small {

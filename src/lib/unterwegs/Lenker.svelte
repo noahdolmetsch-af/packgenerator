@@ -147,8 +147,8 @@
     cursor: pointer;
   }
   .lb[aria-pressed='true'] {
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .tiles {
     flex: 1;

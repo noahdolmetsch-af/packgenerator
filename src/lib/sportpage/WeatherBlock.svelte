@@ -5,6 +5,7 @@
    * with it at your back), rain and cold for the others.
    */
   import { Wind, CloudRain, Thermometer } from '@lucide/svelte';
+  import Empty from '../ui/Empty.svelte';
   import { windTip, addDays } from '../sportshelp.js';
   import { t, num } from '../i18n.svelte.js';
 
@@ -14,7 +15,7 @@
 </script>
 
 {#if !list.length}
-  <p class="none">{t('No weather yet. Set your home place on Today, then the forecast shows here.')}</p>
+  <Empty size="klein" text={t('No weather yet. Set your home place on Today, then the forecast shows here.')} action={{ label: t('Open Today'), href: '#/' }} />
 {:else}
   <ul class="ilist">
     {#each list as d, i (d.date)}

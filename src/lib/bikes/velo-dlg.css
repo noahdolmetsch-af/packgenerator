@@ -104,9 +104,9 @@ dialog.sheet.vdlg {
 .vd-chip[aria-pressed='true'],
 .vd-chip[aria-checked='true'],
 .vd-chip:has(input:checked) {
-  background: var(--ink);
-  border-color: var(--ink);
-  color: var(--paper);
+  background: var(--hi);
+  border-color: var(--hi);
+  color: var(--hi-ink);
 }
 .vd-chip input {
   position: absolute;

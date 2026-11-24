@@ -589,8 +589,6 @@
     color: var(--ink-3);
     font-size: var(--fs-tiny);
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
     white-space: nowrap;
   }
   .ms {

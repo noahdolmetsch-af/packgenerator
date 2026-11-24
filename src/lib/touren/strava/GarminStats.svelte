@@ -34,8 +34,6 @@
     color: var(--ink-2);
     font-size: var(--fs-tiny);
     font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
   }
   dl {
     margin: 0;

@@ -758,9 +758,9 @@
     cursor: pointer;
   }
   .chip[aria-pressed='true'] {
-    background: var(--ink);
-    color: var(--paper);
-    border-color: var(--ink);
+    background: var(--hi);
+    color: var(--hi-ink);
+    border-color: var(--hi);
   }
   .chip:disabled {
     opacity: 0.4;

@@ -241,8 +241,6 @@
     margin: 8px 2px 0;
     font-size: var(--fs-small);
     font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
     color: var(--ink-3);
   }
   .bc-row {

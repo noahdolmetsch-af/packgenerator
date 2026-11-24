@@ -350,9 +350,9 @@
     cursor: pointer;
   }
   .dpe-size[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .dpe-size:disabled {
     opacity: 0.4;
@@ -400,9 +400,9 @@
   }
   .dpe-chip[aria-pressed='true'],
   .dpe-free[aria-current='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .dpe-chip:disabled {
     opacity: 0.4;

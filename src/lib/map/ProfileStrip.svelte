@@ -382,9 +382,9 @@
     opacity: 0.6;
   }
   .ps-btn[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .ps-range,
   .ps-read {

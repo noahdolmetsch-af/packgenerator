@@ -957,7 +957,7 @@
   .wait h2 { margin: 0 0 4px; font: 600 var(--fs-sub) / 1.3 var(--font-body); }
   .wait p { margin: 0; }
   .dbox { display: grid; place-items: center; flex: none; width: 56px; height: 60px; border-radius: var(--r-ctl); background: var(--paper-2); color: var(--ink); }
-  .dbox small { font-size: var(--fs-tiny); text-transform: uppercase; color: var(--ink-3); }
+  .dbox small { font-size: var(--fs-tiny); color: var(--ink-3); }
   .dbox b { font: 700 var(--fs-section)/1 var(--font-body); }
   .parked-solo { display: flex; justify-content: center; margin: 12px 0; }
   .parked-solo .btn { display: inline-flex; align-items: center; gap: 6px; }

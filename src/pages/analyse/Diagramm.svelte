@@ -488,8 +488,6 @@
     margin: 0;
     font-size: var(--fs-label);
     color: var(--ink-3);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
   }
   @media (max-width: 900px) {
     .chg {
@@ -511,8 +509,6 @@
   .pl {
     color: var(--ink-3);
     font-size: var(--fs-label);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
   }
   .row {
     display: flex;

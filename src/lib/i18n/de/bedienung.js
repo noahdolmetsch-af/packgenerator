@@ -16,6 +16,8 @@ export default {
   'A quiet line above the title, for example Plan › Week, so you see where you are. Pages with their own path keep it.': 'Eine ruhige Zeile über dem Titel, zum Beispiel Planen › Woche, damit du siehst, wo du bist. Seiten mit eigenem Pfad behalten ihren.',
   'Search can act': 'Suche kann handeln',
   'The search also offers backup, settings, a quick note or a bike.': 'Die Suche bietet auch Backup, Einstellungen, eine schnelle Notiz oder ein Velo an.',
+  'Colour per area': 'Farbe pro Bereich',
+  'Each area has its own colour: the + button, chosen chips and the line under the tab follow it. Off: one green everywhere.': 'Jeder Bereich hat seine Farbe: der +-Knopf, gewählte Chips und die Linie unter dem Reiter folgen ihr. Aus: überall dasselbe Grün.',
   'High contrast (outdoors)': 'Hoher Kontrast (draussen)',
   'Darker text and stronger lines, easier to read in the sun.': 'Dunklere Schrift und kräftigere Linien, besser lesbar in der Sonne.',
   'Settings: appearance and handling': 'Einstellungen: Darstellung und Bedienung',
