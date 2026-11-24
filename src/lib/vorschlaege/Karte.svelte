@@ -40,7 +40,8 @@
   const greySet = $derived(new Set(grey));
   const count = $derived(countBy(tours));
   const lit = $derived(Object.keys(light).length > 0);
-  const drawn = $derived(tours.map((x) => ({ id: x.id, title: x.title, light: light[x.id] ?? null, hard: x.cond === 'difficult', grey: greySet.has(x.id), d: pathOf(x.line), start: toXY(x.line[0]) })));
+  // day tours start where their first stage starts: the map draws the stages only (the numbers per canton count both)
+  const drawn = $derived(tours.filter((x) => !x.days).map((x) => ({ id: x.id, title: x.title, light: light[x.id] ?? null, hard: x.cond === 'difficult', grey: greySet.has(x.id), d: pathOf(x.line), start: toXY(x.line[0]) })));
 </script>
 
 <figure class="karte" bind:clientWidth={cw} data-vs-karte>
