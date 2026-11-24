@@ -8,4 +8,3 @@
 - **Bewegung (4a):** Dauer-Werte 120/200/320 ms (`--t-fast`, `--t-base`, `--t-sheet`), Momente: Haken wächst kurz, eine erledigte oder gelöschte Zeile klappt weg, Aufklappen gleitet. Alles steht still bei «Bewegung: Aus» und bei reduzierter Bewegung.
 - **Zahlen und Icons (5a):** Diagramm-Hauptfarbe folgt der Bereichsfarbe; `Stat` (`src/lib/ui/Stat.svelte`) ist der eine Zahlenstil; Icon-Grössen 14/16/20/24 mit Strich 2; Wetter hat ein eigenes Symbol (Wolke mit Sonne); ✓ ★ ✕ stehen als Icons.
 - Nicht in dieser Runde (Noah): Tippflächen am Handy (7), neue Teile (8).
-- **Runde 2 (Noah «1-7 alle, zuerst 1-4», 24.11.2026 17:02):** Zahlenstil `Stat` auch in Woche; Icon-Leiter 14/16/20/24 (18 wird 20) mit Strich 2 und Test `tests/icons.test.js`; Bereitschaft-Ring in Statusfarbe; Zeichen im Markup werden Icons; «Tour aus komoot» ist ein Text-Link (Knopf-Formen Touren: Haupt, Neben als Text-Link).
