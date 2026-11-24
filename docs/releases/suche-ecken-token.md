@@ -1,6 +1,6 @@
 # Suche: Ecken aus dem Token
 
-PR #1728 · 24.11.2026 · Auftrag: Bündler (Main rot nach Zusammentreffen der Suche, PR 1725, mit «App schöner Runde 1», PR 1716)
+PR #1730 · 24.11.2026 · Auftrag: Bündler (Main rot nach Zusammentreffen der Suche, PR 1725, mit «App schöner Runde 1», PR 1716)
 
 ## Was ist neu
 - Nichts Sichtbares geändert, nur: zwei Ecken-Werte in `src/lib/nav/Search.svelte` (`border-radius: 10px`) stehen jetzt als `var(--r-ctl)` (gleicher Wert, 10 px). Das behebt den roten Stil-Test (`tests/style-lint.test.js`) auf main.
