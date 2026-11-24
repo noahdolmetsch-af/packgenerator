@@ -1,0 +1,30 @@
+// «Klügere Suche» (Noah 24.11.2026 «1-5a», Stufe 1): Seiten und Funktionen vor Material, Filterknöpfe, Themen im leeren Feld
+export default {
+  title: 'A smarter search',
+  lead: 'The search puts pages and functions first and keeps your gear out of the way, unless you are looking for gear.',
+  points: [
+    { text: 'Pages and functions come first, then trips, bikes and notes; your gear is one folded line', go: { href: '#/', steps: [{ aria: 'Search everything' }], where: 'The search field at the top; on a phone the magnifying glass.' } },
+    { text: 'Buttons under the field narrow the search to pages, trips, bikes, notes or gear', go: { href: '#/', steps: [{ aria: 'Search everything' }], where: 'The search field at the top; type two letters.' } },
+    { text: 'On the gear pages the search puts gear first; an empty field shows six topics', go: { href: '#/gear', steps: [{ aria: 'Search everything' }], where: 'The search on Gear, or the empty search anywhere.' } },
+  ],
+  small: [{ box: 'new', text: 'Matches only in running text come last, under «Mentioned further down»' }, { box: 'new', text: 'The search learns when you often open gear for a word; you can switch it off in Me › Search' }, { box: 'new', text: 'A question no longer offers «Add as a new item»' }],
+  test: ['On Today, search «trikot»: no gear first, one folded line «Gear: n items»; tap it to see them.', 'Tap «Gear» under the field: only your gear.', 'Open Gear, search «trikot»: gear stands first.', 'Empty the field: six topics stand there; tap one to see its pages.'],
+  since: [],
+  de: {
+    'A smarter search': 'Eine klügere Suche',
+    'The search puts pages and functions first and keeps your gear out of the way, unless you are looking for gear.': 'Die Suche zeigt Seiten und Funktionen zuerst und hält dein Material aus dem Weg, ausser du suchst Material.',
+    'Pages and functions come first, then trips, bikes and notes; your gear is one folded line': 'Seiten und Funktionen kommen zuerst, dann Touren, Velos und Notizen; dein Material ist eine zugeklappte Zeile',
+    'The search field at the top; on a phone the magnifying glass.': 'Das Suchfeld oben; am Handy die Lupe.',
+    'Buttons under the field narrow the search to pages, trips, bikes, notes or gear': 'Knöpfe unter dem Feld grenzen die Suche auf Seiten, Touren, Velos, Notizen oder Material ein',
+    'The search field at the top; type two letters.': 'Das Suchfeld oben; tippe zwei Buchstaben.',
+    'On the gear pages the search puts gear first; an empty field shows six topics': 'Auf den Material-Seiten steht Material in der Suche zuerst; ein leeres Feld zeigt sechs Themen',
+    'The search on Gear, or the empty search anywhere.': 'Die Suche im Material oder die leere Suche irgendwo.',
+    'Matches only in running text come last, under «Mentioned further down»': 'Treffer nur im Fliesstext stehen zuletzt, unter «Weiter unten erwähnt»',
+    'The search learns when you often open gear for a word; you can switch it off in Me › Search': 'Die Suche lernt, wenn du für ein Wort oft Material öffnest; unter Ich › Suche kannst du es abschalten',
+    'A question no longer offers «Add as a new item»': 'Bei einer Frage steht nicht mehr «Als neues Teil anlegen»',
+    'On Today, search «trikot»: no gear first, one folded line «Gear: n items»; tap it to see them.': 'Suche auf Heute «Trikot»: kein Material zuerst, eine zugeklappte Zeile «Material: n Teile»; tippe darauf, um sie zu sehen.',
+    'Tap «Gear» under the field: only your gear.': 'Tippe unter dem Feld auf «Material»: nur dein Material.',
+    'Open Gear, search «trikot»: gear stands first.': 'Öffne Material und suche «Trikot»: Material steht zuerst.',
+    'Empty the field: six topics stand there; tap one to see its pages.': 'Leere das Feld: sechs Themen stehen da; tippe eines an, um seine Seiten zu sehen.',
+  },
+};

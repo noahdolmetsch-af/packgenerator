@@ -194,9 +194,9 @@
     cursor: not-allowed;
   }
   .chip[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   .tsel {
     margin-top: 8px;

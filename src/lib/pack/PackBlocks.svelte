@@ -134,7 +134,7 @@
   }
   .cnt { font-weight: 600; color: var(--ink-2); }
   .ssub { margin: 4px 0 4px; color: var(--ink-2); font-size: var(--fs-small); overflow-wrap: break-word; }
-  .grp-l { margin: 14px 0 8px; font-size: var(--fs-tiny); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-2); }
+  .grp-l { margin: 14px 0 8px; font-size: var(--fs-tiny); font-weight: 600; color: var(--ink-2); }
   .obig { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); gap: 16px 10px; padding-top: 6px; }
   .slim, .pnote { margin: 12px 0 0; font-size: var(--fs-small); }
   /* SN3+: what fits this trip, one quiet line with the way to the rules */

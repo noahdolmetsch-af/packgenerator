@@ -60,7 +60,8 @@ describe('FE10 speak instead of type', () => {
 
 describe('the switches', () => {
   it('everything on except high contrast; a stored 1 or 0 wins', () => {
-    expect(OPS.filter((o) => o.on).map((o) => o.key)).toEqual(['speak', 'keys', 'buzz', 'quiet', 'search', 'path', 'dotplan', 'dottrips', 'nussgipfel', 'murmeltier', 'mundart', 'heutebild', 'improve']);
+    expect(OPS.filter((o) => o.on).map((o) => o.key)).toEqual(['speak', 'keys', 'buzz', 'quiet', 'search', 'path', 'dotplan', 'dottrips', 'nussgipfel', 'murmeltier', 'mundart', 'heutebild', 'improve', 'areacolor']);
+    expect(opOf('areacolor', '0')).toBe(false); // «Farbe pro Bereich» (Noah 24.11.2026): on by default, one switch turns it off
     expect(opOf('contrast', null)).toBe(false);
     expect(opOf('contrast', '1')).toBe(true);
     expect(opOf('keys', null)).toBe(true);

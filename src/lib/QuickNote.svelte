@@ -1,5 +1,6 @@
 <script>
   import { activeBikes } from './bikeretire.js';
+  import { Check } from '@lucide/svelte';
   import { backClose } from './ui/backclose.js';
   /**
    * Quick note (v0.19.3, Noah 4.10.2026, answers 1a-3a). Since v0.19.6 (answer 4a) it opens from
@@ -209,7 +210,7 @@
     {#if msg}<p class="err" role="alert">{msg}</p>{/if}
     <div class="foot">
       <button type="submit" class="btn hi">{t('Save')}</button>
-      <button type="button" class="link" onclick={discard}>{autoId ? t('Discard') : t('Cancel')}</button>{#if autoId}<span class="kept" role="status">✓ {t('Saved')}</span>{/if}
+      <button type="button" class="link" onclick={discard}>{autoId ? t('Discard') : t('Cancel')}</button>{#if autoId}<span class="kept" role="status"><Check size={14} class="ic-in" aria-hidden="true" /> {t('Saved')}</span>{/if}
       <a class="link inb" href="#/inbox" onclick={() => dialog.close()}>{t('Inbox')}{$openQ ? ` (${$openQ})` : ''}</a>
     </div>
   </form>
@@ -253,9 +254,9 @@
     cursor: pointer;
   }
   .chip[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   .hint {
     margin: 0 0 8px;

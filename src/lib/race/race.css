@@ -61,9 +61,9 @@
   cursor: pointer;
 }
 .rc-chip[aria-pressed='true'] {
-  border-color: var(--ink);
-  background: var(--ink);
-  color: var(--paper);
+  border-color: var(--hi);
+  background: var(--hi);
+  color: var(--hi-ink);
 }
 .rc-list {
   display: flex;
@@ -187,8 +187,6 @@
 .rc-kick {
   color: var(--ink-3);
   font: 600 var(--fs-tiny) var(--font-body);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
 }
 .rc-big {
   margin: 0;

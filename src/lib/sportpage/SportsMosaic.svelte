@@ -5,6 +5,7 @@
    * list: the sports in order, rows: { sport, dayMap, goal }, cfg: the sports settings (colours).
    */
   import { mosaic } from '../sportshelp.js';
+  import Empty from '../ui/Empty.svelte';
   import { colorOf } from '../sportsbase.js';
   import { sportName } from './words.js';
   import { phone } from '../media.svelte.js';
@@ -35,7 +36,7 @@
     {/each}
   </ul>
 {:else}
-  <p class="none">{t('Nothing done in this time yet. Tick an activity in Aktiv or finish a trip, then it shows here.')}</p>
+  <Empty size="klein" text={t('Nothing done in this time yet. Tick an activity in Aktiv or finish a trip, then it shows here.')} action={{ label: t('Tick off today'), href: '#/flow' }} />
 {/if}
 {#if grid.length > shown.length || showAll}
   <button type="button" class="lnk" onclick={() => (showAll = !showAll)} data-mosaic-all>{showAll ? t('Only the active ones') : tn(grid.length - shown.length, 'Show {n} more sport', 'Show {n} more sports')}</button>

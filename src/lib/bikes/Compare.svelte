@@ -314,8 +314,6 @@
     left: 14px;
     color: var(--ink-3);
     font: 600 var(--fs-small) / 1.3 var(--font-body);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
   .morebtn {
     position: sticky;

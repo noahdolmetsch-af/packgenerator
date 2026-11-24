@@ -20,6 +20,8 @@
   import { deleteWithUndo } from '../ui/ask.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import { t } from '../i18n.svelte.js';
+  import { flip } from 'svelte/animate';
+  import { rowOut, flipOpts } from '../ui/rowout.js'; // «Bewegung» 4a: a ticked to-do folds away and the rest moves up
 
   // today; weekTodos: the to-dos of week.items [{ id, title, day, done }]; ontick, onmove(item, day), onedit(item) change those
   let { today, weekTodos = [], ontick, onmove, onedit } = $props();
@@ -103,7 +105,7 @@
       <h2 id="tg-{k}">{t(HEAD[k])} <small class="n">{rows[k].length}</small></h2>
       <ul>
         {#each rows[k] as r (r.key)}
-          <li>
+          <li out:rowOut animate:flip={flipOpts()}>
             <button type="button" class="tick" aria-label={t('Tick off «{name}»', { name: r.title })} onclick={() => tickRow(r)}><Check size={14} aria-hidden="true" /></button>
             <button type="button" class="what" data-todo={r.key} onclick={() => openRow(r)}><b>{r.title}</b>{#if subOf(r, k)}<small>{subOf(r, k)}</small>{/if}</button>
             {#if r.due !== today}<button type="button" class="tod" onclick={() => toToday(r)} aria-label={t('Move «{name}» to today', { name: r.title })}>{t('Today')}</button>{/if}

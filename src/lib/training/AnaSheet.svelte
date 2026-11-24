@@ -61,8 +61,6 @@
     margin: 16px 0 0;
     color: var(--ink-3);
     font: 600 var(--fs-tiny) / 1.3 var(--font-body);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
   }
   .rows {
     list-style: none;

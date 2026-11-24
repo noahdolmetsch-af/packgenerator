@@ -802,8 +802,6 @@
     margin: 0 2px 8px;
     color: var(--ink-2);
     font-size: var(--fs-small);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
   }
   .plot {
     display: grid;

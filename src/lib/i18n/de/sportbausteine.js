@@ -345,4 +345,7 @@ export default {
   'Each colour is a sport.': 'Jede Farbe ist eine Sportart.',
   'Tap «Adjust blocks».': 'Tippe auf «Bausteine anpassen».',
   'Add an extra block under «Add a block».': 'Nimm unter «Baustein hinzufügen» einen Zusatz-Baustein dazu.',
+  // «Leere Zustände» (Noah 24.11.2026 «3a»): the quiet button under an empty part of a page
+  'Open Today': 'Heute öffnen',
+  'Open my activities': 'Meine Aktivitäten öffnen',
 };

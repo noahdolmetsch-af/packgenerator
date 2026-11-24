@@ -5,6 +5,7 @@
    * Used in the Gear rows and in Pack's "Not packed". describedby: id of the element with the item's name.
    */
   import { db } from '../db.js';
+  import { Star } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
 
   let { item, describedby = undefined, size = 'md' } = $props();
@@ -34,7 +35,7 @@
   aria-describedby={describedby}
   title={on ? t('Remove from favourites') : t('Mark as favourite')}
   onclick={flip}
-><span aria-hidden="true">{on ? '★' : '☆'}</span></button>
+><Star size={size === 'sm' ? 16 : 20} fill={on ? 'currentColor' : 'none'} aria-hidden="true" /></button>
 
 <style>
   .fav {

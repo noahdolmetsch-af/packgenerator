@@ -139,8 +139,6 @@
   }
   .lab {
     font-size: var(--fs-tiny);
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
     color: var(--ink-3);
     white-space: nowrap;
     overflow: hidden;

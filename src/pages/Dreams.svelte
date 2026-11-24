@@ -483,8 +483,8 @@
     font-weight: 600;
   }
   .mo[aria-pressed='true'] {
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .dots {
     display: flex;

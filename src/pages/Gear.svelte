@@ -1527,8 +1527,8 @@
     border-left: 1.5px solid var(--line-strong);
   }
   .seg button[aria-pressed='true'] {
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   @media (pointer: coarse) {
     .seg button {
@@ -2483,9 +2483,9 @@
     color: var(--ink-2);
   }
   .selbtn[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
     text-decoration: none;
   }
   .badge {
@@ -2502,8 +2502,6 @@
     margin: 14px 0 6px;
     color: var(--ink-2);
     font: 600 var(--fs-tiny) / 1.3 var(--font-body);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
   }
   /* every view says in one sentence what it shows: quiet, above the list */
   .vhead {

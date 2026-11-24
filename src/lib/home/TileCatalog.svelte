@@ -111,16 +111,14 @@
     cursor: pointer;
   }
   .chip[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   .cg {
     margin: 14px 0 6px;
     color: var(--ink-3);
     font: 600 var(--fs-small)/1.3 var(--font-body);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
   .cl {
     list-style: none;

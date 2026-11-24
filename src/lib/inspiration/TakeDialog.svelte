@@ -223,8 +223,6 @@
     margin: 0;
     color: var(--ink-2);
     font: 600 var(--fs-tiny) / 1.3 var(--font-body);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
   }
   .td-sheet {
     display: grid;

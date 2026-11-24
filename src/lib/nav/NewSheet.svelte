@@ -246,9 +246,9 @@
     cursor: pointer;
   }
   .qchip[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   .new {
     width: min(760px, calc(100vw - 24px));
@@ -287,8 +287,6 @@
     margin: 14px 0 6px;
     color: var(--ink-2);
     font: 600 var(--fs-tiny)/1.4 var(--font-body);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
   .opts {
     list-style: none;

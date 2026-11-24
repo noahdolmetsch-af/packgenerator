@@ -111,6 +111,7 @@ export const GERAET_DATEIEN = {
   'lib/ridejourney.js': 'laufend',
   'lib/ski/SkiTurn.svelte': 'gemerkt',
   'lib/strava/client.svelte.js': 'privat',
+  'lib/suche/lernen.js': 'bewusst', // «Die Suche lernt, was du öffnest» (Noah 24.11.2026 «1-4a»): nur auf diesem Gerät, nicht im Backup
   'lib/suche/suche.svelte.js': 'ansicht',
   'lib/sync/SyncPanel.svelte': 'laufend',
   'lib/sync/auto.svelte.js': 'laufend',
