@@ -19,6 +19,10 @@ Noah 24.11.2026 17:19: «ich möchte für jeden PR vor merge bilder sehen … di
 - Merge-Prüfung (Basis `main`, konfliktfrei, linearer Zweig): `CLAUDE.md`.
 ~~~~
 
+## Ersetzt am 24.11.2026 18:07: «Entwurf vor dem Bauen» als Bild für Noah (Block 5)
+
+Block 5 vom 17:19 sagte: «Entweder **vor dem Bauen** als Entwurf oder **nach dem Bauen** vom fertigen PR, **wenn möglich mit Noahs aktuellen Daten** …». Ersetzt durch Noah 24.11.2026 18:07 und 18:08 («bilder immer im app design … das gilt immer überall»): Bilder nur aus der echten, gebauten App, ein Bildschirm pro Bild, daneben das Bild der heutigen Online-Version, Prüfung mit impeccable vor dem Senden.
+
 ## Ersetzt am 24.11.2026 16:58: PR-Grenze «höchstens 6 offen, Ziel 5»
 
 - Noah 24.11.2026 16:38 «lass uns die grenze auf 5-6 herunter tun. 6-9 ist mir zu vieles gleichzeitig»: «Höchstens 6 PRs offen, Ziel 5. Neues erst bauen, wenn höchstens 5 offen sind.» (Regeln R11.1, R12, R13, Block 4 der ersten Fassung der neun Blöcke.)

@@ -48,9 +48,14 @@ So fühlt sich die App für Nutzer an, auf jeder Seite:
 
 ## Block 5 · Freigabe und Merge
 
-(Noah 24.11.2026 17:19 «ich möchte für jeden PR vor merge bilder sehen», ersetzt die Freigabe «alles frei» vom 23.11.2026, `docs/decisions/alles-freigegeben.md` ist jetzt Verlauf; Noah «1-5a» 24.11.2026 16:50; Bilder Noah 24.11.2026 16:53 und 16:54 «1a».)
-- **Sichtbare Änderung: Noah sieht die Bilder vor dem Merge und gibt sie frei** (Noah 17:19: «aktuell kommen die Bilder erst nachdem PR online geht. das ist oftmals zu spät»). Entweder **vor dem Bauen** als Entwurf oder **nach dem Bauen** vom fertigen PR, **wenn möglich mit Noahs aktuellen Daten**
-  (diese Bilder nur privat im Thread, nie in Repo, PR oder öffentlich; Block 8). Noah gibt die Bilder frei, die Freigabe geht an den Bündler, und **wenn die Prüfung grün ist und Platz ist, geht es online**.
+(Noah 24.11.2026 17:19 «ich möchte für jeden PR vor merge bilder sehen», 18:07 und 18:08 «bilder immer im app design … das gilt immer überall», ersetzt die Freigabe «alles frei» vom 23.11.2026, `docs/decisions/alles-freigegeben.md` ist jetzt Verlauf; Noah «1-5a» 24.11.2026 16:50; Bilder Noah 24.11.2026 16:53 und 16:54 «1a».)
+- **Sichtbare Änderung: Noah sieht die Bilder vor dem Merge und gibt sie frei** (Noah 17:19: «aktuell kommen die Bilder erst nachdem PR online geht. das ist oftmals zu spät»). Die Bilder kommen **nach dem Bauen** vom fertigen PR, **wenn möglich mit Noahs aktuellen Daten**
+  (diese Bilder nur privat im Thread, nie in Repo, PR oder öffentlich; Block 8). Bei Grossem (Block 2) kann vorher ein Entwurf kommen; er ersetzt die Bilder der gebauten App nicht. Noah gibt die Bilder frei, die Freigabe geht an den Bündler, und **wenn die Prüfung grün ist und Platz ist, geht es online**.
+- **Bilder immer im App-Design** (Noah 24.11.2026 18:07 und 18:08: «ich habe das gefühl, dass das oft nicht der fall ist und die von dir gezeigten bilder deutlich von dem abweicht, wie es online nachher aussieht … das gilt immer überall»):
+  - Bilder kommen **nur aus der echten, gebauten App mit dem neuen Stand** (derselbe Build wie online). Keine gezeichneten Skizzen, keine Bilder vom Entwicklungs-Server, die anders aussehen als online.
+  - **Jedes Bild zeigt genau einen Bildschirm** mit Kopf und Leiste unten, keine ganze lange Seite.
+  - Daneben steht **immer dasselbe Bild der heutigen Online-Version** (vorher und nachher).
+  - **Vor dem Senden prüft der Thread die Bilder selbst mit impeccable** gegen das App-Design (Farben, Schrift, Ecken, Abstände, Kopf und Leiste); weichen sie ab, wird zuerst die Aufnahme oder die App korrigiert.
 - **Ohne sichtbare Änderung** (Test, Doku, CI, Wächter-Reparaturen) genügt der Satz «Nichts Sichtbares geändert, nur …» (Noah «1a» 24.11.2026 16:54); solche PRs gehen bei Grün ohne Freigabe online. Nie mergen bei roter Prüfung.
 - **Ausnahme: Noahs Daten könnten verloren gehen** (Löschen, Backup, Sync, Datenbank, `api/`). Dann fragt der Thread **zuerst Noah** und merged erst nach seiner Antwort. Vorher: Test mit der Kopie eines Backups und ein frisches Backup von Noah bereit
   (der Thread bittet ihn darum, wenn sein letztes älter als ein Tag ist; es liegt in `/mnt/project-files/private/`, nie im Repo).
@@ -60,10 +65,10 @@ So fühlt sich die App für Nutzer an, auf jeder Seite:
 
 ## Block 6 · Nach dem Merge
 
-(Noah 23.11.2026 13:17, 20:46; Noah 24.11.2026 01:24, 02:24, 16:53 und 17:19.)
+(Noah 23.11.2026 13:17, 20:46; Noah 24.11.2026 01:24, 02:24, 16:53, 17:19 und 18:07.)
 - **Live-Test im Browser** auf der echten Seite (Handy 390, Computer 1440), Prüfschritte durchgehen, Konsole lesen. Bei Fehler zuerst beheben.
 - **«Online» erst nach grünem Deploy** (GitHub Pages; bei `api/` auch Vercel «packgen» bereit und neu deployen). Die Meldung ist **eine Zeile** mit Thread-Link, Link zur Seite, Testanleitung, und die PR-Nummer in Worten.
-- **Bilder** (die Bilder vor dem Merge aus Block 5 und die Live-Bilder nach dem Merge): Handy und Computer, **App und Browser auf Deutsch**, die Bilder **zeigen die Änderung selbst**, nötigenfalls mit erfundenen Beispieldaten. Eine leere App zählt nicht. Wo möglich mit Noahs aktuellen Daten, dann nur privat im Thread (Block 8). Ablage `/mnt/project-files/online-bilder/<PR>/`; der Koordinator hängt sie an.
+- **Bilder** (die Bilder vor dem Merge aus Block 5, mit ihren Regeln zum App-Design, und die Live-Bilder nach dem Merge): Handy und Computer, **App und Browser auf Deutsch**, die Bilder **zeigen die Änderung selbst**, nötigenfalls mit erfundenen Beispieldaten. Eine leere App zählt nicht. Wo möglich mit Noahs aktuellen Daten, dann nur privat im Thread (Block 8). Ablage `/mnt/project-files/online-bilder/<PR>/`; der Koordinator hängt sie an.
 
 ## Block 7 · Tests
 
