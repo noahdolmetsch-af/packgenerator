@@ -126,9 +126,14 @@ test('Live map on the sample race: km, stops ahead, climb, arrival, SOS, stop', 
   // one heading in the window (Noah 27.10.2026: two headings in the window were too much)
   await expect(page.locator('[data-live-near] h2, [data-live-near] h3')).toHaveCount(1);
   // the app at 130 % («Grösse», CSS zoom on <html>): still no sideways scroll
+  // The pin marks (PinMarks.svelte) measure again one frame after the page changed size, so the check waits for that
+  // (three frames) instead of reading the pins where they stood before the zoom.
+  const frames = () => page.evaluate(() => new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(ok)))));
   await page.evaluate(() => (document.documentElement.style.zoom = '1.3'));
+  await frames();
   await noSideways(page, 'zoom 130 %');
   await page.evaluate(() => (document.documentElement.style.zoom = ''));
+  await frames();
   await noSideways(page, 'riding');
 
   // the Navigate menu: Google Maps and OsmAnd

@@ -69,10 +69,13 @@ test('36: the kinds of suggestions switch on «Ausgeblendet und aus»; Darstellu
   await sw.uncheck();
   await expect(sw).not.toBeChecked();
   // the switch is saved in the database; after a reload it stays off
+  // (the page gets its time to open after each reload: a reload every 2 s cut the opening off again and again on a busy machine)
   await expect(async () => {
     await page.reload();
-    await expect(page.locator('[data-aus="kinds"] [data-suggest-kind="impulse"]')).not.toBeChecked({ timeout: 2000 });
-  }).toPass({ timeout: 15000 });
+    const again = page.locator('[data-aus="kinds"] [data-suggest-kind="impulse"]');
+    await expect(again).toBeVisible({ timeout: 12_000 });
+    await expect(again).not.toBeChecked({ timeout: 1000 });
+  }).toPass({ timeout: 45_000 });
 });
 
 // Einzelideen 28, 33, 35 (Noah 26.10.2026 «1a 2a 3a 4a 5a»)

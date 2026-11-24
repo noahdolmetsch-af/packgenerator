@@ -61,6 +61,8 @@ test('Ich › Projekt-Ablage shows the ideas and the way', async ({ page, contex
   const errors = await prep(page, context);
   await page.goto('./#/me');
   await ready(page);
+  // Ich aufräumen (Noah 24.11.2026): the project shelf waits under the closed «More»
+  await page.locator('details.ich-sec.fold > summary', { hasText: /Mehr|More/ }).click();
   await page.locator('a[data-row="next"]').click();
   await expect(page).toHaveURL(/#\/me\/next$/);
   const root = page.locator('[data-page="projekt-ablage"]');
