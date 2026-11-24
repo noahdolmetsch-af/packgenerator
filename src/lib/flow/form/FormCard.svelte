@@ -10,6 +10,7 @@
   import { RAMP_MAX } from '../../form.js';
   import { levelWord, answerLine, partText, tourText } from './words.js';
   import { dayAnswer } from './tagesantwort.js';
+  import TagesVorschlag from './TagesVorschlag.svelte';
   import { t, num } from '../../i18n.svelte.js';
 
   let { today } = $props();
@@ -22,6 +23,7 @@
 </script>
 
 {#if f}
+  <div class="fcw">
   <a class="card fc" href="#/flow/form" data-section="form" data-level={ans?.level ?? 'none'}>
     {#if r}
       <svg class="ring" viewBox="0 0 100 100" aria-hidden="true">
@@ -49,9 +51,17 @@
       </ul>
     {/if}
   </a>
+  <!-- Tagesvorschlag (Noah 24.11.2026 «1-5a»): outside the link of the card -->
+  {#if r}<TagesVorschlag level={ans.level} />{/if}
+  </div>
 {/if}
 
 <style>
+  .fcw {
+    display: grid;
+    gap: var(--sp-1);
+    min-width: 0;
+  }
   .fc {
     position: relative;
     display: grid;
