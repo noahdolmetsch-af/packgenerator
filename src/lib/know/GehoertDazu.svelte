@@ -14,7 +14,8 @@
   import CardFold from '../ui/CardFold.svelte';
   import { afterTitle } from '../ui/nachtitel.js';
 
-  let { page = '', hash = '' } = $props();
+  // inline: the card stands in the row of «What you can do here» (Velos on a phone, App.svelte): it keeps its place there
+  let { page = '', hash = '', inline = false } = $props();
   const moment = $derived(PAGE_MOMENT[page] ?? null);
   const dataQ = liveQuery(featureData);
   const notQ = liveQuery(async () => notForMeOf((await db.settings.get(NOT_KEY))?.value));
@@ -22,7 +23,7 @@
 </script>
 
 <!-- Durchklick-Fund 2 (Noah «2a»): the card is a closed line behind the title and behind the line «What you can do here» -->
-<div class="gd-host" data-gehoert-host use:afterTitle={{ behind: '[data-seiteninhalt-host], [data-suchehier-host]' }}>
+<div class="gd-host" class:inline data-gehoert-host use:afterTitle={inline ? { skip: true } : { behind: '[data-seiteninhalt-host], [data-suchehier-host]' }}>
 {#if row && row.items.length}
   <CardFold id="gd:{page}" label={t('Belongs to {moment}', { moment: t(momentName(moment)) })} count={row.total} always>
   <nav class="gd" aria-labelledby="gd-h" data-gehoert={moment}>
@@ -45,6 +46,10 @@
   }
   .gd-host:not([data-placed]) {
     display: none;
+  }
+  .gd-host.inline,
+  .gd-host.inline:not([data-placed]) {
+    display: contents;
   }
   .gd {
     margin: 0 0 12px;

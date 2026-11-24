@@ -54,7 +54,7 @@ export function placeAfter(h1, main, win = window) {
  */
 export function afterTitle(host, opts = {}) {
   const main = host.closest('main');
-  if (!main) return {};
+  if (!main || opts?.skip) return {}; // skip: the card keeps the place its parent gave it
   const home = document.createComment('si-home'); // where App.svelte put the card: the fallback and the way back
   host.before(home);
   let raf = 0;
