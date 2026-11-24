@@ -234,7 +234,7 @@
 </script>
 
 <section class="wx" data-page="wetter">
-  <PageHead title={t('Weather')} text={t('The weather for riding: today, the best time for a ride, the rain radar and your webcams. Everything is a suggestion.')} />
+  <PageHead title={t('Weather')} text={t('The weather for riding: today, the best time, the rain radar and your webcams.')} />
 
   <div class="wx-chips wx-tabs" role="tablist" aria-label={t('Parts of the weather page')} data-wx-tabs>
     {#each TABS as k (k)}
