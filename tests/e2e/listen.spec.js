@@ -80,7 +80,7 @@ test('a list pinned to Active stands on Active and not on Analysis', async ({ pa
   await expect(page).toHaveURL(/#\/calendar\/list\//);
   await page.evaluate(() => (location.hash = '#/flow'));
   await expect(main.locator('[data-pinned="active"]')).toContainText('Dehnen');
-  await page.evaluate(() => (location.hash = '#/auswerten'));
+  await page.evaluate(() => (location.hash = '#/auswerten/uebersicht'));
   await expect(main.getByRole('heading', { name: T('Your questions') })).toBeVisible();
   await expect(main.locator('[data-pinned="active"]')).toHaveCount(0);
   expect(errors).toEqual([]);

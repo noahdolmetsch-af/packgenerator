@@ -66,6 +66,8 @@ export const GERAET_DATEIEN = {
   'lib/home/Continue.svelte': 'gemerkt',
   'lib/home/FlowCard.svelte': 'gemerkt',
   'lib/home/HomeWindow.svelte': 'gemerkt',
+  'lib/home/NeuSeitCard.svelte': 'gemerkt',
+  'lib/home/TagesSatz.svelte': 'gemerkt',
   'lib/home/homeFold.js': 'ansicht',
   'lib/i18n.svelte.js': 'ansicht',
   'lib/know/featureData.js': 'ansicht',
@@ -109,6 +111,7 @@ export const GERAET_DATEIEN = {
   'lib/ridejourney.js': 'laufend',
   'lib/ski/SkiTurn.svelte': 'gemerkt',
   'lib/strava/client.svelte.js': 'privat',
+  'lib/suche/lernen.js': 'bewusst', // «Die Suche lernt, was du öffnest» (Noah 24.11.2026 «1-4a»): nur auf diesem Gerät, nicht im Backup
   'lib/suche/suche.svelte.js': 'ansicht',
   'lib/sync/SyncPanel.svelte': 'laufend',
   'lib/sync/auto.svelte.js': 'laufend',

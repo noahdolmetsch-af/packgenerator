@@ -77,7 +77,7 @@ const median = (vals) => {
 };
 
 const DAY_MS = 864e5;
-const dayStr = new Map(); // ms of a day at noon UTC → «YYYY-MM-DD»: the 30 days before each of 365 days are looked up, not calculated
+const dayStr = new Map(); // ms of a day at noon UTC → «YYYY-MM-DD»: the 365 days before each day are looked up, not calculated
 function daysBefore(today, n) {
   const ms = Date.parse(`${today}T12:00:00Z`);
   if (!Number.isFinite(ms)) return Array.from({ length: n }, (_, i) => addDays(today, -1 - i));
@@ -93,21 +93,25 @@ function daysBefore(today, n) {
   });
 }
 
+/** The days that make the own normal: the 12 months before (Noah 24.11.2026 «4a», «Auswerten neu»); the last 28 are the second number. */
+export const RECOVERY_NORMAL_DAYS = 365;
+
 /**
- * Recovery of one day against the own normal (median of the 30 days before): the parts that count,
- * each { key, v, normal, delta, points } (points: + helps, − holds back).
+ * Recovery of one day against the own normal (median of the 12 months before, `normal28` = the last 28 days as the second number):
+ * the parts that count, each { key, v, normal, normal28, delta, points } (points: + helps, − holds back).
  * day: a row of messwerte.js dayTable (rhr, hrv, sleep in minutes); felt: { sleep, energy } 1–10 or null.
  */
 export function recoveryParts(table, today, felt = null) {
   const row = table.get(today) ?? {};
-  const before = daysBefore(today, 30).map((d) => table.get(d) ?? {});
+  const before = daysBefore(today, RECOVERY_NORMAL_DAYS).map((d) => table.get(d) ?? {});
+  const last28 = before.slice(0, 28);
   const parts = [];
   const rhrN = median(before.map((r) => r.rhr));
-  if (fin(row.rhr) != null && rhrN != null) parts.push({ key: 'rhr', v: row.rhr, normal: rhrN, delta: Math.round(row.rhr - rhrN), points: clamp(-(row.rhr - rhrN) * 4, -25, 12) });
+  if (fin(row.rhr) != null && rhrN != null) parts.push({ key: 'rhr', v: row.rhr, normal: rhrN, normal28: median(last28.map((r) => r.rhr)), delta: Math.round(row.rhr - rhrN), points: clamp(-(row.rhr - rhrN) * 4, -25, 12) });
   const hrvN = median(before.map((r) => r.hrv));
   if (fin(row.hrv) != null && hrvN) {
     const pct = Math.round(((row.hrv - hrvN) / hrvN) * 100);
-    parts.push({ key: 'hrv', v: row.hrv, normal: hrvN, delta: pct, points: clamp(pct * 0.6, -20, 12) });
+    parts.push({ key: 'hrv', v: row.hrv, normal: hrvN, normal28: median(last28.map((r) => r.hrv)), delta: pct, points: clamp(pct * 0.6, -20, 12) });
   }
   if (fin(row.sleep) != null) {
     const h = row.sleep / 60;

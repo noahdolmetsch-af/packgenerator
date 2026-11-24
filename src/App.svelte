@@ -432,6 +432,7 @@
     WardrobeSetup: () => import('./pages/WardrobeSetup.svelte'), // «Kleiderschrank einrichten» (Noah 21.11.2026 «1-5a 4b»): Kleider › Einrichten
     Flow: () => import('./pages/Flow.svelte'),
     Auswerten: () => import('./pages/AuswertenStart.svelte'),
+    AuswertenHeute: () => import('./pages/AuswertenHeute.svelte'),
     // Analyse PR 1 (Noah 27.10.2026 «1a»): Auswerten › Analyse, every value as a tile
     Analyse: () => import('./pages/Analyse.svelte'),
     Between: () => import('./pages/Between.svelte'),
@@ -696,7 +697,7 @@
     <LazyPage load={PAGES.Flow} sub={hash.split('/').slice(2).join('/')} />
   {:else if page === 'auswerten'}
     <!-- «Aktiv neu» (Noah 22.10.2026 «2a»): the start of Auswerten, what you look at -->
-    {#if hash.startsWith('#/auswerten/analyse')}<LazyPage load={PAGES.Analyse} />{:else}<LazyPage load={PAGES.Auswerten} />{/if}
+    {#if hash.startsWith('#/auswerten/analyse')}<LazyPage load={PAGES.Analyse} />{:else if /^#\/auswerten(\?|$)/.test(hash)}<LazyPage load={PAGES.AuswertenHeute} />{:else}<LazyPage load={PAGES.Auswerten} />{/if}
   {:else if page === 'quick'}
     <!-- «Quick Links» (Noah 28.10.2026 «1a 2a 3a 4a 5a»): your pins -->
     <LazyPage load={PAGES.Quick} />

@@ -24,5 +24,9 @@ export default {
   'Cut-out tool': 'Freistellen-Werkzeug',
   'Fonts': 'Schriften',
   'Files shared to the app, not opened yet': 'An die App geteilte Dateien, noch nicht geöffnet',
+  'Copies before updates': 'Vor Updates',
+  '{n} copy': '{n} Kopie',
+  '{n} copies': '{n} Kopien',
+  'each holds all your data · under «More»': 'jede enthält alle deine Daten · unter «Mehr»',
   'Kursblick prices': 'Kursblick-Kurse',
 };

@@ -2,7 +2,7 @@
 // Training, Erholung), «Auswerten» for looking; it shares Aktiv's place in the bar. Pure functions, no data.
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { PLACES, SIDE_PLACES, PLACE_TABS, ANALYSIS, barPlace, placeOf, pageOf } from '../src/lib/nav.js';
+import { PLACES, SIDE_PLACES, PLACE_TABS, ANALYSIS, barPlace, placeOf, pageOf, subOf } from '../src/lib/nav.js';
 import { sportHref, actSport } from '../src/lib/flow/mysports.js';
 import { BIKE_ACT } from '../src/lib/sportsbase.js';
 
@@ -106,7 +106,7 @@ describe('Auswerten in five tabs by question', () => {
   it('five tabs: overview, body, rides, how you are, own diagram', () => {
     expect(all.map((x) => x.key)).toEqual(['start', 'body', 'rides', 'history', 'analyse']);
     const subs = Object.fromEntries(all.map((x) => [x.key, x.subs.map((s) => s.key)]));
-    expect(subs.start).toEqual(['fragen', 'start']);
+    expect(subs.start).toEqual(['heute', 'fragen', 'start']); // «Auswerten neu» (Noah 24.11.2026): «Heute» is the new first chip
     expect(subs.body).toEqual(expect.arrayContaining(['form', 'body', 'weight', 'insights']));
     expect(subs.rides).toEqual(expect.arrayContaining(['rides', 'ticks', 'milestones', 'heatmap', 'neuland', 'gipfel', 'year', 'learned', 'challenges']));
     expect(subs.history).toEqual(expect.arrayContaining(['history', 'wohl', 'ideen']));
@@ -115,7 +115,21 @@ describe('Auswerten in five tabs by question', () => {
   it('no page of the old eighteen tabs is lost or stands twice', () => {
     const shown = all.flatMap((x) => x.subs.map((s) => s.key));
     expect(new Set(shown).size).toBe(shown.length);
-    expect([...shown].sort()).toEqual(['analyse', 'fragen', 'form', 'body', 'rides', 'ticks', 'history', 'wohl', 'ideen', 'insights', 'weight', 'milestones', 'heatmap', 'neuland', 'gipfel', 'learned', 'year', 'start', 'challenges'].sort());
+    expect([...shown].sort()).toEqual(['analyse', 'fragen', 'form', 'body', 'rides', 'ticks', 'history', 'wohl', 'ideen', 'insights', 'weight', 'milestones', 'heatmap', 'neuland', 'gipfel', 'learned', 'year', 'start', 'challenges', 'heute'].sort());
+  });
+});
+
+// «Auswerten neu» (Noah 24.11.2026 «2a 3b»): the new start «Heute» at #/auswerten, the old overview unchanged at #/auswerten/uebersicht
+describe('Auswerten: Heute is the start, the old overview moved', () => {
+  it('the addresses tell the two pages apart, the tab stays the first one', () => {
+    expect(subOf('analysis', '#/auswerten')?.key).toBe('heute');
+    expect(subOf('analysis', '#/auswerten?x=1')?.key).toBe('heute');
+    expect(subOf('analysis', '#/auswerten/uebersicht')?.key).toBe('start');
+    expect(subOf('analysis', '#/auswerten/fragen')?.key).toBe('fragen');
+    const tab = PLACE_TABS.analysis[0];
+    expect(tab.href).toBe('#/auswerten');
+    expect(tab.match('#/auswerten') && tab.match('#/auswerten/uebersicht')).toBe(true);
+    expect(PLACE_TABS.analysis.flatMap((x) => x.subs).find((x) => x.key === 'start').href).toBe('#/auswerten/uebersicht');
   });
 });
 

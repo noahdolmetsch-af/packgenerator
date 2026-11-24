@@ -138,7 +138,7 @@
     {:else if view === 'line'}
       {#if Line}<Line {rows} {mine} {ctx} {wide} fresh={fresh.length} oncreate={() => make(fresh)} />{:else}<span class="at-load" aria-hidden="true"></span>{/if}
     {:else if MapView}
-      <MapView {mine} {clashKeys} onopen={(r) => (open = r)} />
+      <MapView {mine} {clashKeys} {wide} onopen={(r) => (open = r)} />
     {:else}
       <span class="at-load" aria-hidden="true"></span>
     {/if}

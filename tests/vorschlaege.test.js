@@ -5,6 +5,8 @@ import { kmMarks, stepFor, lineKm, pointAtKm, nearestOnLine } from '../src/lib/s
 import { fineOfTour, coarseOfTour, kmsOf, steepest, stretchOf } from '../src/lib/vorschlaege/steil.js';
 import { FRAME, lv95, toXY, pathOf, ZURICH, countBy, sizes, tipPos, TIP } from '../src/lib/vorschlaege/karte.js';
 import { crowKm, travelMin, anreiseOf, dayHours, fitsHalfDay, withinTravel, TRAVELS, ZURICH_HB } from '../src/lib/vorschlaege/anreise.js';
+import { CELL, cellOf, cellsOf, wetterUrl, parseWetter, dayVerdict, rainBefore, wetTrail, technical, addDays, weekdayOf, dateOfChoice, verdictFor, bestDay, weekOf, sortByWeather, loadWetter, BEST_DAYS } from '../src/lib/vorschlaege/wetter.js';
+import { NEAR_KM, HALF, spotList, reachedOf, spotsAlong, spotIndex, freshSpots, cantonNew, runsOf, neuOk, neuSort, toursNear, goalOf, monthOf, doneIn, tickTour, GOAL_STD } from '../src/lib/vorschlaege/neuland.js';
 import { freeToday, formFit, freeFit, bikeFit, doableToday, EASY_MAX_H } from '../src/lib/vorschlaege/passt.js';
 import { REGIONS, LEVELS, COND_STD, ARTS, artsOf, levelsOf, condOf, matchCond, matchTech, sortNear, nearKm, hoursOf, splitHours, snowOf, filterTours, splitNow, gridOf, densify, newShare, awayKm, whyOf, warnsOf, gpxOf } from '../src/lib/vorschlaege/regeln.js';
 
@@ -498,5 +500,206 @@ describe('Tourenvorschläge: passt zu dir', () => {
     const some = filterTours(TOURS, { conds: [], ok: (t) => t.region === 'gr' });
     expect(some.length).toBeGreaterThan(0);
     expect(some.length).toBeLessThan(base.length);
+  });
+});
+
+describe('Tourenvorschläge: Wetter', () => {
+  const day = (o = {}) => ({ date: '2026-11-24', code: 3, tmax: 12, tmin: 4, rain: 0, chance: 10, gust: 20, ...o });
+  const tour = { id: 't', line: [[47.4, 8.5]], max: 900, single: 10, tech: 'easy' };
+  const cell = cellOf(tour);
+  const mk = (days, elevation = 500) => ({ [cell]: { elevation, days } });
+
+  it('die Zelle ist der Start der Tour, alle Touren haben eine', () => {
+    expect(cell).toBe(`${Math.round(47.4 / CELL)}:${Math.round(8.5 / CELL)}`);
+    expect(cellOf({})).toBe(null);
+    expect(TOURS.every((t) => cellOf(t))).toBe(true);
+    const cells = cellsOf(TOURS);
+    expect(cells.length).toBeGreaterThan(5);
+    expect(cells.length).toBeLessThan(120);
+    expect(cellsOf(TOURS)).toEqual(cells);
+  });
+  it('eine Anfrage für alle Zellen, ohne Wohnort', () => {
+    const u = wetterUrl(cellsOf(TOURS));
+    expect(u).toContain('past_days=2');
+    expect(u).toContain('precipitation_sum');
+    expect(u.length).toBeLessThan(4000);
+  });
+  it('parseWetter: eine Liste von Orten und ein einzelner Ort', () => {
+    const one = { elevation: 450, daily: { time: ['2026-11-24'], weather_code: [3], temperature_2m_max: [10], temperature_2m_min: [2], precipitation_sum: [1.2], precipitation_probability_max: [30], wind_gusts_10m_max: [25] } };
+    const r = parseWetter([one, one], ['1:1', '2:2']);
+    expect(Object.keys(r)).toEqual(['1:1', '2:2']);
+    expect(r['1:1'].days[0]).toEqual({ date: '2026-11-24', code: 3, tmax: 10, tmin: 2, rain: 1.2, chance: 30, gust: 25 });
+    expect(Object.keys(parseWetter(one, ['9:9']))).toEqual(['9:9']);
+    expect(parseWetter(null, ['1:1'])).toEqual({});
+  });
+  it('dayVerdict: Ampel nach Gewitter, Regen, Wind, Kälte oben und Hitze', () => {
+    expect(dayVerdict(day(), tour, 500).level).toBe('good');
+    expect(dayVerdict(day({ rain: 3 }), tour, 500)).toMatchObject({ level: 'fair', reasons: ['rain'] });
+    expect(dayVerdict(day({ rain: 9 }), tour, 500)).toMatchObject({ level: 'bad', reasons: ['rain'] });
+    expect(dayVerdict(day({ code: 95 }), tour, 500)).toMatchObject({ level: 'bad', reasons: ['thunder'] });
+    expect(dayVerdict(day({ gust: 50 }), tour, 500)).toMatchObject({ level: 'fair', reasons: ['wind'] });
+    expect(dayVerdict(day({ gust: 80 }), tour, 500)).toMatchObject({ level: 'bad', reasons: ['wind'] });
+    expect(dayVerdict(day({ tmax: 34 }), tour, 500)).toMatchObject({ level: 'fair', reasons: ['hot'] });
+    // 400 m höher als der Ort: 2,6 Grad kälter
+    expect(dayVerdict(day({ tmax: 5 }), tour, 500).top).toBe(2.4);
+    expect(dayVerdict(day({ tmax: 5 }), tour, 500)).toMatchObject({ level: 'fair', reasons: ['cold'] });
+    expect(dayVerdict(day({ tmax: -1 }), tour, 500)).toMatchObject({ level: 'bad', reasons: ['cold'] });
+    expect(dayVerdict(day({ rain: 9, gust: 50 }), tour, 500).reasons).toEqual(['rain', 'wind']);
+    expect(dayVerdict(null, tour, 500)).toBe(null);
+    expect(dayVerdict(day({ rain: null, gust: null, code: null }), tour, 500)).toBe(null);
+  });
+  it('nasse Wege: Regen der zwei Tage davor, rutschig nur bei Trail oder Technik', () => {
+    const days = [day({ date: '2026-11-22', rain: 4 }), day({ date: '2026-11-23', rain: 3 }), day()];
+    expect(rainBefore(days, 2)).toBe(7);
+    expect(rainBefore(days, 0)).toBe(null);
+    expect(technical({ single: 50 })).toBe(true);
+    expect(technical({ single: 5, tech: 'medium' })).toBe(true);
+    expect(technical({ single: 5, tech: 'easy' })).toBe(false);
+    expect(wetTrail({ single: 60 }, days, 2)).toEqual({ mm: 7, state: 'slippery' });
+    expect(wetTrail({ single: 0, tech: 'easy' }, days, 2)).toEqual({ mm: 7, state: 'fine' });
+    expect(wetTrail({ single: 60 }, [day({ rain: 1 }), day({ rain: 1 }), day()], 2)).toBe(null);
+  });
+  it('Tage rechnen ohne Uhr', () => {
+    expect(addDays('2026-11-30', 1)).toBe('2026-12-01');
+    expect(addDays('2026-03-28', 2)).toBe('2026-03-30'); // Zeitumstellung
+    expect(weekdayOf('2026-11-28')).toBe(6);
+    expect(dateOfChoice('weekend', '2026-11-24')).toBe('2026-11-28');
+    expect(dateOfChoice('weekend', '2026-11-28')).toBe('2026-11-28');
+    expect(dateOfChoice('weekend', '2026-11-29')).toBe('2026-11-29');
+    expect(dateOfChoice('tomorrow', '2026-11-30')).toBe('2026-12-01');
+    expect(dateOfChoice('x', '2026-11-30')).toBe(null);
+  });
+  it('verdictFor, bestDay und weekOf: der beste Tag ist der erste gute, sonst der erste mit Vorsicht', () => {
+    const days = ['24', '25', '26', '27', '28'].map((d, i) => day({ date: `2026-11-${d}`, rain: [9, 3, 0, 0, 0][i] }));
+    const wx = mk(days);
+    expect(verdictFor(tour, wx, 'today', '2026-11-24').level).toBe('bad');
+    expect(verdictFor(tour, wx, 'tomorrow', '2026-11-24').level).toBe('fair');
+    expect(verdictFor(tour, wx, 'weekend', '2026-11-24')).toMatchObject({ date: '2026-11-28', level: 'good' });
+    expect(bestDay(tour, wx, '2026-11-24')).toMatchObject({ date: '2026-11-26', level: 'good' });
+    const onlyFair = mk(days.map((d) => ({ ...d, rain: 3 })));
+    expect(bestDay(tour, onlyFair, '2026-11-24')).toMatchObject({ date: '2026-11-24', level: 'fair' });
+    expect(bestDay(tour, mk(days.map((d) => ({ ...d, rain: 12 }))), '2026-11-24')).toBe(null);
+    expect(bestDay(tour, null, '2026-11-24')).toBe(null);
+    expect(BEST_DAYS).toBe(10);
+    const w = weekOf(tour, wx, '2026-11-24');
+    expect(w.map((x) => x.level)).toEqual(['bad', 'fair', 'good', 'good', 'good']);
+    expect(w[2].trail).toEqual({ mm: 12, state: 'fine' }); // 9 + 3 mm an den zwei Tagen davor
+    expect(w[4].trail).toBe(null);
+  });
+  it('sortByWeather: gute Tage zuerst, schlechte und ohne Daten dahinter, stabil', () => {
+    const a = { ...tour, id: 'a', line: [[47.4, 8.5]] };
+    const b = { ...tour, id: 'b', line: [[46.0, 7.0]] };
+    const c = { ...tour, id: 'c', line: [[47.4, 8.5]] };
+    const wx = { [cellOf(a)]: { elevation: 500, days: [day({ rain: 9 })] }, [cellOf(b)]: { elevation: 500, days: [day()] } };
+    expect(sortByWeather([a, b, c], wx, 'today', '2026-11-24').map((x) => x.id)).toEqual(['b', 'a', 'c']);
+  });
+  it('whyOf: die Zeile «weather» nur mit Vorhersage', () => {
+    const t0 = by('sm-33');
+    expect(whyOf(t0, { month: 11 }).some((x) => x.k === 'weather')).toBe(false);
+    const w = whyOf(t0, { month: 11, weather: { today: { level: 'bad', reasons: ['rain'] }, best: { date: '2026-11-26' } } }).find((x) => x.k === 'weather');
+    expect(w).toMatchObject({ tone: 'warn', level: 'bad', reasons: ['rain'] });
+  });
+  it('loadWetter: hält die Antwort drei Stunden, bei Ausfall die alte bis zu einem Tag', async () => {
+    const rows = new Map();
+    const db = { meta: { get: async (k) => rows.get(k), put: async (r) => rows.set(r.key, r) } };
+    const two = [by('sm-33'), by('sm-10711')];
+    const cells = cellsOf(two);
+    const reply = () => cells.map(() => ({ elevation: 500, daily: { time: ['2026-11-24'], weather_code: [3], temperature_2m_max: [10], temperature_2m_min: [2], precipitation_sum: [0], precipitation_probability_max: [0], wind_gusts_10m_max: [20] } }));
+    let n = 0;
+    const fetcher = async () => { n++; return { ok: true, json: async () => (cells.length === 1 ? reply()[0] : reply()) }; };
+    const t0 = 1_700_000_000_000;
+    const first = await loadWetter(db, two, { fetcher, now: t0, online: true });
+    expect(Object.keys(first)).toEqual(cells);
+    await loadWetter(db, two, { fetcher, now: t0 + 2 * 36e5, online: true });
+    expect(n).toBe(1);
+    const down = async () => { throw new Error('offline'); };
+    expect(await loadWetter(db, two, { fetcher: down, now: t0 + 5 * 36e5, online: true })).toEqual(first);
+    expect(await loadWetter(db, two, { fetcher: down, now: t0 + 30 * 36e5, online: true })).toBe(null);
+    expect(await loadWetter(db, [], { fetcher, now: t0 })).toBe(null);
+  });
+});
+
+describe('Tourenvorschläge: Neuland', () => {
+  const tour = by('sm-33');
+  const mid = tour.line[Math.floor(tour.line.length / 2)];
+  const cols = (spots = []) => [
+    { id: 'passes', items: spots.filter((x) => x.kind === 'pass'), visited: new Map() },
+    { id: 'peaks', items: spots.filter((x) => x.kind === 'peak'), visited: new Map([['k-gipfel', { years: {} }]]) },
+    { id: 'cantons', items: [{ id: 'ZH' }, { id: 'GR' }], visited: new Map([['ZH', {}]]) },
+  ];
+  const spotsRaw = [
+    { id: 'p-nahe', name: 'Nahe', kind: 'pass', lat: mid[0], lon: mid[1], alt: 1500 },
+    { id: 'k-gipfel', name: 'Gipfel', kind: 'peak', lat: mid[0] + 0.0005, lon: mid[1], alt: 3100 },
+    { id: 'p-fern', name: 'Fern', kind: 'pass', lat: 46.0, lon: 7.0, alt: 2000 },
+  ];
+  it('spotList und reachedOf: nur Pässe und Gipfel, mit Besuchen', () => {
+    const cs = cols(spotsRaw);
+    expect(spotList(cs).map((x) => x.id)).toEqual(['p-nahe', 'p-fern', 'k-gipfel']);
+    expect(spotList([{ id: 'huts', items: [{ id: 'h', lat: 1, lon: 1 }] }])).toEqual([]);
+    expect([...reachedOf(cs)]).toEqual(['k-gipfel']);
+  });
+  it('spotsAlong: nur was am Weg liegt, in der Reihenfolge der Tour, mit km', () => {
+    const list = spotsAlong(tour, spotList(cols(spotsRaw)));
+    expect(list.map((x) => x.id).sort()).toEqual(['k-gipfel', 'p-nahe']);
+    expect(list[0].km).toBeLessThanOrEqual(list[1].km);
+    expect(list.every((x) => x.away <= NEAR_KM)).toBe(true);
+    expect(spotsAlong({ line: [] }, spotList(cols(spotsRaw)))).toEqual([]);
+    expect(spotIndex([tour], spotList(cols(spotsRaw))).get(tour.id).length).toBe(2);
+  });
+  it('freshSpots: was du noch nicht erreicht hast', () => {
+    const list = spotsAlong(tour, spotList(cols(spotsRaw)));
+    expect(freshSpots(list, reachedOf(cols(spotsRaw))).map((x) => x.id)).toEqual(['p-nahe']);
+  });
+  it('cantonNew: neu, wenn du im Kanton noch nie gefahren bist', () => {
+    const cs = cols(spotsRaw);
+    expect(cantonNew({ region: 'zh' }, cs)).toBe(false);
+    expect(cantonNew({ region: 'gr' }, cs)).toBe(true);
+    expect(cantonNew({ region: 'gr' }, [])).toBe(null);
+  });
+  it('runsOf: Teile, die du gefahren bist, und neue Teile hängen ohne Lücke aneinander', () => {
+    const line = tour.line;
+    expect(runsOf(line, null)).toBeNull();
+    const half = gridOf([densify(line.slice(0, Math.floor(line.length / 2)), 50)]);
+    const runs = runsOf(line, half);
+    expect(runs.some((r) => r.fresh)).toBe(true);
+    expect(runs.some((r) => !r.fresh)).toBe(true);
+    for (let i = 1; i < runs.length; i++) expect(runs[i].pts[0]).toEqual(runs[i - 1].pts.at(-1));
+    expect(runsOf(line, gridOf([[[46.0, 7.0]]])).every((r) => r.fresh)).toBe(true);
+  });
+  it('neuOk und neuSort', () => {
+    expect(HALF).toBe(0.5);
+    expect(neuOk('half', { share: 0.6 })).toBe(true);
+    expect(neuOk('half', { share: 0.3 })).toBe(false);
+    expect(neuOk('half', { share: null })).toBe(true);
+    expect(neuOk('places', { fresh: [] })).toBe(false);
+    expect(neuOk('places', { fresh: [{}] })).toBe(true);
+    expect(neuOk('canton', { canton: true })).toBe(true);
+    expect(neuOk('canton', { canton: null })).toBe(false);
+    expect(neuOk('sort', {})).toBe(true);
+    const shares = { a: 0.2, b: 0.9, c: null, d: 0.9, e: 0.5 };
+    expect(neuSort(['a', 'b', 'c', 'd', 'e'].map((id) => ({ id })), (x) => shares[x.id]).map((x) => x.id)).toEqual(['b', 'd', 'e', 'a', 'c']);
+  });
+  it('toursNear: Touren an einem Punkt, die nächste zuerst', () => {
+    const r = toursNear(TOURS, mid[0], mid[1]);
+    expect(r.length).toBeGreaterThan(0);
+    expect(r.length).toBeLessThanOrEqual(3);
+    expect(r[0].tour.id).toBe(tour.id);
+    expect(r[0].away).toBeLessThanOrEqual(NEAR_KM);
+    expect(toursNear(TOURS, 10, 10)).toEqual([]);
+    expect(toursNear(TOURS, NaN, 1)).toEqual([]);
+  });
+  it('Ziel des Monats: Standard, abhaken, zurücknehmen, Fremdes wird bereinigt', () => {
+    expect(goalOf(null)).toEqual({ ...GOAL_STD, done: {} });
+    expect(goalOf({ on: false, n: 9, pct: 60, done: { '2026-11': ['a', 'a', 5], x: ['b'] } })).toEqual({ on: false, n: 3, pct: 60, done: { '2026-11': ['a'] } });
+    const m = monthOf('2026-11-24');
+    expect(m).toBe('2026-11');
+    let g = goalOf(null);
+    g = tickTour(g, m, 'a', true);
+    g = tickTour(g, m, 'a', true);
+    g = tickTour(g, m, 'b', true);
+    expect(doneIn(g, m)).toBe(2);
+    expect(doneIn(g, '2026-12')).toBe(0);
+    g = tickTour(g, m, 'a', false);
+    expect(g.done[m]).toEqual(['b']);
   });
 });

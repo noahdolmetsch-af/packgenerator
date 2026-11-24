@@ -60,7 +60,7 @@ test('Heute abhaken: Bearbeiten, delete with history kept, restore, hide a tile'
   await expect(page.locator('[data-sport-row="run"]')).toContainText(T('paused'));
 
   // «Wi gaht's?» moved to the start of Auswerten: «Starten» opens the questions, not their settings
-  await page.goto('./#/auswerten');
+  await page.goto('./#/auswerten/uebersicht');
   await ready(page);
   await expect(page.locator('[data-check-start]')).toHaveAttribute('href', '#/check/morning');
   expect(errors).toEqual([]);

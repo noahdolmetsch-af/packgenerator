@@ -414,13 +414,13 @@ export function rideLearnings(ride, plan, basis, answered = []) {
   }
   const sn = ride.sensors;
   if (sn) {
-    const cold = sn.coldMin >= WEATHER_ASK_MIN ? { time: hm(sn.coldMin / 60) } : sn.coldMin == null && sn.tempMin != null && sn.tempMin <= 0 ? { low: sn.tempMin } : null;
+    const cold = sn.coldMin >= WEATHER_ASK_MIN ? { time: hoursText(sn.coldMin / 60) } : sn.coldMin == null && sn.tempMin != null && sn.tempMin <= 0 ? { low: sn.tempMin } : null;
     if (cold) {
       const label = cold.time ? t('{time} h below {t} °C. Did you freeze?', { time: cold.time, t: COLD_C }) : t('Down to {low} °C. Did you freeze?', { low: cold.low });
       const rule = cold.time ? t('Cold on a ride ({time} h below {t} °C): pack warm clothes, gloves and a buff.', { time: cold.time, t: COLD_C }) : t('Cold on a ride (down to {low} °C): pack warm clothes, gloves and a buff.', { low: cold.low });
       out.push({ id: 'cold', ask: true, topic: 'Weather', label, detail: t('The temperature comes from your bike computer. Yes keeps a rule for the next packing.'), rule });
     }
-    const hot = sn.hotMin >= WEATHER_ASK_MIN ? { time: hm(sn.hotMin / 60) } : sn.hotMin == null && sn.tempMax != null && sn.tempMax >= 32 ? { high: sn.tempMax } : null;
+    const hot = sn.hotMin >= WEATHER_ASK_MIN ? { time: hoursText(sn.hotMin / 60) } : sn.hotMin == null && sn.tempMax != null && sn.tempMax >= 32 ? { high: sn.tempMax } : null;
     if (hot) {
       const label = hot.time ? t('{time} h above {t} °C. Did you drink enough?', { time: hot.time, t: HOT_C }) : t('Up to {high} °C. Did you drink enough?', { high: hot.high });
       const rule = hot.time ? t('Heat on a ride ({time} h above {t} °C): take more water, a light shirt and sun cream.', { time: hot.time, t: HOT_C }) : t('Heat on a ride (up to {high} °C): take more water, a light shirt and sun cream.', { high: hot.high });
@@ -482,6 +482,9 @@ export const hm = (h) => {
   const mins = Math.round(h * 60);
   return `${Math.floor(mins / 60)}:${String(mins % 60).padStart(2, '0')}`;
 };
+
+/** "3" for whole hours, else "3:05": the hours in a sentence («3 h below 5 °C»), not as a clock. */
+export const hoursText = (h) => hm(h).replace(/:00$/, '');
 
 /* ---------- a file shared from another app (Android share sheet) ---------- */
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { approxBytes, cacheKind, readCache, readCaches, readTables, verdict, countedBytes, OPAQUE_PAD } from '../src/lib/storagemap.js';
+import { approxBytes, cacheKind, readCache, readCaches, readTables, readCopies, verdict, countedBytes, OPAQUE_PAD } from '../src/lib/storagemap.js';
 
 const res = (type, len) => ({ type, headers: { get: (k) => (k === 'content-length' ? len : null) }, clone() { return this; }, blob: async () => ({ size: 5 }) });
 const fakeCaches = (map) => ({
@@ -36,5 +36,12 @@ describe('storagemap', () => {
     expect(verdict({ usage: 8e9, caches, tables: [] }).kind).toBe('padding');
     expect(verdict({ usage: 5e7, caches: [{ kind: 'app', opaque: 0, bytes: 4e7 }], tables: [] }).kind).toBe('ok');
     expect(verdict({ usage: 2e9, caches: [{ kind: 'ai', opaque: 0, bytes: 1.5e9 }], tables: [] }).kind).toBe('ai');
+  });
+
+  it('counts the safety copies one by one (own database)', async () => {
+    const sdb = { snaps: { toCollection: () => ({ primaryKeys: async () => [1, 2, 3] }), get: async (id) => (id === 2 ? null : id === 3 ? Promise.reject(new Error('x')) : { data: { a: 'xxxx' } }) } };
+    const out = await readCopies(sdb);
+    expect(out.n).toBe(1);
+    expect(out.bytes).toBeGreaterThan(0);
   });
 });

@@ -8,7 +8,8 @@
   import { db, DATA_TABLES } from './db.js';
   import { t, tn, locale } from './i18n.svelte.js';
   import { offerDone } from './ui/rename.svelte.js';
-  import { readCaches, readTables, verdict, countedBytes, OPAQUE_PAD } from './storagemap.js';
+  import { readCaches, readTables, readCopies, verdict, countedBytes, OPAQUE_PAD } from './storagemap.js';
+  import { snapDb } from './maintenance/snapshots.js';
 
   let busy = $state(false);
   let res = $state(null);
@@ -25,8 +26,8 @@
     failed = false;
     try {
       const est = (await navigator.storage?.estimate?.()) ?? {};
-      const [caches, tables] = await Promise.all([readCaches(), readTables(db, DATA_TABLES)]);
-      res = { usage: est.usage ?? 0, quota: est.quota ?? 0, caches, tables, v: verdict({ usage: est.usage ?? 0, caches, tables }) };
+      const [caches, tables, copies] = await Promise.all([readCaches(), readTables(db, DATA_TABLES), readCopies(snapDb()).catch(() => ({ n: 0, bytes: 0 }))]);
+      res = { usage: est.usage ?? 0, quota: est.quota ?? 0, caches, tables, copies, v: verdict({ usage: est.usage ?? 0, caches, tables: [...tables, { name: 'copies', rows: copies.n, bytes: copies.bytes }] }) };
     } catch {
       failed = true;
     } finally {
@@ -42,6 +43,7 @@
           `${t('Browser counts')}: ${size(res.usage)}`,
           ...res.caches.map((c) => `${c.known ? t(c.label) : c.label}: ${tn(c.entries, '{n} entry', '{n} entries')}${c.opaque ? `, ${c.opaque} ${t('unreadable')}` : ''}, ${size(c.bytes)}`),
           `${t('Your data')}: ${size(dataBytes)}`,
+          ...(res.copies?.n ? [`${t('Copies before updates')}: ${tn(res.copies.n, '{n} copy', '{n} copies')}, ${size(res.copies.bytes)}`] : []),
         ].join(' · ')
       : '',
   );
@@ -82,6 +84,12 @@
           <span class="nm">{t('Your data')}<small>{t('items, trips, notes, photos')}</small></span>
           <span class="val">{size(dataBytes)}</span>
         </li>
+        {#if res.copies?.n}
+          <li data-copies>
+            <span class="nm">{t('Copies before updates')}<small>{tn(res.copies.n, '{n} copy', '{n} copies')}{' · '}{t('each holds all your data · under «More»')}</small></span>
+            <span class="val">{size(res.copies.bytes)}</span>
+          </li>
+        {/if}
       </ul>
       <div class="acts">
         <button type="button" class="btn sm" onclick={measure} disabled={busy}>{t('Measure again')}</button>

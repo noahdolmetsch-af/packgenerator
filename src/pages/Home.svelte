@@ -77,6 +77,7 @@
   import { askTour, TOUR_EVENT, END_EVENT } from '../lib/tour/run.js';
   import { readRun } from '../lib/tour.js';
   import Continue from '../lib/home/Continue.svelte';
+  import TagesSatz from '../lib/home/TagesSatz.svelte';
   import { stepOf, lastEvening, notBegun } from '../lib/phase.js';
   import { quickDebrief, templateOffer, templateName, nextTrip, learningsFor } from '../lib/debrief.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
@@ -168,6 +169,7 @@
   import { INTRO_KEY, introDue } from '../lib/home/introkt.js';
   import SeriesTile from '../lib/home/SeriesTile.svelte';
   import NewsTile from '../lib/home/NewsTile.svelte';
+  import NeuSeitCard from '../lib/home/NeuSeitCard.svelte';
   import MedTile from '../lib/home/MedTile.svelte';
   import BalanceTile from '../lib/home/BalanceTile.svelte';
   import RoundTile from '../lib/home/RoundTile.svelte'; // WG: the round of «Wi gaht's?» (was the morning check)
@@ -1184,6 +1186,8 @@
     {#if ready && !editing && bannerEntries.length}<NewsBanner entries={bannerEntries} onclose={() => (bannerOff = true)} />{/if}
     <!-- «Heute neu» A: one personal sentence; the idea for today moved into «Up now» -->
     {#if sentence}<p class="say" data-say>{#each sentence as p, i (i)}{#if i}{' '}{/if}{#if p.to}<a class="jump" href={`#${p.to}`} data-say-jump onclick={(e) => jumpTo(e, p.to)}>{p.text}</a>{:else}<span class:hi={p.hi}>{p.text}</span>{/if}{/each}</p>{/if}
+    <!-- «Heute erholen» / «Welcher Berg ruft?» (Noah 24.11.2026 «1-5»): one quiet sentence from the form of the day, the zone minutes and the weather -->
+    {#if ready && !editing && !night && !emptyDevice}<TagesSatz {today} dry={fc ? dayDry(fc, today, now.getHours()) : null} />{/if}
     <!-- «Heute entdecken» (Noah 23.11.2026 «2b»): one idea with its «Warum», right under the chips; it was the card «Entdecken» under «Mehr» -->
     {#if ready && !editing}<IdeenZeile {today} hour={now.getHours()} weekday={now.getDay()} {trips} debriefDone={(tr) => debriefs.some((d) => d.tripId === tr.id && d.status === 'done')} careDue={due.points} inbox={notes.length} />{/if}
   </section>
@@ -1476,6 +1480,8 @@
   {:else}<Skeleton kind="home" rows={2} />{/if}
   <!-- «Heute neu» A: the half-width trip card has no room for the weekly km check; it shows under the wall then -->
   {#if ready && !editing && timeWall.some((x) => x.id === 'trip' && x.size === 'l')}<div class="kmrow"><KmCard {today} /></div>{/if}
+  <!-- «Bilder bei jeder Neuheit» PR 3 (Noah 23.11.2026 «1b 2a 3a 4b 5a»): «N Neuheiten seit …» under the content (Content first) -->
+  {#if ready && !editing && !emptyDevice}<NeuSeitCard {today} />{/if}
   <!-- SV1 «Strava verbinden» (Noah 13.10.2026): until Strava is connected on this device, one card;
        0.155.0 HN4: at the very bottom, under the wall (was on top) -->
 
