@@ -20,6 +20,7 @@
   import SearchFree from '../kisuche/SearchFree.svelte';
   import AskAnswer from '../assistent/AskAnswer.svelte';
   import { smartSearch } from '../kisuche/smart.js';
+  import { parts, markWords } from '../suche/mark.js'; // «Treffer lesbarer»: the words found are marked
   import { meaningsOf } from '../suche/meanings.js'; // Einzelidee 40: two meanings, the search asks
   import { findFeatures, FEATURE, FEATURES, featureHref } from '../features.js';
   import { wegText } from './seiten.js';
@@ -68,16 +69,37 @@
     diarySub = liveQuery(() => db.frei.where('kind').equals(DIARY_KIND).toArray()).subscribe({ next: (rows) => (diaryRows = rows.map(lightEntry)), error: () => {} });
   });
   onDestroy(() => diarySub?.unsubscribe());
-  const data = $derived($all ? { ...$all, diary: diarySearchable($all.journal, gate.open) ? diaryRows : [] } : null);
+  // «Suche findet mehr» (Warteliste 1): rides, places, learnings, bike care, training, tasks are read only once something is typed
+  let moreData = $state(null);
+  let moreSub = null;
+  let moreLoading = false;
+  $effect(() => {
+    if (moreSub || moreLoading || q.trim().length < 2) return;
+    moreLoading = true;
+    import('../suche/mehrload.js').then(({ loadMore }) => {
+      moreSub = liveQuery(() => loadMore(db)).subscribe({ next: (v) => (moreData = v), error: () => {} });
+    }).catch(() => {});
+  });
+  onDestroy(() => moreSub?.unsubscribe());
+  // «Treffer lesbarer»: the buttons «All | Material | …» narrow the hits to one kind and show all of it
+  let only = $state(null);
+  $effect(() => {
+    q;
+    only = null;
+  });
+  const data = $derived($all ? { ...$all, diary: diarySearchable($all.journal, gate.open) ? diaryRows : [], more: moreData, full: only } : null);
   // «Kluge Suche» (14.10.2026): similar words, small typos and short filters on top of searchAll.
   const smart = $derived(q.trim().length >= 2 && data ? smartSearch(q, data) : { groups: [], also: [], fixed: null });
   const groups = $derived(smart.groups);
+  const shown = $derived(only ? groups.filter((g) => g.kind === only) : groups);
+  const kinds = $derived(groups.length > 1 ? groups.filter((g) => !['page', 'action'].includes(g.kind)).map((g) => ({ kind: g.kind, name: g.name, n: g.rows.length + g.more })) : []);
+  const words = $derived(markWords(q));
   const meanings = $derived(meaningsOf(q, groups));
   const count = $derived(groups.reduce((n, g) => n + g.rows.length, 0));
   // v0.46.0 (Noah 14a): "What do you want to do?": actions by keyword above the results.
   const cmds = $derived($all ? commandActions(q, { bikes: sortBikes($all.bikes), more: ops.search }) : []);
   // v0.96.0 «F1 Alles finden» (mockup B): the functions of the app are found too («garantie»).
-  const feats = $derived(q.trim().length >= 2 && !isQuestion(q) ? findFeatures(q, t).filter((f) => !groups.some((g) => g.kind === 'page' && g.rows.some((r) => r.title === f.title))).slice(0, 3).map((f) => ({ ...f, sub: wegText(featureHref(FEATURE[f.featureId]), t, f.sub) })) : []);
+  const feats = $derived(q.trim().length >= 2 && !isQuestion(q) ? findFeatures(q, t).filter((f) => !groups.some((g) => (g.kind === 'page' || g.kind === 'setting') && g.rows.some((r) => r.title === f.title))).slice(0, 3).map((f) => ({ ...f, sub: wegText(featureHref(FEATURE[f.featureId]), t, f.sub) })) : []);
   // Paket Q Zusatz 2 (Noah «1-3 alle a»): a whole question («Wo stelle ich das Backup-Passwort ein?») that no
   // function fits word for word finds the functions that answer it, with their first step (instead of «Functions»).
   const help = $derived(isQuestion(q) ? helpAnswers(q, t) : []);
@@ -429,19 +451,25 @@
       <!-- «Suche mit Sprache» (3a + b): «Ask further at» opens Claude, ChatGPT … -->
       <!-- one block «Weiter fragen» (Noah 22.10.2026 «3a»): the Chrome AI and the AI on this device inside it -->
       {#if asking && suche.links}<AskElsewhere {q} links={suche.links}>
-          {#snippet children()}<SearchFree {q} data={$all} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} local={suche.local} inside={suche.links} />{/snippet}
+          {#snippet children()}<SearchFree {q} data={$all} onpick={(w) => ((q = w), input?.focus())} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} local={suche.local} inside={suche.links} />{/snippet}
         </AskElsewhere>
-      {:else}<SearchFree {q} data={$all} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} local={suche.local} />{/if}
+      {:else}<SearchFree {q} data={$all} onpick={(w) => ((q = w), input?.focus())} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} local={suche.local} />{/if}
       {#if meanings.length === 2}
         <p class="mean" data-search-meanings><span>{t('Do you mean')}</span>
           {#each meanings as m, i (m.kind)}{#if i}<span>{t('or|choice')}</span>{/if}<button type="button" class="btn sm" onclick={() => ((q = m.q), input?.focus())} data-meaning={m.kind}>{t(m.name)} · {m.n}</button>{/each}<span>?</span>
         </p>
       {/if}
-      {#each groups as g (g.kind)}
-        <p class="gh">{t(g.name)}{g.more ? ` · ${t('{n} more', { n: g.more })}` : ''}</p>
+      {#if kinds.length > 1}
+        <p class="kinds" data-search-kinds>
+          <button type="button" class="btn sm" class:on={!only} aria-pressed={!only} onclick={() => (only = null)}>{t('All|search')}</button>
+          {#each kinds as k (k.kind)}<button type="button" class="btn sm" class:on={only === k.kind} aria-pressed={only === k.kind} data-kind-btn={k.kind} onclick={() => (only = only === k.kind ? null : k.kind)}>{t(k.name)} · {k.n}</button>{/each}
+        </p>
+      {/if}
+      {#each shown as g (g.kind)}
+        <p class="gh">{t(g.name)}{#if g.more}{' · '}<button type="button" class="showall" data-show-all={g.kind} onclick={() => (only = g.kind)}>{t('Show all {n}', { n: g.rows.length + g.more })}</button>{/if}</p>
         <ul>
           {#each g.rows as r (r.id)}
-            <li><button type="button" onclick={() => go(r)}><span class="m"><b>{r.title}</b>{#if r.sub}<small>{r.sub}</small>{/if}</span>{#if r.v}<span class="v num">{r.v}</span>{/if}</button></li>
+            <li><button type="button" onclick={() => go(r)}><span class="m"><b>{#each parts(r.title, words) as p}{#if p.m}<mark>{p.s}</mark>{:else}{p.s}{/if}{/each}</b>{#if r.sub}<small>{r.sub}</small>{/if}</span>{#if r.v}<span class="v num">{r.v}</span>{/if}</button></li>
           {/each}
         </ul>
       {:else}
@@ -606,6 +634,34 @@
     margin: 8px 8px 2px;
     color: var(--ink-2);
     font-size: var(--fs-small);
+  }
+  .kinds {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 8px 2px;
+  }
+  .kinds .btn.on {
+    background: var(--brand);
+    color: var(--brand-ink);
+    border-color: var(--brand);
+  }
+  .showall {
+    border: 0;
+    background: none;
+    padding: 0;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: none;
+    color: var(--ink);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  mark {
+    background: var(--warn-soft);
+    color: inherit;
+    border-radius: 2px;
+    padding: 0 1px;
   }
   .gh {
     margin: 10px 8px 4px;

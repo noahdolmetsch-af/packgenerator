@@ -11,9 +11,11 @@
   import { t } from '../i18n.svelte.js';
   import { helpHere } from '../pageinfo/here.svelte.js';
   import { fitSteps } from '../nav/wege.svelte.js'; // «Wege»: the path starts with the place and tab of the map of the app
+  import { backCrumbsOf } from '../nav/herkunft.svelte.js';
 
   let { crumbs = [], here = '', title, sub = '', heading = null, extra = null, children = null } = $props();
-  const steps = $derived(crumbs.length ? fitSteps(helpHere.route, crumbs) : []);
+  // Durchklick-Fund 3: a one-step path names where you came from (zurueck.js)
+  const steps = $derived(crumbs.length ? backCrumbsOf(fitSteps(helpHere.route, crumbs)) : []);
 </script>
 
 <header class="phead">
