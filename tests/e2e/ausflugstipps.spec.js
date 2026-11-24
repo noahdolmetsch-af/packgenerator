@@ -78,6 +78,9 @@ test('Trip tips: three new places for the free time, the weather, other hours, a
   await expect(sec.locator('[data-tt-wx]')).toContainText(T('dry'));
   await expect(sec.locator('[data-tt-free]')).toContainText(T('Calendar: free {from}–{to}').split('{')[0].trim());
   await expect(tips.first()).toContainText(T('≈ {km} km there and back').split('}')[1].trim());
+  // how hard: every tip names a level, the rule stands under the list
+  await expect(tips.first().locator('[data-tt-level]')).toHaveText(new RegExp(`^(${T('Easy|tip')}|${T('Medium|tip')}|${T('Hard|tip')})$`));
+  await expect(sec.locator('[data-tt-level-help]')).toBeVisible();
   await noSideways(page);
   await shot(sec, info, 'AT1-tipps');
 
@@ -101,7 +104,7 @@ test('Trip tips: three new places for the free time, the weather, other hours, a
   // 2c. «Where do you start?»: another place changes the tips and hides the home weather; «Home» brings it back
   const homeIds = await ids();
   const chip = sec.locator('[data-tt-start]');
-  await expect(chip).toContainText(T('Start: {place}', { place: T('Home|start place') }));
+  await expect(chip).toContainText(T('Start: {place}', { place: T('Home|start') }));
   await chip.click();
   const sheet = page.locator('dialog[data-start-sheet][open]');
   await expect(sheet.locator('[data-start-home]')).toBeVisible();
@@ -119,7 +122,7 @@ test('Trip tips: three new places for the free time, the weather, other hours, a
   await expect(chip).toContainText(T('Start: {place}', { place: T('Here') }));
   await chip.click();
   await page.locator('dialog[data-start-sheet][open] [data-start-home]').click();
-  await expect(chip).toContainText(T('Start: {place}', { place: T('Home|start place') }));
+  await expect(chip).toContainText(T('Start: {place}', { place: T('Home|start') }));
   await expect(sec.locator('[data-tt-wx]')).toContainText('18°');
   await expect.poll(ids).toBe(homeIds);
 
