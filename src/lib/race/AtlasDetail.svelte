@@ -44,7 +44,7 @@
       <button type="button" class="btn" class:hi={row.registered} aria-pressed={row.registered} onclick={() => onmark({ registered: !row.registered })} data-atlas-detail-reg><Check size={16} aria-hidden="true" />{row.registered ? t('Registered|race') : t('Mark as registered')}</button>
       {#if canWake}<button type="button" class="btn" class:hi={row.wecker} aria-pressed={row.wecker === true} onclick={() => onwake?.()} data-atlas-detail-wake><Bell size={16} aria-hidden="true" fill={row.wecker ? 'currentColor' : 'none'} />{row.wecker ? t('Alarm on') : t('Remind me on the phone')}</button>{/if}
     </div>
-    {#if canWake && row.wecker}<p class="ad-here" data-atlas-detail-wakeline>{t('You get a reminder at 08:00 on: {days}.', { days: wakeList })}</p>{/if}
+    {#if canWake && row.wecker}<p class="ad-wake" data-atlas-detail-wakeline>{t('You get a reminder at 08:00 on: {days}.', { days: wakeList })}</p>{/if}
     <dl class="ad-dl">
       {#each facts as [k, v] (k)}<div><dt>{k}</dt><dd>{v}</dd></div>{/each}
     </dl>
@@ -92,6 +92,11 @@
     border-left: 4px solid var(--line-strong);
     border-radius: 8px;
     background: var(--paper-2);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .ad-wake {
+    margin: 0;
     color: var(--ink-2);
     font-size: var(--fs-small);
   }
