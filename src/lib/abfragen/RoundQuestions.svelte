@@ -8,13 +8,15 @@
    * Noah 23.11.2026 «Beides»: in the morning the random question (a random one of the switched-off sample questions, the window's
    * too) always stands in the list, and a closed line «More questions» offers every other question for one answer, switched on or not.
    */
-  import { abQuery, ensureConfig, saveAnswers, saveSnooze, saveDataCfg } from '../abdb.js';
+  import { connQuery, abQuery, ensureConfig, saveAnswers, saveSnooze, saveDataCfg } from '../abdb.js';
   import { roundQuestions, moreQuestions, allQuestions, configOf, answerRow, fromChecks, skipToday, stampOf, settingOf, dayOf, lastAnswer } from '../abfragen.js';
   import { pageRandom, neverAgain } from '../datenfragen.js';
   import { db } from '../db.js';
   import { t, tn } from '../i18n.svelte.js';
   import AnswerInput from './AnswerInput.svelte';
-  import { qText, areaName, everyShort } from './words.js';
+  import { sourcesOf, groupsFor } from './verbindungen.js';
+  import { actLabel as actName } from './words.js';
+  import { askText, areaName, everyShort } from './words.js';
   import './ab.css';
 
   // prefill: { qid: raw answer } found by itself (a ride, a meditation), filled in where nothing is answered today, saved like a tap
@@ -22,6 +24,13 @@
   let { part = 'morning', today, prefill = {}, hints = {} } = $props();
   const query = $derived(abQuery(today));
   const data = $derived($query);
+  // «Verbindungen»: what the app knows, offered as one-tap answers of the sentence questions (abfragen/verbindungen.js)
+  const connQ = connQuery(today);
+  const sources = $derived(sourcesOf($connQ ?? {}, today, { tr: t, actName }));
+  const linksOf = (qid) => groupsFor(qid, sources, { tr: t });
+  // this morning's goal, quietly above the question that asks if it was reached
+  const goalToday = $derived(data ? [...data.answers].filter((r) => r.day === today && r.qid === 'ziele.ziel' && r.value).at(-1)?.value ?? '' : '');
+  const hintOf = (qid) => (qid === 'erreicht.ziel' && goalToday ? t('This morning: «{goal}»', { goal: goalToday }) : '');
   $effect(() => {
     if (data && !data.stored) ensureConfig(stampOf());
   });
@@ -135,14 +144,14 @@
       {@const qid = `rq-${part}-${i}`}
       <div class="dq" data-q={d.q.id}>
         <div class="dqh">
-          <b id={qid}>{qText(d.q)}</b>
+          <b id={qid}>{askText(d.q, today, data?.cfg)}</b>
           <span class="meta">
             {#if d.q.own}{everyShort(settingOf(data.cfg, d.q).every)}{:else}{areaName(d.q.area, data.cfg)}{/if}
             {#if d.random}· <span data-random>{t('a random question')}</span><button type="button" class="skip" onclick={() => never(d)} data-never>{t('Never again|question')}</button>{/if}
-            <button type="button" class="skip" onclick={() => skip(d)} aria-label={t('Skip «{q}»', { q: qText(d.q) })} data-ab-skip>{t('Skip|question')}</button>
+            <button type="button" class="skip" onclick={() => skip(d)} aria-label={t('Skip «{q}»', { q: askText(d.q, today, data?.cfg) })} data-ab-skip>{t('Skip|question')}</button>
           </span>
         </div>
-        <AnswerInput q={d.q} bind:value={draft[d.q.id]} bind:note={notes[d.q.id]} id="{qid}-in" label={qText(d.q)} quick last={yesterdayOf(d.q.id)} />
+        <AnswerInput links={linksOf(d.q.id)} hint={hintOf(d.q.id)} q={d.q} bind:value={draft[d.q.id]} bind:note={notes[d.q.id]} id="{qid}-in" label={askText(d.q, today, data?.cfg)} quick last={yesterdayOf(d.q.id)} />
         {#if auto[d.q.id] && hints[d.q.id] && draft[d.q.id] === prefill[d.q.id]}<small class="hint" data-auto={d.q.id}>{hints[d.q.id]}</small>{/if}
       </div>
     {/each}
@@ -158,10 +167,10 @@
             {@const qid = `rq-${part}-m${i}`}
             <div class="dq" data-q={d.q.id} data-more-q>
               <div class="dqh">
-                <b id={qid}>{qText(d.q)}</b>
+                <b id={qid}>{askText(d.q, today, data?.cfg)}</b>
                 <span class="meta">{#if d.q.own}{everyShort(settingOf(data.cfg, d.q).every)}{:else}{areaName(d.q.area, data.cfg)}{/if}{#if !d.on}<span>· {t('switched off|question')}</span>{/if}</span>
               </div>
-              <AnswerInput q={d.q} bind:value={draft[d.q.id]} bind:note={notes[d.q.id]} id="{qid}-in" label={qText(d.q)} quick last={yesterdayOf(d.q.id)} />
+              <AnswerInput links={linksOf(d.q.id)} hint={hintOf(d.q.id)} q={d.q} bind:value={draft[d.q.id]} bind:note={notes[d.q.id]} id="{qid}-in" label={askText(d.q, today, data?.cfg)} quick last={yesterdayOf(d.q.id)} />
             </div>
           {/each}
           {#if more.length > moreN}

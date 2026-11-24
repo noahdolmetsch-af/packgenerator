@@ -9,6 +9,7 @@
   import { t, num, lang } from '../../i18n.svelte.js';
   import { suggestWeek, weeklySports, candidateSports, learnHabits, noHabits, VARIANTS, SRC, FOCUS } from '../suggest.js';
   import { KIND_NAMES, ZONE_NAMES, shiftDay, weekOf } from '../../training.js';
+  import { TP_SRC } from '../wochenplan.js';
 
   let { acts = [], flowActs = [], plan = [], goal = null, monday, today, level = null, daysToRace = null, dayLimits = {}, forecast = null, sportGoals = {}, habits = null, onlimits, onsportgoals, onhabits, onapply, preset = null } = $props();
 
@@ -131,7 +132,7 @@
   const label = (s) => (s.sport ? sportName(flowActs.find((a) => a.id === s.sport) ?? { name: '' }) : s.name ? t(s.name) : t(KIND_NAMES[s.kind]));
   const fmt = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(lang.v, { timeZone: 'UTC', weekday: 'short' });
   const hm = (m) => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
-  const hasWeek = $derived(plan.some((s) => s.day >= monday && s.day < shiftDay(monday, 7) && s.day >= today));
+  const hasWeek = $derived(plan.some((s) => s.src !== TP_SRC && s.day >= monday && s.day < shiftDay(monday, 7) && s.day >= today));
 
   function take() {
     // «Own changes are remembered»: what was removed or lengthened before taking over counts for the next suggestion

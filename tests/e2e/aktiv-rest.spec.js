@@ -105,10 +105,13 @@ test('Meilensteine: the numbers fold is built when opened (also from the address
   await expect(page.locator('main h1')).toHaveText(T('Milestones'));
   const tune = page.locator('main details.tune');
   await expect(tune).toBeVisible();
+  // Noah 23.11.2026 «1-5a» (5a): «Stufen ändern» is no longer in the filter row; the fold at the end is the way (and the address ?tune=1)
+  await expect(page.locator('main .tools').getByRole('link', { name: T('Change stages') })).toHaveCount(0);
+  await expect(tune.locator('summary')).toHaveText(T('Change numbers and stages'));
   await expect(page.locator('main [data-tune]')).toHaveCount(0); // closed: no rows yet
   await tune.locator('summary').click();
   await expect(page.locator('main [data-tune]').first()).toBeVisible();
-  // from the address (the button «Stufen ändern»): open at once, with the rows
+  // from the address (also the link on «Trophäen»): open at once, with the rows
   await page.goto('./#/flow/milestones?tune=1');
   await expect(page.locator('main details.tune')).toHaveAttribute('open', '');
   await expect(page.locator('main [data-tune]').first()).toBeVisible();

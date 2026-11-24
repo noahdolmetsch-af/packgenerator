@@ -466,6 +466,8 @@ const ANALYSIS_PAGES = {
   weight: { label: 'Weight|tab', href: '#/me/weight', match: (h) => h.startsWith('#/me/weight') },
   // «Meilensteine als Belohnung» (Noah 22.10.2026): the overview of all milestones and the trophies are for looking
   milestones: { label: 'Milestones', href: '#/flow/milestones', match: (h) => /^#\/flow\/(milestones|trophies)(\/|\?|$)/.test(h) },
+  // «Sitemap» (Noah 24.11.2026, K4): the challenges with a daily goal stand next to the milestones they count for; the address is unchanged
+  challenges: { label: 'Challenges|page', href: '#/flow/challenges', match: (h) => /^#\/flow\/challenges(\/|\?|$)/.test(h) },
   // «Aktiv und Auswerten» 3a (Noah 03.11.2026): Heatmap, Neuland, Gelernt and Jahr are for looking back, so they stand
   // in Auswerten; their addresses stay, and Touren › Rückblick still has its buttons to them
   heatmap: { label: 'Heatmap', href: '#/heatmap', match: (h) => h.startsWith('#/heatmap') },
@@ -500,10 +502,10 @@ const BIKE_PAGES = {
 };
 
 /** A tab that holds several pages: its address is the first page's, it matches every page's address, and `subs` are the pages as chips. */
-function tabWithSubs({ key, label, subs, chips = true }, pages) {
+function tabWithSubs({ key, label, subs, chips = true, home }, pages) {
   const list = subs.map((k) => ({ key: k, ...pages[k] }));
   // chips: false (Velos aufräumen, Noah 23.11.2026): the pages still belong to the tab (path line, addresses), but no row of chips shows them
-  return { key, label, href: list[0].href, match: (h) => list.some((x) => x.match(h)), subs: list, chips };
+  return { key, label, href: (home ? list.find((x) => x.key === home) : list[0]).href, match: (h) => list.some((x) => x.match(h)), subs: list, chips };
 }
 
 /** The chip of a tab that holds several pages (its `subs`) an address belongs to: { key, … } or null. */
@@ -521,7 +523,8 @@ export const PLACE_TABS = {
   // eleven is still there at its address: it is a chip under its tab (`subs`, PlaceTabs.svelte), no longer a tab of its own.
   week: [
     { key: 'week', label: 'Week|tab', subs: ['week', 'day', 'agenda'] },
-    { key: 'training', label: 'Training|tab', subs: ['training', 'wochenplan', 'flowhome', 'sports', 'rest'] },
+    // Rahmen-Chips (Noah 24.11.2026 «1-5a»): «Tick off today» is the first chip, the tab still opens on «Training»
+    { key: 'training', label: 'Training|tab', subs: ['flowhome', 'training', 'wochenplan', 'sports', 'rest'], home: 'training' },
     { key: 'notes', label: 'Notes|tab', subs: ['notes', 'inbox', 'remember', 'tagebuch', 'mail'] },
     { key: 'alltag', label: 'Everyday|tab', subs: ['alltag', 'meditation', 'frei', 'impulse', 'compass', 'links'] },
   ].map((x) => tabWithSubs(x, { ...WEEK_PAGES, ...FLOW_PAGES })),
@@ -556,14 +559,14 @@ export const PLACE_TABS = {
   analysis: [
     { key: 'start', label: 'Overview|tab', subs: ['fragen', 'start'] },
     { key: 'body', label: 'Body|tab', subs: ['form', 'body', 'insights', 'weight'] },
-    { key: 'rides', label: 'Rides|tab', subs: ['rides', 'ticks', 'milestones', 'heatmap', 'neuland', 'gipfel', 'year', 'learned'] },
+    { key: 'rides', label: 'Rides|tab', subs: ['rides', 'ticks', 'learned', 'milestones', 'challenges', 'heatmap', 'neuland', 'gipfel', 'year'] },
     { key: 'history', label: "How you are|tab", subs: ['history', 'wohl', 'ideen'] },
     { key: 'analyse', label: 'Analyse|page', subs: ['analyse'] },
   ].map((x) => tabWithSubs(x, ANALYSIS_PAGES)),
 };
 
 /** «Aktiv neu»: the addresses of #/flow that belong to Auswerten. */
-const LOOK_FLOW = /^#\/flow\/(form|stats|auswertung|milestones|trophies|ideen|gipfelbuch)(\/|\?|$)/;
+const LOOK_FLOW = /^#\/flow\/(form|stats|auswertung|milestones|trophies|challenges|ideen|gipfelbuch)(\/|\?|$)/;
 
 
 /**
