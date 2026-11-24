@@ -80,11 +80,17 @@ test('Planen 1 + 2: the core line with jump marks under the step bar; overdue ta
   expect(coreBox.y).toBeGreaterThanOrEqual(steps.y + steps.height - 1);
   expect(coreBox.y - (steps.y + steps.height)).toBeLessThan(40);
   const nav = core.getByRole('navigation', { name: T('Jump to') });
-  for (const k of ['Packing list|jump', 'Tasks|jump', 'Route|jump', 'Weather|jump']) await expect(nav.getByRole('button', { name: T(k), exact: true })).toBeVisible();
+  // Tour-Seite: Hauptsache zuerst (Noah 24.11.2026 «1-5a»): one row of chips (tasks, route, weather) and «Alle n»; the packing list follows right below
+  for (const k of ['Tasks|jump', 'Route|jump', 'Weather|jump']) await expect(nav.getByRole('button', { name: T(k), exact: true })).toBeVisible();
+  await expect(nav.getByRole('button', { name: T('Packing list|jump'), exact: true })).toHaveCount(0);
   expect((await sideways(page)).wide).toEqual([]);
 
-  // «Packliste ↓» goes to the packing list
-  await tap(nav.getByRole('button', { name: T('Packing list|jump'), exact: true }), info);
+  // «Alle n ›» opens every jump mark; «Packliste» goes to the packing list
+  await tap(nav.locator('[data-jump-all]'), info);
+  const sheet = page.locator('[data-jump-sheet]');
+  await expect(sheet).toBeVisible();
+  await tap(sheet.locator('[data-jump-all-to="list"]'), info);
+  await expect(sheet).toHaveCount(0);
   await expect(main.getByRole('heading', { name: T('Packing list'), exact: true })).toBeInViewport();
   await expect(main.getByRole('heading', { name: T('Packing list'), exact: true })).toBeFocused();
 

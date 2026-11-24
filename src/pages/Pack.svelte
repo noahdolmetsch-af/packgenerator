@@ -662,6 +662,8 @@
   const moments = $derived(trip && !over ? dayMoments(trip) : []);
   const atMoment = $derived(moments.find((m) => m.key === onionAt) ?? null);
   const onionCk = $derived(trip && !over ? onionCheck(trip, items, offset + chill, wrule, atMoment) : null);
+  // Tour-Seite (Noah 24.11.2026 «1-5a»): the onion in one short phrase for the line before the list (the same words as the onion's own line)
+  const onionLine = $derived(onionCk ? (onionCk.gaps ? tn(onionCk.gaps, 'Onion: {n} gap', 'Onion: {n} gaps') : t('Onion: fits')) : '');
   const kit = $derived(onionCk ? chooseKit(tempKits($setsQ?.value ?? []), onionCk.real, offset + chill) : null);
   const setWait = (m) => change(() => ({ waitMin: m }));
   const kitP = $derived(kit && trip ? kitPlan(kit, trip, items) : null);
@@ -1124,7 +1126,7 @@
   {#if packTab}
     <PackDay top={fixed ? null : blocksCard} onread={!fixed && trip.entries.some((e) => !e.packed) ? () => (reading = true) : null} {trip} {fixed} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip && !fixed ? wxGap : null} wxd={bikeTrip && !fixed ? wxd : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} onmove={moveTo} spare={spareSteps} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} {reminders} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
   {:else}
-  <CalmPack jumpBefore={beforeOpen} {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={locked ? null : factEdit} {fixed} {readyCount} {readyTotal} {over} {phaseOpts} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} onroute={changeContext} onstages={(fn) => change(fn)} onlist={(fn) => change(fn)} prep={before} onprep={before ? openBefore : null} lessons={learningsFor(trip, $learnQ ?? [], 3)} {reminders} power={charge.length > 0 && !over} {ampel} onampel={ampelAct} bind:q bind:zoneKey bind:review
+  <CalmPack jumpBefore={beforeOpen} {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={locked ? null : factEdit} {fixed} {readyCount} {readyTotal} {over} {phaseOpts} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} onroute={changeContext} onstages={(fn) => change(fn)} onlist={(fn) => change(fn)} prep={before} onprep={before ? openBefore : null} lessons={learningsFor(trip, $learnQ ?? [], 3)} {reminders} power={charge.length > 0 && !over} {ampel} onampel={ampelAct} {onionLine} bind:q bind:zoneKey bind:review
     actions={{
       // v0.25.0 (M3): an amount set by hand stays when the trip's context changes (qtyManual).
       // v0.26.1 (Noah 18b): a packed item stays packed when its amount changes (setQty).

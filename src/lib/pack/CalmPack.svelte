@@ -80,7 +80,7 @@
   import BagWeigh from './BagWeigh.svelte'; // K3 «Wiegen am Starttag»: the packed bag on the scale
   import { containerWeight } from '../bikes.js';
   import { offerDone } from '../ui/rename.svelte.js';
-  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, power = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, fixed = false, phaseOpts = {}, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, shop = null, starters = null, jumpBefore = false, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {}, onroute = null, onstages = null, prep = null, onprep = null, lessons = [], reminders = [], onlist = null, ampel = [], onampel = null } = $props();
+  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, power = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, fixed = false, phaseOpts = {}, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, shop = null, starters = null, jumpBefore = false, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {}, onroute = null, onstages = null, prep = null, onprep = null, lessons = [], reminders = [], onlist = null, ampel = [], onampel = null, onionLine = '' } = $props();
   let grouping = $state('bags');
   let stepChoice = $state({ view: null, order: [] });
   // the remembered view and order come with the first read of the settings; a list with nothing packed opens in Steps. A browser test may ask for the bags (__pgPackView).
@@ -337,6 +337,21 @@
     { key: 'weather', label: t('Weather|jump') },
     ...EXTRA_JUMPS.filter((x) => extraHere.includes(x.key)).map((x) => ({ key: x.key, label: t(x.label) })),
   ].filter(Boolean));
+  // the chips of the row: what is open on the way to the start; the packing list is right below, the rest is behind «All n»
+  const MAIN = ['tasks', 'route', 'weather'];
+  const mainJumps = $derived(jumps.filter((j) => MAIN.includes(j.key)));
+  let jumpSheet = $state(false);
+  let jumpEl = $state();
+  $effect(() => {
+    if (jumpSheet && jumpEl && !jumpEl.open) jumpEl.showModal();
+  });
+  function jumpFrom(key) {
+    jumpEl?.close();
+    // after the window has closed, so the scroll is not cut by it
+    setTimeout(() => jump(key), 60);
+  }
+  // one line before the list: the weather, the onion; a tap goes to the conditions card below the list
+  const weatherLine = $derived(!fixed && !over && (trip.wx?.min != null || onionLine) ? [trip.wx?.min != null ? wxText : '', onionLine].filter(Boolean).join(' · ') : '');
   function jump(key) {
     if (key === 'tasks') return onprep?.();
     const q = (sel) => rootEl?.querySelector(sel);
@@ -359,11 +374,15 @@
     <p class="core-l num">{coreLine}</p>
     {#if missing && !alone}<p class="core-m" data-plan-missing>{missing}</p>{/if}
     {#if jumps.length > 1}
+      <!-- Tour-Seite: Hauptsache zuerst (Noah 24.11.2026 «1-5a»): one row of chips (tasks, route, weather) and «All n ›»,
+           which opens every jump mark of the page; the packing list follows right below -->
       <nav class="core-j" aria-label={t('Jump to')}>
         <ArrowDown class="core-a" size={16} aria-hidden="true" />
-        {#each jumps as j (j.key)}<button type="button" class="tp-chip core-c" data-jump={j.key} onclick={() => jump(j.key)}>{j.label}</button>{/each}
+        {#each mainJumps as j (j.key)}<button type="button" class="tp-chip core-c" data-jump={j.key} onclick={() => jump(j.key)}>{j.label}</button>{/each}
+        {#if jumps.length > mainJumps.length}<button type="button" class="tp-chip core-c core-all" data-jump-all onclick={() => (jumpSheet = true)}>{t('All {n}', { n: jumps.length })}<ChevronRight size={14} aria-hidden="true" /></button>{/if}
       </nav>
     {/if}
+    {#if weatherLine && !alone}<button type="button" class="core-w" data-weather-line onclick={() => jump('weather')}><CloudSun size={16} aria-hidden="true" /><span>{weatherLine}</span><ChevronRight size={16} aria-hidden="true" /></button>{/if}
   </div>
 {/snippet}
 
@@ -404,27 +423,21 @@
     <TripBand {trip} tab="plan" {kicker} action={null} />
     {#key trip.id}<DecisionReview {trip} {items} onapply={apply} oncancel={() => review = false} onconditions={() => show('conditions')} />{/key}
   {:else}
-    <TripBand {trip} tab="plan" {kicker} {edit} action={go} below={core} aside={fixed ? null : plus} weighHint={!made} note ontemplate={tplHere ? actions.template : null} hint={main.kind === 'packgo' ? t('A day ride: everything packed in one tap. Or pack bag by bag under Pack.') : main.href === '#/pack?day' ? (packedAll(trip) ? t('Everything is packed.') : t('List ready? Then pack bag by bag.')) : main.kind === 'add' ? t('The list is still empty.') : main.href === '#/' ? t('Everything is packed.') : ''} />
+    <TripBand {trip} tab="plan" {kicker} {edit} action={go} below={core} aside={fixed ? null : plus} weighHint={!made} note quietPlan ontemplate={tplHere ? actions.template : null} hint={main.kind === 'packgo' ? t('A day ride: everything packed in one tap. Or pack bag by bag under Pack.') : main.href === '#/pack?day' ? (packedAll(trip) ? t('Everything is packed.') : t('List ready? Then pack bag by bag.')) : main.kind === 'add' ? t('The list is still empty.') : main.href === '#/' ? t('Everything is packed.') : ''} />
     <!-- Paket H (Noah 19.10.2026 «1a aber bitte in zukunft lösen»): on a phone held sideways the core line and its
          jump marks stand right under the band instead of in it, so the band stays compact (D6) -->
     {@render core(true)}
     {@render notice?.()}
-    <!-- Alles fertig (Versteckte Funktionen, Noah 22.10.2026 «1a»): «Strom: reicht / reicht nicht ›» open at the top -->
-    {#if power}<PowerLine {trip} {items} />{/if}
-    <!-- Tour-Ampel (Noah 05.11.2026, Touren 3a): packed, weather, bike, devices in four lines, before the trip -->
-    {#if ampel.length && !fixed && !over}<TourAmpel rows={ampel} onact={onampel} />{/if}
-    <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, a fitting «Passt zu heute» first -->
-    <HintCard page="pack" />
+    <!-- Tour-Ampel (Noah 05.11.2026, Touren 3a): packed, weather, bike, devices in four lines, before the trip; closed, one line.
+         Tour-Seite (Noah 24.11.2026 «1-5a»): the sentence of the old plan band «Alles bleibt änderbar» now stands inside it -->
+    {#if ampel.length && !fixed && !over}<TourAmpel rows={ampel} onact={onampel} stays={bikeTrip ? t('Everything stays changeable until you set off.') : t('Everything stays changeable until you leave.')} />{/if}
+    <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the card feeds the «?» of the page; its row of jump chips «On this page» is gone (the row «All n» replaces it) -->
+    <HintCard page="pack" only="line" />
     {#if trip.skipped}<p class="tp-status">{bikeTrip ? t('Not riding') : t('Not going')}</p>{/if}
     <!-- Persönliches Lernen Idee 4 (Noah 04.11.2026 «2a»): one tap says why -->
     {#if trip.skipped}<ReasonPick {trip} kind="skipped" />{/if}
-    <!-- v0.47.0 (Noah 8 a+b): the focal point of a bike trip: the drawing with the bag weights, or the setup photo -->
-    <!-- Persönliches Lernen Idee 1 (Noah 04.11.2026 «1a»): the guess for a bike tour, high up so it is seen -->
-    {#if bikeTrip}<ExpectPick {trip} {fixed} />{/if}
-    <!-- Persönliches Lernen Idee 5 (Noah 04.11.2026 «5a»): a recipe that worked, next to this tour -->
-    {#if bikeTrip}<RecipePick {trip} {fixed} />{/if}
-    <!-- Gesamttest 20.10 Design / UI-Grundlagen (idea 1): the tip of the day after the first content part -->
-    <TipLine page="pack" name={t('Pack')} />
+    <!-- Tour-Seite: Hauptsache zuerst (Noah 24.11.2026 «1-5a»): the packing list comes right after the head; the cards below it
+         (power, the guess for the effort, a recipe, the tip) follow the list instead of standing in front of it -->
     <div class="tp-grid2">
       <div class="left">
         <!-- Noah: the conditions as four fields; a tap changes them. A template is one way to start, not a must. -->
@@ -602,6 +615,15 @@
         </div>
       </div>
     </div>
+    <!-- Alles fertig (Versteckte Funktionen, Noah 22.10.2026 «1a»): «Strom: reicht / reicht nicht ›» -->
+    {#if power}<PowerLine {trip} {items} />{/if}
+    <!-- v0.47.0 (Noah 8 a+b): the focal point of a bike trip: the drawing with the bag weights, or the setup photo -->
+    <!-- Persönliches Lernen Idee 1 (Noah 04.11.2026 «1a»): the guess for a bike tour -->
+    {#if bikeTrip}<ExpectPick {trip} {fixed} />{/if}
+    <!-- Persönliches Lernen Idee 5 (Noah 04.11.2026 «5a»): a recipe that worked, next to this tour -->
+    {#if bikeTrip}<RecipePick {trip} {fixed} />{/if}
+    <!-- Gesamttest 20.10 Design / UI-Grundlagen (idea 1): the tip of the day -->
+    <TipLine page="pack" name={t('Pack')} />
     <!-- Ganze App neu denken, Schritt 4b (Noah 18.11.2026): the packing list comes first; route, bike, weight, stages and notes of the plan follow below it -->
     {#if planTop}
       <div class="plan-top">
@@ -627,6 +649,16 @@
   {/if}
   {#if note && sheet !== 'add'}<p class="calm-status" role="status">{note}</p>{/if}
 </div>
+
+{#if jumpSheet}
+  <!-- Tour-Seite: Hauptsache zuerst: every jump mark of the page, in the order the page shows them -->
+  <dialog use:backClose class="calm-sheet jump-sheet" bind:this={jumpEl} onclose={() => (jumpSheet = false)} aria-labelledby="jump-sheet-h" data-jump-sheet>
+    <header><h2 id="jump-sheet-h">{t('On this page')}</h2><button class="text-button" onclick={() => jumpEl.close()}>{t('Close')}</button></header>
+    <ul class="jump-all">
+      {#each jumps as j (j.key)}<li><button type="button" data-jump-all-to={j.key} onclick={() => jumpFrom(j.key)}>{j.label}<ChevronRight size={16} aria-hidden="true" /></button></li>{/each}
+    </ul>
+  </dialog>
+{/if}
 
 {#if labelFor}{#await import('./BagLabel.svelte') then m}<m.default {trip} title={zoneTitle(labelFor)} entries={labelFor.entries} {itemsById} onclose={() => (labelFor = null)} />{:catch}{/await}{/if}
 
@@ -668,6 +700,16 @@
   .core { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; margin: 0 0 16px; min-width: 0; }
   .core-l { flex: 1 1 280px; min-width: 0; margin: 0; color: var(--ink); font-weight: 500; overflow-wrap: break-word; }
   .core-m { flex: 1 1 100%; order: 3; margin: 0; color: var(--ink-2); font-size: var(--fs-small); }
+  .core-all { display: inline-flex; align-items: center; gap: 2px; color: var(--ink); }
+  /* one quiet line before the list: the weather and the onion; a tap goes to the conditions below the list */
+  .core-w { flex: 1 1 100%; order: 4; display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0; border: 0; background: none; color: var(--ink-2); font: inherit; font-size: var(--fs-small); text-align: left; cursor: pointer; }
+  .core-w span { flex: 1; min-width: 0; overflow-wrap: break-word; }
+  .core-w :global(svg) { flex: none; color: var(--ink-3); }
+  @media (hover: hover) { .core-w:hover { color: var(--ink); } }
+  .jump-sheet { max-width: 460px; }
+  .jump-all { list-style: none; margin: 0; padding: 0; display: grid; }
+  .jump-all li + li { border-top: 1px solid var(--line); }
+  .jump-all button { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 48px; padding: 6px 2px; border: 0; background: none; color: var(--ink); font: 500 var(--fs-body) var(--font-body); text-align: left; cursor: pointer; }
   .core-j { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0; }
   .core-j :global(.core-a) { flex: none; color: var(--ink-3); }
   .core-c { padding: 6px 11px; border-color: var(--line); color: var(--ink-2); font-size: var(--fs-small); }
@@ -754,13 +796,25 @@
     .cell { font-size: var(--fs-small); padding: 8px 6px; gap: 8px; }
     .list-toolbar .add-mat { display: none; }
   }
-  /* Impeccable 20.10.2026 P4: on a computer the packing list is the wide column on the left, the conditions sit on the right */
+  /* Tour-Seite: Hauptsache zuerst (Noah 24.11.2026 «1-5a»): on every screen the packing list comes first; a phone shows the conditions
+     under it, a computer beside it (Impeccable 20.10.2026 P4: the wide column on the left, the conditions on the right) */
+  .tp-grid2 > .right {
+    order: -1;
+  }
+  /* below 900 px the cards under the list stand in one column: the weight and the bike with its bags come before the route */
+  @media (max-width: 899px) {
+    .pcol { display: contents; }
+    .pcol > :global(.es) { order: 0; }
+    .pcol > :global(.tw) { order: 1; }
+    .pcol > :global(.wc) { order: 2; }
+    .pcol > :global(.tbike) { order: 3; }
+    .pcol > :global(.rc) { order: 4; }
+    .pcol > :global(.sc) { order: 5; }
+    .pcol > :global(.pn) { order: 6; }
+  }
   @media (min-width: 900px) {
     .tp-grid2 {
       grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-    }
-    .tp-grid2 > .right {
-      order: -1;
     }
     .tp-grid2 > .left {
       position: sticky;
