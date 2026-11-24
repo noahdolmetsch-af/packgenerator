@@ -275,6 +275,9 @@
     gap: 8px;
     flex-wrap: wrap;
   }
+  .tcard .hl {
+    margin-bottom: 10px;
+  }
   .hl p {
     margin: 0;
     color: var(--ink-2);
