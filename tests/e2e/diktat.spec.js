@@ -54,7 +54,8 @@ test('Notes: dictation runs until stop, «Punkt» becomes a sign, the question g
   await expect(page.locator('[data-speak-live="listening"]')).toBeVisible();
   // both pieces arrive although the browser ended after the first one
   await expect(form.locator('textarea:not([data-ask-text])')).toHaveValue('Kette quietscht. Was ist am Velo fällig');
-  expect(await page.evaluate(() => window.__starts)).toBeGreaterThanOrEqual(3);
+  // the third start comes after the browser's end of the second piece: wait for it, do not read the count at once
+  await expect.poll(() => page.evaluate(() => window.__starts)).toBeGreaterThanOrEqual(3);
   await expect(mic).toHaveAttribute('aria-pressed', 'true');
   await mic.click();
   await expect(mic).toHaveAttribute('aria-pressed', 'false');
