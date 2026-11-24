@@ -171,7 +171,8 @@ test('the evening before a rainy trip day: the window Plan B, not on Heute itsel
   expect(await noSideways(page)).toBe(0);
   await win.locator('[data-window-today]').click();
   await expect(win).toHaveCount(0);
-  await page.reload();
+  // closing the window steps the history back a moment later (backclose.js): a reload in that moment is cut off (net::ERR_ABORTED), so it is tried again
+  await expect(() => page.reload()).toPass({ timeout: 15_000 });
   await expect(page.locator('[data-section="greeting"]')).toBeVisible();
   await expect(page.locator('dialog[data-window="planb"]')).toHaveCount(0);
   expect(errors).toEqual([]);

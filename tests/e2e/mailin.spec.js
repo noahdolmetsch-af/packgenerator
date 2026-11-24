@@ -99,6 +99,24 @@ test('Mail in die App: take a mail in, the label, the tip, the attachment, the n
   await sheet.getByLabel(de('Name of the new place')).fill('Ferien Muster');
   await sheet.getByRole('button', { name: de('Keep as note') }).click();
   await expect(page.locator('.toast')).toBeVisible();
+  // the toast comes before the write is done: wait for the stored note before the next address (a reload of the page would lose it)
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          new Promise((ok) => {
+            const r = indexedDB.open('pack-generator');
+            r.onsuccess = () => {
+              const q = r.result.transaction('notes').objectStore('notes').getAll();
+              q.onsuccess = () => {
+                r.result.close();
+                ok(q.result.some((n) => n.status === 'kept' && n.to?.kind === 'keep' && /^own-/.test(n.topic ?? '')));
+              };
+            };
+          }),
+      ),
+    )
+    .toBe(true);
   await page.goto('./#/notes');
   await expect(page.getByText('Ferien Muster').first()).toBeVisible();
 

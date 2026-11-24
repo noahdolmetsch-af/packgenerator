@@ -27,7 +27,21 @@ test('the map of the app lists places, searches and leads to a function', async 
   await page.locator('[data-am-filter="all"]').click();
   // a page opened on this device turns its point into a filled dot
   await page.locator('[data-am-point="#/trips/vorschlaege"]').click();
-  await page.waitForTimeout(1500);
+  // the visit counts once the title of the page stands still (PinMarks.svelte, about 1 s) and is then written to the settings:
+  // wait for that entry itself, not for a guessed time (a fixed 1.5 s ran out on the loaded CI machines)
+  await expect
+    .poll(
+      () =>
+        page.evaluate(async () => {
+          const db = await new Promise((ok) => (indexedDB.open('pack-generator').onsuccess = (e) => ok(e.target.result)));
+          const get = (key) => new Promise((ok) => (db.transaction('settings').objectStore('settings').get(key).onsuccess = (e) => ok(e.target.result)));
+          const mine = [await get('quickLinks.used.phone'), await get('quickLinks.used.computer')];
+          db.close();
+          return mine.some((r) => r?.value?.opened?.['#/trips/vorschlaege']);
+        }),
+      { message: 'the opened page is remembered on this device' },
+    )
+    .toBe(true);
   await page.goto('./#/me/karte');
   await expect(page.locator('[data-am-point="#/trips/vorschlaege"]')).toHaveAttribute('data-am-mark', 'open');
 
