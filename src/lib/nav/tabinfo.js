@@ -21,6 +21,7 @@ export const TAB_INFO = {
   'week:impulse': ['sparkles', 'Ideas and impulses for free time.'],
   'week:links': ['link', 'SBB, Maps, komoot and your own links'],
   'trips:overview': ['map', 'All tours, planned and ridden'],
+  'trips:races': ['trophy', 'Races: plan, check and ride the day'],
   'trips:templates': ['copy', 'Packing lists to start a new tour from'],
   'trips:lookback': ['history', 'Look back: heatmap, new ground, your year'],
   'trips:dreams': ['star', 'Dream tours and races with their season'],

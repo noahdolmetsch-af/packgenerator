@@ -1,5 +1,5 @@
 // «Vereinfachen ohne Verlust» Schritt 2 (Noah 07.11.2026 «1a 2a 3a 4b 5a»): Packen shows the packing list first and the
-// rest of a trip in five closed groups under «Mehr zu dieser Tour». For a real user they are closed (the other specs
+// rest of a trip in six closed groups under «Mehr zu dieser Tour». For a real user they are closed (the other specs
 // run with 'pg.packmore' = 'open', playwright.config.js); this spec tests that default, that a tap opens a group with
 // the functions inside, and that nothing hides in a closed group. Fictional data only (test_data_gtp_), clock of home0460-fixture.js.
 import { test, expect } from './clock.js';
@@ -15,7 +15,7 @@ function data() {
   return d;
 }
 
-test('Packen: the packing list first, five closed groups under More about this trip, a tap opens one', async ({ page, context }, info) => {
+test('Packen: the packing list first, six closed groups under More about this trip, a tap opens one', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await context.addInitScript((id) => { localStorage.setItem('pack.currentTrip', id); localStorage.removeItem('pg.packmore'); }, PLAN);
@@ -46,6 +46,13 @@ test('Packen: the packing list first, five closed groups under More about this t
   await others.locator(':scope > summary').click();
   await expect(page.locator('[data-two]')).toBeVisible();
   await expect(page.locator('[data-two] summary')).toContainText(T('Packing for two'));
+
+  // «Sitemap» Touren (Noah 24.11.2026 «K6»): the sixth group holds the tools of the tour, none of them above the packing list
+  const tools = more.locator('details[data-morefold="tools"]');
+  await expect(tools.locator(':scope > summary')).toContainText(T('Tools for this tour'));
+  await expect(tools).not.toHaveAttribute('open', '');
+  await tools.locator(':scope > summary').click();
+  await expect(page.locator('[data-pack-tools] a')).toHaveCount(7);
 
   expect(errors).toEqual([]);
 });

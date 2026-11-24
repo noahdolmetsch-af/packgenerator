@@ -73,3 +73,23 @@ test('Ctrl Z takes the last delete back on a computer', async ({ page, context }
   await page.keyboard.press('Control+z');
   await expect.poll(async () => (await table(page, 'learnings')).length).toBe(2);
 });
+
+test('a deleted to-do waits as a to-do and comes back at the end of the list', async ({ page, context }, info) => {
+  await start(page, context, info);
+  await page.goto('./#/day/todos');
+  await page.locator('[data-todo-new]').fill('test_data_gtp_ Kette ölen');
+  await page.locator('[data-todo-new]').press('Enter');
+  const row = page.locator('[data-todo^="m:"]', { hasText: 'test_data_gtp_ Kette ölen' });
+  await expect(row).toHaveCount(1);
+  await row.click();
+  await page.locator('[data-todo-sheet]').getByRole('button', { name: T('Delete'), exact: true }).click();
+  await expect(row).toHaveCount(0);
+  await page.goto('./#/me/trash');
+  const rows = page.locator('[data-trash-row]');
+  await expect(rows).toHaveCount(1);
+  await expect(rows.first()).toContainText('test_data_gtp_ Kette ölen');
+  await rows.first().locator('[data-trash-back]').click();
+  await expect(page.locator('[data-trash-info]')).toContainText('test_data_gtp_ Kette ölen');
+  await page.goto('./#/day/todos');
+  await expect(page.locator('[data-todo^="m:"]', { hasText: 'test_data_gtp_ Kette ölen' })).toHaveCount(1);
+});

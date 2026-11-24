@@ -66,3 +66,21 @@ describe('«Rückgängig» time', () => {
     expect(toasts.list).toEqual([]);
   });
 });
+
+describe('a note with a second button', () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => {
+    for (const x of [...toasts.list]) closeToast(x.id);
+    vi.useRealTimers();
+  });
+
+  it('shows its label, runs the action once and goes', async () => {
+    const { actToast } = await import('../src/lib/ui/rename.svelte.js');
+    let n = 0;
+    const id = offerDone('Saved.', async () => {}, UNDO_MS, { label: 'View', run: () => n++ });
+    expect(toasts.list[0].action).toBe('View');
+    await actToast(id);
+    expect(n).toBe(1);
+    expect(toasts.list).toEqual([]);
+  });
+});

@@ -149,18 +149,32 @@ test.describe('AB Deine Abfragen', () => {
     await expect(page.locator('[data-q]')).toHaveCount(105);
 
     // AB2: an own question
-    await page.locator('[data-own-add]').click();
-    const own = page.getByRole('dialog', { name: T('Create your own question') });
-    await expect(own).toBeVisible();
-    await own.locator('[data-own-name]').fill('Kaffee');
-    await own.locator('[data-own-kind="number"]').click();
-    await own.locator('[data-own-unit]').fill('Tassen');
-    await own.getByRole('button', { name: T('Several times a day') }).click();
-    await expect(own.getByText(T('How Today asks'))).toBeVisible();
-    await shot(page, info, 'AB2-eigene-frage', false);
-    await own.locator('[data-own-save]').click();
-    await expect(own).toHaveCount(0);
+    const addKaffee = async (info2) => {
+      await page.locator('[data-own-add]').click();
+      const own = page.getByRole('dialog', { name: T('Create your own question') });
+      await expect(own).toBeVisible();
+      await own.locator('[data-own-name]').fill('Kaffee');
+      await own.locator('[data-own-kind="number"]').click();
+      await own.locator('[data-own-unit]').fill('Tassen');
+      await own.getByRole('button', { name: T('Several times a day') }).click();
+      await expect(own.getByText(T('How Today asks'))).toBeVisible();
+      if (info2) await shot(page, info, 'AB2-eigene-frage', false);
+      await own.locator('[data-own-save]').click();
+      await expect(own).toHaveCount(0);
+    };
     const mine = page.locator('[data-area="eigene"]');
+    // Noah 23.11.2026 «1-5a» (2a): the note says it is saved and when it comes; «Undo» takes the question away again
+    await addKaffee(false);
+    const note = page.locator('.rtoast');
+    await expect(note).toContainText('Frage gespeichert. Sie kommt');
+    await expect(mine.locator('[data-q] b').getByText('Kaffee')).toBeVisible();
+    await note.getByRole('button', { name: T('Undo') }).click();
+    await expect(mine.getByText('Kaffee')).toHaveCount(0);
+    await addKaffee(true);
+    // «Ansehen» jumps to the new question and lights it up for a moment
+    await expect(note).toContainText('Frage gespeichert. Sie kommt');
+    await note.locator('[data-toast-action]').click();
+    await expect(mine.locator('[data-q].hl')).toHaveCount(1);
     await expect(mine.locator('[data-q] b').getByText('Kaffee')).toBeVisible();
     await expect(mine.getByText('Tassen')).toBeVisible();
     await expect(page.getByText('10 Bereiche · 106 Fragen · 32 an')).toBeVisible();

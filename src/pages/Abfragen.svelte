@@ -12,6 +12,7 @@
    * rounds (07:00 and 20:30)»), above 15 a calm hint; «so far: …» only in the interval sheet; «Where the values
    * come from» and «Answer kinds» are one fold «How it works».
    */
+  import { tick } from 'svelte';
   import { Trash2, Check } from '@lucide/svelte';
   import SortGrip from '../lib/ui/SortGrip.svelte';
   import SortArrows from '../lib/ui/SortArrows.svelte';
@@ -20,6 +21,7 @@
   import { sortable } from '../lib/ui/sortable.js';
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js';
   import { offerDone, offerRename } from '../lib/ui/rename.svelte.js';
+  import { UNDO_MS } from '../lib/ui/undo.js';
   import { ChevronDown, ChevronUp, Plus, Pencil, Hand, Watch, CircleDashed, Smartphone, Info, RotateCcw, Gauge, ChartLine, ChevronRight } from '@lucide/svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import AreaIcon from '../lib/abfragen/AreaIcon.svelte';
@@ -100,6 +102,22 @@
   function saveRule(x) {
     const own = x.id ? x : newOwn(x);
     if (own) save(putOwn(cfg, own, stampOf()));
+  }
+  // Noah 23.11.2026 «1-5a», 2a: a new own question says it is saved and when it comes, with «Undo» and «View»
+  let hl = $state(null);
+  function offerSaved(own, before, next) {
+    const off = !settingOf(next, own).on;
+    const text = off ? t('Question saved. It is switched off.') : t('Question saved. It comes {when}.', { when: everyText(own.every) });
+    offerDone(text, () => save(before), UNDO_MS, { label: t('Look at it'), run: () => view(own) });
+  }
+  async function view(own) {
+    open = { ...open, [own.area ?? OWN_AREA]: true };
+    await tick();
+    const el = document.querySelector(`[data-q="${own.id}"]`);
+    if (!el) return;
+    el.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    hl = own.id;
+    setTimeout(() => (hl = null), 2500);
   }
   async function removeRule(x) {
     const name = ruleTitle(x);
@@ -208,7 +226,11 @@
       return save(next);
     }
     const own = x.id ? x : newOwn(x);
-    if (own) save(putOwn(cfg, own, stampOf()));
+    if (!own) return;
+    const before = cfg;
+    const next = putOwn(cfg, own, stampOf());
+    save(next);
+    if (!x.id) offerSaved(own, before, next);
   }
   // WG: the fixed rounds; a time that is none keeps the one before
   const setTime = (key, value) => {
@@ -355,7 +377,7 @@
               {#if editing}
                 <ul class="ql er qe" use:sortable={{ onmove: (from, to) => stepQ(g.key, from, to) }}>
                   {#each g.list as q, i (q.id)}
-                    <li data-sort-id={q.id} data-q={q.id}>
+                    <li data-sort-id={q.id} data-q={q.id} class:hl={hl === q.id}>
                       <SortGrip name={qText(q)} onstep={(dir) => stepQ(g.key, i, i + dir)} />
                       <span class="nm">{qText(q)}<small>{kindLabel(q.form)}{q.own ? ` · ${t('own|question')}` : q.edited ? ` · ${t('changed|question')}` : ''}</small></span>
                       <SortArrows name={qText(q)} {i} n={g.list.length} onstep={(dir) => stepQ(g.key, i, i + dir)} />
@@ -369,7 +391,7 @@
               <ul class="ql">
                 {#each g.list.filter((q) => !hide.includes(q)) as q (q.id)}
                   {@const s = settingOf(cfg, q)}
-                  <li class="q" class:off={!s.on} data-q={q.id}>
+                  <li class="q" class:off={!s.on} class:hl={hl === q.id} data-q={q.id}>
                     <span class="qm">
                       <b>{qText(q)}</b>
                       <span class="ab-tags">
@@ -743,6 +765,11 @@
     list-style: none;
     margin: 0;
     padding: 0;
+  }
+  .hl {
+    background: color-mix(in srgb, var(--hi-bright) 18%, transparent);
+    border-radius: var(--r-ctl);
+    transition: background 0.4s;
   }
   .q {
     display: grid;

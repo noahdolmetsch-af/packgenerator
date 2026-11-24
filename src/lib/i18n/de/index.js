@@ -129,6 +129,8 @@ import sn6plus from './sn6plus.js';
 import abfragen from './abfragen.js';
 // «Wechsel-Varianten»: the other wordings of the questions
 import varianten from './varianten.js';
+// «Verbindungen»: what a sentence question offers from your own data
+import verbindungen from './verbindungen.js';
 
 // «Geheimnis im Logo» (Idee 29) and «Geheimmenü» (H6 …): the surprises behind five taps on «PG»
 import logogeheimnis from './logo-geheimnis.js';
@@ -845,6 +847,7 @@ const ORDERED = [
   sn6plus,
   abfragen,
   varianten,
+  verbindungen,
   logogeheimnis,
   logosprueche,
   logoplatten,
