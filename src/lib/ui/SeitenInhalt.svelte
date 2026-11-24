@@ -118,6 +118,10 @@
     .si-line {
       display: none;
     }
+    /* its row would stay behind as an empty grid row of the trip band (+16 px, D6 in landscape.spec): a row with only this line goes too */
+    .si-row:has(> .si-line:only-child) {
+      display: none;
+    }
   }
   button:focus-visible {
     outline: var(--focus-ring);
