@@ -219,9 +219,7 @@
 
 <div class="ich-page dreams" data-page="dreams">
   <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }]} title={t('Dreams|page')} sub={t('Dream tours with their season, races as event tours')} />
-  <p class="dr-intro">{t('Tours you dream of. The app tells you when they fit.')}</p>
   <p class="dr-sug"><a class="btn" href="#/trips/vorschlaege" data-dreams-suggest><Mountain size={16} aria-hidden="true" />{t('Tour suggestions')}</a> <span class="ich-help">{t('Mountain bike tours from the official network, to keep as dreams.')}</span></p>
-  <AreaIntro place="dreams" />
 
   <form class="card cap" onsubmit={add}>
     <label class="capt"><span class="sr">{t('New dream tour')}</span><input class="inp" type="text" bind:value={title} maxlength="80" placeholder={t('e.g. Over the Furka and Grimsel')} /></label>
@@ -231,9 +229,7 @@
   </form>
   {#if done}<p class="ok" role="status"><Check size={16} aria-hidden="true" /><span class="ok-text">{done}</span></p>{/if}
 
-  {#if view === 'list'}<p class="ich-help dr-more" data-dreams-more>{t('Open a dream for «Ready for the dream?». A dream that fits now gets a «Weather window for dreams». «All dreams on one map» is the view Map; «Fulfilled dreams» is the closed row at the end of the list; «Fits now: ideas per month» and «After-work bivouac» and «Train there, bike home» and «Sunrise on the hill» and «Adventure dice» and «One adventure a month» and «Dreams in one place» sit under the list. «Dream of the week» appears on Heute while a dream fits.')}</p>{/if}
 
-  <TripTips />
 
   {#if due.length}
     <section class="ich-sec" aria-labelledby="dr-due" data-deadlines>
@@ -331,6 +327,9 @@
     </details>
   {/if}
 
+  <!-- «Träume: deine Träume zuerst» (Noah «1-5a» 24.11.2026, impeccable F3): the day's outing tips stand under the list, not before it -->
+  <TripTips />
+
   {#if view === 'map'}
   <DreamsMap dreams={list.filter((d) => !doneDay.has(d.id))} onopen={(id) => (open = id)} />
   {/if}
@@ -387,6 +386,11 @@
     <!-- idea 5: the dreams card in «Woche planen» can be hidden there and comes back here -->
     <label class="ck wk"><input type="checkbox" checked={!weekHidden} onchange={(e) => db.settings.put({ key: WEEK_HIDE_KEY, value: !e.currentTarget.checked })} data-week-show /><span>{t('Show fitting dreams and deadlines in «Plan the week»')}</span></label>
   </section>
+
+  <!-- the help texts of the page stand at its end (Content first): what the page is, the way through it, then «So geht's» -->
+  <p class="dr-intro">{t('Tours you dream of. The app tells you when they fit.')}</p>
+  {#if view === 'list'}<p class="ich-help dr-more" data-dreams-more>{t('Open a dream for «Ready for the dream?». A dream that fits now gets a «Weather window for dreams». «All dreams on one map» is the view Map; «Fulfilled dreams» is the closed row at the end of the list; «Fits now: ideas per month» and «After-work bivouac» and «Train there, bike home» and «Sunrise on the hill» and «Adventure dice» and «One adventure a month» and «Dreams in one place» sit under the list. «Dream of the week» appears on Heute while a dream fits.')}</p>{/if}
+  <AreaIntro place="dreams" />
 </div>
 
 {#if openDream}
