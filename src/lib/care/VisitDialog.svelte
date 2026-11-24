@@ -1,5 +1,5 @@
 <script>
-  import { askDelete, deleteWithUndo } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
+  import { askDelete, deleteWithUndo } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 8 s «Undo»
   import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * One workshop visit (Noah, 4.10.2026, answers 7a, 8a): what was done, what it cost, and the
@@ -48,7 +48,7 @@
     await db.visits.update(visit.id, { km: n });
   }
   async function remove() {
-    if ((await askDelete({ title: t('Remove the visit of {date}?', { date: visit.date }), text: t('Its jobs leave the part history too. You can bring it back for 4 seconds afterwards.'), label: t('Remove') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Remove the visit of {date}?', { date: visit.date }), text: t('Its jobs leave the part history too. You can bring it back for 8 seconds afterwards.'), label: t('Remove') })) !== 'delete') return;
     const name = `${visit.shop}, ${visit.date}`;
     const ok = await deleteWithUndo({
       // «Verschleiss»: the visit's point on the whole-bike counter goes with it (visitdb.js), Undo brings both back

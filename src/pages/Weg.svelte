@@ -234,7 +234,7 @@
     tplName = '';
   }
   async function removeThisTemplate(x) {
-    if ((await askDelete({ title: t('Delete the saved way "{name}"?', { name: x.name }), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete the saved way "{name}"?', { name: x.name }), text: t('You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     const before = $state.snapshot(w);
     if (nTpl === x.id) nTpl = '';
     await deleteWithUndo({ run: async () => (await save(removeTemplate(w, x.id)), before), undo: (snap) => save(snap), text: t('"{name}" deleted.', { name: x.name }), name: x.name });
@@ -244,7 +244,7 @@
   let renaming = $state(null); // { kind: 'goal' } | { kind: 'step', id }
   async function removeThisGoal() {
     const g = goal;
-    if (!g || (await askDelete({ title: t('Delete the way "{name}"?', { name: g.title }), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if (!g || (await askDelete({ title: t('Delete the way "{name}"?', { name: g.title }), text: t('You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     const before = $state.snapshot(w);
     await deleteWithUndo({ run: async () => (await save(removeGoal(w, g.id)), before), undo: (snap) => save(snap), text: t('"{name}" deleted.', { name: g.title }), name: g.title });
   }
@@ -272,7 +272,7 @@
   }
   async function removeThisStep(r) {
     const g = goal;
-    if ((await askDelete({ title: t('Delete the step "{name}"?', { name: r.step.title }), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete the step "{name}"?', { name: r.step.title }), text: t('You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     const before = $state.snapshot(g);
     await deleteWithUndo({ run: async () => (await putGoal(removeStep(g, r.step.id)), before), undo: (snap) => putGoal(snap), text: t('"{name}" deleted.', { name: r.step.title }), name: r.step.title });
   }

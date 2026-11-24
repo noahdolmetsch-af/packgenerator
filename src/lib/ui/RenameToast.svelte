@@ -4,7 +4,7 @@
    * B22 «Rückgängig gleitet» (Noah 27.10.2026): the notes glide up from below and stack, each keeps its
    * own Undo; a thin line shows the time left; swiping a note sideways or × closes it. */
   import { Check, Undo2, X } from '@lucide/svelte';
-  import { toasts, undoToast, closeToast } from './rename.svelte.js';
+  import { toasts, undoToast, closeToast, pauseToast, resumeToast } from './rename.svelte.js';
   import { t } from '../i18n.svelte.js';
 
   // Swipe sideways to close (finger, mouse or pen); a short move snaps back.
@@ -44,6 +44,10 @@
         onpointermove={move}
         onpointerup={up}
         onpointercancel={up}
+        onpointerenter={() => pauseToast(x.id)}
+        onpointerleave={() => resumeToast(x.id)}
+        onfocusin={() => pauseToast(x.id)}
+        onfocusout={() => resumeToast(x.id)}
       >
         <Check size={18} aria-hidden="true" />
         <span>{x.text}</span>
@@ -140,6 +144,12 @@
     }
     .left {
       animation: run linear forwards;
+    }
+    .rtoast:hover .left,
+    .rtoast:focus-within .left,
+    .rtoast-old:hover .left,
+    .rtoast-old:focus-within .left {
+      animation-play-state: paused;
     }
     .rtoast:not(.dragging),
     .rtoast-old:not(.dragging) {

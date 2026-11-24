@@ -12,7 +12,7 @@
   import { openTrip } from '../nav.js';
   import { phone } from '../media.svelte.js';
   import { t } from '../i18n.svelte.js';
-  import { readRun, writeRun, stepAt, stepCount, nextRun, backRun, navSelector, cardSpot, pausedOf, writePaused } from '../tour.js';
+  import { readRun, writeRun, stepAt, stepCount, stepNo, nextRun, backRun, skipRun, navSelector, cardSpot, pausedOf, writePaused } from '../tour.js';
   import { TOUR_EVENT, END_EVENT } from './run.js';
 
   let run = $state(readRun());
@@ -25,7 +25,7 @@
   let vh = $state(typeof innerHeight === 'number' ? innerHeight : 800);
   const step = $derived(run ? stepAt(run.id, run.step) : null);
   const count = $derived(run ? stepCount(run.id) : 0);
-  const last = $derived(!!run && !!step && !step.end && run.step === count - 1);
+  const last = $derived(!!run && !!step && !step.end && (run.step === count - 1 || !!stepAt(run.id, run.step + 1)?.end));
 
   $effect(() => {
     const on = () => (run = readRun());
@@ -145,8 +145,8 @@
     <div class="tcard {spot.mode}" style={cardStyle} bind:this={card} role="dialog" aria-modal="true" aria-labelledby="tour-h" aria-describedby="tour-p">
       <div class="top">
         {#if !step.end}
-          <span class="dots" aria-hidden="true">{#each Array(count) as _, i (i)}<span class:on={i <= run.step} class:now={i === run.step}></span>{/each}</span>
-          <span class="n">{t('Step {n} of {of}', { n: run.step + 1, of: count })}</span>
+          <span class="dots" aria-hidden="true">{#each Array(count) as _, i (i)}<span class:on={i < stepNo(run.id, run.step)} class:now={i === stepNo(run.id, run.step) - 1}></span>{/each}</span>
+          <span class="n">{step.station ? t('Station {n} of {of}', { n: stepNo(run.id, run.step), of: count }) : t('Step {n} of {of}', { n: run.step + 1, of: count })}</span>
         {:else}
           <span class="n">{t('Tour|short')}</span>
         {/if}
@@ -164,8 +164,9 @@
           {/if}
         {:else}
           <button type="button" class="lk" onclick={stop}>{t('End tour')}</button>
+          {#if step.ask}<button type="button" class="btn sm" onclick={() => set(skipRun(run))} data-station-skip>{t('Skip|station')}</button>{/if}
           {#if run.step > 0}<button type="button" class="btn sm" onclick={() => set(backRun(run))}>{t('Back|tour')}</button>{/if}
-          <button type="button" class="btn sm hi" bind:this={primary} onclick={() => set(nextRun(run))}>{last ? t('Done ›|tour') : t('Next ›|tour')}</button>
+          <button type="button" class="btn sm hi" bind:this={primary} onclick={() => set(nextRun(run))} data-station-show={step.ask ? '' : undefined}>{step.ask ? t('Show me ›|station') : last ? t('Done ›|tour') : t('Next ›|tour')}</button>
         {/if}
       </div>
     </div>

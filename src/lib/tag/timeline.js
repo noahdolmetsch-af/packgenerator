@@ -31,9 +31,10 @@ export function lengthOf(e) {
  *   allDay   holidays and trips (kind 'away'): a strip above the timeline
  *   untimed  entries without a clock time: a list above the timeline («Ohne Zeit»)
  *   blocks   entries with a time; col/cols tell the page how to put overlapping ones side by side
- *   from, to the hours the timeline shows (whole hours; wider than 06:00–23:00 when an entry is outside)
+ *   from, to the hours the timeline shows (whole hours; wider than 06:00–23:00 when an entry is outside;
+ *          with `now` (minutes, today only) it starts one hour before it, but never later than the first entry)
  */
-export function layoutDay(entries = []) {
+export function layoutDay(entries = [], { now = null } = {}) {
   const allDay = entries.filter((e) => e.kind === 'away');
   const untimed = [];
   const blocks = [];
@@ -74,7 +75,9 @@ export function layoutDay(entries = []) {
 
   const first = blocks.length ? Math.min(...blocks.map((b) => b.start)) : DAY_START;
   const last = blocks.length ? Math.max(...blocks.map((b) => b.end)) : DAY_END;
-  const from = Math.min(DAY_START, Math.floor(first / 60) * 60);
+  // on today the view starts one hour before «now» (earlier hours stay one scroll up, and an earlier entry always shows)
+  const start = now == null ? DAY_START : Math.max(DAY_START, Math.floor((now - 60) / 60) * 60);
+  const from = blocks.length ? Math.min(start, Math.floor(first / 60) * 60) : start;
   const to = Math.max(DAY_END, Math.ceil(last / 60) * 60);
   return { allDay, untimed, blocks, from, to: Math.min(24 * 60, to) };
 }

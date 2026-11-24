@@ -42,7 +42,7 @@
   const addStep = (c, kind) => kind && setSteps(c, [...c.steps, { id: newId('s'), kind, ...(kind === 'resize' ? { px: 1600 } : {}) }]);
 
   async function removeChain(c) {
-    if ((await askDelete({ title: t('Delete «{name}»?', { name: name(c) }), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete «{name}»?', { name: name(c) }), text: t('You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     const at = chains.indexOf(c);
     await deleteWithUndo({
       name: name(c),

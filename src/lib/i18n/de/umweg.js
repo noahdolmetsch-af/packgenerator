@@ -62,7 +62,7 @@ export default {
   'Stretch to avoid': 'Stück meiden',
   'Change or delete your marks later in the options of the live map, under «Remembered ways».': 'Ändere oder lösche deine Markierungen später in den Optionen der Live-Karte unter «Gemerkte Wege».',
   'Delete "{name}" from the remembered ways?': '«{name}» aus den gemerkten Wegen löschen?',
-  'The app will no longer avoid or show this stretch. You can bring it back for 4 seconds afterwards.': 'Die App meidet oder zeigt dieses Stück nicht mehr. Du kannst es danach 4 Sekunden lang zurückholen.',
+  'The app will no longer avoid or show this stretch. You can bring it back for 8 seconds afterwards.': 'Die App meidet oder zeigt dieses Stück nicht mehr. Du kannst es danach 8 Sekunden lang zurückholen.',
   'Remembered ways': 'Gemerkte Wege',
   'Stretches you marked after a ride. Bad ones are avoided when the app plans a new way; good ones show as a sign on the map. Rename, change or delete them here.': 'Stücke, die du nach einer Fahrt markiert hast. Schlechte meidet die App, wenn sie einen neuen Weg plant; gute zeigt die Karte als Zeichen. Hier kannst du sie umbenennen, ändern oder löschen.',
   'Nothing yet. After a ride, «Your ride» asks how the stretches were.': 'Noch nichts. Nach einer Fahrt fragt «Deine Fahrt», wie die Stücke waren.',

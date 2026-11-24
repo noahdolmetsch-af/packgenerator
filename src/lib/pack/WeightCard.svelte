@@ -11,11 +11,12 @@
   import { isConsumable } from '../gear.js';
   import { packSteps } from '../trips.js';
   import { t, tn, locale, nameOf } from '../i18n.svelte.js';
+  import GesamtGewicht from './GesamtGewicht.svelte'; // Gesamtgewicht: only the items, with bags, with bike, with you
   import PasstHier from '../ui/PasstHier.svelte'; // Wegweiser 5: «Fits here» → how sure the weight is
   import { tripFill } from '../einzeln/material.js'; // Einzelidee 24: the content of bottles, gas and boxes apart
 
   // v0.106.0 Design-Refresh P5 (T6 «Gewicht nach Taschen»): the same card on Packen, with its own title.
-  let { trip, stats, itemsById, title = '', sub = '' } = $props();
+  let { trip, stats, itemsById, title = '', sub = '', onweigh = null } = $props();
 
   const COLORS = ['var(--hi)', 'var(--hi-bright)', 'var(--bar)', 'var(--l2)', 'var(--line)', 'var(--l3)', 'var(--l1)'];
   const kgN = (g) => (g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -47,6 +48,7 @@
       {#if w.missing}<span>{tn(w.missing, '{n} item not weighed', '{n} items not weighed')}</span>{/if}
       {#if fill.g}<span data-weight-fill>{t('Full: + {kg} kg content (bottles, gas, boxes), not in the total', { kg: kgN(fill.g) })}</span>{/if}
     </p>
+    {#if stats}<GesamtGewicht {stats} bike={!Array.isArray(trip?.packs)} {onweigh} />{/if}
     {#if w.total > 0}<PasstHier place="weight" />{/if}
   </div>
 </section>

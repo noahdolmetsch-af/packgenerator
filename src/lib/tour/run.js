@@ -49,3 +49,15 @@ export async function askTour(id) {
   if (await demoState(db)) return startTour(id, { play: true, from: pauseFor(readPaused(), id)?.step ?? 0 });
   window.dispatchEvent(new CustomEvent(ASK_EVENT, { detail: { id } }));
 }
+
+/**
+ * «Rundgang der Stärken» (Noah 23.11.2026 «1-5a»): starts on the spot, with the sample race as the example (marked as a
+ * sample, removable; «3a»). The sample is made first when it is not there; your own data is never touched. Pages and
+ * the sample code load only now.
+ */
+export async function startStaerken() {
+  const [{ SAMPLE_ID, makeSample }, { putRace }, { RACES_KEY, racesOf }, { newTrip }, { t }] = await Promise.all([import('../race/sample.js'), import('../race/store.js'), import('../race/race.js'), import('../trips.js'), import('../i18n.svelte.js')]);
+  const have = (await db.trips.get(SAMPLE_ID)) && racesOf((await db.settings.get(RACES_KEY))?.value)[SAMPLE_ID];
+  if (!have) await makeSample({ db, newTrip, putRace, today: localDay(), title: t('Sample race 1000'), tr: t });
+  return startTour('staerken');
+}

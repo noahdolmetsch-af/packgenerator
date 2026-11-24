@@ -88,6 +88,27 @@ test('Mein Tag: an empty day says why and where to plan', async ({ page, context
   await expect(page.locator('h1')).toHaveText(T('My day'));
   await expect(page.getByText(T('Nothing planned on this day'))).toBeVisible();
   await expect(page.getByRole('link', { name: T('Open Woche') })).toBeVisible();
+  // the empty hours stay folded until asked for; the help sentence belongs to the tab «Day» only
+  await expect(page.locator('.tl')).toBeHidden();
+  await page.locator('[data-tl-fold] summary').click();
+  await expect(page.locator('.tl')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('Mein Tag: the page opens with the tab used last', async ({ page, context }) => {
+  const errors = await open(page, context, '#/day');
+  await page.waitForSelector('h1');
+  await page.getByRole('button', { name: T('Tick off|tab') }).click();
+  await expect(page).toHaveURL(/#\/day\/abhaken$/);
+  await page.goto('./#/week');
+  await page.waitForSelector('h1');
+  await page.locator('a[href="#/day"]').first().click();
+  await expect(page).toHaveURL(/#\/day\/abhaken$/);
+  // «Day» is remembered the same way, and a day address always shows the day
+  await page.getByRole('button', { name: T('Day') }).click();
+  await page.goto('./#/week');
+  await page.locator('a[href="#/day"]').first().click();
+  await expect(page.locator('.tl, [data-tl-fold]').first()).toBeAttached();
   expect(errors).toEqual([]);
 });
 

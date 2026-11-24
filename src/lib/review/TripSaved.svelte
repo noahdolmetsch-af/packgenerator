@@ -457,7 +457,7 @@
           </section>
 
           <!-- Impeccable (Noah 18.10.2026, Rückblick einer Tour 1): the open suggestions in sight, right under
-               «Fertig. Gute Tour!», each with «Übernehmen» and «Nein, danke» (4 s «Rückgängig», Debrief.svelte) -->
+               «Fertig. Gute Tour!», each with «Übernehmen» and «Nein, danke» (8 s «Rückgängig», Debrief.svelte) -->
           {#if openSugg.length}
             <section class="rv-sec sugs" id="rv-suggestions" aria-labelledby="sg-h" data-suggestions tabindex="-1">
               <div class="rv-h"><div><h2 id="sg-h">{tn(openSugg.length, '{n} suggestion from this trip', '{n} suggestions from this trip')}</h2><p class="rv-sub">{t('Take over what helps next time; the rest stays as it is.')}</p></div></div>
@@ -483,7 +483,7 @@
               <div class="rv-h"><div><h2 id="rt-h">{t('Route|review')}</h2><p class="rv-sub">{day != null ? t('Day {n} dark, the other days pale', { n: day + 1 }) : [trip.route?.name ?? '', routeKm ? `${n0(routeKm)} km` : '', trip.route?.gainM ? `${n0(trip.route.gainM)} Hm` : '', cuts.length ? t('one stroke per day') : ''].filter(Boolean).join(' · ')}</p></div></div>
               <div class="rv-box pad">
                 {#if line.length}<TourMap {line} km={routeKm} marks={dayMarks} {cuts} {day} />{/if}
-                {#if profile}<div class="prof"><!-- v0.151.0 HP2 (F13): the ridden GPX profile, the planned route dashed over it --><Profile points={row?.rideProfile ?? profile} plan={row?.rideProfile ? row.planProfile : null} label={row?.rideProfile ? 'Elevation of the ride' : 'Elevation profile'} marks={dayMarks} cuts={cuts.map((k, i) => ({ km: k, label: t('Day {n}', { n: i + 2 }) }))} from={day != null ? (day === 0 ? 0 : cuts[day - 1] ?? null) : null} to={day != null ? (cuts[day] ?? profile.at(-1)[0]) : null} /></div>{/if}
+                {#if profile}<div class="prof"><!-- v0.151.0 HP2 (F13): the ridden GPX profile, the planned route dashed over it --><Profile detail points={row?.rideProfile ?? profile} plan={row?.rideProfile ? row.planProfile : null} label={row?.rideProfile ? 'Elevation of the ride' : 'Elevation profile'} marks={dayMarks} cuts={cuts.map((k, i) => ({ km: k, label: t('Day {n}', { n: i + 2 }) }))} from={day != null ? (day === 0 ? 0 : cuts[day - 1] ?? null) : null} to={day != null ? (cuts[day] ?? profile.at(-1)[0]) : null} /></div>{/if}
                 <p class="rv-note pm"><MapIc size={16} aria-hidden="true" /><span>{t('Background only hinted · numbers as in the timeline')}</span></p>
               </div>
             </section>
