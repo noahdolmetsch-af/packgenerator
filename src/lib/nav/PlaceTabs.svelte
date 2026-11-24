@@ -284,8 +284,8 @@
       margin: var(--sp-2) calc(-1 * var(--gut)) var(--sp-3);
       padding: 0 var(--gut);
       scroll-padding: 0 var(--gut);
-      -webkit-mask-image: linear-gradient(to right, transparent 0, #000 var(--gut), #000 calc(100% - 28px), transparent 100%);
-      mask-image: linear-gradient(to right, transparent 0, #000 var(--gut), #000 calc(100% - 28px), transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, transparent 0, var(--ink) var(--gut), var(--ink) calc(100% - 28px), transparent 100%);
+      mask-image: linear-gradient(to right, transparent 0, var(--ink) var(--gut), var(--ink) calc(100% - 28px), transparent 100%);
     }
     .psubs::-webkit-scrollbar {
       display: none;

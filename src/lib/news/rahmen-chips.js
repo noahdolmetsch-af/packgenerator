@@ -2,7 +2,7 @@
 export default {
   title: 'Chips in one row on the phone',
   lead: 'On the phone the small chips under the tabs now stand in one row you swipe sideways, and the chosen chip is always in view. The dots under the tabs are gone, the line under the tab already shows where you are. «Tick off today» is the first chip of Training.',
-  points: [{ text: 'Swipe the chips under the tabs sideways, «Tick off today» stands first in Training', go: { href: '#/flow/training', steps: [], where: 'Plan › Training: the chips under the tabs.' } }],
+  points: [{ text: 'Swipe the chips under the tabs sideways, «Tick off today» stands first in Training', go: { href: '#/flow/training', steps: [{ sel: '[data-subtabs]' }], where: 'Plan › Training: the chips under the tabs.' } }],
   small: [{ box: 'new', text: 'Chips in one row, swipe sideways on the phone' }],
   test: ['Open Plan › Training on the phone: the chips under the tabs stand in one row, «Tick off today» first.', 'Swipe the row sideways and tap the last chip: it stays in view.', 'On the computer the chips look as before.'],
   since: [],
