@@ -5,7 +5,7 @@ import DE from '../../src/lib/i18n/de/index.js';
 import { SOSIEHT_AREAS } from '../../src/lib/firststart/sosieht.js';
 
 const T = (en) => DE[en] ?? en.replace(/\|[a-z]+$/, '');
-const PAGE = { trips: '#/trips', pack: '#/pack', gear: '#/gear', bikes: '#/bikes' };
+const PAGE = { trips: '#/trips', pack: '#/pack', gear: '#/gear', bikes: '#/bikes', week: '#/day' }; // week: the empty day of Mein Tag
 
 test.beforeEach(async ({ context }) => {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
@@ -15,7 +15,6 @@ test.beforeEach(async ({ context }) => {
 test('every empty main page has the line, inside the empty card and not above it', async ({ page }) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  // «week» (Mein Tag) is put in by the Alltag pages; this spec covers the four pages that carry the line here
   for (const a of SOSIEHT_AREAS.filter((x) => PAGE[x])) {
     await page.goto(`./${PAGE[a]}`);
     const line = page.locator(`[data-sosieht="${a}"]`);
@@ -41,5 +40,15 @@ test('on Pack the sample trip opens with its list', async ({ page }) => {
   await page.goto('./#/pack');
   await page.locator('[data-sosieht="pack"] [data-sosieht-go]').click();
   await expect(page.getByText(T('Jura loop (example)')).first()).toBeVisible();
+  await expect(page.locator('[data-sosieht]')).toHaveCount(0);
+});
+
+test('on Mein Tag the sample week fills Abhaken; the line is gone then and never shows on an empty day of a used app', async ({ page }) => {
+  await page.goto('./#/day');
+  await page.locator('[data-sosieht="week"] [data-sosieht-go]').click();
+  await expect(page.locator('[data-sosieht]')).toHaveCount(0);
+  // the sample ticks are in: another empty day shows no sample line any more
+  await page.goto('./#/day/2027-02-03');
+  await expect(page.locator('[data-empty]').first()).toBeVisible();
   await expect(page.locator('[data-sosieht]')).toHaveCount(0);
 });
