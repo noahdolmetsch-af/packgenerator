@@ -44,7 +44,7 @@
   const linksOf = (qid) => groupsFor(qid, sources, { tr: t });
   // this morning's goal, quietly above the question that asks if it was reached
   const goalToday = $derived(data ? [...data.answers].filter((r) => r.day === today && r.qid === 'ziele.ziel' && r.value).at(-1)?.value ?? '' : '');
-  const hintOf = (qid) => (qid === 'erreicht.ziel' && goalToday ? t('This morning: «{goal}»', { goal: goalToday }) : '');
+  const hintOf = (qid) => (qid === 'erreicht.ziel' && goalToday ? t('This morning: «{goal}»', { goal: goalToday }) : qid === 'visionen.naeher' && !sources.visions.length ? t('No visions yet. Write one in Notes with the template «Vision».') : '');
   $effect(() => {
     if (data && !data.stored) ensureConfig(now);
   });

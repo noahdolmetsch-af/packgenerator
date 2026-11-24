@@ -1,7 +1,7 @@
 /**
  * «Verbindungen» (Noah 04./05.11.2026, Thread «Wi gaht's? um Träume und Visionen erweitern», «3b» 23.11.2026: alle fünf in einem PR):
  * a text question shows what the app already knows as one-tap answers, so you do not type what is already there:
- * your goals of the week, your to-dos, your activities, your friends and the stars you reached.
+ * your goals of the week, your to-dos, your activities, your friends, the stars you reached and (Noah «4a») your visions from the notes.
  * Nothing is copied and nothing is stored here: a tap puts the words into the answer field, you can change them.
  * Pure (tests/verbindungen.test.js); the data is read by connQuery in abdb.js, the chips are drawn in AnswerInput.svelte.
  */
@@ -10,6 +10,7 @@ import { msContext, crossMilestones, actMilestones } from '../flowms.js';
 
 /** Which question offers which kinds, in this order. */
 export const CONNECT = {
+  'visionen.naeher': ['visions'], // «Which vision did you move closer to this month»: the notes with the template «Vision»
   'ziele.ziel': ['todos', 'goals', 'acts'], // «Your most important goal for today»
   'ziele.liegen': ['todos'], // «What may stay undone today»
   'ziele.schritt': ['todos', 'goals'], // sample: «Your smallest doable step»
@@ -27,6 +28,7 @@ export const LABELS = {
   friends: 'People you want to see',
   stars: 'New stars',
   done: 'Done today|link',
+  visions: 'Your visions',
 };
 export const MAX_PER_KIND = 5;
 
@@ -42,7 +44,7 @@ const addDays = (d, n) => new Date(Date.parse(`${d}T12:00:00Z`) + n * 864e5).toI
 
 /**
  * What the app offers, by kind, from the raw records. `raw`: { merken: [to-do], weekGoals, acts: [flowActs], people: [alltag.people],
- * stars: [flowStars] }. `tr`: translator, `actName`: the name of an activity in the shown language. → { todos, goals, acts, friends, stars, done }: [string]
+ * stars: [flowStars], notes: [notes with the template «Vision»] }. `tr`: translator, `actName`: the name of an activity in the shown language. → { todos, goals, acts, friends, stars, done, visions }: [string]
  */
 export function sourcesOf(raw = {}, today, { tr = (s) => s, actName = (a) => a?.name ?? '' } = {}) {
   const acts = (Array.isArray(raw.acts) ? raw.acts : []).filter((a) => a && !a.paused);
@@ -71,7 +73,13 @@ export function sourcesOf(raw = {}, today, { tr = (s) => s, actName = (a) => a?.
     .filter((s) => s && s.day >= since && s.day <= today && names.has(s.msId) && !seen.has(s.msId) && seen.add(s.msId))
     .sort((a, b) => String(b.day).localeCompare(String(a.day)))
     .map((s) => names.get(s.msId));
-  return { todos: open, goals, acts: acts.sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((a) => text(actName(a), 60)).filter(Boolean), friends: people, stars, done };
+  // visions: the notes written with the template «Vision» (note.form.key), newest first; the title, else «Where I want to go»
+  const visions = (Array.isArray(raw.notes) ? raw.notes : [])
+    .filter((n) => n?.form?.key === 'vision')
+    .sort((a, b) => String(b.updatedAt ?? b.createdAt ?? b.at ?? '').localeCompare(String(a.updatedAt ?? a.createdAt ?? a.at ?? '')))
+    .map((n) => text(n.title || n.form?.values?.where || String(n.text ?? '').split('\n')[0], 80))
+    .filter(Boolean);
+  return { visions, todos: open, goals, acts: acts.sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((a) => text(actName(a), 60)).filter(Boolean), friends: people, stars, done };
 }
 
 /** The groups for one question: [{ kind, label, items }], empty groups left out; [] for a question without connections. */

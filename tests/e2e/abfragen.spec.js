@@ -116,8 +116,8 @@ test.describe('AB Deine Abfragen', () => {
     await expect(page).toHaveURL(/#\/me\/abfragen$/);
     await expect(page.getByRole('heading', { level: 1, name: T('Your questions') })).toBeVisible();
     // Impeccable Runde 2 (on purpose): the head says how often a day the app asks
-    await expect(page.locator('.vhead .vsub')).toHaveText(/^30 Fragen an · etwa [0-9]+ Mal pro Tag gefragt, in 2 Runden [(]07:00 und 20:30[)]/);
-    await expect(page.getByText('10 Bereiche · 105 Fragen · 30 an')).toBeVisible();
+    await expect(page.locator('.vhead .vsub')).toHaveText(/^31 Fragen an · etwa [0-9]+ Mal pro Tag gefragt, in 2 Runden [(]07:00 und 20:30[)]/);
+    await expect(page.getByText('10 Bereiche · 106 Fragen · 31 an')).toBeVisible();
     const areas = page.locator('[data-area]');
     await expect(areas).toHaveCount(11); // 10 areas and «Eigene»
     const erholung = page.locator('[data-area="erholung"]');
@@ -135,7 +135,7 @@ test.describe('AB Deine Abfragen', () => {
     // a switch: «Sofa oder Sattel» on → 30 on
     const sofa = erholung.locator('[data-q="erholung.sofa"]');
     await sofa.getByRole('switch').check();
-    await expect(page.getByText('10 Bereiche · 105 Fragen · 31 an')).toBeVisible();
+    await expect(page.getByText('10 Bereiche · 106 Fragen · 32 an')).toBeVisible();
     // the interval of «Akku»: twice a day
     await erholung.locator('[data-q="erholung.akku"]').getByRole('button', { name: /täglich/ }).click();
     const sheet = page.getByRole('dialog', { name: T('How often to ask?') });
@@ -146,7 +146,7 @@ test.describe('AB Deine Abfragen', () => {
     await expect(erholung.locator('[data-q="erholung.akku"]').getByRole('button', { name: /2× täglich · 8:00, 20:00/ })).toBeVisible();
     // «Alle aufklappen»
     await page.getByRole('button', { name: T('Expand all') }).click();
-    await expect(page.locator('[data-q]')).toHaveCount(105);
+    await expect(page.locator('[data-q]')).toHaveCount(106);
 
     // AB2: an own question
     const addKaffee = async (info2) => {
@@ -181,7 +181,7 @@ test.describe('AB Deine Abfragen', () => {
     await expect(mine.locator('[data-q].hl')).toHaveCount(1);
     await expect(mine.locator('[data-q] b').getByText('Kaffee')).toBeVisible();
     await expect(mine.getByText('Tassen')).toBeVisible();
-    await expect(page.getByText('10 Bereiche · 106 Fragen · 32 an')).toBeVisible();
+    await expect(page.getByText('10 Bereiche · 107 Fragen · 33 an')).toBeVisible();
     // and away again
     await mine.getByRole('button', { name: /Kaffee/ }).click();
     await page.getByRole('dialog').locator('[data-own-delete]').click();
@@ -189,7 +189,7 @@ test.describe('AB Deine Abfragen', () => {
     await page.getByTestId('ask-delete').getByRole('button', { name: T('Delete'), exact: true }).click();
     await expect(mine.getByText('Kaffee')).toHaveCount(0);
     await page.reload();
-    await expect(page.getByText('10 Bereiche · 105 Fragen · 31 an')).toBeVisible();
+    await expect(page.getByText('10 Bereiche · 106 Fragen · 32 an')).toBeVisible();
   });
 
   test('AB4: the history with an old daily check, filters, change an answer', async ({ page, context }, info) => {

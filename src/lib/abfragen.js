@@ -113,6 +113,8 @@ const BASE_QUESTIONS = [
   q('visionen', 'neues', 'How keen are you on something new: creature of habit or explorer?', scale(), daily('08:00'), ['hand'], 'How keen are you on something new?'),
   q('visionen', 'tour', 'Which tour is haunting your head right now?', text(), weekly(0, '19:00')),
   q('visionen', 'wohin', 'If you had tomorrow off and there was no weather: where to?', text(), weekly(6, '09:00')),
+  // Noah 04./05.11.2026 «monatlich Visionen und Lebensträume» (4a 23.11.2026): once a month, with the visions from the notes as one-tap answers (verbindungen.js)
+  q('visionen', 'naeher', 'Which vision or life dream did you move closer to this month, even by one small step?', text(), monthly('19:00')),
   q('visionen', 'jahr', 'What do you want to be able to do in a year that you cannot do today?', text(), monthly('19:00')),
   // 8 Ziele
   q('ziele', 'ziel', 'Your most important goal for today, in a sentence or a word.', text(), daily('08:00'), ['hand'], 'Your most important goal for today'),
@@ -219,7 +221,7 @@ export const ON_AT_START = new Set([
   'achtsamkeit.kopf', 'achtsamkeit.moment', 'achtsamkeit.tabs',
   'freunde.verbunden', 'freunde.laecheln',
   'natur.draussen', 'natur.wetter', 'natur.luft',
-  'visionen.vision', 'visionen.tour',
+  'visionen.vision', 'visionen.tour', 'visionen.naeher',
   'ziele.ziel', 'ziele.liegen',
   'erreicht.zufrieden', 'erreicht.ziel', 'erreicht.stolz', 'erreicht.pokal',
   'koerper.waage', 'koerper.ruhepuls',
