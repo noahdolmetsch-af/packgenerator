@@ -138,6 +138,10 @@ test('workshop visit: a part replaced starts at 0 km, the whole bike counter to 
   await page.getByRole('button', { name: T('Remove visit') }).click();
   await page.getByRole('dialog', { name: T('Remove the visit of {date}?', { date: visit.date }) }).getByRole('button', { name: T('Remove'), exact: true }).click();
   await expect.poll(async () => (await bikeNow(page)).service?.last?.km).toBe(1800);
-  await page.getByRole('button', { name: /Rückgängig|Undo/ }).click();
+  // the note «… removed · Undo» comes a moment after the rows are gone (the trash is written first); until then the newest
+  // note is still «Workshop visit saved», whose Undo is the wrong one. Wait for the note of the removal, take its Undo.
+  const note = page.locator('.rtoast');
+  await expect(note).toContainText(T('"{name}" removed.', { name: `Test shop, ${visit.date}` }));
+  await note.getByRole('button', { name: /Rückgängig|Undo/ }).click();
   await expect.poll(async () => (await bikeNow(page)).service?.last?.km).toBe(2600);
 });
