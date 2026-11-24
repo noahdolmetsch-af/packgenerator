@@ -31,7 +31,7 @@ test('a chosen TWINT screenshot marks the fitting invoice paid', async ({ page, 
   await expect(card).toContainText(`Mia Beispiel · 80.00 CHF`);
   await expect(card).toContainText(T('fits exactly'));
   await card.getByRole('button', { name: T('Yes, paid') }).click();
-  await expect(page.getByRole('status')).toHaveText(T('{no} is marked as paid.', { no: 'R-0317' }));
+  await expect(page.locator('[role="status"]:not([data-tab-title-live])')).toHaveText(T('{no} is marked as paid.', { no: 'R-0317' }));
   await expect(card).toHaveCount(0);
   await expect(page).toHaveURL(/#\/me\/pay\/invoices$/);
   // the picture is not kept: a reload shows no card

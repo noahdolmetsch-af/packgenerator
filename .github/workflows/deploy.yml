@@ -19,6 +19,12 @@
 # Noah 22.11.2026 «a»: a small PR (text, view, tests, docs) runs only the quick check: the Wächter and the Kern plus its pages
 # (one part, about 10 minutes). A PR that touches data, backup, sync, the storage structure, api/, build or workflow
 # files, or anything not understood, still runs all five parts. The night run (volle-pruefung.yml) runs everything.
+# Noah 24.11.2026 «a» (thread «Tests schneller machen», Stau-Regel 5): a «Schwer» PR (data, backup, sync, api/, build and
+# workflow files, anything not understood: scripts/ci-scope.mjs) no longer runs all five phone parts on every push after
+# «ok»: one PR did that five times (170 runner minutes each) and the 20 GitHub computers were busy for everyone. With «ok»
+# it runs the quick stage (the Kern, its own pages, the data specs). The full run starts with the label «voll», which Claude
+# sets right before the merge. «e2e (phone)» stays red for a Schwer PR until «voll» is on it and the run is green, so nothing
+# Schwer is merged without the full check. A push after «voll» runs everything again.
 name: Build and deploy
 
 on:
@@ -68,8 +74,8 @@ jobs:
   # label «ok» (Noah's ok, see above): they ran here already before the merge, so main does not wait again.
   e2e-part:
     if: >-
-      github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'ok') &&
-      (github.event.action != 'labeled' || github.event.label.name == 'ok')
+      github.event_name == 'pull_request' && (contains(github.event.pull_request.labels.*.name, 'ok') || contains(github.event.pull_request.labels.*.name, 'voll')) &&
+      (github.event.action != 'labeled' || github.event.label.name == 'ok' || github.event.label.name == 'voll')
     runs-on: ubuntu-latest
     # 45 since 22.10.2026: on slow runners the parts passed every test but hit 30 min (#238).
     # 50 since 07.11.2026: Handy-Test part 1 hit the 35 min limit twice (#1048, #1046 needed 32 min).
@@ -105,7 +111,7 @@ jobs:
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE" # the job runs in a container as another user
           git fetch --no-tags origin ${{ github.base_ref }}
-          node scripts/ci-scope.mjs ${{ github.base_ref }} | tee -a "$GITHUB_OUTPUT"
+          node scripts/ci-scope.mjs ${{ github.base_ref }} ${{ contains(github.event.pull_request.labels.*.name, 'voll') && '--voll' || '' }} | tee -a "$GITHUB_OUTPUT"
       - if: steps.scope.outputs.mode != 'none' && (steps.scope.outputs.mode == 'all' || matrix.shard <= steps.scope.outputs.parts)
         run: npm ci
       - if: steps.scope.outputs.mode == 'all'
@@ -138,12 +144,25 @@ jobs:
   e2e-phone:
     name: e2e (phone)
     if: >-
-      always() && github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'ok') &&
-      (github.event.action != 'labeled' || github.event.label.name == 'ok')
+      always() && github.event_name == 'pull_request' && (contains(github.event.pull_request.labels.*.name, 'ok') || contains(github.event.pull_request.labels.*.name, 'voll')) &&
+      (github.event.action != 'labeled' || github.event.label.name == 'ok' || github.event.label.name == 'voll')
     needs: [e2e-part]
     runs-on: ubuntu-latest
     steps:
       - run: test "${{ needs.e2e-part.result }}" = "success"
+      # A «Schwer» PR (scripts/ci-scope.mjs prints schwer=yes) is checked in full only with the label «voll» (24.11.2026):
+      # until then its parts ran the quick stage and this check stays red, so the merge waits for the full run.
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - id: scope
+        run: |
+          git fetch --no-tags origin ${{ github.base_ref }}
+          node scripts/ci-scope.mjs ${{ github.base_ref }} | tee -a "$GITHUB_OUTPUT"
+      - if: steps.scope.outputs.schwer == 'yes' && !contains(github.event.pull_request.labels.*.name, 'voll')
+        run: |
+          echo "::error::Schwerer PR (Daten, Sync, api/, Build oder nicht erkannt): die volle Prüfung fehlt noch. Label «voll» setzen, direkt vor dem Merge."
+          exit 1
 
   # «e2e (desktop)»: the Wächter on the computer, every main page at 1440 px (sideways scrolling, broken
   # words, one page title). The other computer tests run every night.

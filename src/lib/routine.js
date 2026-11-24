@@ -86,8 +86,16 @@ export function routineOf(value) {
     const ok = Object.fromEntries(Object.entries(days).filter(([d, v]) => isDay(d) && FELT.includes(v)));
     if (Object.keys(ok).length) felt[id] = ok;
   }
-  return { items, ticks, felt };
+  const gone = goneOf(value.gone, seen);
+  return gone.length ? { items, ticks, felt, gone } : { items, ticks, felt };
 }
+
+/**
+ * The ids of items the person deleted (a quiet note, at most GONE_MAX): the device sync (sync/merge.js) needs it to tell «deleted
+ * here» from «never had it» when two devices changed the list. An id that is in the list again is no longer noted.
+ */
+export const GONE_MAX = 100;
+const goneOf = (list, keep = new Set()) => (Array.isArray(list) ? [...new Set(list.filter((x) => typeof x === 'string' && x && !keep.has(x)))].sort().slice(-GONE_MAX) : []);
 
 /* ---------- which items, which day ---------- */
 /** Is the item for this day (every day, or one of its weekdays)? */
@@ -210,7 +218,8 @@ export function removeItem(routine, id) {
   delete ticks[id];
   const felt = { ...(routine.felt ?? {}) };
   delete felt[id];
-  return { items: routine.items.filter((x) => x.id !== id), ticks, felt };
+  const gone = goneOf([...(routine.gone ?? []), id]);
+  return { items: routine.items.filter((x) => x.id !== id), ticks, felt, gone };
 }
 /** Move item `id` to place `to` among the items of the list. */
 export function moveItem(routine, id, to) {
@@ -235,4 +244,4 @@ export function toggleDay(days, w) {
   return next.length && next.length < 7 ? next : null;
 }
 /** Plain for saving (no proxies). */
-export const recordOf = (routine) => JSON.parse(JSON.stringify({ items: routine.items, ticks: routine.ticks, felt: routine.felt ?? {} }));
+export const recordOf = (routine) => JSON.parse(JSON.stringify({ items: routine.items, ticks: routine.ticks, felt: routine.felt ?? {}, ...(routine.gone?.length ? { gone: goneOf(routine.gone, new Set(routine.items.map((x) => x.id))) } : {}) }));

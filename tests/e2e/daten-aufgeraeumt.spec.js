@@ -34,7 +34,7 @@ test('Daten aufräumen: status, question, folds, backup first', async ({ page, c
   await expect(ask).toHaveCount(0);
   const folded = main.locator('[data-morefold="sync"]');
   await expect(folded).toBeVisible();
-  await folded.locator('summary').click();
+  await folded.locator('summary').first().click(); // the fold's own line; «Was wird abgeglichen?» inside it is a second summary
   await expect(main.locator('[data-section="sync"]')).toBeVisible();
   await expect(main.locator('[data-sync-google]')).toHaveCount(0);
 

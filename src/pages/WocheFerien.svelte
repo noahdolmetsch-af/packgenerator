@@ -16,6 +16,7 @@
   import { awayName, awayOffered } from '../lib/woche/away.js';
   import { localDay } from '../lib/localday.js';
   import { t, tn } from '../lib/i18n.svelte.js';
+  import { deleteWithUndo } from '../lib/ui/ask.js';
 
   const today = localDay();
   const q = weekQuery(today);
@@ -46,10 +47,28 @@
     await putWeek(ITEMS_KEY, items);
     form = null;
   }
+  // A stay away goes with the entries it made (pack:<id>): «Rückgängig» and «Zuletzt gelöscht» bring both back (Noah 23.11.2026 «1a»)
   async function remove() {
-    await putWeek(AWAY_KEY, (src?.away ?? []).filter((x) => x.id !== form.id));
-    await putWeek(ITEMS_KEY, (src?.rawItems ?? []).filter((x) => x.ref !== `pack:${form.id}`));
+    const id = form.id;
+    const away = src?.away ?? [];
+    const rawItems = src?.rawItems ?? [];
+    const gone = away.find((x) => x.id === id);
+    const made = rawItems.filter((x) => x.ref === `pack:${id}`);
+    const name = gone?.title || t('Holidays|away');
     form = null;
+    await deleteWithUndo({
+      run: async () => {
+        await putWeek(AWAY_KEY, away.filter((x) => x.id !== id));
+        await putWeek(ITEMS_KEY, rawItems.filter((x) => x.ref !== `pack:${id}`));
+      },
+      undo: async () => {
+        await putWeek(AWAY_KEY, away);
+        await putWeek(ITEMS_KEY, rawItems);
+      },
+      text: t('"{name}" deleted.', { name }),
+      name,
+      item: gone ? { kind: 'week', parts: [{ store: AWAY_KEY, row: gone }, ...made.map((row) => ({ store: ITEMS_KEY, row }))] } : null,
+    });
   }
   const line = (a) => `${shortDate(a.from)}${a.to !== a.from ? `–${shortDate(a.to)}` : ''} · ${tn(awayDays(a), '{n} day', '{n} days')} · ${awayName(a.type, t)}`;
 </script>
