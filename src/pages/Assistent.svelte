@@ -36,10 +36,23 @@
   const CHROME_EG = ['What do I take for 2 days of rain?', 'Which jacket for 5 °C?'];
   const plan = $derived(hash.startsWith('#/assistent/plan'));
   const gemini = $derived(hash.startsWith('#/assistent/gemini'));
+  // On a phone the chosen tab is always in view (the row swipes sideways).
+  $effect(() => {
+    void plan;
+    void gemini;
+    const box = tabsEl;
+    const on = box?.querySelector('a.on');
+    if (!box || !on || box.scrollWidth <= box.clientWidth + 1) return;
+    const b = box.getBoundingClientRect();
+    const r = on.getBoundingClientRect();
+    if (r.right + 24 > b.right) box.scrollLeft += r.right + 24 - b.right;
+    else if (r.left - 24 < b.left) box.scrollLeft += r.left - 24 - b.left;
+  });
   // «Eigene Frage stellen» (Noah 23.11.2026 «1-5a», 5a): opened from «Fragen» (`?von=fragen`) the place stays «Auswerten» and a link
   // leads back; the field has the cursor; the six questions of «Fragen» are buttons that show the same answer (FragenDaten, no second count)
   const von = $derived(/[?&]von=fragen(&|$)/.test(hash));
   let field = $state(null);
+  let tabsEl = $state(null); // the row of the three tabs: on a phone it swipes, the chosen tab stays in view
   let focused = false;
   $effect(() => {
     if (field && !plan && !gemini && !focused && !asked) {
@@ -107,7 +120,7 @@
 <div class="as-page">
   {#if von}<a class="as-back" href="#/auswerten/fragen" data-as-back><ChevronLeft size={16} aria-hidden="true" />{t('Back to «Ask your data»')}</a>{/if}
   <VeloHead title={t('Assistant')} sub={t('Ask the app, ask Gemini, or let it help you plan. Free.')} />
-  <div class="as-tabs" role="tablist" aria-label={t('Assistant')}>
+  <div class="as-tabs" role="tablist" aria-label={t('Assistant')} bind:this={tabsEl}>
     <a role="tab" href="#/assistent" aria-selected={!plan && !gemini} class:on={!plan && !gemini}><MessageCircle size={16} aria-hidden="true" />{t('Ask the app')}</a>
     <a role="tab" href="#/assistent/plan" aria-selected={plan} class:on={plan}><Route size={16} aria-hidden="true" />{t('Help me plan')}</a>
     <a role="tab" href="#/assistent/gemini" aria-selected={gemini} class:on={gemini} data-as-tab="gemini"><Sparkles size={16} aria-hidden="true" />{t('Ask Gemini')}</a>
@@ -232,6 +245,26 @@
     color: var(--ink-2);
     text-decoration: none;
     font-weight: 500;
+  }
+  @media (max-width: 719px) {
+    /* one row, swipe sideways, soft edge (Noah 24.11.2026 «1-5a» Rahmen-Chips, like the chips of PlaceTabs) */
+    .as-tabs {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      margin-inline: calc(-1 * var(--gut));
+      padding-inline: var(--gut);
+      scroll-padding-inline: var(--gut);
+      -webkit-mask-image: linear-gradient(to right, transparent 0, var(--ink) var(--gut), var(--ink) calc(100% - 28px), transparent 100%);
+      mask-image: linear-gradient(to right, transparent 0, var(--ink) var(--gut), var(--ink) calc(100% - 28px), transparent 100%);
+    }
+    .as-tabs::-webkit-scrollbar {
+      display: none;
+    }
+    .as-tabs a {
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
   }
   .as-tabs a.on {
     background: var(--hi);
