@@ -19,7 +19,7 @@
   let editText = $state('');
   let adding = $state('');
   async function drop(x) {
-    if ((await askDelete({ title: t('Delete this line?'), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete this line?'), text: t('You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     await deleteWithUndo({ run: () => ondrop(x.id), undo: onundo, text: t('"{name}" deleted.', { name: label(x) }), name: label(x) });
   }
   async function add(e) {

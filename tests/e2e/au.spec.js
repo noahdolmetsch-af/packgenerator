@@ -43,54 +43,58 @@ async function updated(page) {
   await expect.poll(() => page.evaluate(() => localStorage.getItem('wasneu.update'))).not.toBeNull();
 }
 
-// «Heute neu» A 5b (Noah 20.10.2026, changed on purpose): the banner «New in …» moved from Today to Ich
-test('A-U1: after an update a calm banner under Ich, no window, not on Today; View opens the news, × closes it, gone after 7 days', async ({ page, context }, info) => {
+// «Banner Was ist neu» (Noah 23.11.2026 «1-5a», changed on purpose): the banner is ONE line on Today under the chips again (it lived under Ich since 20.10.2026)
+test('A-U1: after an update ONE calm line on Today, no window; the text opens the news, × closes it, gone after 7 days; nothing under Ich any more', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const T = await openHome(page, context, info);
   await updated(page);
   await expect(page.locator('div.home')).toBeVisible();
-  await expect(page.locator('.wall [data-tile]').first()).toBeVisible();
-  // Today stays calm: no banner, no window
-  await expect(page.locator('[data-news-banner]')).toHaveCount(0);
-  await expect(page.locator('dialog[open]')).toHaveCount(0);
-  await page.goto('./#/me');
   const banner = page.locator('[data-news-banner]');
-  await expect(banner.getByRole('heading', { name: T('New in {v}|banner', { v: shortVersion(NEWEST.version) }) })).toBeVisible();
-  await expect(banner.locator('p')).toHaveText(T(NEWEST.title));
+  await expect(banner.getByRole('heading', { name: T('New in {v}|banner', { v: shortVersion(NEWEST.version) }) })).toBeAttached();
+  await expect(banner.locator('[data-news-title]')).toContainText(T('New: {title}', { title: T(NEWEST.title) }));
   await expect(page.locator('dialog[open]')).toHaveCount(0);
-  expect((await banner.boundingBox()).y).toBeLessThan((await page.locator('.ich-cols').boundingBox()).y);
+  // one narrow line: directly under the chips, above the wall of tiles
+  expect((await banner.boundingBox()).height).toBeLessThan(64);
+  expect((await banner.boundingBox()).y).toBeLessThan((await page.locator('.wall [data-tile]').first().boundingBox()).y);
   await noSideways(page);
-  await shot(page, info, 'au1-ich-banner');
+  await shot(page, info, 'au1-heute-banner');
 
-  // «Ansehen» opens Ich › Was ist neu (the whole news stay there) and closes the banner for this update
-  await banner.getByRole('link', { name: T('View|news') }).click();
+  // nothing under Ich any more
+  await page.goto('./#/me');
+  await expect(page.locator('.ich-cols')).toBeVisible();
+  await expect(page.locator('[data-news-banner]')).toHaveCount(0);
+
+  // the text opens Ich › Was ist neu (the whole news stay there) and closes the banner for this update
+  await page.goto('./#/');
+  await expect(banner).toBeVisible();
+  await banner.locator('[data-news-title]').click();
   await expect.poll(() => new URL(page.url()).hash).toBe('#/me/news');
   await expect(page.getByRole('heading', { level: 1, name: T('What is new'), exact: true })).toBeVisible();
   await shot(page, info, 'au1-was-ist-neu');
-  await page.goto('./#/me');
-  await expect(page.locator('.ich-cols')).toBeVisible();
+  await page.goto('./#/');
+  await expect(page.locator('div.home')).toBeVisible();
   await expect(page.locator('[data-news-banner]')).toHaveCount(0);
 
   // switched on again under Ich: × closes it, it stays away after a reload
   await page.goto('./#/me/news');
   await openShort(page); // 0.163.0: on a phone the switch sits in a closed line
   await page.getByRole('switch', { name: new RegExp(T('Show the message after updates')) }).check();
-  await page.goto('./#/me');
+  await page.goto('./#/');
   await expect(banner).toBeVisible();
   await banner.getByRole('button', { name: T('Close the hint') }).click();
   await expect(banner).toHaveCount(0);
   await page.reload();
-  await expect(page.locator('.ich-cols')).toBeVisible();
+  await expect(page.locator('div.home')).toBeVisible();
   await expect(page.locator('[data-news-banner]')).toHaveCount(0);
 
   // on again, but the update is 7 calendar days old: the banner is gone by itself (6 days: still there)
   await page.evaluate(() => localStorage.removeItem('wasneu.mute'));
   const age = async (n) => {
     await page.evaluate((at) => localStorage.setItem('wasneu.update', JSON.stringify({ ...JSON.parse(localStorage.getItem('wasneu.update')), at })), day(-n));
-    await page.goto('./#/');
     await page.goto('./#/me');
-    await expect(page.locator('.ich-cols')).toBeVisible();
+    await page.goto('./#/');
+    await expect(page.locator('div.home')).toBeVisible();
   };
   await age(BANNER_DAYS - 1);
   await expect(banner).toBeVisible();

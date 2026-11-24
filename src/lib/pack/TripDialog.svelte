@@ -743,7 +743,7 @@
   const openedAs = JSON.stringify([draft, ctx]);
   const keepOnBack = () => (isNew || JSON.stringify([$state.snapshot(draft), $state.snapshot(ctx)]) === openedAs ? dialog.close() : save({ preventDefault() {} }));
   /** "Discard": the trip this window made goes again (it was made here and has nothing else). */
-  // «Discard» (Noah 19.10.2026 «3a»): goes at once, with 4 s «Undo» (the new trip comes back, or the
+  // «Discard» (Noah 19.10.2026 «3a»): goes at once, with 8 s «Undo» (the new trip comes back, or the
   // changes go onto the trip again).
   async function discard() {
     ended = true;
@@ -760,10 +760,10 @@
     dialog.close();
   }
 
-  // «Rückmeldungen» (Noah 19.10.2026): the app's own question, then 4 s «Undo».
+  // «Rückmeldungen» (Noah 19.10.2026): the app's own question, then 8 s «Undo».
   const remove = once(async () => {
     const name = trip.title;
-    if ((await askDelete({ title: t('Delete the trip "{name}"?', { name }), text: t('Its packing list goes with it. You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete the trip "{name}"?', { name }), text: t('Its packing list goes with it. You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     const ok = await deleteWithUndo({
       run: async () => {
         const rec = await db.trips.get(trip.id);

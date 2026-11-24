@@ -147,6 +147,8 @@ noteAppOpen();
 // (the bike shop sheet and the gear import use German words); a German app has them already (main.js).
 if (lang.v !== 'de') loadDe().catch(() => {});
 mount(App, { target: document.getElementById('app') });
+// «Sofort ein Bild» (23.11.2026): the quiet frame of index.html (#boot) goes as soon as the app is drawn
+document.getElementById('boot')?.remove();
 watchWhitePage();
 watchErrors(); // «Fehler-Melder»: errors nobody caught are noted on this device (nothing is sent)
 
@@ -163,6 +165,9 @@ watchHelloButtons(); // Gruss B: names of own and renamed buttons in the history
 // Ask the browser to keep our data even when the device runs low on space.
 // Without this, a browser may delete website data it considers unimportant.
 navigator.storage?.persist?.();
+
+// Speicher (Noah 23.11.2026): kept map tiles are loaded once again with CORS so Chrome counts their real size (src/lib/tilediet.js).
+import('./lib/tilediet.js').then((m) => m.slimTilesLater()).catch(() => {});
 
 // One-time fixes for older data (brand/model split, bag list and bike setups).
 // «App-Wartung» BF4 (Noah 13.10.2026): on a new version, a copy of the data BEFORE the data updates run

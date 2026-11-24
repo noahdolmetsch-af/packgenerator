@@ -88,6 +88,27 @@ test('Mein Tag: an empty day says why and where to plan', async ({ page, context
   await expect(page.locator('h1')).toHaveText(T('My day'));
   await expect(page.getByText(T('Nothing planned on this day'))).toBeVisible();
   await expect(page.getByRole('link', { name: T('Open Woche') })).toBeVisible();
+  // the empty hours stay folded until asked for; the help sentence belongs to the tab «Day» only
+  await expect(page.locator('.tl')).toBeHidden();
+  await page.locator('[data-tl-fold] summary').click();
+  await expect(page.locator('.tl')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('Mein Tag: the page opens with the tab used last', async ({ page, context }) => {
+  const errors = await open(page, context, '#/day');
+  await page.waitForSelector('h1');
+  await page.getByRole('button', { name: T('Tick off|tab') }).click();
+  await expect(page).toHaveURL(/#\/day\/abhaken$/);
+  await page.goto('./#/week');
+  await page.waitForSelector('h1');
+  await page.locator('a[href="#/day"]').first().click();
+  await expect(page).toHaveURL(/#\/day\/abhaken$/);
+  // «Day» is remembered the same way, and a day address always shows the day
+  await page.getByRole('button', { name: T('Day') }).click();
+  await page.goto('./#/week');
+  await page.locator('a[href="#/day"]').first().click();
+  await expect(page.locator('.tl, [data-tl-fold]').first()).toBeAttached();
   expect(errors).toEqual([]);
 });
 
@@ -221,5 +242,67 @@ test('Mein Tag: open points of notes become to-dos only on a tap, once', async (
   await expect(page.locator('[data-todo-group="none"]')).toContainText('Gas');
   // offered once: the fold is gone
   await expect(page.locator('[data-todo-notes]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('Mein Tag: the tab «Tick off» ticks a sport on one tap, the same tick as Aktiv', async ({ page, context }) => {
+  const errors = await open(page, context, '#/day');
+  await page.waitForSelector('h1');
+  await page.getByRole('button', { name: T('Tick off|tab') }).click();
+  await expect(page).toHaveURL(/#\/day\/abhaken$/);
+  await expect(page.locator('h1')).toHaveText(T('Tick off today'));
+  const tile = page.locator('[data-tag-abhaken] button.tile').first();
+  await expect(tile).toBeVisible();
+  await expect(tile).toHaveAttribute('aria-pressed', 'false');
+  const act = await tile.getAttribute('data-act');
+  await tile.click();
+  await expect(tile).toHaveAttribute('aria-pressed', 'true');
+  // still on Mein Tag (no jump to another page)
+  await expect(page).toHaveURL(/#\/day\/abhaken$/);
+  // the same tick stands on Aktiv
+  await page.goto('./#/flow');
+  await expect(page.locator(`button.tile[data-act="${act}"]`).first()).toHaveAttribute('aria-pressed', 'true');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  expect(errors).toEqual([]);
+});
+
+test('Mein Tag: «Plan my day» proposes times for entries without a time and takes them over', async ({ page, context }) => {
+  const errors = await open(page, context, '#/day');
+  await page.waitForSelector('h1');
+  await put(page, { settings: [{ key: 'week.items', value: ITEMS }] });
+  await page.reload();
+  await page.locator('[data-plan-open]').click();
+  const sheet = page.locator('[data-plan-sheet]');
+  await expect(sheet).toContainText(T('Plan my day'));
+  await expect(sheet.locator('[data-plan-pick="wi3"]')).toBeChecked();
+  // the clock is 09:00: the first free gap with a quarter hour of air is 09:00 itself (the dentist is at 12:00)
+  await expect(sheet).toContainText('09:00');
+  await sheet.locator('[data-plan-apply]').click();
+  await expect(page.locator('.tl [data-entry="wi3"]')).toContainText('09:00');
+  // planning stays possible on every day from today on
+  await expect(page.locator('[data-plan-open]')).toBeVisible();
+  // Undo gives the entry its empty time back
+  await page.getByRole('button', { name: T('Undo') }).first().click();
+  await expect(page.locator('.untimed')).toContainText('Garage anrufen');
+  expect(errors).toEqual([]);
+});
+
+test('Mein Tag: «Plan my day» works on tomorrow too and gives a calendar date a time only when ticked', async ({ page, context }) => {
+  const errors = await open(page, context, `#/day/${addDays(TODAY, 1)}`);
+  await page.waitForSelector('h1');
+  const tomorrow = addDays(TODAY, 1);
+  await put(page, { settings: [{ key: 'week.calendar', value: [{ id: 'k1', title: 'Rundfahrt', day: tomorrow, time: '', src: 'calendar' }, { id: 'k2', title: 'Kino', day: tomorrow, time: '20:00', src: 'calendar' }] }, { key: 'week.items', value: [{ id: 'wi9', kind: 'todo', title: 'Reifen prüfen', day: tomorrow, time: '' }] }] });
+  await page.reload();
+  await page.locator('[data-plan-open]').click();
+  const sheet = page.locator('[data-plan-sheet]');
+  await expect(sheet.locator('[data-plan-pick="wi9"]')).toBeChecked();
+  await expect(sheet.locator('[data-plan-pick="cal:k1"]')).not.toBeChecked();
+  await sheet.locator('[data-plan-pick="cal:k1"]').check();
+  await sheet.locator('[data-plan-apply]').click();
+  // the calendar date got its time as a layer and now stands in the timeline
+  await expect(page.locator('.tl [data-entry="cal:k1"]')).toBeVisible();
+  await expect(page.locator('.tl [data-entry="wi9"]')).toBeVisible();
+  await page.reload();
+  await expect(page.locator('.tl [data-entry="cal:k1"]')).toBeVisible();
   expect(errors).toEqual([]);
 });

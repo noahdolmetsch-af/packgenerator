@@ -86,7 +86,7 @@
     editing = null;
   }
   async function drop(c) {
-    if ((await askDelete({ title: t('Delete this contact?'), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete this contact?'), text: t('You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     const before = contacts;
     await deleteWithUndo({ run: () => saveContacts(dropContact(before, c.id)), undo: () => saveContacts(before), text: t('"{name}" deleted.', { name: c.name }), name: c.name });
   }

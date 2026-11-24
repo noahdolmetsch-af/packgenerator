@@ -56,6 +56,8 @@ export function topPages(loafs, n = 3) {
 export function reportLine(s, say = (x) => x) {
   const parts = [];
   if (s.firstPaint != null) parts.push(`${say('Start')}: ${(s.firstPaint / 1000).toFixed(1)} s`);
+  // «Sofort ein Bild» (23.11.2026): the start now shows a quiet frame at once, so «Start» alone is short; this is when the real content of the page stood
+  if (s.content != null) parts.push(`${say('Content shown')}: ${(s.content / 1000).toFixed(1)} s`);
   if (s.startBlocked != null) parts.push(`${say('Held up at start')}: ${Math.round(s.startBlocked)} ms`);
   if (s.frames?.n) parts.push(`${say('Scrolling')}: ${s.frames.n} ${say('frames')}, ${s.frames.over50} ${say('over 50 ms')}, ${say('worst')} ${s.frames.worst} ms`);
   if (s.files?.length) parts.push(`${say('Most time')}: ${s.files.map((f) => `${f.file} ${f.ms} ms`).join(', ')}`);
@@ -66,7 +68,7 @@ export function reportLine(s, say = (x) => x) {
 }
 
 /* ---------- the collector (browser only) ---------- */
-const st = { on: false, frames: [], loafs: [], startBlocked: null, scrolling: false, last: 0, raf: 0, idle: 0, obs: [], off: null };
+const st = { on: false, frames: [], loafs: [], startBlocked: null, content: null, scrolling: false, last: 0, raf: 0, idle: 0, obs: [], off: null };
 
 function tick(now) {
   if (!st.scrolling) return;
@@ -103,6 +105,7 @@ export function begin() {
     st.loafs.push({ duration: e.duration, blocking: e.blockingDuration ?? 0, page: location.hash.split('?')[0] || '#/', scripts: (e.scripts ?? []).map((s) => ({ url: s.sourceURL, duration: s.duration })) });
     if (st.loafs.length > 300) st.loafs.splice(0, 100);
   });
+  watch('largest-contentful-paint', (e) => (st.content = e.startTime)); // the real content (the frame of index.html has no big text or picture); the last one before the first tap
   st.startBlocked = 0;
   watch('longtask', (e) => {
     if (e.startTime < 8000) st.startBlocked += Math.max(0, e.duration - 50);
@@ -117,7 +120,7 @@ export function end() {
   st.off?.();
   clearTimeout(st.idle);
   cancelAnimationFrame(st.raf);
-  Object.assign(st, { on: false, frames: [], loafs: [], startBlocked: null, scrolling: false, last: 0, obs: [], off: null });
+  Object.assign(st, { on: false, frames: [], loafs: [], startBlocked: null, content: null, scrolling: false, last: 0, obs: [], off: null });
 }
 
 /** What was measured so far. */
@@ -127,6 +130,7 @@ export function snapshot() {
     on: st.on,
     firstPaint: fp,
     startBlocked: st.startBlocked,
+    content: st.content,
     frames: frameStats(st.frames),
     files: topFiles(st.loafs),
     pages: topPages(st.loafs),

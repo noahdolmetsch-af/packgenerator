@@ -20,7 +20,12 @@
   import { deleteWithUndo } from '../lib/ui/ask.js';
   import Empty from '../lib/ui/Empty.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
-  import Profil from '../lib/vorschlaege/Profil.svelte';
+  import { RASTER_GROUNDS } from '../lib/map/sources.js';
+  import { mapGround, chooseGround } from '../lib/map/groundpref.svelte.js';
+  import ProfileStrip from '../lib/map/ProfileStrip.svelte';
+  import Untergrund from '../lib/vorschlaege/Untergrund.svelte';
+  import { fineOfTour, coarseOfTour, steepest, stretchOf, STEEP_PCT } from '../lib/vorschlaege/steil.js';
+  import { lineKm, pointAtKm, nearestOnLine } from '../lib/spur/kmmarks.js';
   import { REGIONS, LEVELS, COND_STD, TECH_STD, HOURS, ARTS, AWAYS, WHY_KEYS, artsOf, filterTours, splitNow, hoursOf, splitHours, snowOf, gridOf, newShare, whyOf, warnsOf, levelsOf, gpxOf, dreamTextOf } from '../lib/vorschlaege/regeln.js';
   import { t, num } from '../lib/i18n.svelte.js';
   import { Mountain, Download, Sparkles, EyeOff, Snowflake, TriangleAlert, Clock, MapPin, Check, Info, ChevronRight } from '@lucide/svelte';
@@ -186,17 +191,44 @@
   const toneIcon = (r) => (r.tone === 'warn' ? TriangleAlert : Check);
 
   // ---- the open tour
-  let mark = $state(null);
   const why = $derived(open ? whyOf(open, { month, maxHours: flt.maxHours, pace, grid, home }).filter((r) => !whyOff.includes(r.k)) : []);
   const warns = $derived(open ? warnsOf(open, month) : []);
+  // the profile and the map show the same place in both directions (Noah 23.11.2026 «1-5a», idea B): the cursor of the profile
+  // is the dot on the map, and a tap on the map moves the cursor
+  let cursorKm = $state(null);
+  let pview = $state(null);
+  let picked = $state(null); // the steep piece in the list that is lit on the map and in the profile
   $effect(() => {
-    open; // a new tour starts without the dot
-    mark = null;
+    open; // a new tour starts without the dot and with the whole profile
+    cursorKm = null;
+    pview = null;
+    picked = null;
   });
-  const pickAt = (f) => {
-    const line = open.line;
-    mark = line[Math.min(line.length - 1, Math.round(f * (line.length - 1)))];
-  };
+  const lineScale = $derived(open ? lineKm(open.line) / (open.km || 1) : 1);
+  const mark = $derived(open && cursorKm != null ? pointAtKm(open.line, cursorKm * lineScale) : null);
+  const fine = $derived(open ? fineOfTour(open) : null);
+  const coarse = $derived(open ? coarseOfTour(open) : []);
+  const steep = $derived(open ? steepest(open) : []);
+  const lit = $derived(open && picked != null && steep[picked] ? { pts: stretchOf(open.line, steep[picked].fromKm, steep[picked].toKm, pointAtKm, lineScale) } : null);
+  // a picked piece fills the map; without one the whole tour is in view
+  const focus = $derived(open ? { lines: [lit ? lit.pts : open.line] } : null);
+  const ZOOM_PAD_KM = 0.4;
+  function pickSteep(i) {
+    if (picked === i) {
+      picked = null;
+      pview = null;
+      return;
+    }
+    const s = steep[i];
+    picked = i;
+    pview = { from: Math.max(0, s.fromKm - ZOOM_PAD_KM), to: Math.min(open.km, s.toKm + ZOOM_PAD_KM) };
+    cursorKm = Math.round(((s.fromKm + s.toKm) / 2) * 100) / 100;
+  }
+  const MAP_TAP_KM = 2; // a tap farther than this from the line does nothing
+  function onMapTap(pos) {
+    const n = open && nearestOnLine(open.line, pos);
+    if (n && n.away <= MAP_TAP_KM) cursorKm = Math.round((n.km / lineScale) * 100) / 100;
+  }
   let note = $state('');
   async function keepDream(tour) {
     const st = storeOf($dreamsQ?.value);
@@ -227,9 +259,15 @@
   {#if open}
     <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }, { label: t('Tour suggestions'), href: '#/trips/vorschlaege' }]} title={open.title} here={open.title} sub={`${regionName(open.region)} · ${t(tourClass(open))}`} />
     <div class="map" data-vs-map>
-      {#await import('../lib/spur/TourMap.svelte') then m}<m.default lines={[{ id: open.id, pts: open.line, n: 1, src: 'gpx' }]} marker={mark} height={320} label={t('Map of «{name}»: drag to move, pinch or wheel to zoom', { name: open.title })} />{:catch}{/await}
+      {#await import('../lib/spur/TourMap.svelte') then m}<m.default lines={[{ id: open.id, pts: open.line, n: 1, src: 'gpx' }]} marker={mark} height={420} strong onmap={onMapTap} light={lit} {focus} label={t('Map of «{name}»: drag to move, pinch or wheel to zoom', { name: open.title })} />{:catch}{/await}
     </div>
-    <p class="src">{t('Map and tour: © swisstopo, SchweizMobil. Check closures and snow on the spot.')}</p>
+    <div class="grounds" role="group" aria-label={t('Map ground')} data-vs-grounds>
+      <span class="gl">{t('Map ground')}</span>
+      {#each RASTER_GROUNDS as g (g.key)}
+        <button type="button" class="chip" aria-pressed={mapGround.key === g.key} data-vs-ground={g.key} onclick={() => chooseGround(g.key)}>{t(g.name)}</button>
+      {/each}
+    </div>
+    <p class="src">{t('Map and tour: © swisstopo, SchweizMobil. Check closures and snow on the spot.')} {t('Applies to all maps in the app.')}</p>
 
     <ul class="facts card" data-vs-facts>
       <li><b class="num">{num(open.km)} km</b><small>{t('Length|tour')}</small></li>
@@ -252,8 +290,30 @@
     {/if}
 
     <section class="ich-sec" aria-labelledby="vs-prof">
-      <div class="ich-h"><div><h2 id="vs-prof">{t('Height and ground')}</h2><p class="ich-hs">{t('Move the slider: the dot shows the place on the map.')}</p></div></div>
-      <div class="card pad"><Profil ele={open.ele} cls={open.cls} km={open.km} onpick={pickAt} /></div>
+      <div class="ich-h"><div><h2 id="vs-prof">{t('Height and ground')}</h2><p class="ich-hs">{t('Tap the profile or the map: the dot shows the same place on both.')}</p></div></div>
+      <div class="card pad prof">
+          <ProfileStrip profile={coarse} {fine} bind:cursorKm bind:view={pview} />
+          <Untergrund cls={open.cls} />
+        </div>
+      <div class="steep" data-vs-steep>
+        <h3>{t('The steepest pieces')}</h3>
+        {#if steep.length}
+          <p class="ich-hs">{t('From {pct} % over about 250 m. Tap one: it is lit on the map and the profile zooms in.', { pct: STEEP_PCT })}</p>
+          <ul>
+            {#each steep as p, i (p.fromKm)}
+              <li>
+                <button type="button" class="sp" class:on={picked === i} aria-pressed={picked === i} onclick={() => pickSteep(i)} data-vs-steep-item>
+                  <b class="num">{t('km {a}–{b}', { a: num(p.fromKm), b: num(p.toKm) })}</b>
+                  <span class="num">{t('on average {pct} %, up to {max} %', { pct: num(p.avg), max: num(p.max) })}</span>
+                  <span class="num">{t('+{m} m in {l} m', { m: num(p.up), l: num(p.lenM) })}</span>
+                </button>
+              </li>
+            {/each}
+          </ul>
+        {:else}
+          <p class="ich-hs" data-vs-steep-none>{t('No piece is steeper than {pct} %. You can ride it all.', { pct: STEEP_PCT })}</p>
+        {/if}
+      </div>
     </section>
 
     <section class="ich-sec" aria-labelledby="vs-why" data-vs-why>
@@ -289,6 +349,7 @@
     <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }]} title={t('Tour suggestions')} sub={t('Mountain bike tours from the official network of SchweizMobil')} />
     <p class="intro">{t('The app suggests tours you can ride. Everything is a suggestion: change the filters, hide what is not for you.')}</p>
 
+    {#snippet filtersBox()}
     <section class="card pad filters" aria-label={t('Filters|tour')} data-vs-filters>
       <div class="grp" role="group" aria-label={t('Region|tour')}>
         <span class="gl">{t('Region|tour')}</span>
@@ -335,7 +396,9 @@
       </div>
       <p class="hint"><Info size={14} aria-hidden="true" />{t('Only tours that are hard for fitness are on at the start. Switch «Medium» or «Easy» on to see more. A tour is never left out because of its skill level: the filter only narrows it down.')}</p>
     </section>
+    {/snippet}
 
+    {#snippet results()}
     {#if !tours}
       <p class="hint" role="status">{t('Loading the tours…')}</p>
     {:else if !shown.length}
@@ -347,7 +410,7 @@
         <span class="hint num" data-vs-count>{t('{n} tours', { n: shown.length })}</span>
       </div>
       {#if view === 'map'}
-        {#await import('../lib/vorschlaege/Karte.svelte') then m}<m.default tours={shown} grey={split.notNow.map((x) => x.id)} regions={flt.regions} onregion={(k) => toggle('regions', k)} region={regionName} />{:catch}{/await}
+        {#await import('../lib/vorschlaege/Karte.svelte') then m}<m.default tours={shown} grey={split.notNow.map((x) => x.id)} regions={flt.regions} onregion={(k) => toggle('regions', k)} region={regionName} {pace} />{:catch}{/await}
       {:else}
       <section class="ich-sec" aria-labelledby="vs-fit" data-vs-fits>
         <div class="ich-h"><div><h2 id="vs-fit">{t('Fits now')} <small class="n num">{split.fits.length}</small></h2><p class="ich-hs">{t('Tours that suit this month.')}</p></div></div>
@@ -373,6 +436,16 @@
         </section>
       {/if}
       {/if}
+    {/if}
+    {/snippet}
+
+    <!-- «Karte oben» (Noah 23.11.2026, gross und gut sichtbar): in the map view the map comes first, the filters below it -->
+    {#if view === 'map'}
+      {@render results()}
+      {@render filtersBox()}
+    {:else}
+      {@render filtersBox()}
+      {@render results()}
     {/if}
 
     {#if hidden.length}
@@ -408,6 +481,7 @@
   .intro { max-width: 65ch; margin: 0 0 var(--sp-4); color: var(--ink-2); }
   .pad { padding: var(--sp-3); }
   .filters { display: grid; gap: var(--sp-3); margin-bottom: var(--sp-4); }
+  .vs.wide .filters { margin-top: var(--sp-4); }
   .grp { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
   .gl { font-weight: 700; min-width: 6.5em; color: var(--ink-2); }
   .chip { min-height: 44px; padding: 0 var(--sp-3); border: 1px solid var(--line); border-radius: 99px; background: var(--card); color: var(--ink); font: inherit; font-weight: 600; cursor: pointer; }
@@ -428,6 +502,14 @@
   .lvp[data-lv='difficult'] { border-color: var(--bad); color: var(--bad); }
   .why { display: flex; gap: 6px; align-items: center; font-size: var(--fs-small); color: var(--ink-2); }
   .map { border: 1px solid var(--line); border-radius: var(--r-card); overflow: hidden; margin-bottom: var(--sp-2); }
+  .prof { display: grid; gap: var(--sp-3); }
+  .steep { margin-top: var(--sp-3); }
+  .steep h3 { margin: 0 0 var(--sp-1); font-size: var(--fs-sub); }
+  .steep ul { list-style: none; margin: var(--sp-2) 0 0; padding: 0; display: grid; gap: var(--sp-2); }
+  .sp { display: flex; flex-wrap: wrap; gap: 4px var(--sp-3); align-items: baseline; width: 100%; text-align: left; padding: var(--sp-3); min-height: 44px; border: 1px solid var(--line); border-radius: var(--r-card); background: var(--card); color: var(--ink); font: inherit; cursor: pointer; overflow-wrap: break-word; }
+  .sp span { color: var(--ink-2); font-size: var(--fs-small); }
+  .sp.on { border-color: var(--bad); background: var(--bad-soft); }
+  .grounds { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 var(--sp-2); }
   .src { margin: 0 0 var(--sp-3); color: var(--ink-3); font-size: var(--fs-small); }
   .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(7em, 1fr)); gap: var(--sp-2); list-style: none; margin: 0 0 var(--sp-3); padding: var(--sp-3); }
   .facts li { display: grid; }

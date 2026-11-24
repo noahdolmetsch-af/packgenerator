@@ -74,7 +74,7 @@ function distance(item, range) {
 /**
  * The alternatives for a worn piece: { fits: [row], less: [row] }, row = { item, fit, mem }.
  * Owned pieces (owned or unclear) of the same zone and layer, not the piece itself and nothing that is
- * on the trip already. Order: fits first; then picked more often, then picked more recently; then the
+ * on the trip already. Order: fits first; then picked more often, then picked more recently; then your favourite (★); then the
  * range closest to the trip's; then warm to cold.
  */
 export function swapChoices(current, items = [], trip = null, memory = {}, { rain = tripRain(trip), range = tripRange(trip) } = {}) {
@@ -90,6 +90,7 @@ export function swapChoices(current, items = [], trip = null, memory = {}, { rai
     (a, b) =>
       (b.mem?.n ?? 0) - (a.mem?.n ?? 0) ||
       String(b.mem?.at ?? '').localeCompare(String(a.mem?.at ?? '')) ||
+      Number(!!b.item.favorite) - Number(!!a.item.favorite) ||
       distance(a.item, range) - distance(b.item, range) ||
       warmToCold(a.item, b.item),
   );

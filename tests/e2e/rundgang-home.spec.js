@@ -221,13 +221,13 @@ test.describe('L9: first start on a German browser', () => {
     await start(page, context, info); // no language chosen
     await expect(page.locator('html')).toHaveAttribute('lang', 'de');
 
-    const first = page.getByRole('region', { name: T('First steps') });
+    const first = page.getByRole('region', { name: T('Start here') });
     await expect(first).toBeVisible();
-    await expect(first.getByRole('link', { name: T('Add your bike') })).toHaveAttribute('href', '#/bikes');
-    await expect(first.getByRole('button', { name: T('Import backup') })).toBeVisible();
-    await expect(first.getByRole('button', { name: T('Add item') })).toBeVisible();
-    await expect(first.getByRole('button', { name: T('Plan a trip|first') })).toBeVisible();
-    for (const b of await first.locator('.step').all()) expect((await b.boundingBox()).height).toBeGreaterThanOrEqual(44);
+    // «Starte hier» (V2): one main button for the next step, the three steps as a line, the backup as a quiet line
+    await expect(first.getByRole('link', { name: T('Add your first bike') })).toHaveAttribute('href', '#/bikes');
+    await expect(first.locator('.prog li')).toHaveCount(3);
+    await expect(first.getByRole('button', { name: T('Import ›') })).toBeVisible();
+    for (const b of await first.locator('.big, .lk').all()) expect((await b.boundingBox()).height).toBeGreaterThanOrEqual(44);
     // in place of "No trip planned"; no "No bikes yet" line besides step 1
     await expect(page.locator('#next-h')).toHaveCount(0);
     await expect(page.locator('[data-row="nobike"]')).toHaveCount(0);
@@ -237,12 +237,6 @@ test.describe('L9: first start on a German browser', () => {
     // purpose): it left Today (still in the catalog)
     await expect(page.getByRole('region', { name: T('Tried it yet?') })).toHaveCount(0);
 
-    // Plan your first trip opens the New trip window.
-    await first.getByRole('button', { name: T('Plan a trip|first') }).click();
-    await expect(page.getByRole('dialog', { name: T('Conditions|newtrip') })).toBeVisible();
-    await closeDialog(page); // its history entry gone, so the next address stays
-    await page.goto('./#/');
-
     // A bike only: step 1 done, the card stays.
     const bikeOnly = structuredClone(base);
     bikeOnly.tables.items = [];
@@ -250,8 +244,16 @@ test.describe('L9: first start on a German browser', () => {
     await importData(page, info, bikeOnly, 'de');
     await expect(first).toBeVisible();
     await expect(first.getByRole('img', { name: T('Done|task') })).toHaveCount(1);
-    await expect(first.getByRole('link', { name: T('Add your bike') })).toHaveCount(0);
-    await expect(first.getByRole('button', { name: T('Add item') })).toBeVisible();
+    await expect(first.getByRole('link', { name: T('Add your first bike') })).toHaveCount(0);
+    await expect(first.getByRole('button', { name: T('Add your first item') })).toBeVisible();
+    // gear and bike, no trip: the main button is «Plan your first trip», and it opens the New trip window
+    const gearOnly = structuredClone(base);
+    await importData(page, info, gearOnly, 'de');
+    await expect(first.getByRole('button', { name: T('Plan your first trip') })).toBeVisible();
+    await first.getByRole('button', { name: T('Plan your first trip') }).click();
+    await expect(page.getByRole('dialog', { name: T('Conditions|newtrip') })).toBeVisible();
+    await closeDialog(page); // its history entry gone, so the next address stays
+    await page.goto('./#/');
 
     // Bike, gear and a trip: the card is gone, also after a reload.
     const all = structuredClone(base);
@@ -268,12 +270,12 @@ test.describe('L9: first start on a German browser', () => {
   test('a language chosen once still wins', async ({ page, context }, info) => {
     await start(page, context, info, { lang: 'en' });
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-    await expect(page.getByRole('region', { name: 'First steps' })).toBeVisible();
+    await expect(page.getByRole('region', { name: 'Start here' })).toBeVisible();
   });
 });
 
 test('L9: first start on an English browser is English', async ({ page, context }, info) => {
   await start(page, context, info);
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-  await expect(page.getByRole('region', { name: 'First steps' })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Start here' })).toBeVisible();
 });

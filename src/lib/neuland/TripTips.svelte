@@ -15,8 +15,9 @@
   import Seg from '../ui/Seg.svelte';
   import HomePlaceSheet from '../ich/HomePlaceSheet.svelte';
   import SpotRoundSheet from './SpotRoundSheet.svelte';
+  import StartPlaceSheet from './StartPlaceSheet.svelte';
   import { t, num } from '../i18n.svelte.js';
-  import { MapPin, Route, Mountain, Waves, Landmark, CloudSun } from '@lucide/svelte';
+  import { MapPin, Route, Mountain, Waves, Landmark, CloudSun, ChevronDown } from '@lucide/svelte';
 
   const now = new Date();
   const hourZ = Number(now.toLocaleTimeString('de-CH', { hour: '2-digit', hourCycle: 'h23', timeZone: 'Europe/Zurich' }).slice(0, 2));
@@ -45,11 +46,15 @@
   const free = $derived(hasCal ? freeTime($evQ, day, late ? null : now.toISOString()) : null);
   let picked = $state(null); // the hours the user chose; else from the calendar
   const hours = $derived(picked ?? startHours(free));
-  const tips = $derived(cols && home ? tripTips(cols, home, { hours }) : null);
+  // Challenges nach Gelegenheit (Noah «1b»): the start is home unless the user picks «From here» or a place; not saved
+  let startPick = $state(null); // { kind: 'here' | 'place', name, lat, lon } or null = home
+  const start = $derived(startPick ?? home);
+  const awayFromHome = $derived(!!startPick);
+  const tips = $derived(cols && start ? tripTips(cols, start, { hours }) : null);
 
   let wx = $state(null);
   $effect(() => {
-    if (!home) return;
+    if (!home || awayFromHome) return;
     let live = true;
     homeForecast(db)
       .then((f) => live && (wx = f?.days?.find((d) => d.date === day) ?? null))
@@ -57,7 +62,7 @@
     return () => (live = false);
   });
   const wxText = $derived.by(() => {
-    if (!wx) return '';
+    if (!wx || awayFromHome) return ''; // the forecast is for home only
     const rain = wx.rain === 'rain' ? t('rain likely') : wx.rain === 'showers' ? t('showers possible') : t('dry');
     return Number.isFinite(wx.max) ? `${Math.round(wx.max)}° · ${rain}` : rain;
   });
@@ -66,6 +71,8 @@
 
   let placeOpen = $state(false);
   let roundTo = $state(null);
+  let startOpen = $state(false);
+  const startName = $derived(startPick ? startPick.name : t('Home|start place'));
 </script>
 
 <section class="ich-sec" aria-labelledby="tt-h" data-trip-tips>
@@ -91,7 +98,8 @@
           {#if wxText}<span data-tt-wx><CloudSun size={16} aria-hidden="true" />{wxText}</span>{/if}
           {#if freeText}<span data-tt-free>{freeText}</span>{/if}
         </p>
-        <Seg small full={false} label={t('Time for the ride')} value={String(hours)} onchange={(v) => (picked = Number(v))} options={TIP_HOURS.map((h) => ({ key: String(h), name: t('{n} h', { n: h }) }))} />
+        <button type="button" class="btn sm tt-start" onclick={() => (startOpen = true)} data-tt-start><MapPin size={16} aria-hidden="true" />{t('Start: {place}', { place: startName })}<ChevronDown size={14} aria-hidden="true" /></button>
+        <Seg small full={false} label={t('Time for the ride')} value={String(hours)} onchange={(v) => (picked = Number(v))} options={TIP_HOURS.map((h) => ({ key: String(h), name: h < 2 ? t('{n} min', { n: h * 60 }) : t('{n} h', { n: h }) }))} />
       </div>
       {#if tips.length}
         <ul class="tt-list">
@@ -112,7 +120,8 @@
 </section>
 
 {#if placeOpen}<HomePlaceSheet current={null} onclose={() => (placeOpen = false)} />{/if}
-{#if roundTo}<SpotRoundSheet {home} spot={roundTo} onclose={() => (roundTo = null)} />{/if}
+{#if startOpen}<StartPlaceSheet {home} onpick={(x) => (startPick = x.kind === 'home' ? null : x)} onclose={() => (startOpen = false)} />{/if}
+{#if roundTo}<SpotRoundSheet home={start} fromName={startPick?.name ?? null} spot={roundTo} onclose={() => (roundTo = null)} />{/if}
 
 <style>
   .tt {
@@ -160,6 +169,11 @@
   }
   .tt-m small {
     color: var(--ink-3);
+  }
+  .tt-start {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
   .tt-row .btn {
     display: inline-flex;

@@ -6,7 +6,7 @@ PR #1232 · 09.11.2026 · Auftrag: Noah «2 a» und «ok» (Plan «ganze App», 
 - Auf Heute steht ganz oben (gleich unter dem Gruss) die Karte «Meine Tour», **nur bei einer geplanten Tour** (nicht beendet, nicht ausgefallen). Sie zeigt den Namen der Tour mit dem Zähler («In 6 Tagen»), eine Zeile «3 Tage · Velo · Sa 14. Nov», die vier Phasen (Planen, Vorbereiten, Unterwegs, Danach) mit ihrem Stand, «Als Nächstes: …» mit der ersten offenen Zeile der laufenden Phase als **einem** Hauptknopf («Weiter mit Packen»), die Hinweise als **eine** Zeile und «Alle Schritte ›» zum Tour-Pfad.
 - Gerechnet wird mit derselben Regel wie im Tour-Pfad (`src/lib/tourpfad/stand.js`), gelesen über `src/lib/tourpfad/karte.js`. Es wird nichts gespeichert und nichts neu gerechnet.
 - Die Karte ist eine Kachel wie die anderen: ausblenden, verschieben, Grösse, Katalog («Kachel hinzufügen»). Eine Wand von vorher bekommt sie einmal ganz oben (Wand v 21); wer sie wegnimmt, behält sie weg.
-- **Kein «Unterwegs»-Knopf** (Entscheid 9 b): der Unterwegs-Modus kommt mit 7a und wird von Noah selbst eingeschaltet.
+- **Kein «Unterwegs»-Knopf** (Entscheid 9 b): der Unterwegs-Modus kommt mit 7a (inzwischen gebaut, siehe `unterwegs-modus.md`) und wird von Noah selbst eingeschaltet.
 
 ## Was fällt weg oder rutscht tiefer
 - Die Zeile **«Eventvorbereitung: n offen (m überfällig)»** mit dem Knopf «Im Tour ankreuzen» in «Jetzt dran» fällt weg. Ihr Satz steht jetzt als Hinweiszeile auf der Karte; ein Tipp darauf öffnet wie vorher die Tour bei «Vor der Tour» (`openPrep`). Kein Inhalt geht verloren. Steht die Karte nicht auf der Wand (ausgeblendet), bleibt die Zeile in «Jetzt dran», damit der Hinweis nie verschwindet.

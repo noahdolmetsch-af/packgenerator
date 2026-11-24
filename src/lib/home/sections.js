@@ -31,6 +31,7 @@ export const SECTIONS = [
 
 /** The area of each tile that is not small; a tile not named here goes by its catalog area (AREA_OF). */
 export const SECTION_OF = {
+  haken: 'now', // «Heute abhaken» (Noah 23.11.2026 «2a»): the first tile of the first area, before everything else
   meinetour: 'now', // «Meine Tour» (Plan 2a): the planned tour stands on top of the first area
   meditation: 'now',
   moment: 'now', // «Heute als Begleiter» PR 4: the moment card sits in the first area, under the habits
@@ -40,7 +41,7 @@ export const SECTION_OF = {
   important: 'now',
   trip: 'now',
   suggest: 'now',
-  body: 'body',
+  body: 'now', // «Dein Körper heute» as a band right under the greeting (Noah 23.11.2026 «1-4a», point 1a): the first tile of the first area
   acts: 'body',
   weighin: 'now', // a question for this week: it stays in the first area, found on the phone without long scrolling
   vitals: 'body',

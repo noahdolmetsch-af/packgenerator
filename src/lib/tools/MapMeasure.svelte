@@ -29,7 +29,7 @@
     const g = rasterGround(mapGround.key, c.lat, c.lng);
     if (tiles?.options.gkey === g.key) return;
     tiles?.remove();
-    tiles = L.tileLayer(g.url, { maxZoom: g.maxZoom ?? 18, attribution: g.attribution, gkey: g.key }).addTo(map);
+    tiles = L.tileLayer(g.url, { maxZoom: g.maxZoom ?? 18, attribution: g.attribution, gkey: g.key, crossOrigin: 'anonymous' }).addTo(map);
   }
   $effect(() => {
     void mapGround.key;

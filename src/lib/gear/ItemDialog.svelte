@@ -49,6 +49,7 @@
   import { materialStats, tripLog, usageOf, lighterAlts, ALT_DISMISSED_KEY, dismissValue, linkPatch, suggestWhy } from './material.js';
   import { inSmallAid, AID_KEY } from '../firstaid.js';
   import { linkedOf, withAdded, withRemoved } from '../pack/dazufeld.js'; // «Dazu nötig» (Noah 23.11.2026 «G1»)
+  import { reachChoice, withReach } from '../pack/griffeld.js'; // «Griffbereit» (Noah 23.11.2026 «G3»)
   import { summaryLine, blockNames, ruleNames, placeName, weightState, lifeLine, lastFold, keepFold, nextFold, blockLabel } from './detail.js';
 
   /**
@@ -413,7 +414,7 @@
   });
   const keepOnBack = () => (isNew || mergedInto || !draft.name.trim() || JSON.stringify($state.snapshot(draft)) === (shownAs ?? startText) ? dialog.close() : save({ preventDefault() {} }));
 
-  // «Discard» (Noah 19.10.2026 «3a»): goes at once, with 4 s «Undo»: a new item made here comes back,
+  // «Discard» (Noah 19.10.2026 «3a»): goes at once, with 8 s «Undo»: a new item made here comes back,
   // the changes of an existing item are put back on it.
   async function discard() {
     ended = true;
@@ -480,7 +481,7 @@
   }
 
   /*
-   * «Rückmeldungen» (Noah 19.10.2026 «1a»): the app's own question, then 4 s «Undo». An item still on
+   * «Rückmeldungen» (Noah 19.10.2026 «1a»): the app's own question, then 8 s «Undo». An item still on
    * trips or in templates offers «Archive» first; «Delete» takes it off them too (deleteItems, like
    * the list), so no trip keeps an empty line.
    */
@@ -494,7 +495,7 @@
       title: t('Delete "{name}"?', { name }),
       text: used
         ? t('It is {where} and goes from there too. To keep it but not use it any more: Archive. Then it stays in the look back.', { where: [trips ? tn(trips, 'on {n} trip', 'on {n} trips') : '', tpls ? tn(tpls, 'in {n} template', 'in {n} templates') : ''].filter(Boolean).join(t(' and ')) || t('in use') })
-        : t('It is on no trip and in no template. You can bring it back for 4 seconds afterwards.'),
+        : t('It is on no trip and in no template. You can bring it back for 8 seconds afterwards.'),
       archive: used && item.ownership !== 'gone' ? t('Archive') : '',
     });
     if (answer === 'archive') {
@@ -591,6 +592,18 @@
     </label>
   {:else if !comes.body && BAG[draft.defaultBag]}
     <p class="quiet">{t('Usual bag')}: {t(BAG[draft.defaultBag])}</p>
+  {/if}
+  {#if !readOnly && !comes.body}
+    <label class="bagsel" data-reach-field><span class="lbl">{t('Within reach|reach')}</span>
+      <select class="sel" value={reachChoice(draft)} onchange={(e) => Object.assign(draft, withReach(e.currentTarget.value))}>
+        <option value="auto">{t('Automatic: food and rain gear')}</option>
+        <option value="yes">{t('Within reach|reach')}</option>
+        <option value="no">{t('Never suggest a place')}</option>
+      </select>
+    </label>
+    <p class="quiet">{t('A thing within reach lies in the top tube bag, the mini bag or a pouch while riding. The card «Ready to go?» suggests it when it lies deeper.')}</p>
+  {:else if comes.body && reachChoice(draft) === 'yes'}
+    <p class="quiet">{t('Within reach|reach')}</p>
   {/if}
   {#if canBeBag}
     <div class="alsobag">

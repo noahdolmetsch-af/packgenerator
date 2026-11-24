@@ -71,12 +71,15 @@ test('sections, greeting with the weather, the trip card, the 16 functions as sm
   // «Heute ruhiger» (Noah 26.10.2026 «3a», mockup H3, changed on purpose): the tiles stand in areas with a heading;
   // «Jetzt» (meditation, the trip, the weekly weight, «Up now») comes first, then «Dein Körper» with the body and Aktiv
   // «Meine Tour» (Plan 2a, Noah 09.11.2026 «ok 1232»): with a planned tour the card is first, the meditation card right under it
-  await expect(page.locator('.wall > [data-tile]').first()).toHaveAttribute('data-tile', 'meinetour');
+  // «Dein Körper heute» as a band (Noah 23.11.2026 «1-4a», changed on purpose): the body band is first, «Meine Tour» after it
+  await expect(page.locator('.wall > [data-tile]').first()).toHaveAttribute('data-tile', 'haken'); // «Heute abhaken» first (Noah 23.11.2026 «1a 2a», changed on purpose)
+  await expect(page.locator('.wall > [data-tile]').nth(1)).toHaveAttribute('data-tile', 'body');
+  await expect(page.locator('.wall > [data-tile]').nth(2)).toHaveAttribute('data-tile', 'meinetour');
   const areas = await page.locator('.wall [data-home-sec]').evaluateAll((els) => els.map((e) => e.dataset.homeSec));
   expect(areas.slice(0, 2)).toEqual(['now', 'week']); // «Heute aufräumen» (Noah 23.11.2026, changed on purpose): Jetzt, Deine Woche, then «Mehr»
   await expect(page.locator('[data-home-sec="now"] h2')).toHaveText(T('Now|home'));
   const order = await page.locator('[data-section="weighin"], [data-section="body"], [data-section="acts"], [data-section="trip"], [data-section="today"]').evaluateAll((els) => els.map((e) => e.dataset.section));
-  expect(order.filter((x, i, a) => a.indexOf(x) === i)).toEqual(['trip', 'weighin', 'today', 'body', 'acts']);
+  expect(order.filter((x, i, a) => a.indexOf(x) === i)).toEqual(['body', 'trip', 'weighin', 'today', 'acts']); // the body band first (Noah 23.11.2026 «1-4a», changed on purpose)
   // a card that fills up its row reaches from where it starts to the end of the row (it once sat alone in the last column)
   if (!phone) {
     const fills = await page.locator('.wall.secs > .ti.fill').evaluateAll((els) => {

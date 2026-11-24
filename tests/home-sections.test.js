@@ -18,9 +18,9 @@ describe('Heute ruhiger: areas (3a)', () => {
   it('the ready wall: Jetzt, Deine Woche, Dein Körper, Unterwegs, Schnell öffnen, Entdecken (the last four under «Mehr» on Heute); inside an area the order of the wall', () => {
     const g = sectionsOf(READY);
     expect(g.map((s) => s.key)).toEqual(['now', 'week', 'body', 'away', 'quick', 'discover']);
-    expect(ids(g[0].tiles)).toEqual(['meinetour', 'meditation', 'moment', 'heutecheck', 'trip', 'weighin', 'important']); // Spruch, Traum der Woche and Entdecken moved under «Mehr» (Heute aufräumen, 23.11.2026)
+    expect(ids(g[0].tiles)).toEqual(['haken', 'body', 'meinetour', 'meditation', 'moment', 'heutecheck', 'trip', 'weighin', 'important']); // Spruch, Traum der Woche and Entdecken moved under «Mehr» (Heute aufräumen, 23.11.2026)
     expect(ids(g.find((x) => x.key === 'discover').tiles)).toEqual(['spruch', 'discover', 'wochentraum']); // «Meine Tour» (Plan 2a) on top; // «Heute-Check» (Noah 30.10.2026) in «Jetzt»; // «Entdecken» after the day's questions, so «Weight this week?» stays within 2.5 screens
-    expect(ids(g.find((x) => x.key === 'body').tiles)).toEqual(['body', 'acts', 'vo2max']); // VO2max (Noah 28.10.2026) in «Dein Körper»
+    expect(ids(g.find((x) => x.key === 'body').tiles)).toEqual(['acts', 'vo2max']); // «Dein Körper heute» stands in «Jetzt» under the greeting (Noah 23.11.2026 «1-4a»); VO2max (Noah 28.10.2026) in «Dein Körper»
     expect(ids(g.find((x) => x.key === 'quick').tiles)).toEqual(['pins']); // «Schnell öffnen» (Noah 01.11.2026): the tile with your pins
     // nothing lost, nothing twice
     expect(g.flatMap((s) => ids(s.tiles)).sort()).toEqual(ids(READY).sort());
@@ -86,15 +86,15 @@ describe('own setup of the areas (1a 2a)', () => {
     let g = sectionsOf(READY, c);
     expect(keys(g)).not.toContain('body');
     expect(g.at(-1).key).toBe(NONE);
-    expect(ids(g.at(-1).tiles)).toEqual(['body', 'acts', 'vo2max']);
+    expect(ids(g.at(-1).tiles)).toEqual(['acts', 'vo2max']);
     expect(g.flatMap((s) => ids(s.tiles)).sort()).toEqual(ids(READY).sort());
     c = hideArea(null, 'body', 'week');
     g = sectionsOf(READY, c);
     expect(keys(g)).not.toContain(NONE);
-    expect(ids(g.find((s) => s.key === 'week').tiles)).toEqual(expect.arrayContaining(['body', 'acts']));
+    expect(ids(g.find((s) => s.key === 'week').tiles)).toEqual(expect.arrayContaining(['acts', 'vo2max']));
     // the target hidden too: «Without area»
     c = hideArea(c, 'week');
-    expect(ids(sectionsOf(READY, c).at(-1).tiles)).toEqual(expect.arrayContaining(['body', 'acts']));
+    expect(ids(sectionsOf(READY, c).at(-1).tiles)).toEqual(expect.arrayContaining(['acts', 'vo2max']));
     // shown again: the tiles come back
     c = showArea(showArea(c, 'week'), 'body');
     expect(keys(sectionsOf(READY, c))).toEqual(keys(sectionsOf(READY)));

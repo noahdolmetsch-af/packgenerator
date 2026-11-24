@@ -5,7 +5,8 @@
  * without a tap. One record per kind of device (like the pins), days in local time (localDay).
  *
  * Record: { start: day, recent: [{ href, title, at }], days: { path: ['YYYY-MM-DD', …] }, used: { pinId: day },
- *           no: { path: day }, keep: { pinId: day } }  (start: the first day this device counted)
+ *           no: { path: day }, keep: { pinId: day }, opened: { path: first day } }  (start: the first day this device counted;
+ *           opened: every page this device ever opened, for the dots of «Map of the app», Noah 23.11.2026 «5a»: per device, not in the backup of another)
  * Pure functions (tests/quickusage.test.js); PinMarks.svelte records, Quick.svelte shows.
  */
 import { FEATURE, featureHref } from '../features.js';
@@ -40,6 +41,7 @@ export function cleanUsage(raw) {
     used: obj(r.used, (v) => DAY.test(v)),
     no: obj(r.no, (v) => DAY.test(v)),
     keep: obj(r.keep, (v) => DAY.test(v)),
+    opened: obj(r.opened, (v) => DAY.test(v)),
   };
 }
 
@@ -51,7 +53,8 @@ export function recordVisit(u, href, title, day) {
   const recent = [{ href, title: String(title).slice(0, 80), at: day }, ...u.recent.filter((x) => pathOf(x.href) !== path)].slice(0, RECENT_MAX);
   const seen = (u.days[path] ?? []).filter((d) => daysBetween(d, day) < OFTEN_DAYS);
   const days = { ...u.days, [path]: seen.includes(day) ? seen : [...seen, day] };
-  return { ...u, start, recent, days };
+  const opened = { ...u.opened, [path]: u.opened?.[path] ?? day };
+  return { ...u, start, recent, days, opened };
 }
 
 /** The address a pin opens (a view's own, a function's page), or null for an action (a window). */
