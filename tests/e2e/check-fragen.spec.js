@@ -61,7 +61,7 @@ test.describe('Check-Fragen selbst bearbeiten', () => {
   test('CF3: edit, delete and add questions and groups', async ({ page, context }, info) => {
     const T = await openHome(page, context, info, { data: data([...ON_AT_START]) });
     await page.goto('./#/me/abfragen');
-    await expect(page.getByText('10 Bereiche · 105 Fragen · 30 an')).toBeVisible();
+    await expect(page.getByText('10 Bereiche · 106 Fragen · 31 an')).toBeVisible();
     await page.locator('[data-ab-edit]').click();
     await expect(page.locator('[data-area-row]')).toHaveCount(11);
     await page.screenshot({ path: '/tmp/claude-0/-home-user-packgenerator/5925335f-4f29-5d9a-ab44-6982c7e2bd10/scratchpad/edit-' + info.project.name + '.png', fullPage: false });
@@ -76,7 +76,7 @@ test.describe('Check-Fragen selbst bearbeiten', () => {
     await erholung.locator('[data-q="erholung.akku"] [data-q-delete]').click();
     await page.getByTestId('ask-delete').getByRole('button', { name: T('Delete'), exact: true }).click();
     await expect(erholung.locator('[data-q="erholung.akku"]')).toHaveCount(0);
-    await expect(page.getByText('10 Bereiche · 104 Fragen')).toBeVisible();
+    await expect(page.getByText('10 Bereiche · 105 Fragen')).toBeVisible();
     await page.locator('[data-ab-gone] summary').click();
     await page.locator('[data-q-restore="erholung.akku"]').click();
     await expect(erholung.locator('[data-q="erholung.akku"]')).toHaveCount(1);
@@ -103,7 +103,7 @@ test.describe('Check-Fragen selbst bearbeiten', () => {
     await del.getByRole('button', { name: T('Delete') }).click();
     await expect(page.locator('[data-area="spass"]')).toHaveCount(0);
     await expect(page.locator('[data-area="eigene"] [data-q]')).toHaveCount(10);
-    await expect(page.getByText(/· 106 Fragen ·/)).toBeVisible();
+    await expect(page.getByText(/· 107 Fragen ·/)).toBeVisible();
     await page.locator('[data-area="eigene"]').screenshot({ path: '/tmp/claude-0/-home-user-packgenerator/5925335f-4f29-5d9a-ab44-6982c7e2bd10/scratchpad/eigene-' + info.project.name + '.png' });
     await noSideways(page);
     await page.reload();

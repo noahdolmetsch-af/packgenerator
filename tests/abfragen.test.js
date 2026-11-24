@@ -24,11 +24,11 @@ describe('the 50 questions', () => {
   it('10 areas with 5 questions each (Paket P adds 4 evening questions), every one with an answer form and an interval', () => {
     expect(AREAS).toHaveLength(10);
     // Noah 20.10.2026: plus 50 sample questions, 5 per area, all off at the start
-    expect(QUESTIONS).toHaveLength(105);
+    expect(QUESTIONS).toHaveLength(106);
     expect(AREAS.map((a) => QUESTIONS.filter((q) => q.area === a.key).length)).toEqual([12, 10, 10, 10, 12, 10, 11, 11, 10, 10]);
     expect(AREAS.map((a) => QUESTIONS.filter((q) => q.area === a.key && q.sample).length)).toEqual(Array(10).fill(5));
     expect(QUESTIONS.filter((q) => q.sample).some((q) => ON_AT_START.has(q.id))).toBe(false);
-    expect(new Set(QUESTIONS.map((q) => q.id)).size).toBe(105);
+    expect(new Set(QUESTIONS.map((q) => q.id)).size).toBe(106);
     for (const q of QUESTIONS) {
       expect(['scale', 'chips', 'yesno', 'number', 'text']).toContain(q.form.kind);
       if (q.form.kind === 'chips' || q.form.kind === 'yesno') expect(q.form.options.length).toBeGreaterThan(1);
@@ -49,10 +49,10 @@ describe('the 50 questions', () => {
   });
 
   it('29 are on at the start (AB5 and Paket P, minus the six that ask the same as another one); the others can be switched on', () => {
-    expect(ON_AT_START.size).toBe(30);
+    expect(ON_AT_START.size).toBe(31);
     for (const id of ON_AT_START) expect(QUESTION[id]).toBeTruthy();
     const n = counts(null);
-    expect(n).toMatchObject({ all: 105, on: 30 });
+    expect(n).toMatchObject({ all: 106, on: 31 });
     expect(AREAS.map((a) => n.per[a.key].on)).toEqual([6, 2, 1, 3, 4, 3, 3, 3, 4, 2]);
     expect(settingOf(null, QUESTION['erholung.sofa']).on).toBe(false); // AB5: Sofa oder Sattel is off
     // Noah 04.11.2026 «3a»: one question per topic: the merged ones are off at the start, the one they merge into is on
@@ -77,10 +77,10 @@ describe('switching and intervals', () => {
     let c = configOf({ since: `${d(-10)}T08:00` });
     c = setOn(c, 'spass.gelacht', true, `${D0}T20:30`);
     expect(settingOf(c, QUESTION['spass.gelacht'])).toMatchObject({ on: true, since: `${D0}T20:30` });
-    expect(counts(c).on).toBe(31);
+    expect(counts(c).on).toBe(32);
     c = setOn(c, 'erholung.akku', false, `${D0}T09:00`);
     expect(settingOf(c, QUESTION['erholung.akku']).on).toBe(false);
-    expect(counts(c).on).toBe(30);
+    expect(counts(c).on).toBe(31);
   });
 
   it('own interval per question, several times a day sorted and without doubles', () => {
@@ -119,7 +119,7 @@ describe('own questions (AB2)', () => {
     expect(own).toMatchObject({ text: 'Kaffee', area: 'eigene', form: { kind: 'number', unit: 'Tassen' }, own: true, src: ['only'] });
     let c = putOwn(null, own, `${D0}T10:00`);
     expect(c.own).toHaveLength(1);
-    expect(counts(c)).toMatchObject({ all: 106, on: 31 });
+    expect(counts(c)).toMatchObject({ all: 107, on: 32 });
     expect(settingOf(c, c.own[0])).toMatchObject({ on: true, since: `${D0}T10:00`, every: { kind: 'times', times: ['12:00', '18:00'] } });
     c = putOwn(c, { ...own, text: 'Espresso', every: { kind: 'off' } }, `${D0}T11:00`);
     expect(c.own[0].text).toBe('Espresso');
