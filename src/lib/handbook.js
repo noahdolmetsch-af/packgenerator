@@ -1833,8 +1833,8 @@ const LISTED = {
   },
   'f.tour': {
     on: null,
-    steps: ['On an empty Today tap «Start ›» next to «New here?» in «Start here», or open Me › Handbook › Tour.', 'Choose the example trip (playground) or your own data, then tap «Next» through the steps.', 'Ended early? Next time «Go on at step n» starts where you stopped.'],
-    example: 'Example: on the top of Active, «Tour of Active (4 steps)» shows ticking off, the week, goals and more.',
+    steps: ['On an empty Today tap «Start ›» next to «New here?» in «Start here», or open Me › Handbook › Tour.', 'At a question tap «Show me ›» to see it in the sample race, or «Skip».', 'Ended early? Next time «Go on at step n» starts where you stopped.'],
+    example: 'Example: «Where do I have to shop?» lights up the gaps of the sample race: the Sunday without a shop.',
   },
   'f.firststart': {
     on: 'Only on a new, empty app: it asks once when it opens for the first time.',

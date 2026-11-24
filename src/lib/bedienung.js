@@ -25,6 +25,8 @@ export const OPS = [
   { key: 'quiet', name: 'Night quiet', text: 'From 22:00 to 06:00 Today shows no tips.', on: true },
   { key: 'search', name: 'Search can act', text: 'The search also offers backup, settings, a quick note or a bike.', on: true },
   { key: 'path', name: 'Show the path on every page', text: 'A quiet line above the title, for example Plan › Week, so you see where you are. Pages with their own path keep it.', on: true },
+  { key: 'dotplan', name: 'Dot on Plan: ticks still open today', text: 'A small number on «Plan» in the menu while ticks are still open today. The same number as in «Tick off today».', on: true },
+  { key: 'dottrips', name: 'Dot on Tours: packing list not full', text: 'A small dot on «Tours» in the menu when a tour starts within 3 days and something is not packed yet.', on: true },
   { key: 'explore', name: 'Explorer mode', text: 'A tap on a tile with an «i» shows where it comes from instead of opening it. Switch it off in the bar at the top.', on: false },
   { key: 'nussgipfel', name: 'Nut croissant sums', text: 'Next to the kcal of a ride: how many nut croissants that is.', on: true },
   { key: 'murmeltier', name: 'The marmot', text: 'A little drawn marmot on empty pages and beside tips; it sleeps at night.', on: true },
