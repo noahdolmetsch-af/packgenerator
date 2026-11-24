@@ -61,7 +61,7 @@
     save({ planB: { kind: kind ?? 'short', note: trip.planB?.note ?? '', route: trip.planB?.route ?? null, ...(trip.planB ?? {}), trigger: next } });
   }
   async function dropPlanB() {
-    if ((await askDelete({ title: t('Delete plan B?'), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete plan B?'), text: t('You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     const before = $state.snapshot(trip.planB);
     await deleteWithUndo({ run: () => save({ planB: null }), undo: () => save({ planB: before }), text: t('"{name}" deleted.', { name: t('Plan B') }), name: t('Plan B') });
   }

@@ -197,7 +197,7 @@ export default {
   'Open the bike’s folder and the break-in plan.': 'Öffne die Mappe des Velos und den Einfahr-Plan.',
   'Follow the 4 steps; Today reminds you of the first service.': 'Folge den 4 Schritten; Heute erinnert an den ersten Service.',
   'Example: after 300 km → check spokes and cables, Today reminds you.': 'Beispiel: nach 300 km → Speichen und Züge prüfen, Heute erinnert dich.',
-  'Open the bike’s folder and the repair kit.': 'Öffne die Mappe des Velos und das Repair-Kit.',
+  'Open the bike’s folder and the repair kit.': 'Öffne die Mappe des Velos und das Reparaturset.',
   'Missing things go to Gear with one tap.': 'Fehlendes kommt mit einem Tipp ins Material.',
   'Example: 12-speed chain → «quick link 12-speed» is missing and goes to Gear.': 'Beispiel: 12-fach-Kette → «Kettenschloss 12-fach» fehlt und kommt ins Material.',
   'Needs a bike or part with a purchase date.': 'Braucht ein Velo oder Teil mit Kaufdatum.',
@@ -509,7 +509,7 @@ export default {
   'A bike: the pen «Edit» next to its name; «Delete bike» asks which bike its trips get.': 'Ein Velo: der Stift «Bearbeiten» neben dem Namen; «Velo löschen» fragt, welches Velo seine Touren bekommen.',
   'Problems: «…» › Rename or Delete. Learnings: tap one, or «+ Learning».': 'Probleme: «…» › Umbenennen oder Löschen. Erkenntnisse: eine antippen, oder «+ Erkenntnis».',
   'Sports, places on the bike, care parts: Me › «Lists and types».': 'Sportarten, Plätze am Velo, Pflege-Teile: Ich › «Listen und Typen».',
-  'Example: you sold a bike → «Delete bike», its trips go to your new bike; «Undo» for 4 seconds.': 'Beispiel: Du hast ein Velo verkauft → «Velo löschen», seine Touren gehen an dein neues Velo; 4 Sekunden lang «Rückgängig».',
+  'Example: you sold a bike → «Delete bike», its trips go to your new bike; «Undo» for 8 seconds.': 'Beispiel: Du hast ein Velo verkauft → «Velo löschen», seine Touren gehen an dein neues Velo; 8 Sekunden lang «Rückgängig».',
   // Routine «Das tut mir gut» (D1 + D2)
   'Tap a row of «What does me good» on Today to tick it off; a second tap takes it back.': 'Tippe auf Heute eine Zeile von «Was mir gut tut», um sie abzuhaken; ein zweites Tippen nimmt es zurück.',
   '«Change list» adds, renames, sorts or deletes items, with their days and a time.': '«Liste ändern» fügt Vorsätze hinzu, benennt, ordnet oder löscht sie, mit Tagen und Zeit.',
@@ -820,7 +820,7 @@ export default {
   'A bike: the pen «Edit» next to its name; «Delete bike» asks which bike its trips get.': 'Ein Velo: der Stift «Bearbeiten» neben dem Namen; «Velo löschen» fragt, welches Velo seine Touren bekommen.',
   'Problems: «…» › Rename or Delete. Learnings: tap one, or «+ Learning».': 'Probleme: «…» › Umbenennen oder Löschen. Erkenntnisse: eine antippen, oder «+ Erkenntnis».',
   'Sports, places on the bike, care parts: Me › «Lists and types».': 'Sportarten, Plätze am Velo, Pflege-Teile: Ich › «Listen und Typen».',
-  'Example: you sold a bike → «Delete bike», its trips go to your new bike; «Undo» for 4 seconds.': 'Beispiel: Du hast ein Velo verkauft → «Velo löschen», seine Touren gehen an dein neues Velo; 4 Sekunden lang «Rückgängig».',
+  'Example: you sold a bike → «Delete bike», its trips go to your new bike; «Undo» for 8 seconds.': 'Beispiel: Du hast ein Velo verkauft → «Velo löschen», seine Touren gehen an dein neues Velo; 8 Sekunden lang «Rückgängig».',
   // Routine «Das tut mir gut» (D1 + D2)
   'Tap a row of «What does me good» on Today to tick it off; a second tap takes it back.': 'Tippe auf Heute eine Zeile von «Was mir gut tut», um sie abzuhaken; ein zweites Tippen nimmt es zurück.',
   '«Change list» adds, renames, sorts or deletes items, with their days and a time.': '«Liste ändern» fügt Vorsätze hinzu, benennt, ordnet oder löscht sie, mit Tagen und Zeit.',

@@ -156,7 +156,7 @@ export default {
   'Trip costs': 'Tour-Kosten',
   'Who paid what, who owes whom': 'Wer was bezahlt hat, wer wem schuldet',
   'You|costs': 'Du',
-  'What {name} paid ({n}×) then counts as paid by you. You can bring it back for 4 seconds afterwards.': 'Was {name} bezahlt hat ({n}×), zählt dann als von dir bezahlt. Du kannst es danach 4 Sekunden lang zurückholen.',
+  'What {name} paid ({n}×) then counts as paid by you. You can bring it back for 8 seconds afterwards.': 'Was {name} bezahlt hat ({n}×), zählt dann als von dir bezahlt. Du kannst es danach 8 Sekunden lang zurückholen.',
   'Please type an amount.': 'Bitte gib einen Betrag ein.',
   'No rate for {cur} yet: please type the amount in Franken.': 'Noch kein Kurs für {cur}: Bitte gib den Betrag in Franken ein.',
   'Choose at least one person it was for.': 'Wähle mindestens eine Person, für die es war.',

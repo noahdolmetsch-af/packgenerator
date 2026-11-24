@@ -113,7 +113,7 @@
       if (was) offerDone(t('Changes to "{name}" saved.', { name }));
     }
   }
-  // «Discard» (Noah 19.10.2026 «3a»): goes at once; changes to a bike come back with 4 s «Undo».
+  // «Discard» (Noah 19.10.2026 «3a»): goes at once; changes to a bike come back with 8 s «Undo».
   function discard() {
     if (!isNew && changed() && draft.name.trim()) {
       const snap = $state.snapshot(draft);
@@ -128,7 +128,7 @@
 
   // «Alles selbst bearbeiten» (Noah 19.10.2026): a bike can always be deleted. The one delete window
   // (GroupDeleteSheet) asks where its trips go, «Ohne Velo» first; its km book, workshop visits, photos and
-  // care tasks go with it. Then 4 s «Undo» (rule «Löschen» 14.10.2026).
+  // care tasks go with it. Then 8 s «Undo» (rule «Löschen» 14.10.2026).
   let asking = $state(null); // { links, targets } while the delete window is open
   const remove = once(async () => {
     error = '';

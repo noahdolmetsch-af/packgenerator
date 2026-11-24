@@ -195,7 +195,7 @@ export default {
   'Own step, e.g. «Bottle cages off»': 'Eigener Schritt, z. B. «Flaschenhalter ab»',
   'Type the francs as a number, e.g. 80.': 'Gib die Franken als Zahl ein, z. B. 80.',
   'Remove the refund?': 'Rückerstattung entfernen?',
-  'The visit stays. You can bring the refund back for 4 seconds afterwards.': 'Der Besuch bleibt. Danach kannst du die Rückerstattung 4 Sekunden lang zurückholen.',
+  'The visit stays. You can bring the refund back for 8 seconds afterwards.': 'Der Besuch bleibt. Danach kannst du die Rückerstattung 8 Sekunden lang zurückholen.',
   'Refund removed.': 'Rückerstattung entfernt.',
   'Refund': 'Rückerstattung',
   'Warranty, insurance or goodwill pays something back? Note it here, apart from what you paid.': 'Garantie, Versicherung oder Kulanz zahlt etwas zurück? Halte es hier fest, getrennt von dem, was du bezahlt hast.',

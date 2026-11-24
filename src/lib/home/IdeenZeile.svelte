@@ -24,7 +24,8 @@
   import { msName, val } from '../flow/hobby/words.js';
   import { nextStars, readNextStars } from './nextstars.js';
   import { DISCOVER_KEY, discoverOf, putOff, bringBack } from './discover.js';
-  import { IDEAS_KEY, TOUR_FEATURE, TOUR_HREF, ideasRecOf, ideasOf, setNot, unsetNot, setLast } from './ideen.js';
+  import { IDEAS_KEY, TOUR_FEATURE, TOUR_HREF, LEARNED_HREF, ideasRecOf, ideasOf, learnedOf, setNot, unsetNot, setLast } from './ideen.js';
+  import { tabHref } from '../tabs.js';
   import { momentName } from './momentcard.js';
 
   let { today, hour = 12, weekday = 3, trips = [], debriefDone = () => false, careDue = 0, inbox = 0, newsDays = 0 } = $props();
@@ -43,8 +44,8 @@
   const q = $derived(
     go
       ? liveQuery(async () => {
-          const [fd, ns, set] = await Promise.all([featureData(), readNextStars(db, today), db.settings.bulkGet([DREAMS_KEY, DISCOVER_KEY, IDEAS_KEY, NOT_KEY])]);
-          return { fd, ns, set };
+          const [fd, ns, set, learnings] = await Promise.all([featureData(), readNextStars(db, today), db.settings.bulkGet([DREAMS_KEY, DISCOVER_KEY, IDEAS_KEY, NOT_KEY]), db.learnings.toArray()]);
+          return { fd, ns, set, learnings };
         })
       : null,
   );
@@ -62,7 +63,10 @@
   const e0 = WHATS_NEW[0];
   const news = $derived(newsDays > 0 && e0 ? { version: e0.version, title: e0.title ?? '', text: e0.lead ?? e0.points?.[0]?.text ?? '' } : null);
   const dreams = $derived(storeOf(d?.set[0]?.value).dreams.length);
-  const ideas = $derived(d ? ideasOf({ moment: now.key, today, used, notForMe, rec, ir, star, dreams, news }) : []);
+  // back from a tour with its debrief still open (the moment «Zurück», moment.js rule 2), and what the app learned lately
+  const back = $derived(now.key === 'zurueck' && now.trip ? { id: now.trip.id, tripTitle: now.trip.title ?? '', href: tabHref('debrief', now.trip) } : null);
+  const learned = $derived(d ? learnedOf(d.learnings, today) : null);
+  const ideas = $derived(d ? ideasOf({ moment: now.key, today, used, notForMe, rec, ir, star, dreams, news, back, learned }) : []);
   const idea = $derived(ideas[0] ?? null);
   const total = FEATURES.length;
   const tried = $derived(used.size);
@@ -77,6 +81,24 @@
         why: t('Almost there: {value} of {target}.', { value: val(x.value, x.unit), target: val(x.target, x.unit) }),
         href: `#/flow/sport/${encodeURIComponent(`act:${x.actId}`)}`,
         label: t('Open'),
+      };
+    }
+    if (x.kind === 'back') {
+      return {
+        title: t('Debrief of your last tour'),
+        text: x.tripTitle,
+        why: t('You are back from this tour. A short debrief teaches the app what to pack next time.'),
+        href: x.href,
+        label: t('Open'),
+      };
+    }
+    if (x.kind === 'learned') {
+      return {
+        title: t('New learned from your debriefs'),
+        text: x.rule,
+        why: tn(x.n, '{n} new learning in the last weeks.', '{n} new learnings in the last weeks.'),
+        href: LEARNED_HREF,
+        label: t('Look at it'),
       };
     }
     if (x.kind === 'content') {

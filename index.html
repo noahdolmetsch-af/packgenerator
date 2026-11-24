@@ -7,8 +7,40 @@
     <title>Pack Generator</title>
     <link rel="icon" href="/icons/app.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/icons/app-180.png" />
+    <!-- «Sofort ein Bild» (Noah 23.11.2026): the colour world and light or dark first (same rule as initTheme in src/lib/theme.svelte.js), then the quiet frame in #boot -->
+    <script>
+      (function () {
+        var r = document.documentElement;
+        r.dataset.palette = 'salbei';
+        try {
+          var l = localStorage, p = l.getItem('theme.palette'), m = l.getItem('theme.mode');
+          if (p === 'gletscher' && l.getItem('theme.refresh97') !== '1') p = 'salbei';
+          if (['klassisch', 'gletscher', 'sandstein', 'salbei', 'fels', 'sand', 'gletscher-sanft'].indexOf(p) < 0) p = 'salbei';
+          r.dataset.palette = p;
+          r.dataset.theme = m === 'dark' || (m !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+        } catch (e) {}
+      })();
+    </script>
+    <!--boot-css-->
   </head>
   <body>
+    <div id="boot" aria-hidden="true">
+      <div class="b-side">
+        <div class="b-brandrow"><span class="b-logo">PG</span><span>Pack Generator</span></div>
+        <span class="b-new"></span>
+        <span class="b-search"></span>
+        <span class="b-bar b-nav"></span><span class="b-bar b-nav"></span><span class="b-bar b-nav"></span><span class="b-bar b-nav"></span><span class="b-bar b-nav"></span>
+      </div>
+      <div class="b-main">
+        <div class="b-top"><span class="b-logo">PG</span><span class="b-dots"><i></i><i></i><i></i></span></div>
+        <span class="b-bar b-h1"></span>
+        <span class="b-bar b-sub"></span>
+        <span class="b-chips"><i></i><i></i></span>
+        <span class="b-card tall"></span>
+        <span class="b-card"></span>
+      </div>
+      <div class="b-tabs"><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
     <div id="app"></div>
     <script type="module" src="/src/main.js"></script>
   </body>

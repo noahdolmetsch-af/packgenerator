@@ -122,7 +122,7 @@
     if (key === 'restore') change((l) => l.map((x) => (x.id === id ? { ...x, archivedAt: null, keptAt: now() } : x)), t('{name} is back', { name: tpl.name }));
     if (key === 'delete') {
       const name = tpl.name;
-      askDelete({ title: t('Delete the template "{name}"?', { name }), text: t('Trips made from it stay. You can bring it back for 4 seconds afterwards.'), archive: tpl.archivedAt ? '' : t('Archive') }).then((a) => {
+      askDelete({ title: t('Delete the template "{name}"?', { name }), text: t('Trips made from it stay. You can bring it back for 8 seconds afterwards.'), archive: tpl.archivedAt ? '' : t('Archive') }).then((a) => {
         if (a === 'archive') pickMenu('archive');
         if (a === 'delete') change((l) => l.filter((x) => x.id !== id), t('{name} deleted', { name }), () => (location.hash = '#/pack/templates'));
       });

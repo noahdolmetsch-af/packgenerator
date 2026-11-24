@@ -17,7 +17,7 @@ export default {
   '{n} care tasks': '{n} Pflege-Aufgaben',
   // problems
   'Delete the problem "{name}"?': 'Problem «{name}» löschen?',
-  'It is gone from the list and from Bike care. You can bring it back for 4 seconds afterwards.': 'Es verschwindet aus der Liste und aus der Velo-Pflege. Danach kannst du es 4 Sekunden lang zurückholen.',
+  'It is gone from the list and from Bike care. You can bring it back for 8 seconds afterwards.': 'Es verschwindet aus der Liste und aus der Velo-Pflege. Danach kannst du es 8 Sekunden lang zurückholen.',
   'Change the text of the problem': 'Den Text des Problems ändern',
   'Remove the problem for good': 'Das Problem ganz entfernen',
   'Rename problem': 'Problem umbenennen',
@@ -25,7 +25,7 @@ export default {
   'Write what you learned.': 'Schreib auf, was du gelernt hast.',
   'Written by you': 'Von dir notiert',
   'Delete the learning "{name}"?': 'Erkenntnis «{name}» löschen?',
-  'It is gone from Learned and from the packing hints. You can bring it back for 4 seconds afterwards.': 'Es verschwindet aus «Erkenntnisse» und aus den Pack-Hinweisen. Danach kannst du es 4 Sekunden lang zurückholen.',
+  'It is gone from Learned and from the packing hints. You can bring it back for 8 seconds afterwards.': 'Es verschwindet aus «Erkenntnisse» und aus den Pack-Hinweisen. Danach kannst du es 8 Sekunden lang zurückholen.',
   'New learning': 'Neue Erkenntnis',
   'Edit learning': 'Erkenntnis bearbeiten',
   'Edit learning: {name}': 'Erkenntnis bearbeiten: {name}',
@@ -40,7 +40,7 @@ export default {
   'Rename the idea "{text}"': 'Idee «{text}» umbenennen',
   'Rename idea': 'Idee umbenennen',
   'Delete the entry "{name}"?': 'Eintrag «{name}» löschen?',
-  'It is gone from the logbook. You can bring it back for 4 seconds afterwards.': 'Er verschwindet aus dem Logbuch. Danach kannst du ihn 4 Sekunden lang zurückholen.',
+  'It is gone from the logbook. You can bring it back for 8 seconds afterwards.': 'Er verschwindet aus dem Logbuch. Danach kannst du ihn 8 Sekunden lang zurückholen.',
   'Rename entry': 'Eintrag umbenennen',
   // Listen und Typen: sports, places on the bike, care parts
   'Sports and areas': 'Sportarten',

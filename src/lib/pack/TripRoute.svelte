@@ -1,5 +1,5 @@
 <script>
-  import { askDelete, deleteWithUndo } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
+  import { askDelete, deleteWithUndo } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 8 s «Undo»
   import { localDay } from '../localday.js';
   /**
    * Route and weather of a trip (Noah, 4.10.2026, answers 4a, 5a, 12b):
@@ -89,9 +89,9 @@
     else ((pending = null), useRoute(p.route));
   }
   const usePending = () => (pending && useRoute(pending.route), (pending = null));
-  // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
+  // «Rückmeldungen» 19.10.2026: the app's own question, then 8 s «Undo»
   async function dropRoute() {
-    if ((await askDelete({ title: t('Remove the route from this trip?'), text: t('You can bring it back for 4 seconds afterwards.'), label: t('Remove') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Remove the route from this trip?'), text: t('You can bring it back for 8 seconds afterwards.'), label: t('Remove') })) !== 'delete') return;
     const route = $state.snapshot(trip.route);
     const name = route?.name || t('Route');
     await deleteWithUndo({ run: () => onchange(() => ({ route: null })), undo: () => onchange(() => ({ route })), text: t('"{name}" removed.', { name }), name });

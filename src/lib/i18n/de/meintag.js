@@ -88,4 +88,5 @@ export default {
   'Moved to tomorrow: no room left today': 'Auf morgen verschoben: heute ist kein Platz mehr',
   'Calendar dates without a time are often all day, so they are not preselected.': 'Kalendertermine ohne Zeit dauern oft den ganzen Tag, darum sind sie nicht vorgewählt.',
   '{n} entries placed.': '{n} Einträge eingeplant.',
+  'Show the timeline': 'Zeitleiste zeigen',
 };

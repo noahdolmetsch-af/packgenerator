@@ -11,6 +11,7 @@
   import SkiTurn from './lib/ski/SkiTurn.svelte';
   import { parseBetween } from './lib/phase.js';
   import FlowLayer from './lib/flow/FlowLayer.svelte';
+  import Punkte from './lib/nav/Punkte.svelte'; // «Ruhige Punkte an allen Orten» (Noah 23.11.2026 «4a»)
   import DemoBar from './lib/DemoBar.svelte';
   import LogoRide from './lib/logo/LogoRide.svelte'; // «Geheimnis im Logo» (Idee 29)
   import LogoMark from './lib/logo/LogoMark.svelte'; // «Jahreszeit» (Idee 30)
@@ -951,6 +952,7 @@
 {/if}
 {#if !guest}<SkiTurn />{/if}
 <!-- ER1/ER2: «Soll ich dich in Zukunft erinnern?» under what was just saved -->
+{#if !guest && !mini}<Punkte />{/if}
 {#if !guest && !mini}{#await import('./lib/drop/DropLayer.svelte') then M}<M.default />{/await}{/if}
 {#if !guest}<FlowLayer page={page === 'flow' && !/^#\/flow\/?$/.test(hash) ? 'flow-sub' : page} />{/if}
 <!-- «Timer» (Z1): a running timer stays in sight on every other page -->

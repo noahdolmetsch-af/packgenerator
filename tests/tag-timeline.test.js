@@ -5,6 +5,16 @@ import { shiftDay } from '../src/lib/training.js';
 
 const e = (id, kind, time, mins) => ({ id, kind, time, title: id, sub: mins ? { mins } : null });
 
+describe('layoutDay with «now»', () => {
+  it('starts one hour before now on today, never later than the first entry', () => {
+    expect(layoutDay([], { now: 9 * 60 + 12 }).from).toBe(8 * 60);
+    expect(layoutDay([], { now: 6 * 60 + 30 }).from).toBe(DAY_START);
+    expect(layoutDay([], { now: 14 * 60 }).from).toBe(13 * 60);
+    expect(layoutDay([e('early', 'date', '07:15', 30)], { now: 14 * 60 }).from).toBe(7 * 60);
+    expect(layoutDay([], {}).from).toBe(DAY_START);
+  });
+});
+
 describe('lengthOf', () => {
   it('uses the length the entry knows and says when it only guesses', () => {
     expect(lengthOf(e('a', 'todo', '10:00', 45))).toEqual({ mins: 45, guessed: false });
