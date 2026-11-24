@@ -1,22 +1,21 @@
-# Regeln R31, R32, R33 und PR-Grenze 6: Tests anderer Bereiche, ausführlichere Antworten
+# Regeln auf neun Blöcke gekürzt: Tests anderer Bereiche, ausführlichere Antworten, PR-Grenze 6, Bilder zu jedem PR
 
-PR (Nummer steht im PR) · 24.11.2026 · Auftrag: Noah «a» (R31) und «ich möchte, dass du ab sofort mehr antwortest» (R32), «Jede Nachricht sagt klar, wovon die Rede ist» (R33) (Thread «Regeln und Anweisungen auf neuen Stand bringen»)
+PR (Nummer steht im PR) · 24.11.2026 · Auftrag: Noah «a» (Tests anderer Bereiche) und «ich möchte, dass du ab sofort mehr antwortest» (R32), «Jede Nachricht sagt klar, wovon die Rede ist» (R33) (Thread «Regeln und Anweisungen auf neuen Stand bringen»)
 
 ## Was ist neu
-- `docs/regeln.md`: neue Regel R31. Wer eine Seite umbaut, sucht vor dem PR alle Tests, die diese Seite antippen (auch aus anderen Bereichen), und lässt sie lokal laufen.
-- `docs/regeln.md`: neue Regel R32. Antworten an Noah sind ab sofort ausführlicher (was passiert ist, warum, was es für ihn bedeutet, nächster Schritt); R4 verweist darauf.
-- `docs/regeln.md`: neue Regel R33. Jede Nachricht an Noah verlinkt den Thread, nennt das Thema in Worten, erklärt jede PR-Nummer in Worten und benennt den offenen Punkt.
-- `docs/regeln.md`: PR-Grenze gesenkt (R11.1, R12, R13): höchstens 6 PRs offen, Ziel 5 (Noah 24.11.2026 16:38). Die alte Fassung «höchstens 8» steht im Archiv.
-- Bereinigung der Projekt-Anweisung (Noah «1-5a»): R1, R6, R26, `CLAUDE.md` und `docs/vorhaben.md` (Prüffragen) angeglichen; die sechs Ziele sind kein Massstab mehr, der Leitfaden bleibt ganz.
-- `CLAUDE.md`: Verweis auf R31 im Abschnitt «Tests», und der Satz zur Antwortlänge am Anfang folgt R32.
-- `tests/regeln-doku.test.js`: die Regeln müssen lückenlos nummeriert sein, aber nicht mehr in der Reihenfolge der Datei.
+- Neue Regeln dieses Tages, jetzt in den neun Blöcken: Tests anderer Bereiche vor dem PR (Block 7), ausführlichere und klare Antworten (Block 2), PR-Grenze höchstens 6, Ziel 5 (Block 4), Projekt-Anweisung bereinigt: Massstab nur Klarheit, Auffindbarkeit, Leitfaden, Datenschutz ausdrücklich (Block 1 und 8).
+- **Neun Blöcke statt 33 Regeln** (Noah «1-5a» 24.11.2026 16:50): `docs/regeln.md` ist jetzt etwa eine Seite mit neun Blöcken. Die alten R1–R33 stehen wörtlich in `docs/regeln-archiv.md`; die Namen R31 bis R33 oben gelten als Block 7 und Block 2.
+- `docs/regeln.md`: Normalfall ohne Freigabe, aber bei möglichem Datenverlust fragt der Thread zuerst Noah (Block 5); melden nur mit Ergebnis, Blocker oder Frage plus die Rundgänge 08:00 und 20:00 (Block 2).
+- `docs/regeln.md` und `CLAUDE.md`: **Bilder zu jedem PR** schon beim Öffnen (Noah 24.11.2026 16:53); ohne sichtbare Änderung genügt ein Satz (Noah «1a» 16:54).
+- `CLAUDE.md`: Technisches aus den alten Regeln (Merge-Prüfung, Label `ok`, Wackel-Tests, volle Prüfung, Datenbank-PRs) steht jetzt dort; Verweise zeigen auf «Block n» statt «R n».
+- `tests/regeln-doku.test.js`: prüft neun Blöcke in Reihenfolge, je mit Datum und Quelle, und dass `CLAUDE.md` nur vorhandene Blöcke nennt.
 - Nur Doku und ein Doku-Test, nichts sichtbar in der App.
 
 ## Was fällt weg oder rutscht tiefer
 - nichts
 
 ## Selbst entschieden
-- R31 steht bei den Test-Regeln (Abschnitt 5) und trägt trotzdem die Nummer 31, damit keine bestehende Nummer sich ändert. Der Formtest prüft deshalb die Nummern, nicht ihre Reihenfolge.
+- Die Regeln R31, R32, R33 und die PR-Grenze, die dieser PR zuerst als Einzelregeln brachte, sind in der gleichen PR-Reihe in die neun Blöcke eingegangen (Tests anderer Bereiche: Block 7; Antworten: Block 2; PR-Grenze: Block 4).
 - Keine «Was ist neu»-Datei: nichts sichtbar.
 
 ## Entscheide (eigene Datei `docs/decisions/<name>.md`)
@@ -26,4 +25,4 @@ PR (Nummer steht im PR) · 24.11.2026 · Auftrag: Noah «a» (R31) und «ich mö
 - unverändert
 
 ## Prüfschritte (nach dem Merge auf der echten Seite)
-1. Nichts zu prüfen in der App. Auf GitHub `docs/regeln.md` öffnen: R31 steht bei den Test-Regeln.
+1. Nichts zu prüfen in der App. Auf GitHub `docs/regeln.md` öffnen: neun Blöcke, Block 7 «Tests» nennt die Tests anderer Bereiche, Block 5 die Bilder zu jedem PR.
