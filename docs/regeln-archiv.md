@@ -2,6 +2,23 @@
 
 Stand vor der Aufräumrunde vom 24.11.2026 (Noah «bringe regeln … auf den neusten stand»). Nur Verlauf, keine Regel. Aktuell gilt [regeln.md](regeln.md). Ersetzt eine neue Regel eine alte, kommt die alte hierher, mit Datum.
 
+## Ersetzt am 24.11.2026 17:19: «bei Grün ohne Freigabe online» (Block 5)
+
+Noah 24.11.2026 17:19: «ich möchte für jeden PR vor merge bilder sehen … diese gebe ich frei. das geht an den bündler, und wenn platz ist, geht es online.» Das ersetzt den Normalfall «bei Grün geht alles ohne Freigabe online» für PRs mit sichtbarer Änderung. Die Entscheid-Datei `docs/decisions/alles-freigegeben.md` (23.11.2026) bleibt als Verlauf. Block 5 in der Fassung von 16:58, wörtlich:
+
+~~~~markdown
+## Block 5 · Freigabe und Merge
+
+(Noah 23.11.2026 00:03 und 06:00 «alles frei, freie Hand», `docs/decisions/alles-freigegeben.md`; Noah «1-5a» 24.11.2026 16:50; Bilder Noah 24.11.2026 16:53 und 16:54 «1a».)
+- **Normalfall: bei grüner Prüfung geht alles ohne Freigabe online.** Kein «ok NNN» pro PR. Dependabot- und Wächter-Reparaturen genauso. Nie auto-mergen bei roter Prüfung.
+- **Ausnahme: Noahs Daten könnten verloren gehen** (Löschen, Backup, Sync, Datenbank, `api/`). Dann fragt der Thread **zuerst Noah** und merged erst nach seiner Antwort. Vorher: Test mit der Kopie eines Backups und ein frisches Backup von Noah bereit
+  (der Thread bittet ihn darum, wenn sein letztes älter als ein Tag ist; es liegt in `/mnt/project-files/private/`, nie im Repo).
+- **«zurück»** von Noah nimmt einen PR sofort zurück (Revert).
+- **Bilder zu jedem PR** (Noah 24.11.2026 16:53: «ich möchte ab sofort immer für jeden PR bilder sehen»): Jeder PR mit sichtbarer Änderung zeigt Noah Bilder **schon beim Öffnen**, in der Meldung an ihn, nicht erst bei «Online» (Handy 390 und Computer 1440, deutsch, erfundene Daten, wo sinnvoll vorher und nachher). Ein PR ohne sichtbare Änderung (Test, Doku, CI) braucht kein Bild, nur einen Satz «Nichts Sichtbares geändert, nur …» (Noah «1a» 24.11.2026 16:54). Wie die Bilder aussehen: Block 6.
+- **Jeder PR sagt, was er tut:** «Was fällt weg oder rutscht tiefer» (sonst «nichts»), «Was ist neu», Screenshots, 2–4 Prüfschritte, kleine Entscheide unter «Selbst entschieden». Ein Verlust, den Noah nicht freigegeben hat, braucht seine Antwort vor dem Merge. Dateiliste und Fertig-Regel: `CLAUDE.md`.
+- Merge-Prüfung (Basis `main`, konfliktfrei, linearer Zweig): `CLAUDE.md`.
+~~~~
+
 ## Ersetzt am 24.11.2026 16:58: PR-Grenze «höchstens 6 offen, Ziel 5»
 
 - Noah 24.11.2026 16:38 «lass uns die grenze auf 5-6 herunter tun. 6-9 ist mir zu vieles gleichzeitig»: «Höchstens 6 PRs offen, Ziel 5. Neues erst bauen, wenn höchstens 5 offen sind.» (Regeln R11.1, R12, R13, Block 4 der ersten Fassung der neun Blöcke.)

@@ -1,0 +1,10 @@
+# Bilder vor dem Merge: Noah gibt frei
+
+24.11.2026 · Auftrag: Noah «neue regel: ich möchte für jeden PR vor merge bilder sehen» (17:19), vorher «ich möchte ab sofort immer für jeden PR bilder sehen» (16:53) und «1a» (16:54) (Thread «Regeln und Anweisungen auf neuen Stand bringen»)
+
+- **Regel:** Bei jedem PR mit sichtbarer Änderung sieht Noah **vor dem Merge** Bilder und gibt sie frei. Entweder vor dem Bauen als Entwurf oder nach dem Bauen vom fertigen PR, wenn möglich mit seinen aktuellen Daten. Die Freigabe geht an den Bündler; bei grüner Prüfung und freiem Platz geht der PR online.
+- **Grund:** Bisher kamen die Bilder erst, nachdem der PR online war. Das war oft zu spät, weil Noah den fertigen PR mit seinen aktuellen Daten nicht vorher sah.
+- **Ersetzt** die Regel vom 23.11.2026 «alles geht bei Grün ohne Freigabe online» (`docs/decisions/alles-freigegeben.md`, jetzt Verlauf) für PRs mit sichtbarer Änderung.
+- **Bleibt:** PRs ohne sichtbare Änderung (Test, Doku, CI) brauchen nur den Satz «Nichts Sichtbares geändert, nur …» und gehen bei Grün von selbst online (Noah «1a» 24.11.2026 16:54). Bei möglichem Datenverlust fragt der Thread zuerst Noah.
+- **Datenschutz:** Bilder mit Noahs echten Daten bleiben privat im Thread, nie in Repo, PR-Text oder öffentlich, und zeigen keinen Bankname, keine IBAN, Konten, Beträge oder Fotos (Block 8). Öffentliche Bilder nutzen erfundene Daten.
+- **Wartende Threads** (Noah 24.11.2026 17:19): Sie bauen die nächsten Schritte wenn immer möglich schon lokal vor und zeigen Noah dazu Bilder, damit er freigeben kann, sobald Platz ist.

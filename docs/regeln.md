@@ -38,31 +38,32 @@ So fühlt sich die App für Nutzer an, auf jeder Seite:
 
 ## Block 4 · PRs und Stau
 
-(Noah 23.11.2026 18:58; Noah 24.11.2026 07:29 «1 2 3 4 5», 10:27, 16:38, 16:58 «a».)
+(Noah 23.11.2026 18:58; Noah 24.11.2026 07:29 «1 2 3 4 5», 10:27, 16:38, 16:58 «a», 17:19.)
 - **Ein PR pro Seite**, kleine Änderungen derselben Seite gebündelt. Einzeln bleiben Datenänderungen (Dexie, Backup, Sync, `api/`) und Test-Fixes.
 - **Grenzen** (Noah «a» 24.11.2026 16:58, ersetzt «höchstens 6 offen» von 16:38): **höchstens 5–6 PRs gleichzeitig in der Prüfung auf GitHub, bis 8 offen insgesamt; 6–10 Threads arbeiten gleichzeitig.** Ein neuer PR wird erst geöffnet, wenn in der Prüfung weniger als 5–6 sind und insgesamt weniger als 8 offen; sonst wartende PRs abbauen helfen.
-- **Was darüber hinaus fertig wird** (Wellen der impeccable-Prüfung), wird **lokal gebaut und getestet, ohne PR und ohne Push**, bis der Bündler «Platz» meldet (Platz heisst: unter den Grenzen oben). Wartet ein PR auf CI, geht der Thread am nächsten Schritt weiter, lokal vorbereitet (Noah 27.10.2026).
+- **Was darüber hinaus fertig wird** (Wellen der impeccable-Prüfung), wird **lokal gebaut und getestet, ohne PR und ohne Push**, bis der Bündler «Platz» meldet (Platz heisst: unter den Grenzen oben). Wartet ein PR auf CI oder auf Platz, geht der Thread am nächsten Schritt weiter, lokal vorbereitet (Noah 27.10.2026). **Wartende Threads bauen die nächsten Schritte wenn immer möglich schon vor und zeigen Noah dazu Bilder** (Noah 24.11.2026 17:19), damit er sie freigeben kann, sobald Platz ist.
 - **Main rot:** bis zu 1 Stunde nichts anderes mergen, bis repariert.
 - **Ein Test, der 2× zufällig fällt,** kommt auf die Liste und wird noch am selben Tag stabil gemacht (Wackel-Thread).
 - Ziel der CI: etwa 15 Minuten statt 25–70, mit Tests nur der geänderten Seite (Thread «Tests schneller machen»).
 
 ## Block 5 · Freigabe und Merge
 
-(Noah 23.11.2026 00:03 und 06:00 «alles frei, freie Hand», `docs/decisions/alles-freigegeben.md`; Noah «1-5a» 24.11.2026 16:50; Bilder Noah 24.11.2026 16:53 und 16:54 «1a».)
-- **Normalfall: bei grüner Prüfung geht alles ohne Freigabe online.** Kein «ok NNN» pro PR. Dependabot- und Wächter-Reparaturen genauso. Nie auto-mergen bei roter Prüfung.
+(Noah 24.11.2026 17:19 «ich möchte für jeden PR vor merge bilder sehen», ersetzt die Freigabe «alles frei» vom 23.11.2026, `docs/decisions/alles-freigegeben.md` ist jetzt Verlauf; Noah «1-5a» 24.11.2026 16:50; Bilder Noah 24.11.2026 16:53 und 16:54 «1a».)
+- **Sichtbare Änderung: Noah sieht die Bilder vor dem Merge und gibt sie frei** (Noah 17:19: «aktuell kommen die Bilder erst nachdem PR online geht. das ist oftmals zu spät»). Entweder **vor dem Bauen** als Entwurf oder **nach dem Bauen** vom fertigen PR, **wenn möglich mit Noahs aktuellen Daten**
+  (diese Bilder nur privat im Thread, nie in Repo, PR oder öffentlich; Block 8). Noah gibt die Bilder frei, die Freigabe geht an den Bündler, und **wenn die Prüfung grün ist und Platz ist, geht es online**.
+- **Ohne sichtbare Änderung** (Test, Doku, CI, Wächter-Reparaturen) genügt der Satz «Nichts Sichtbares geändert, nur …» (Noah «1a» 24.11.2026 16:54); solche PRs gehen bei Grün ohne Freigabe online. Nie mergen bei roter Prüfung.
 - **Ausnahme: Noahs Daten könnten verloren gehen** (Löschen, Backup, Sync, Datenbank, `api/`). Dann fragt der Thread **zuerst Noah** und merged erst nach seiner Antwort. Vorher: Test mit der Kopie eines Backups und ein frisches Backup von Noah bereit
   (der Thread bittet ihn darum, wenn sein letztes älter als ein Tag ist; es liegt in `/mnt/project-files/private/`, nie im Repo).
 - **«zurück»** von Noah nimmt einen PR sofort zurück (Revert).
-- **Bilder zu jedem PR** (Noah 24.11.2026 16:53: «ich möchte ab sofort immer für jeden PR bilder sehen»): Jeder PR mit sichtbarer Änderung zeigt Noah Bilder **schon beim Öffnen**, in der Meldung an ihn, nicht erst bei «Online» (Handy 390 und Computer 1440, deutsch, erfundene Daten, wo sinnvoll vorher und nachher). Ein PR ohne sichtbare Änderung (Test, Doku, CI) braucht kein Bild, nur einen Satz «Nichts Sichtbares geändert, nur …» (Noah «1a» 24.11.2026 16:54). Wie die Bilder aussehen: Block 6.
-- **Jeder PR sagt, was er tut:** «Was fällt weg oder rutscht tiefer» (sonst «nichts»), «Was ist neu», Screenshots, 2–4 Prüfschritte, kleine Entscheide unter «Selbst entschieden». Ein Verlust, den Noah nicht freigegeben hat, braucht seine Antwort vor dem Merge. Dateiliste und Fertig-Regel: `CLAUDE.md`.
+- **Jeder PR sagt, was er tut:** «Was fällt weg oder rutscht tiefer» (sonst «nichts»), «Was ist neu», 2–4 Prüfschritte, kleine Entscheide unter «Selbst entschieden». Ein Verlust, den Noah nicht freigegeben hat, braucht seine Antwort vor dem Merge. Wie die Bilder aussehen: Block 6. Dateiliste und Fertig-Regel: `CLAUDE.md`.
 - Merge-Prüfung (Basis `main`, konfliktfrei, linearer Zweig): `CLAUDE.md`.
 
 ## Block 6 · Nach dem Merge
 
-(Noah 23.11.2026 13:17, 20:46; Noah 24.11.2026 01:24, 02:24 und 16:53.)
+(Noah 23.11.2026 13:17, 20:46; Noah 24.11.2026 01:24, 02:24, 16:53 und 17:19.)
 - **Live-Test im Browser** auf der echten Seite (Handy 390, Computer 1440), Prüfschritte durchgehen, Konsole lesen. Bei Fehler zuerst beheben.
 - **«Online» erst nach grünem Deploy** (GitHub Pages; bei `api/` auch Vercel «packgen» bereit und neu deployen). Die Meldung ist **eine Zeile** mit Thread-Link, Link zur Seite, Testanleitung, und die PR-Nummer in Worten.
-- **Bilder** (zu jedem PR, Block 5; nach dem Merge noch einmal von der Live-Seite): Handy und Computer, **App und Browser auf Deutsch**, die Bilder **zeigen die Änderung selbst**, nötigenfalls mit erfundenen Beispieldaten. Eine leere App zählt nicht. Ablage `/mnt/project-files/online-bilder/<PR>/`; der Koordinator hängt sie an. Auch rückwirkend.
+- **Bilder** (die Bilder vor dem Merge aus Block 5 und die Live-Bilder nach dem Merge): Handy und Computer, **App und Browser auf Deutsch**, die Bilder **zeigen die Änderung selbst**, nötigenfalls mit erfundenen Beispieldaten. Eine leere App zählt nicht. Wo möglich mit Noahs aktuellen Daten, dann nur privat im Thread (Block 8). Ablage `/mnt/project-files/online-bilder/<PR>/`; der Koordinator hängt sie an.
 
 ## Block 7 · Tests
 
@@ -77,7 +78,7 @@ So fühlt sich die App für Nutzer an, auf jeder Seite:
 (Noah 04.10.2026 ff.; Noah 26.10.2026 «gratis»; Noah 23.11.2026 «KI-Schlüssel in Vercel»; ausdrücklich ergänzt Noah «1-5a» 24.11.2026 16:45; Wortlaut wie in der Projekt-Anweisung.)
 **Privat und gratis, nichts darf Geld kosten.** Das öffentliche Repo bekommt keine persönlichen Daten. Bankname, IBAN, Kontonummern und Beträge, Fotos und der Kalender-Schlüssel (ICS-Token) gehen nie ins Repo, in den Chat oder ins Gedächtnis.
 Private Dateien liegen nur in `/mnt/project-files/private/`. Entwürfe mit echten Daten werden nie öffentlich geteilt.
-Dazu: keine echten Namen, Backups, Belege, GPX oder Excel-Listen im Repo; Tests und Bilder nutzen nur erfundene Daten; Gesundheitsdaten sind reine Beobachtung; der KI-Schlüssel bleibt in Vercel.
+Dazu: keine echten Namen, Backups, Belege, GPX oder Excel-Listen im Repo; Tests und öffentliche Bilder nutzen nur erfundene Daten. Bilder mit Noahs aktuellen Daten (Block 5) gibt es nur privat im Thread für Noah, nie in Repo, PR-Text oder öffentlich, und ohne Bankname, IBAN, Konten, Beträge und Fotos (diese werden weggelassen oder durch erfundene ersetzt); Gesundheitsdaten sind reine Beobachtung; der KI-Schlüssel bleibt in Vercel.
 
 ## Block 9 · Aktuell halten
 
