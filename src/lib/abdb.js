@@ -30,14 +30,15 @@ export function connQuery(today) {
     const from = new Date(`${today}T00:00:00Z`);
     from.setUTCDate(from.getUTCDate() - 8);
     const get = (key) => db.settings.get(key).then((r) => r?.value ?? null).catch(() => null);
-    const [merken, weekGoals, people, acts, stars] = await Promise.all([
+    const [merken, weekGoals, people, acts, stars, notes] = await Promise.all([
       get(MERKEN_KEY),
       get(WEEK_GOALS_KEY),
       get(ALLTAG_PEOPLE_KEY),
       db.flowActs ? db.flowActs.toArray().catch(() => []) : [],
       db.flowStars ? db.flowStars.where('day').aboveOrEqual(from.toISOString().slice(0, 10)).toArray().catch(() => []) : [],
+      db.notes ? db.notes.filter((n) => n?.form?.key === 'vision').toArray().catch(() => []) : [],
     ]);
-    return { merken, weekGoals, people, acts, stars };
+    return { merken, weekGoals, people, acts, stars, notes };
   });
 }
 

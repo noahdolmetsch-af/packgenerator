@@ -67,6 +67,7 @@ export const GERAET_DATEIEN = {
   'lib/home/FlowCard.svelte': 'gemerkt',
   'lib/home/HomeWindow.svelte': 'gemerkt',
   'lib/home/NeuSeitCard.svelte': 'gemerkt',
+  'lib/home/TagesSatz.svelte': 'gemerkt',
   'lib/home/homeFold.js': 'ansicht',
   'lib/i18n.svelte.js': 'ansicht',
   'lib/know/featureData.js': 'ansicht',

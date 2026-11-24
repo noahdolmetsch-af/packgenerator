@@ -61,6 +61,7 @@ export default {
   'How much fresh air was in your lungs?': 'Wie viel frische Luft war in deiner Lunge?',
   'How much did it pull you outside today?': 'Wie sehr hat es dich heute nach draussen gezogen?',
   // 7 Visionen
+  'Which vision or life dream did you move closer to this month, even by one small step?': 'Welcher Vision oder welchem Lebenstraum bist du diesen Monat näher gekommen, und sei es nur um einen kleinen Schritt?',
   'Did you get closer to your vision this week, even if only by one pedal stroke?': 'Bist du deiner Vision diese Woche näher gekommen, und sei es nur einen Pedaltritt?',
   'How keen are you on something new: creature of habit or explorer?': 'Wie viel Lust hast du auf Neues: Gewohnheitstier oder Entdecker?',
   'Which tour is haunting your head right now?': 'Welche Tour geistert dir gerade im Kopf herum?',

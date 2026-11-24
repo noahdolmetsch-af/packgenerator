@@ -369,3 +369,8 @@ li.rc-chip {
   align-items: center;
   min-height: 32px;
 }
+
+.rc-tabs .seg button {
+  white-space: nowrap;
+  padding-inline: 8px;
+}

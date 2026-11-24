@@ -22,6 +22,11 @@ const raw = {
     { id: 'old', name: 'Alte Sache', order: 0, paused: true },
   ],
   people: [{ id: 'p1', name: 'Anna', seen: '2026-11-01' }, { id: 'p2', name: 'Ben', seen: null }, { id: 'p3', name: 'Cleo', seen: '2026-10-01', off: true }],
+  notes: [
+    { id: 'n1', title: 'Alpenpässe fahren', form: { key: 'vision', values: { where: 'Alpen' } }, updatedAt: '2026-11-10T08:00:00Z' },
+    { id: 'n2', title: '', form: { key: 'vision', values: { where: 'Ein Jahr unterwegs' } }, updatedAt: '2026-11-15T08:00:00Z' },
+    { id: 'n3', title: 'Einkaufsliste', form: { key: 'shop' }, updatedAt: '2026-11-16T08:00:00Z' },
+  ],
   stars: [
     { id: 's1', msId: 'x.early', star: 1, day: '2026-11-19' },
     { id: 's2', msId: 'x.early', star: 2, day: '2026-11-18' },
@@ -49,8 +54,12 @@ describe('sourcesOf', () => {
   it('stars: the last 7 days, one per milestone, newest first, with a known name', () => {
     expect(src.stars).toEqual(['Early start', 'Gym · Times done']);
   });
+  it('visions: the notes with the template «Vision», newest first, with their title or where to', () => {
+    expect(src.visions).toEqual(['Ein Jahr unterwegs', 'Alpenpässe fahren']);
+    expect(groupsFor('visionen.naeher', src)[0]).toMatchObject({ kind: 'visions', items: ['Ein Jahr unterwegs', 'Alpenpässe fahren'] });
+  });
   it('empty or broken records give empty lists', () => {
-    expect(sourcesOf({}, TODAY)).toEqual({ todos: [], goals: [], acts: [], friends: [], stars: [], done: [] });
+    expect(sourcesOf({}, TODAY)).toEqual({ todos: [], goals: [], acts: [], friends: [], stars: [], done: [], visions: [] });
     expect(sourcesOf({ merken: 'x', weekGoals: 5, people: {}, acts: null, stars: 3 }, TODAY).todos).toEqual([]);
   });
 });

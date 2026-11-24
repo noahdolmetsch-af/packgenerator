@@ -291,6 +291,7 @@ const LISTED = {
   'f.sleeplists': ['Open a race › «Along the route».', 'Under «Places to sleep from lists» choose a file or paste a link.', 'Look for them under «From a list» in race mode.'],
   'f.nightswx': ['Open a race › «Along the route».', 'Tap «Load the weather».', 'Read «Nights by the weather».'],
   'f.racecheck': ['Open Trips › «Plan races in detail».', 'Tap a race.', 'Fill in the sheets 1 to 6; «Load answers» takes a file from the fillable sheets page.'],
+  'f.raceatlas': ['Go to Trips › Races, then tap «Race atlas».', 'Choose the file of your race list, once.', 'Open a race and tap «Create race»; «Undo» takes it back.'],
   'f.racesample': ['Open Trips › Races.', 'Tap «See the sample race».', 'Do the tasks in «Plan»; «Reset the sample» makes it new.'],
   'f.skiequipment': ['Open Velos › Ausrüstung.', 'Add a piece from Material and choose its sport.', 'Log a use or tick off its care when it is due.'],
   'f.challenges': ['Open Milestones › «Challenges ›» and tap «New challenge».', 'Choose name, unit and goal per day, then tap «Start».', 'Each day tap «Tick off»; under «More» add smaller amounts.'],

@@ -2,6 +2,10 @@
  * (handbook/load.js, handbook/late-de.js), not at the start (Tempo-Budget, scripts/size-guard.mjs). Texts that other places
  * use too stay in i18n/de/handbuch.js. */
 export default {
+  // «Rennen aus der Rennliste» (Noah 24.11.2026 «a»)
+  'Open Trips › Races › «Race atlas» and choose the file, once.': 'Öffne Touren › Rennen › «Rennatlas» und wähl einmal die Datei.',
+  'Filter the races, star the ones you want, open one and tap «Create race».': 'Filtere die Rennen, markiere die gewünschten mit dem Stern, öffne eins und tippe «Rennen anlegen».',
+  'Example: 140 races in the file, the filter «Gravel, 3 to 6 days» shows 9; the star puts one on your year line.': 'Beispiel: 140 Rennen in der Datei, der Filter «Gravel, 3 bis 6 Tage» zeigt 9; der Stern setzt eins auf deinen Zeitstrahl.',
   // Einzelideen Planen (996 Ideen 12, 13, 14)
   'Or below «Or after an event»: after the next trip or the next workshop visit.': 'Oder darunter «Oder nach einem Ereignis»: nach der nächsten Tour oder dem nächsten Werkstattbesuch.',
   'Beside the link choose its meaning: source, counter-argument or follow-up question.': 'Neben der Verbindung die Bedeutung wählen: Quelle, Gegenargument oder Folgefrage.',

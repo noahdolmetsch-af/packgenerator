@@ -10,7 +10,7 @@
   import { t } from '../i18n.svelte.js';
   import '../bikes/velo-dlg.css';
 
-  let { title, sub = '', saveLabel = '', onsave, ondelete = null, onclose, children } = $props();
+  let { title, sub = '', saveLabel = '', cancel = true, onsave, ondelete = null, onclose, children } = $props();
   let dialog;
   let error = $state('');
   let busy = $state(false);
@@ -52,7 +52,7 @@
     {#if error}<p class="rcs-err" role="alert">{error}</p>{/if}
     <div class="vd-foot">
       {#if ondelete}<button type="button" class="btn del" onclick={del} data-sheet-delete><Trash2 size={16} aria-hidden="true" />{t('Delete')}</button>{/if}
-      <button type="button" class="btn" onclick={() => dialog.close()}>{t('Cancel')}</button>
+      {#if cancel}<button type="button" class="btn" onclick={() => dialog.close()}>{t('Cancel')}</button>{/if}
       <button type="submit" class="btn hi" disabled={busy} data-sheet-save><Check size={16} aria-hidden="true" />{saveLabel || t('Save')}</button>
     </div>
   </form>
