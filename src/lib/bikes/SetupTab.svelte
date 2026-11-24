@@ -479,10 +479,10 @@
                  otherwise a calm row, «… parts without a start value · enter now» when data is missing. -->
             <li>
               {#if care?.rows.length}
-                <a class="btn hi vk-care" href={bikesHash({ tab: 'care', bike: bike.id, open: true })}><Wrench size={18} aria-hidden="true" />{tn(care.rows.length, 'See care · {n} due', 'See care · {n} due')}</a>
+                <a class="btn hi vk-care" href={bikesHash({ tab: 'care', bike: bike.id, open: true })}><Wrench size={20} aria-hidden="true" />{tn(care.rows.length, 'See care · {n} due', 'See care · {n} due')}</a>
                 <p class="vk-care-s">{careWords?.text}</p>
               {:else}
-                <a class="vk-row" href={bikesHash({ tab: 'care', bike: bike.id, open: true })}><span class="ib care"><Wrench size={18} aria-hidden="true" /></span><span class="m"><b>{t('Bike care')}</b><small>{care?.gaps && !care.kmMissing ? tn(care.gaps, '{n} part without a start value · enter now', '{n} parts without a start value · enter now') : careWords?.text || careWords?.tag || ''}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
+                <a class="vk-row" href={bikesHash({ tab: 'care', bike: bike.id, open: true })}><span class="ib care"><Wrench size={20} aria-hidden="true" /></span><span class="m"><b>{t('Bike care')}</b><small>{care?.gaps && !care.kmMissing ? tn(care.gaps, '{n} part without a start value · enter now', '{n} parts without a start value · enter now') : careWords?.text || careWords?.tag || ''}</small></span><ChevronRight class="chev" size={20} aria-hidden="true" /></a>
               {/if}
             </li>
             <li>
@@ -513,8 +513,8 @@
               </SetupFold>
             </li>
             <!-- «Verschleiss» (Noah 20.10.2026, 5a): how worn the parts are, one calm row to the page «Wear» -->
-            <li><a class="vk-row" href={bikesHash({ tab: 'care', view: 'wear', bike: bike.id })} data-wear-row={wearSum?.state ?? 'unknown'}><span class="ib"><Gauge size={18} aria-hidden="true" /></span><span class="m"><b>{t('Wear|page')}</b><small>{wearLine}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
-            <li><a class="vk-row" href={bikesHash({ tab: 'compare', bike: bike.id })}><span class="ib"><Scale size={18} aria-hidden="true" /></span><span class="m"><b>{t('Equipment|tab')}</b><small>{t('Measures, parts, geometry')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
+            <li><a class="vk-row" href={bikesHash({ tab: 'care', view: 'wear', bike: bike.id })} data-wear-row={wearSum?.state ?? 'unknown'}><span class="ib"><Gauge size={18} aria-hidden="true" /></span><span class="m"><b>{t('Wear|page')}</b><small>{wearLine}</small></span><ChevronRight class="chev" size={20} aria-hidden="true" /></a></li>
+            <li><a class="vk-row" href={bikesHash({ tab: 'compare', bike: bike.id })}><span class="ib"><Scale size={20} aria-hidden="true" /></span><span class="m"><b>{t('Equipment|tab')}</b><small>{t('Measures, parts, geometry')}</small></span><ChevronRight class="chev" size={20} aria-hidden="true" /></a></li>
           </ul>
         </section>
     {/snippet}
@@ -610,7 +610,7 @@
             </SetupFold>
             {#if phone.matches}
               <!-- Garmin pages: one row in «More» on a phone (the four small page pictures stood before «More» and were hardly readable) -->
-              <a class="vk-row vm-garmin" href={bikesHash({ tab: 'garmin', bike: bike.id })} data-garmin-row><span class="ib"><Radio size={18} aria-hidden="true" /></span><span class="m"><b>{t('Garmin pages')}</b><small>{tn(garminOf(bike).profiles.length, '{n} profile', '{n} profiles')} · Edge 1040 · Edge 850</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
+              <a class="vk-row vm-garmin" href={bikesHash({ tab: 'garmin', bike: bike.id })} data-garmin-row><span class="ib"><Radio size={20} aria-hidden="true" /></span><span class="m"><b>{t('Garmin pages')}</b><small>{tn(garminOf(bike).profiles.length, '{n} profile', '{n} profiles')} · Edge 1040 · Edge 850</small></span><ChevronRight class="chev" size={20} aria-hidden="true" /></a>
             {/if}
             <div bind:this={photosEl}></div>
             <SetupFold flat icon={ImageIcon} bind:open={photosOpen} label={t('Photos')} summary={`${gallery.length ? tn(gallery.length, '{n} photo', '{n} photos') : t('no photo yet')}${gallery.find((p) => p.main) ? ` · ${t('in Pack: {name}', { name: importText(gallery.find((p) => p.main).name) })}` : ''}`}>

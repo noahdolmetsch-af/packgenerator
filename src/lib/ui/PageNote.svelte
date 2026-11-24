@@ -10,7 +10,7 @@
 </script>
 
 <details class="pgnote" data-page-note>
-  <summary><span>{t('How this page works')}</span><ChevronDown class="pgn-chev" size={18} aria-hidden="true" /></summary>
+  <summary><span>{t('How this page works')}</span><ChevronDown class="pgn-chev" size={20} aria-hidden="true" /></summary>
   <p class="pgn-text">{text}</p>
 </details>
 

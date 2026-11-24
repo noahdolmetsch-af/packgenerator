@@ -120,7 +120,7 @@
     <span class="at-load" aria-hidden="true"></span>
   {:else if !atlas}
     <section class="at-empty" data-race-atlas-empty>
-      <span class="at-ic" aria-hidden="true"><Flag size={26} /></span>
+      <span class="at-ic" aria-hidden="true"><Flag size={24} /></span>
       <h2 class="at-h">{t('Your race atlas')}</h2>
       <p class="at-p">{t('Choose the JSON file your own race list saves, once. The races then stay in the app: filter them, see them on a year line and on the map, and make a race of the app from each one. The file stays on this device.')}</p>
       <label class="btn hi" data-race-atlas-file><Upload size={16} aria-hidden="true" />{t('Choose the file')}<input class="at-file" type="file" accept=".json,application/json" onchange={readFile} data-race-atlas-input /></label>

@@ -41,7 +41,7 @@
       <div class="bc-top">
         {#if toStart != null && toStart >= 0}<div class="bc-days"><b class="num">{toStart}</b><small>{tn(toStart, 'day to the start', 'days to the start')}</small></div>{/if}
         {#if toStop != null}
-          <span class="bc-stop" class:over={toStop < 0} data-countdown-stop><Lock size={13} aria-hidden="true" />{toStop > 0 ? tn(toStop, 'Stop in {n} day', 'Stop in {n} days') : toStop === 0 ? t('Stop today') : t('Nothing changes any more')}</span>
+          <span class="bc-stop" class:over={toStop < 0} data-countdown-stop><Lock size={14} aria-hidden="true" />{toStop > 0 ? tn(toStop, 'Stop in {n} day', 'Stop in {n} days') : toStop === 0 ? t('Stop today') : t('Nothing changes any more')}</span>
         {/if}
       </div>
       {#if stopPct != null}

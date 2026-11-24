@@ -483,7 +483,7 @@
           <h2>{t('Packing list')}</h2>
           <div class="list-toolbar">
             <label class="group-control"><select aria-label={t('Group packing list')} bind:value={grouping} onchange={(e) => keepChoice({ view: e.currentTarget.value })} data-pack-view><option value="steps">{t('Steps')}</option><option value="bags">{t('By bags')}</option><option value="category">{t('By category')}</option></select><ChevronDown size={16} aria-hidden="true" /></label>
-            {#if !fixed}<button class="tp-link add-mat" onclick={() => show('add')} data-add-mat><Plus size={18} aria-hidden="true" />{t('Add material')}</button>{/if}
+            {#if !fixed}<button class="tp-link add-mat" onclick={() => show('add')} data-add-mat><Plus size={20} aria-hidden="true" />{t('Add material')}</button>{/if}
             <!-- v0.27.0 (Noah 1a): Undo is announced when it appears (a live region). -->
             <span class="undo-live" role="status" aria-live="polite">{#if canUndo}<button class="tp-link undo" onclick={actions.undo}><Undo2 size={20} aria-hidden="true" />{t('Undo')}</button>{/if}</span>
             <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->

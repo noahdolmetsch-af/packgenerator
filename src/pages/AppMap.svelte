@@ -44,7 +44,7 @@
       {@const m = markOf(p, state)}
       <li>
         {#if p.href}
-          <a href={p.href} class="am-pg {m}" data-am-point={p.path} data-am-mark={m}><span class="am-dot" aria-hidden="true">{#if m === 'new'}<Star size={10} />{/if}</span><span class="sr">{t(markName[m])}: </span><span class="am-pt-t">{t(p.title)}</span><ChevronRight size={16} aria-hidden="true" /></a>
+          <a href={p.href} class="am-pg {m}" data-am-point={p.path} data-am-mark={m}><span class="am-dot" aria-hidden="true">{#if m === 'new'}<Star size={14} />{/if}</span><span class="sr">{t(markName[m])}: </span><span class="am-pt-t">{t(p.title)}</span><ChevronRight size={16} aria-hidden="true" /></a>
         {:else}
           <span class="am-pg {m}" data-am-point={p.path} data-am-mark={m}><span class="am-dot" aria-hidden="true"></span><span class="sr">{t(markName[m])}: </span><span class="am-pt-t">{t(p.title)}</span></span>
         {/if}
@@ -83,7 +83,7 @@
               <small>{searching ? tn(g.items.length, '{n} function', '{n} functions') : t('{n} of {m} opened', { n: countOpen(g), m: g.points.length })}</small>
               {#if names}<small class="am-tabs" data-am-tabs>{names}</small>{/if}
             </span>
-            <ChevronDown class="am-chev" size={18} aria-hidden="true" />
+            <ChevronDown class="am-chev" size={20} aria-hidden="true" />
           </summary>
           {#if !searching}
             {#each tree as tab (tab.key)}

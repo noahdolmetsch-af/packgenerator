@@ -747,10 +747,10 @@
         <section class="up" aria-label={t('Upload ride')}>
           <div class="drop" class:slim={idleRides}>
             {#if !idleRides}
-              <span class="rv-ic" aria-hidden="true"><Plus size={18} /></span>
+              <span class="rv-ic" aria-hidden="true"><Plus size={20} /></span>
               <span class="rv-m"><span class="rv-t">{t('Choose a ride file')}</span>{#if !draft}<span class="rv-s">{t('GPX, TCX, FIT or CSV. Garmin, Wahoo, Strava or Komoot: a ride → Export GPX or the original FIT file. On Android you can also share the file to Pack Generator.')}</span>{/if}</span>
             {/if}
-            <label class="btn pickbtn" class:hi={!draft}><Upload size={18} aria-hidden="true" />{busy && !draft ? t('Reading …') : idleRides ? t('Upload ride') : draft ? t('Choose another file') : t('Choose file')}<input type="file" multiple accept=".gpx,.tcx,.fit,.csv,application/gpx+xml,application/vnd.garmin.tcx+xml,application/xml,text/xml,text/csv" onchange={pick} disabled={busy} /></label>
+            <label class="btn pickbtn" class:hi={!draft}><Upload size={20} aria-hidden="true" />{busy && !draft ? t('Reading …') : idleRides ? t('Upload ride') : draft ? t('Choose another file') : t('Choose file')}<input type="file" multiple accept=".gpx,.tcx,.fit,.csv,application/gpx+xml,application/vnd.garmin.tcx+xml,application/xml,text/xml,text/csv" onchange={pick} disabled={busy} /></label>
           </div>
           {#if !draft && !route && !batch && !list && !rides.length}
             <!-- GPX-Weg 3a/5a: before the first ride, what a ride file does here -->
