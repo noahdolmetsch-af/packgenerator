@@ -3,10 +3,11 @@
 Auftrag: Noah 24.11.2026 «K1-K9 und Veloinspektion und Logbuch nach vorne holen. Ich ist ein Hinterzimmer mit 24 Türen» (Thread «Sitemap der App zeichnen», Umsetzungsauftrag PR 1 «Ich aufräumen»)
 
 ## Was ist neu
-- **Fünf Gruppen, 16 Zeilen** statt vier Gruppen mit 24 Zeilen: Daten (Daten und Backup, Verbindungen, **Dokumente neu**), Erinnerungen, Einstellungen, Hilfe, Mehr (zugeklappt).
+- **Fünf Gruppen, 16 Zeilen** statt vier Gruppen mit 24 Zeilen: Daten (Daten und Backup, Verbindungen, **Dokumente neu**, Zuletzt gelöscht), Erinnerungen, Einstellungen, Hilfe, Mehr (zugeklappt).
 - **Dokumente** (`#/me/docs`) ist eine Zeile in Daten.
 - **«Erinnerungen und Hinweise»**: eine Zeile statt drei (Erinnerungen, Erinnerungen aufs Handy, Hinweise und News). Die drei Seiten behalten ihre Adressen und führen mit «Weiter zu» (`weiter.js`) ineinander.
 - **Verbesserungs-Logbuch** steht jetzt in der Gruppe Hilfe (statt mitten in den Einstellungen).
+- **Logbuch von jeder Seite:** das «?»-Fenster jeder Seite hat unten die Zeile «Etwas fehlt? Ins Logbuch» (`#/me/logbuch?neu` öffnet den leeren Eintrag; die Adresse verliert das «?neu» danach). Im Neu-Menü steht die Zeile «Verbesserung aufschreiben» (Schritt 7 des Sitemap-Auftrags, mit diesem PR gebündelt: Noah 24.11. «Kleine Änderungen derselben Seite in einen PR»).
 - «Listen und Checks» heisst in Ich wie die Seite: «Listen und Typen». «Was ist neu» und die Version stehen zusammen in Hilfe.
 
 ## Was fällt weg oder rutscht tiefer
@@ -16,6 +17,7 @@ Auftrag: Noah 24.11.2026 «K1-K9 und Veloinspektion und Logbuch nach vorne holen
 - Alle Adressen bleiben gültig.
 
 ## Selbst entschieden
+- «Zuletzt gelöscht» (neu seit Papierkorb, PR 1629) steht in der Gruppe Daten, nicht in den Einstellungen: es geht um deine Daten.
 - Kursblick und «Angebote und Anfragen» ziehen erst mit dem PR «Woche» (Chips in Woche › Alltag) um; bis dahin liegen sie unter «Mehr», damit nichts weg ist.
 - «Mehr» zeigt auch weiter «Aufräumen von Testdaten».
 - Der Satz unter «Mehr» nennt jetzt Kleine Apps, Projekt-Ablage, KI-Projekte, Ausprobieren.
