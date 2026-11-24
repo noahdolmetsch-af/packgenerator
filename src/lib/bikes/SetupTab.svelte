@@ -24,13 +24,14 @@
   import { offerRename, offerDone } from '../ui/rename.svelte.js';
   import { formatWeight, parseGrams } from '../gear.js';
   import { bagWords } from './bagwords.js';
-  import { Bike as BikeIcon, Briefcase, Plus, ChevronRight, Scale, User, Wrench, MoreHorizontal, Package, Route, BookOpen, Image as ImageIcon, ArrowLeftRight, RefreshCw, Tag } from '@lucide/svelte';
+  import { Bike as BikeIcon, Briefcase, Plus, ChevronRight, Scale, User, Wrench, MoreHorizontal, Package, Route, BookOpen, Image as ImageIcon, ArrowLeftRight, RefreshCw, Tag, Radio } from '@lucide/svelte';
   import SetupBand from './SetupBand.svelte';
   import SetupDrawing from './SetupDrawing.svelte';
   import SetupFold from './SetupFold.svelte';
   import BagSheet from './BagSheet.svelte';
   import WhoCard from './WhoCard.svelte';
   import GarminCard from './GarminCard.svelte';
+  import { garminOf } from '../garmin.js';
   import FitCard from './FitCard.svelte';
   import SitPosCard from '../vision/SitPosCard.svelte';
   import SheetFolder from './SheetFolder.svelte';
@@ -468,6 +469,56 @@
 
     <!-- Design-Refresh P7 «Velo» (V1): the drawing and the bags left; care and equipment, «Import rides»
          and «More» right; on a phone one after the other. Everything from «Velo kurz» stays. -->
+    <!-- Velos nach impeccable (Noah 23.11.2026 «1-5 a», 2): on a phone «Care and equipment» stands right under the drawing, before the bags;
+         on a computer it stays at the top of the right column -->
+    {#snippet pflege()}
+        <section class="vsec" aria-labelledby="pa-h">
+          <div class="vh"><div class="vh-t"><h2 id="pa-h">{t('Care and equipment')}</h2><p class="vh-s num">{[bike.name, bike.km != null ? `${num(bike.km)} km` : '', bike.weightG ? `${bikeKind === 'estimate' ? '~' : ''}${formatWeight(bike.weightG)}` : ''].filter(Boolean).join(' · ')}</p></div></div>
+          <ul class="card vlist vk-rows" aria-label={t('{bike} at a glance', { bike: bike.name })}>
+            <!-- Impeccable Runde 2 (Velos 3): with something due, «Bike care» is the one main button of the page;
+                 otherwise a calm row, «… parts without a start value · enter now» when data is missing. -->
+            <li>
+              {#if care?.rows.length}
+                <a class="btn hi vk-care" href={bikesHash({ tab: 'care', bike: bike.id, open: true })}><Wrench size={18} aria-hidden="true" />{tn(care.rows.length, 'See care · {n} due', 'See care · {n} due')}</a>
+                <p class="vk-care-s">{careWords?.text}</p>
+              {:else}
+                <a class="vk-row" href={bikesHash({ tab: 'care', bike: bike.id, open: true })}><span class="ib care"><Wrench size={18} aria-hidden="true" /></span><span class="m"><b>{t('Bike care')}</b><small>{care?.gaps && !care.kmMissing ? tn(care.gaps, '{n} part without a start value · enter now', '{n} parts without a start value · enter now') : careWords?.text || careWords?.tag || ''}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
+              {/if}
+            </li>
+            <li>
+              <SetupFold flat icon={Package} label={t('Always mounted')} summary={[(bike.fixtures ?? []).map((f) => (itemsById[f] ? nameOf(itemsById[f]) : f)).join(', ') || t('nothing'), weightWords].join(' · ')}>
+                <div class="details-in">
+                  <label class="wlabel">
+                    <span class="lbl">{t('Bike weight (g)')}</span>
+                    {#key bike.id}<input class="inp num" type="text" inputmode="numeric" value={bike.weightG ?? ''} onchange={saveBikeWeight} placeholder={t('not weighed')} />{/key}
+                    {#if bike.weightNote}<small class="hintw">{bike.weightNote}</small>{/if}
+                    <small class="hintw">{t('Without bags, with Garmin mount, Quad Lock and bottle cages.')}</small>
+                  </label>
+                  <div class="fix">
+                    <span class="lbl">{t('Always mounted')}</span>
+                    <div class="chips">
+                      {#each bike.fixtures ?? [] as f (f)}
+                        <span class="chip">{itemsById[f] ? nameOf(itemsById[f]) : f}<button type="button" aria-label={t('Remove {name}', { name: itemsById[f] ? nameOf(itemsById[f]) : f })} onclick={() => setFixtures((bike.fixtures ?? []).filter((x) => x !== f))}>×</button></span>
+                      {:else}
+                        <span class="quiet">{t('nothing')}</span>
+                      {/each}
+                    </div>
+                    <select class="sel mini" aria-label={t('Add something that is always mounted')} value="" onchange={(e) => { if (e.currentTarget.value) setFixtures([...(bike.fixtures ?? []), e.currentTarget.value]); e.currentTarget.value = ''; }}>
+                      <option value="">{t('+ add')}</option>
+                      {#each items.filter((i) => i.category === 'bike' && !(bike.fixtures ?? []).includes(i.id) && i.ownership !== 'gone') as i (i.id)}<option value={i.id}>{nameOf(i)}</option>{/each}
+                    </select>
+                  </div>
+                </div>
+                {#if message}<p class="msg" role="status">{message}</p>{/if}
+              </SetupFold>
+            </li>
+            <!-- «Verschleiss» (Noah 20.10.2026, 5a): how worn the parts are, one calm row to the page «Wear» -->
+            <li><a class="vk-row" href={bikesHash({ tab: 'care', view: 'wear', bike: bike.id })} data-wear-row={wearSum?.state ?? 'unknown'}><span class="ib"><Gauge size={18} aria-hidden="true" /></span><span class="m"><b>{t('Wear|page')}</b><small>{wearLine}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
+            <li><a class="vk-row" href={bikesHash({ tab: 'compare', bike: bike.id })}><span class="ib"><Scale size={18} aria-hidden="true" /></span><span class="m"><b>{t('Equipment|tab')}</b><small>{t('Measures, parts, geometry')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
+          </ul>
+        </section>
+    {/snippet}
+
     <div class="cols">
       <div class="main" id="vk-bags">
         <section class="card draw" aria-label={t('{bike} with its bags', { bike: bike.name })}>
@@ -480,6 +531,7 @@
             </button>
           </div>
         </section>
+        {#if phone.matches}{@render pflege()}{/if}
 
         <section class="std" aria-labelledby="std-h">
           <div class="vh">
@@ -533,56 +585,12 @@
       </div>
 
       <div class="side">
-        <section class="vsec" aria-labelledby="pa-h">
-          <div class="vh"><div class="vh-t"><h2 id="pa-h">{t('Care and equipment')}</h2><p class="vh-s num">{[bike.name, bike.km != null ? `${num(bike.km)} km` : '', bike.weightG ? `${bikeKind === 'estimate' ? '~' : ''}${formatWeight(bike.weightG)}` : ''].filter(Boolean).join(' · ')}</p></div></div>
-          <ul class="card vlist vk-rows" aria-label={t('{bike} at a glance', { bike: bike.name })}>
-            <!-- Impeccable Runde 2 (Velos 3): with something due, «Bike care» is the one main button of the page;
-                 otherwise a calm row, «… parts without a start value · enter now» when data is missing. -->
-            <li>
-              {#if care?.rows.length}
-                <a class="btn hi vk-care" href={bikesHash({ tab: 'care', bike: bike.id, open: true })}><Wrench size={18} aria-hidden="true" />{tn(care.rows.length, 'See care · {n} due', 'See care · {n} due')}</a>
-                <p class="vk-care-s">{careWords?.text}</p>
-              {:else}
-                <a class="vk-row" href={bikesHash({ tab: 'care', bike: bike.id, open: true })}><span class="ib care"><Wrench size={18} aria-hidden="true" /></span><span class="m"><b>{t('Bike care')}</b><small>{care?.gaps && !care.kmMissing ? tn(care.gaps, '{n} part without a start value · enter now', '{n} parts without a start value · enter now') : careWords?.text || careWords?.tag || ''}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
-              {/if}
-            </li>
-            <li>
-              <SetupFold flat icon={Package} label={t('Always mounted')} summary={[(bike.fixtures ?? []).map((f) => (itemsById[f] ? nameOf(itemsById[f]) : f)).join(', ') || t('nothing'), weightWords].join(' · ')}>
-                <div class="details-in">
-                  <label class="wlabel">
-                    <span class="lbl">{t('Bike weight (g)')}</span>
-                    {#key bike.id}<input class="inp num" type="text" inputmode="numeric" value={bike.weightG ?? ''} onchange={saveBikeWeight} placeholder={t('not weighed')} />{/key}
-                    {#if bike.weightNote}<small class="hintw">{bike.weightNote}</small>{/if}
-                    <small class="hintw">{t('Without bags, with Garmin mount, Quad Lock and bottle cages.')}</small>
-                  </label>
-                  <div class="fix">
-                    <span class="lbl">{t('Always mounted')}</span>
-                    <div class="chips">
-                      {#each bike.fixtures ?? [] as f (f)}
-                        <span class="chip">{itemsById[f] ? nameOf(itemsById[f]) : f}<button type="button" aria-label={t('Remove {name}', { name: itemsById[f] ? nameOf(itemsById[f]) : f })} onclick={() => setFixtures((bike.fixtures ?? []).filter((x) => x !== f))}>×</button></span>
-                      {:else}
-                        <span class="quiet">{t('nothing')}</span>
-                      {/each}
-                    </div>
-                    <select class="sel mini" aria-label={t('Add something that is always mounted')} value="" onchange={(e) => { if (e.currentTarget.value) setFixtures([...(bike.fixtures ?? []), e.currentTarget.value]); e.currentTarget.value = ''; }}>
-                      <option value="">{t('+ add')}</option>
-                      {#each items.filter((i) => i.category === 'bike' && !(bike.fixtures ?? []).includes(i.id) && i.ownership !== 'gone') as i (i.id)}<option value={i.id}>{nameOf(i)}</option>{/each}
-                    </select>
-                  </div>
-                </div>
-                {#if message}<p class="msg" role="status">{message}</p>{/if}
-              </SetupFold>
-            </li>
-            <!-- «Verschleiss» (Noah 20.10.2026, 5a): how worn the parts are, one calm row to the page «Wear» -->
-            <li><a class="vk-row" href={bikesHash({ tab: 'care', view: 'wear', bike: bike.id })} data-wear-row={wearSum?.state ?? 'unknown'}><span class="ib"><Gauge size={18} aria-hidden="true" /></span><span class="m"><b>{t('Wear|page')}</b><small>{wearLine}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
-            <li><a class="vk-row" href={bikesHash({ tab: 'compare', bike: bike.id })}><span class="ib"><Scale size={18} aria-hidden="true" /></span><span class="m"><b>{t('Equipment|tab')}</b><small>{t('Measures, parts, geometry')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
-          </ul>
-        </section>
+        {#if !phone.matches}{@render pflege()}{/if}
         <!-- «Computer-Breite» (Noah 26.10.2026 «3a»): the Einstieg starts folded, so the tip of the day stands here on a computer -->
         {#if !phone.matches}<TipLine page="velos" name={t('Bikes|place')} />{/if}
 
         <!-- «Garmin-Seiten» GA-A1 (Noah 14.10.2026 «GA-A1–A3 freigegeben»): the bike's Garmin pages -->
-        <GarminCard {bike} />
+        {#if !phone.matches}<GarminCard {bike} />{/if}
 
         <!-- the coordinator 11.10.2026: Noah could not find the Strava import (it was three taps deep in Care).
              Impeccable Runde 2 (Velos 3): a normal button; the km mostly come by themselves. -->
@@ -600,6 +608,10 @@
             <SetupFold flat cls="vm-folder" icon={BookOpen} bind:open={folderOpen} label={t('Folder|sheets')} summary={t('Bike pass, service plan …')}>
               <SheetFolder {bike} />
             </SetupFold>
+            {#if phone.matches}
+              <!-- Garmin pages: one row in «More» on a phone (the four small page pictures stood before «More» and were hardly readable) -->
+              <a class="vk-row vm-garmin" href={bikesHash({ tab: 'garmin', bike: bike.id })} data-garmin-row><span class="ib"><Radio size={18} aria-hidden="true" /></span><span class="m"><b>{t('Garmin pages')}</b><small>{tn(garminOf(bike).profiles.length, '{n} profile', '{n} profiles')} · Edge 1040 · Edge 850</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
+            {/if}
             <div bind:this={photosEl}></div>
             <SetupFold flat icon={ImageIcon} bind:open={photosOpen} label={t('Photos')} summary={`${gallery.length ? tn(gallery.length, '{n} photo', '{n} photos') : t('no photo yet')}${gallery.find((p) => p.main) ? ` · ${t('in Pack: {name}', { name: importText(gallery.find((p) => p.main).name) })}` : ''}`}>
               <div class="gal" aria-label={t('Photos of the {bike}', { bike: bike.name })}>

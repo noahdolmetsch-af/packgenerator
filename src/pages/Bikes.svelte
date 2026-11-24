@@ -149,6 +149,9 @@
   {:else if route.tab === 'care' && route.view === 'inspect'}
     <!-- «Velo-Inspektion» (Noah 19.10.2026): a bike's inspections, or one running (&level=); loaded only when opened -->
     {#await import('../lib/inspect/InspectPage.svelte') then m}{#key `${route.bike}:${route.level ?? ''}`}<m.default bikeId={route.bike} level={route.level ?? null} />{/key}{/await}
+  {:else if route.tab === 'care' && route.view === 'km'}
+    <!-- Sitemap K1 (Noah 24.11.2026): the ride ledger «Every km counts» on its own page, one tap from Bikes (was only in Care › More); loaded only when opened -->
+    {#await import('../lib/care/KmBookPage.svelte') then m}<m.default bikeId={route.bike} />{:catch}<p class="quiet">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
   {:else if route.tab === 'care' && route.view === 'import'}
     <!-- v0.68.0 «Q1 Jeder km zählt» (Q1.3 a): import rides, «Check» first, then per bike -->
     <KmImport bikeId={route.bike} />
