@@ -1,6 +1,6 @@
 // «Heute passt: Ausflugstipps» (Träume und Neuland N3, Noah 27.10.2026 «1-5 a»): three new places that fit the day.
 import { describe, it, expect } from 'vitest';
-import { tripTips, reachKm, freeTime, startHours, pointOf, TIP_HOURS, TIP_HOURS_STD, MIN_KM } from '../src/lib/neuland/tipps.js';
+import { tripTips, levelOf, reachKm, freeTime, startHours, pointOf, TIP_HOURS, TIP_HOURS_STD, MIN_KM } from '../src/lib/neuland/tipps.js';
 
 const HOME = { lat: 47.0, lon: 8.0 };
 const P = 'test_data_gtp_';
@@ -45,6 +45,24 @@ describe('trip tips', () => {
   it('fills up from the same direction when there is nothing else', () => {
     const cols = [col('lakes', [pt('a', 'A', 47.12, 8.0), pt('b', 'B', 47.14, 8.0), pt('c', 'C', 47.16, 8.0), pt('d', 'D', 47.18, 8.0)])];
     expect(tripTips(cols, HOME, { hours: 3 })).toHaveLength(3);
+  });
+});
+
+describe('how hard a trip tip is', () => {
+  it('rates the round and the height of the place, three levels', () => {
+    expect(levelOf(28)).toBe('easy');
+    expect(levelOf(40)).toBe('medium');
+    expect(levelOf(69, 500)).toBe('medium');
+    expect(levelOf(70)).toBe('hard');
+    expect(levelOf(30, 800)).toBe('medium');
+    expect(levelOf(30, 1500)).toBe('hard');
+    expect(levelOf(30, null)).toBe('easy'); // height unknown: only the round counts
+  });
+  it('gives every tip a level', () => {
+    const tips = tripTips([col('passes', [{ ...pt('p1', 'A', 47.1, 8.0), alt: 2000 }, pt('p2', 'B', 47.0, 8.2), pt('p3', 'C', 46.9, 8.0)])], HOME, { hours: 3 });
+    expect(tips).toHaveLength(3);
+    expect(tips.find((x) => x.id === 'p1').level).toBe('hard');
+    for (const x of tips) expect(['easy', 'medium', 'hard']).toContain(x.level);
   });
 });
 

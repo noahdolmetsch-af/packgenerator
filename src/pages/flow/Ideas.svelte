@@ -38,7 +38,7 @@
   async function remind(x) {
     const r = reminderOf(x);
     if (r) {
-      const undo = await removeTodo(db, r.id);
+      const undo = await removeTodo(db, r.id, { trash: false });
       return offerDone(t('Reminder removed.'), undo);
     }
     const res = await addTodo(db, { text: x.text, due: x.date, remind: { at: '08:00', before: 0 }, area: 'own', src: `idea:${x.id}` });

@@ -2,7 +2,6 @@
 export default {
   'My day': 'Mein Tag',
   'My day|tab': 'Mein Tag',
-  'Your day at a glance. Tap an entry to open it.': 'Dein Tag auf einen Blick. Tippe einen Eintrag an, um ihn zu öffnen.',
   'Choose a day': 'Tag wählen',
   'Day before': 'Tag davor',
   'Day after': 'Folgetag',
@@ -56,7 +55,6 @@ export default {
   'Write a to-do and press Enter; tap the circle to tick it off.': 'Schreib ein To-do und drücke Enter; tippe den Kreis zum Abhaken.',
   'Tap «Today» to move it to today; tap its words to change or delete it.': 'Tippe «Heute», um es auf heute zu legen; tippe auf den Text, um es zu ändern oder zu löschen.',
   'Example: «Call the garage» without a date waits in the list; on Friday you tap «Today» and tick it off in the evening.': 'Beispiel: «Garage anrufen» ohne Datum wartet in der Liste; am Freitag tippst du «Heute» und hakst es abends ab.',
-  'Everything still open, in one list.': 'Alles, was noch offen ist, in einer Liste.',
   // step 3b: open points of notes, only on a tap
   'Open points in your notes': 'Offene Punkte in deinen Notizen',
   'Nothing becomes a to-do by itself. Tap «Make a to-do» for the ones you want.': 'Nichts wird von selbst ein To-do. Tippe «To-do machen» bei denen, die du willst.',
@@ -64,7 +62,6 @@ export default {
   'Make a to-do of «{name}»': 'Aus «{name}» ein To-do machen',
   // step 3c: the tab «Tick off»
   'Tick off|tab': 'Abhaken',
-  'One tap ticks a sport or habit.': 'Ein Tipp hakt eine Sportart oder Gewohnheit ab.',
   'Nothing to tick off yet': 'Noch nichts zum Abhaken',
   'Add the first sport or habit, then it stands here with one tap.': 'Leg die erste Sportart oder Gewohnheit an, dann steht sie hier zum Abhaken.',
   'All sports, goals and the week in Aktiv': 'Alle Sportarten, Ziele und die Woche in Aktiv',

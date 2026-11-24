@@ -18,6 +18,19 @@ export const TIP_KINDS = ['passes', 'lakes', 'municipalities'];
 export const TIP_HOURS = [1.5, 2, 3, 4, 6]; // 1.5 h = «Du hast 90 Minuten» (Challenges nach Gelegenheit)
 export const TIP_HOURS_STD = 3;
 export const TIP_KMH = LEVELS.find((l) => l.key === 'curious')?.kmh ?? 19;
+/**
+ * How hard the outing is (Challenges nach Gelegenheit, Noah 23.11.2026 «2a»): a rough estimate from the round on
+ * roads and the height of the place, where it is known. Three levels: easy, medium, hard. Only a hint.
+ */
+export const LEVEL_KM = [40, 70];
+export const LEVEL_ALT = [800, 1500];
+export function levelOf(roundKm, alt = null) {
+  const km = Number(roundKm) || 0;
+  const h = alt != null && Number.isFinite(Number(alt)) ? Number(alt) : 0;
+  if (km >= LEVEL_KM[1] || h >= LEVEL_ALT[1]) return 'hard';
+  if (km >= LEVEL_KM[0] || h >= LEVEL_ALT[0]) return 'medium';
+  return 'easy';
+}
 /** Places closer than this are no outing. */
 export const MIN_KM = 3;
 const DAY_FROM = 8 * 60;
@@ -34,7 +47,7 @@ export function pointOf(it) {
 export const reachKm = (hours, kmh = TIP_KMH) => (Number(hours) * kmh) / 2 / ROAD_FACTOR;
 
 /**
- * Up to n tips: [{ id, cid, name, lat, lon, km (straight), roundKm (there and back on roads), alt, sector }].
+ * Up to n tips: [{ id, cid, name, lat, lon, km (straight), roundKm (there and back on roads), alt, level, sector }].
  * collections: computeFrom(...).collections (items, visited); home { lat, lon }. Tips come from different
  * directions and, where possible, different kinds; nearest to the aim first.
  */
@@ -53,7 +66,8 @@ export function tripTips(collections = [], home, { hours = TIP_HOURS_STD, n = 3,
       const d = km(H, p);
       if (d < MIN_KM || d > reach) continue;
       const sector = sectorOf(bearing({ lat: H[0], lon: H[1] }, { lat: p[0], lon: p[1] }));
-      cands.push({ id: it.id, cid: c.id, name: it.name, lat: p[0], lon: p[1], km: Math.round(d * 10) / 10, roundKm: Math.round(2 * d * ROAD_FACTOR), alt: it.alt ?? null, sector, off: Math.abs(d - aim) });
+      const roundKm = Math.round(2 * d * ROAD_FACTOR);
+      cands.push({ id: it.id, cid: c.id, name: it.name, lat: p[0], lon: p[1], km: Math.round(d * 10) / 10, roundKm, alt: it.alt ?? null, level: levelOf(roundKm, it.alt), sector, off: Math.abs(d - aim) });
     }
   }
   cands.sort((a, b) => a.off - b.off || a.name.localeCompare(b.name));

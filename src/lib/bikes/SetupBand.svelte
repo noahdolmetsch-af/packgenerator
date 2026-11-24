@@ -10,7 +10,7 @@
    * Velos aufräumen (Noah 23.11.2026): the bikes stand once, as the cards above (BikeCards); the small cards that
    * were here (a second row of the same bikes) are gone. The chosen bike is the card with the frame; «Show details» chooses it.
    */
-  import { Gauge, Weight, Briefcase, Pencil, Scale, Star, Check } from '@lucide/svelte';
+  import { Gauge, Weight, Briefcase, Pencil, Scale, Check } from '@lucide/svelte';
   import { t, tn, num, locale, importText } from '../i18n.svelte.js';
   import { formatVolume, bikeTypeName, bikesHash } from '../bikes.js';
   import { velosHref } from '../analyse/jump.js';
@@ -21,7 +21,7 @@
   import './standardvelo.css';
   import MoreActions from '../ui/MoreActions.svelte';
 
-  let { bikes, bike, setup, kind, cost = '', due = 0, careHref = '', sub = '', ride = null, onedit, onorder = null, menu = [], link = null } = $props();
+  let { bikes, bike, setup, kind, cost = '', due = 0, careHref = '', ride = null, onedit, menu = [], link = null } = $props();
 
   const kg = (g) => `${(g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg`;
   const bagsG = $derived(setup.bagCount && setup.unweighed < setup.bagCount ? formatWeight(setup.bagsG) : '');
@@ -51,14 +51,12 @@
 </script>
 
 <section class="setup-band" aria-label={t('Bike')} data-bike-detail>
-  {#if sub || ride}
+  {#if ride}
     <!-- V1: «next trip» is a way to that trip's packing list (it was a sentence); the trip is chosen first, then the plain link opens Pack
          (switchTrip would reload this page for the new address before the address has changed) -->
-    <p class="page-sub vb-sub">{sub}{#if ride}{sub ? ' · ' : ''}<a class="vb-ride" href="#/pack" data-bike-ride onclick={() => openTrip(ride.id)}>{ride.text}</a>{#if ride.fit}{' · '}<a class="vb-fit {ride.fit.tone}" href={ride.fit.href} data-bike-ride-fit>{#if ride.fit.tone === 'ok'}<Check size={13} aria-hidden="true" />{/if}{ride.fit.text}</a>{/if}{/if}</p>
+    <p class="page-sub vb-sub"><a class="vb-ride" href="#/pack" data-bike-ride onclick={() => openTrip(ride.id)}>{ride.text}</a>{#if ride.fit}{' · '}<a class="vb-fit {ride.fit.tone}" href={ride.fit.href} data-bike-ride-fit>{#if ride.fit.tone === 'ok'}<Check size={13} aria-hidden="true" />{/if}{ride.fit.text}</a>{/if}</p>
   {/if}
-  {#if onorder && bikes.length > 1}
-    <p class="sv-line"><Star size={14} class="sv-star" aria-hidden="true" /><span>{t('Standard bike and order')}</span><button type="button" class="link" onclick={() => onorder()}>{t('Change')}</button></p>
-  {/if}
+  {#if bikes.length > 1}<p class="vb-cap" data-bike-chosen>{t('Chosen bike')}</p>{/if}
   <h2 class="name">
     <span>{bike.name}</span>
     <button type="button" class="edit" onclick={() => onedit?.()} aria-label={t('Edit {name}', { name: bike.name })} title={t('Edit')}><Pencil size={16} aria-hidden="true" /><span class="et" aria-hidden="true">{t('Edit')}</span></button>
@@ -84,24 +82,11 @@
     margin: 0 0 16px;
     min-width: 0;
   }
-  .sv-line {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px;
-    margin: 0 0 12px;
+  /* «Chosen bike»: a small caption over the name, so what stands below clearly belongs to this bike */
+  .vb-cap {
+    margin: 0 0 2px;
     color: var(--ink-3);
     font-size: var(--fs-small);
-  }
-  .sv-line .link {
-    min-height: 44px;
-    padding: 0 4px;
-    border: 0;
-    background: none;
-    color: var(--accent);
-    font: 500 var(--fs-small) var(--font-body);
-    text-decoration: underline;
-    cursor: pointer;
   }
   .vb-sub {
     margin: 0 0 8px;
