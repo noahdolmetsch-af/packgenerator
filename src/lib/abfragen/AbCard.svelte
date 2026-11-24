@@ -22,7 +22,7 @@
   import { sourcesOf, groupsFor } from './verbindungen.js';
   import { actLabel as actName } from './words.js';
   import CheckLine from '../wohl/CheckLine.svelte'; // Paket P: ride numbers, recipe, morning tip, a moment from the jar
-  import { qText, areaName, timeText, dayShort, srcText, unitText, everyShort } from './words.js';
+  import { askText, areaName, timeText, dayShort, srcText, unitText, everyShort } from './words.js';
   import '../bikes/velo-dlg.css';
   import './ab.css';
 
@@ -233,12 +233,12 @@
       {@const fit = fillOf(d)}
       <div class="dq" data-q={d.q.id}>
         <div class="dqh">
-          <b id={qid}>{qText(d.q)}</b>
+          <b id={qid}>{askText(d.q, today, data?.cfg)}</b>
           <span class="meta">
             {#if d.q.own && !d.q.rule}{everyShort(settingOf(data.cfg, d.q).every)}{:else}{areaName(d.q.area, data.cfg)}{/if} · {#if d.random}<span data-random>{t('a random question')}</span>{:else if d.why}<span data-from-data>{t('from your data')}</span>{:else}<span class="num">{dayOf(d.slot) === today ? timeText(d.slot) : t('question from {when}', { when: `${dayShort(dayOf(d.slot))} ${timeText(d.slot)}` })}</span>{/if}
             {#each (d.q.src ?? []).filter((s) => s !== 'hand' && s !== 'fitbit') as s (s)}<span class="ab-src {s}">{srcText(s)}</span>{/each}
             {#if d.random}<button type="button" class="skip" onclick={() => never(d)} data-never>{t('Never again|question')}</button>{/if}
-            <button type="button" class="skip" onclick={() => skip(d)} aria-label={t('Skip «{q}»', { q: qText(d.q) })} data-ab-skip>{t('Skip|question')}</button>
+            <button type="button" class="skip" onclick={() => skip(d)} aria-label={t('Skip «{q}»', { q: askText(d.q, today, data?.cfg) })} data-ab-skip>{t('Skip|question')}</button>
           </span>
         </div>
         {#if d.why}<small class="last why" data-why><b>{t('Why am I asking this?')}</b> {t(d.why.text, d.why.vars)}{#each d.why.facts ?? [] as f}{' '}{t(f.text, f.vars)}{/each} <a class="ab-lnk" href="#/me/abfragen" data-why-adjust>{d.random ? t('Change this') : t('Change this rule')}</a></small>{/if}
@@ -249,7 +249,7 @@
             <button type="button" class="btn sm" onclick={() => keepAsIs(d)} data-fewer-no>{t('No, keep it')}</button>
           </div>
         {/if}
-        <AnswerInput links={linksOf(d.q.id)} hint={hintOf(d.q.id)} q={d.q} bind:value={draft[d.q.id]} bind:note={notes[d.q.id]} id="{qid}-in" label={qText(d.q)} quick last={yesterdayOf(d.q.id)} onanswer={() => next(i)} />
+        <AnswerInput links={linksOf(d.q.id)} hint={hintOf(d.q.id)} q={d.q} bind:value={draft[d.q.id]} bind:note={notes[d.q.id]} id="{qid}-in" label={askText(d.q, today, data?.cfg)} quick last={yesterdayOf(d.q.id)} onanswer={() => next(i)} />
         {#if fit}<small class="last fit num" data-fitbit={fit.hint.key}><span class="ab-src fitbit">Fitbit</span> {fitText(fit.hint)}{fit.value != null ? ` · ${t('filled in, changeable')}` : ''}</small>{/if}
         {#if d.q.id === 'koerper.waage' && lastKg}
           <small class="last num">{lastKg.day ? t('last {v} on {day}', { v: `${lastKg.kg} ${unitText('kg')}`, day: dayShort(lastKg.day) }) : t('body weight under Me › My data: {v}', { v: `${lastKg.kg} ${unitText('kg')}` })}</small>

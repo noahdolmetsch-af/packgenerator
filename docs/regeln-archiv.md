@@ -1,0 +1,96 @@
+# Regeln-Archiv: ersetzte Fassungen
+
+Stand vor der Aufräumrunde vom 24.11.2026 (Noah «bringe regeln … auf den neusten stand»). Nur Verlauf, keine Regel. Aktuell gilt [regeln.md](regeln.md). Ersetzt eine neue Regel eine alte, kommt die alte hierher, mit Datum.
+
+## Alte Projekt-Anweisung: Alte Projekt-Anweisung (bis 24.11.2026)
+
+schritt für schritt denken. bei komplexen dingen mir komplxität aufzeigen. mir sinnvolle vorschläge zur umsetzung liefern. mir rückfragen zur präzisierung stellen wenn nötig.
+
+REGEL: Vor jeder Abfrage zuerst den Ist-Stand der App lesen (Dokument «Was die App kann», gespeichert als docs/app-stand.md im Repo und im Projektordner) sowie das Projekt-Gedächtnis. Alle Überlegungen bauen darauf auf. Keine neue Web-Analyse von Hand. Jeder PR aktualisiert das Dokument.
+
+WICHTIGSTE ZIELE DER APP (Noah, 23.11.26) – jeder Vorschlag und jeder PR wird daran gemessen:
+1. Klarheit: Man sieht sofort, wo man ist und was man hier tun kann. Pro Bildschirm gibt es eine Hauptsache. Zudem hat jede Seite sinnvolle Absprünge, der Nutzer bleibt nie irgendwo stecken.
+2. Auffindbarkeit: Wichtiges liegt oben, und man erreicht es mit wenigen Tipps. Was man oft braucht, wie Abhaken, liegt vorne. Die Suche hilft dem Nutzer, versteckte Inhalte zu finden.
+
+LEITFADEN / VISION (Noah, 23.11.26, 22:27) – alle Vorhaben werden darauf abgestimmt:
+- Eine App, die mich im Alltag unterstützt.
+- Aus Touren lernen und das Velo im Griff haben.
+- Abenteuer, Meilensteine, neue Routenvorschläge.
+- Fitness- und Gesundheitsdaten tracken und intelligente Zusammenhänge zwischen Training, Spass, Erholung und Sonstigem erkennen.
+- Viele kleine Dinge, für die ich sonst eine andere App oder den Browser bräuchte: Wetter, Packlisten, To-dos, Wochenplanung, Trainingsplan, Habits und Sportaktivitäten tracken, Analysen, Helfer unterwegs beim Bikepacking-Rennen, Hilfe beim Planen von Rennen.
+- Packen fokussiert auf Bikepacking: welche Items in welchen Taschen am Bike (wichtig). Inhalt pro Tasche und Gesamtinhalt, mit und ohne Taschen und Bikes. Intelligente Vorschläge berücksichtigen Wetter und Lieblingsitems. Packen ist nie mehr eine Ausrede: alles hinterlegt, gespeichert und ständig durch User-Feedback aktualisiert.
+- Die Meditations-Mini-App kommt wieder stärker in den Vordergrund, zusammen mit den laufenden Challenges.
+- Die App weiss aus aktuellen Daten immer, was ich viel und was wenig mache, was Herzfrequenz und Aktivzonenminuten machen, und macht daraus intelligente, sinnvolle Vorschläge (z. B. «heute erholen» oder «heute geht's bombastisch, welcher Berg ruft?»).
+- Tagebuch, Kochen, Tennis, Mein Tag, Wochenplan, Analysen/Auswerten und weitere bestehende Tools werden alle weitergezogen, müssen aber gut getestet und optimiert werden.
+
+
+---
+
+## Altes CLAUDE.md: Altes CLAUDE.md (bis 24.11.2026, unverändert kopiert; die «Current rules» stehen jetzt in `docs/regeln.md`, die Code-Regeln in `CLAUDE.md`)
+
+# Pack Generator: instructions for Claude
+
+Personal tour-preparation PWA for Noah: plan, pack, ride, debrief, bike care. It is built with Svelte 5, Vite and Dexie (IndexedDB) and works offline. It is live on GitHub Pages; each PR also gets a Vercel preview.
+
+Noah writes German and is not a developer. Write replies to him in short, simple German, and explain GitHub steps click by click. The app's source language is English, and the German texts go through `t()`.
+
+**Before every request, read `docs/app-stand.md`** (Noah 03.11.2026: «jeder thread soll das und alles weitere projektrelevante immer vor jeder abfrage berücksichtigen»). It lists what the app can do, with the link of every function, the places, the data and the connections. Do not analyse again what it already says. If the code differs, the code is right and your PR corrects the file; `tests/appstand.test.js` fails on a dead link or a function that sits under no row.
+
+## Current rules (Noah, 26.10.2026 evening, binding, above everything else)
+
+These are the only rules. They replace every older rule here, in `docs/arbeitsweise.md`, in project memory and in older skill texts (bundles, «Noah merges himself», «no ★», Heute N2 protected, length budgets, ideas per release). The project instruction in Claude only points here; project memory keeps the current state, not rules. German summary: `docs/arbeitsweise.md`, section «Stand 26.10.2026 abends». Source: thread «Verschlanken App, Tests und Speicher», Noah 26.10.2026 20:31–20:38 UTC.
+
+1. **Goal:** «Eine App, die mich im Alltag unterstützt.» Every change serves one of the six goals in `docs/vorhaben.md`; if not, ask Noah. **Every change also serves the Leitfaden `docs/leitfaden.md`** (Noah's current vision, 23.11.2026, «Jede Änderung dient dem Leitfaden»); it adds to the goals and replaces no rule. **Above them stand two goals for how the app feels** (Noah 23.11.2026): **Klarheit** (one sees at once where one is and what to do here; one main thing per screen; every page has useful jump-offs, nobody gets stuck) and **Auffindbarkeit** (what matters sits on top and is reached in few taps; what is used often, like Abhaken, sits up front; the search helps to find hidden content). Text in `docs/vorhaben.md`; every PR is checked against both.
+2. **Small PRs for everything, no bundles** (Noah «3a, kleinere PRs ab sofort für alles, damit wir agiler sind»). One change, one PR, its own version. No bundler thread, no collecting.
+3. **Screenshots + test link, then Noah approves, then Claude merges** (Noah «1b, claude merged selber, aber alles erst nachdem ich die screenshots dazu freigegeben habe»). Every PR, once CI is green, gets screenshots of what changed (phone 390 px + computer 1440 px, fictional data) and 2–4 check steps. Since 27.10.2026 (Noah «1a») Noah checks on the real page after the merge, not on a Vercel test link (the check steps say where to look once it is online). Claude merges only after Noah approved **that** PR («ok 266», a tap on «Freigeben»). A PR with nothing visible (CI, tests) says so and needs Noah's ok too. After the merge: check Pages green (and the Vercel server «packgen» READY when `api/` changed), then one line «Online: …». Never auto-merge. Dependabot and watcher repairs follow the same way. A change to the data storage (Dexie schema, backup format) is first checked with a copy of a backup. **Since 23.11.2026, 00:03 (Noah «du musst mich nicht mehr fragen. ich gebe jetzt ausdrücklich alles frei»): Noah has approved everything in advance. No more «ok NNN» per PR and no more single approvals, data, backup, sync and `api/` included.** Every PR goes online by itself once its checks are green; it still gets screenshots and 2–4 check steps, and Claude still reports one line «Online: …» after the deploy is green (Vercel server READY when `api/` changed). This replaces «Claude merges only after Noah approved that PR», «Never auto-merge» and the single approval for data (22.11.2026, which had loosened it for PRs without data first). What stays: a backup is mandatory before every change to data, backup, sync or `api/` (test with a copy of a backup, and a fresh backup of Noah is on hand; Claude asks him for one when his last is older than a day), the full check runs for these PRs, `zurück` reverts a PR at once, closing a PR needs «schliessen NNN», a force-push needs «Ja force push NNN». Source: `docs/decisions/alles-freigegeben.md`.
+4. **Mockups only for big things** (a new page or flow like the Live-Karte). Everything else: build, then screenshots.
+5. **Questions:** at most 5 per round, a/b written out, **with Claude's recommendation ★**. Ask what you need up front, then work on your own and come back with proposed solutions.
+6. **No page-length requirements** (Noah «keine anforderung an eine länge der seite»): no screen budgets, no «max N screens», no «first screen» rules. **Heute** is treated like every other page (no protected layout).
+7. **Every PR** has «Was fällt weg oder rutscht tiefer» and «Was ist neu» (Noah «4a»; in the app the «Neu» tile sits at the bottom of Heute). No new ideas per release. Course check once a week in the Sunday brief.
+8. **Order:** Noah says what comes next. «zurück» = revert that PR at once. While a PR waits for CI or for Noah's check, go on with the next planned step as the next small PR (Noah 27.10.2026 00:14 UTC «sobald ein thread am warten ist auf einen PR (testen), soll er immer gleich mit den nächsten sinnvollen und geplanten schritten bereits weiter machen»).
+9. **Quiet:** speak only with a result, a blocker or a question, in short German. No status posts at fixed times. When Noah asks what is open, name at most 3 items.
+10. **Free and private:** zero costs; private data only outside the repo, no real names.
+11. **Always:** everything is a suggestion and changeable; every kind of data and group can be added, renamed and deleted, with Undo; reorder with arrows and drag; explanatory text wherever users could get lost.
+12. **Documentation on GitHub for every release** (Noah 26.10.2026 21:19 UTC «bitte immer dokumentation zu jedem release auf github ablegen»): since 27.10.2026 (version at merge time, rule 13) every PR adds **its own file** `docs/releases/<name>.md` (template `docs/releases/README.md`: what changed, «Was fällt weg», «Selbst entschieden», decisions, roadmap/vorhaben state) and its news file `src/lib/news/<name>.js`, both with the same name. `docs/roadmap.md` and `docs/vorhaben.md` change only where their content changes (a plan), never with a version number or a «Stand:» line. Decisions (Noah's answers, a rule, a rejection with its reason) go in **their own file** `docs/decisions/<name>.md`, same name as the release file (Noah 21.11.2026 «2a»); `docs/decisions.md` is history up to that date and gets no more lines. A PR without an app change (CI, tests, rules) still adds its release file. After the merge, memory keeps only the state.
+13. **Version number at merge time** (Noah 27.10.2026 «1a»): a PR never changes the version in `package.json`/`package-lock.json`, never adds to the top of `src/lib/whatsnew.js` or to the `newerThan` list, and never writes a version in docs or `SINCE`. `scripts/news.mjs` numbers each merge by its order on `main` (with a news file 0.233.0, without 0.233.1); the PR's checks already show the number it gets if it merges next, and «Online: 0.233.0 …» names it after the merge. So open PRs never conflict over the version and never need «renumber» or a new 45-minute test run for it. How: `src/lib/news/README.md`.
+
+## How we work
+
+- Small decisions you take yourself go in the PR under «Selbst entschieden».
+- Everything in the app is a suggestion: never mandatory, always changeable and deselectable.
+- A Vercel rate-limit red does not block. Open PRs are no longer renumbered (rule 13); merge main into a PR only when GitHub shows a real conflict. After a merge, tell Noah in one short German line what is new online.
+- **Groups everywhere** (Noah, 18.10.2026 «grundsätzlich überall»): every group the user sees or chooses can be renamed and deleted. Deleting asks where the contents go, with «Ohne Gruppe» preselected, and then offers Undo. It never deletes the contents. Names the user typed never go through `t()`. A new kind of group comes with rename and delete and goes in `GROUP_PLACES` (`src/lib/groups.js`), which the guard test `tests/groups.test.js` checks. Use `src/lib/ui/GroupDeleteSheet.svelte` for the delete question.
+- **Pages load later** (Tempo, 19.10.2026): only Heute (`Home.svelte`) is imported at the start. A new page goes into `PAGES` in `src/App.svelte` as `Name: () => import('./pages/Name.svelte')` and is shown with `<LazyPage load={PAGES.Name} />` (`src/lib/nav/lazy.js`). Big tools (PDF, text recognition, image models, video) load with `await import()` on first use. The build stops when a JS file passes 3 MB (`scripts/size-guard.mjs`, guard test `tests/size-guard.test.js`).
+- **Change everything yourself** (Noah, 19.10.2026 «alle daten können vom nutzer selber hinzugefügt, umbenannt oder gelöscht werden»): every kind of data the user sees can be added, renamed and deleted in the UI. **Delete (rule changed 24.11.2026, Noah «4a» on 23.11.2026 19:49, `docs/decisions/loeschen-rueckgaengig.md`):** what is quickly made again (an idea, a life phase, a weight, a place in a list, a photo) is deleted at once and offers Undo for 8 seconds (`UNDO_MS`, `offerDone`); things with a history (a question with answers, a group with contents, a bike, a tour) ask first in the app's own window (`askDelete`, never `confirm()`) and then offer Undo (`deleteWithUndo`). When unsure, ask. `confirm()` stays forbidden. Nothing is blocked because it is still used: the delete window asks where the dependent things go (e.g. a bike's trips, `src/lib/bikedelete.js`). App lists live in «Listen und Typen» (`STANDARD_LISTS` in `src/lib/standard.js`, applied in `src/lib/lists.js`). Open gaps: `notes/alles-bearbeiten/README.md` in the project folder.
+- **Content first** (Noah 21.11.2026 «5a»): help never stands before the content of a page. A page starts with what the user came for. Help is one closed line («Was du hier tun kannst» opens the «?» window, Noah 22.11.2026 «so lassen – immer zugeklappt», and it stays) and «Alle Funktionen von …» at the page end (V7). No new card, tile field or hint line above the content; a hint line inside the content only on Heute. A new function's jump-off and «Gut zu wissen» go into these existing help places (a «Passt hier» row, the «?» window, the line at the page end), never as a new block on top. This loosens Fertig-Regel points (2) and (3): they are met by those places.
+- **Course check:** `docs/vorhaben.md` lists every planned project with its why and goals. Before starting, check it fits one of the six goals; if not, ask Noah. Once a week, the Sunday brief carries a short course check with a/b questions.
+
+## Privacy (never break)
+
+- The repo is public. Never commit personal data: no Excel lists, backups, receipts, photos, GPX files, real bike specs, or anything from Noah's private folders.
+- Tests, fixtures and screenshots use fictional data only.
+- Health data is observation only. Do not name people, teams, studios or workshop staff.
+- Secrets (for example the Strava client secret) live only in the Vercel environment, never in the code, chat or files.
+
+## Every PR
+
+- No version bump (rule 13). Add `src/lib/news/<name>.js` (1–3 points, `test` with 2+ steps, German in `de`, new feature ids in `since`; see `src/lib/news/README.md`).
+- Add `docs/releases/<name>.md` (same name, template in `docs/releases/README.md`); change `docs/roadmap.md`, `docs/vorhaben.md`, `docs/design-audit.md` only where their content changes, without version numbers; a decision goes in its own `docs/decisions/<name>.md` (see `docs/decisions/README.md`), never at the end of `docs/decisions.md`.
+- A new function in `src/lib/features.js` also goes into `FEATURE_MOMENTS` in `src/lib/moment.js` (its moment, or `app`); `tests/moment.test.js` checks it.
+- **Names** (Noah 08.11.2026 «namen ok»): one word per thing, the list is `docs/namen.md`. Use its word in every new text; a new thing gets its row there.
+- Every new UI text goes through `t('English')` and needs a German entry in `src/lib/i18n/de/*.js`, imported in `de/index.js`. The Gesamttest fails on English words in the German UI. `tests/de-luecken.test.js` fails on any `t()`/`tn()` text without a German entry.
+- Use the repo's PR template if there is one; otherwise start the body with «Before:» and «After:».
+- **Fertig-Regel** (Wegweiser step 25, Noah 01.11.2026 «speichere schritt 1-26 als geplant … freigabe»): a new function is done only when it has all six: (1) **page**: its entry in `src/lib/features.js` with handbook steps and an example; (2) **jump-off**: a link from the place where the need arises, not only from finder pages (a «Passt hier» row in `PASST_HIER`, `src/lib/passthier.js`, or a link on the page), never as a new block above the content (Content first); `tests/absprung.test.js` fails otherwise, and `NO_JUMP` may only get shorter; (3) **content**: on a page with the card «Was du hier tun kannst» (`ON_PAGES`, `src/lib/seiteninhalt.js`) a «Gut zu wissen» text in `src/lib/wissen/<area>.js` with German (`tests/wissen.test.js`) (it shows in the closed help line, not on top of the page); (4) **empty state**: an empty view says why it is empty and offers the next action (`src/lib/ui/Empty.svelte`); (5) **next step**: after its main action the page points to what usually comes next (like «Als Nächstes» after the debrief); (6) **app state**: a new page or group of functions gets its row in `docs/app-stand.md` (name, link, one line; no version number, no count), `tests/appstand.test.js` fails otherwise. A part left out goes in the PR under «Selbst entschieden» with the reason.
+- **Was fällt weg oder rutscht tiefer** (Noah, 14.10.2026 «3a»): every PR has this section. List what is no longer there and what moves behind «Mehr», into a fold or further down, with the old and the new way; write «nichts» if nothing does. A loss that Noah did not approve needs his answer before the merge.
+
+## Tests
+
+- `npm test`: vitest.
+- `npx playwright test <spec> --workers=1`, with `E2E_PORT=52xx` and `E2E_SKIP_GESAMTTEST=1`, for your own specs plus `tests/e2e/guard.spec.js`.
+- **Phone tests after the approval** (Noah 28.10.2026 «1a», approval by a tap on «Freigeben» or «ok N»): a PR first runs only `build` and `e2e (desktop)` (the Wächter). After Noah approves, put the label `ok` on the PR; that starts `e2e (phone)` (5 parts). Merge only when it ran green on the current head. Before the label, `e2e (phone)` is skipped and looks green, so never auto-merge. Since 05.11.2026 («3a ja») `e2e (phone)` runs only the specs of the pages the PR touches (`scripts/ci-map.mjs`, from the app's own imports, plus the Kern `flow.spec.js` and `guard.spec.js`); a file every page loads, an unclear case, build or workflow files run everything, docs/news/German text files alone run none. The night run is the safety net.
+- Before every PR, run locally only your own specs, the specs of the pages you changed and `guard.spec.js` (Noah, 11.10.2026 «1-5 a»). The full Gesamttest runs on GitHub. To run one shard by hand: `npx playwright test tests/e2e/gesamttest --project=desktop --shard=1/2 --workers=2`.
+- Tests read their lists (blocks, categories, labels) from the app source instead of keeping copies.
+- Afterwards run `git checkout -- qa/` (tests write screenshots there).
+- Never skip, disable or loosen a test to get green. Fix the cause, or adapt the test when the UI changed on purpose.
+- Test dates use calendar-day arithmetic in Europe/Zurich, never `Date.now() + n*864e5`.
+- For «today» in app code, use `localDay()` (src/lib/localday.js), not `toISOString().slice(0,10)`.
