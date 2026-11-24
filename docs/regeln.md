@@ -109,6 +109,8 @@ Schwer = berührt `db.js`, `package.json`, `api/`, `.github/`. Bis das live ist,
 **R25 · Wackel-Tests** (Noah 24.11.2026, Stau-Regel 3; Lessons aus 24 Fällen, 23.11.2026 und 24.11.2026): zuerst Reihenfolge (`--workers=1`); Test nahe der 90-s-Grenze wird geteilt, nie die Frist erhöht;
 mehrere rote Tests gleicher Breite = gemeinsame Ursache; PR-Zweige bleiben linear. Die Liste der bekannten Wackler und die Bau-Lessons stehen in der Gedächtnisdatei `build-regeln-flakes-lessons`.
 
+**R31 · Wer eine Seite umbaut, sucht vor dem PR alle Tests, die diese Seite antippen, auch die anderer Bereiche, und lässt sie lokal laufen** (Noah «a» 24.11.2026 15:18). Grund: 1655 (Plus-Menü) und 1681 («Ich») machten main rot, weil fremde Tests den alten Stand erwarteten. Suche z. B. mit `grep` nach Adresse, Überschrift und Beschriftung der Seite in `tests/` (Vitest und e2e). Die gefundenen Tests laufen lokal zusätzlich zu R21; ein Test, der den alten Stand erwartet, wird mit Absicht angepasst, nie gelockert (R23).
+
 ## 6. Daten, Privatsphäre, Kosten
 
 **R26 · Privat** (Noah 04.10.2026 ff.): Das Repo ist öffentlich. Keine persönlichen Daten, keine echten Namen, keine Backups, Belege, Fotos, GPX, Excel-Listen, ICS-Token, Schlüssel.

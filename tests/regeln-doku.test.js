@@ -13,9 +13,9 @@ const claude = fs.readFileSync(path.join(ROOT, 'CLAUDE.md'), 'utf8');
 const rules = [...regeln.matchAll(/^\*\*R(\d+) · [\s\S]*?(?=\n\n(?:\*\*R\d+ · |#{1,3} )|(?![\s\S]))/gm)].map((m) => ({ n: Number(m[1]), text: m[0] }));
 
 describe('docs/regeln.md', () => {
-  it('numbers its rules 1..n without a gap or a duplicate', () => {
+  it('numbers its rules 1..n without a gap or a duplicate (the order in the file may follow the topic)', () => {
     expect(rules.length).toBeGreaterThan(20);
-    expect(rules.map((r) => r.n)).toEqual(rules.map((_, i) => i + 1));
+    expect(rules.map((r) => r.n).sort((a, b) => a - b)).toEqual(rules.map((_, i) => i + 1));
   });
 
   it('gives every rule a date and a source', () => {

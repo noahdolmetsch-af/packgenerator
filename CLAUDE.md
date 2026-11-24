@@ -50,7 +50,7 @@ Noah writes German and is not a developer. Write replies to him in short, simple
 
 ## Tests
 
-(The rules about tests, CI and flaky tests are R21–R25 in `docs/regeln.md`; here are the commands.)
+(The rules about tests, CI and flaky tests are R21–R25 and R31 in `docs/regeln.md`; here are the commands. R31: before a PR that changes a page, search `tests/` for every test that touches that page, also from other areas, and run them locally.)
 
 - `npm test`: vitest.
 - `npx playwright test <spec> --workers=1`, with `E2E_PORT=52xx` and `E2E_SKIP_GESAMTTEST=1`, for your own specs plus `tests/e2e/guard.spec.js`. In the cloud container: `PW_CHROMIUM=/opt/pw-browsers/chromium` and `--trace off`.
