@@ -4,3 +4,5 @@
 
 - **R31:** Wer eine Seite umbaut, sucht vor dem PR alle Tests, die diese Seite antippen, auch die anderer Bereiche, und lässt sie lokal laufen (verworfen: «wie bisher, rote Tests danach reparieren»).
 - Grund: Am 24.11.2026 machten die PRs zu Plus-Menü (1655) und «Ich» (1681) main rot, weil Tests anderer Bereiche den alten Stand erwarteten. Lokal lief nur der eigene Test.
+
+- **R32 (Noah 24.11.2026 16:29 «ich möchte, dass du ab sofort mehr antwortest. aktuell immer eher zu knapp»):** Antworten an Noah sind ausführlicher: was passiert ist, warum, was es für ihn bedeutet, nächster Schritt; einfach und auf Deutsch. Ersetzt «kurz» in R4 und die 80-Wörter-Grenze; R5 (nur mit Ergebnis, Blocker oder Frage) bleibt.

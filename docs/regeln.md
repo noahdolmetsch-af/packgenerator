@@ -30,11 +30,13 @@ oft Gebrauchtes (Abhaken) liegt vorne, die Suche findet Verstecktes. Jeder PR wi
 
 ## 2. Zusammenarbeit mit Noah
 
-**R4 · Sprache.** Antworten an Noah: kurzes, einfaches Deutsch. Noah ist kein Entwickler; GitHub-Schritte Klick für Klick.
+**R4 · Sprache.** Antworten an Noah: einfaches Deutsch, Länge und Tiefe nach R32. Noah ist kein Entwickler; GitHub-Schritte Klick für Klick.
 Pro Nachricht höchstens 3–4 PR-Nummern (Noah, 23.11.2026).
 
 **R5 · Ruhig** (Noah 26.10.2026). Melden nur mit Ergebnis, Blocker oder Frage. Keine Status-Posts zu festen Zeiten ausser den zwei Rundgängen (R30).
 Fragt Noah, was offen ist: höchstens 3 Punkte.
+
+**R32 · Ausführlicher antworten, nicht zu knapp** (Noah 24.11.2026 16:29: «ich möchte, dass du ab sofort mehr antwortest. aktuell immer eher zu knapp»). Jede Antwort an Noah erklärt, was passiert ist, warum, was es für ihn bedeutet und was als Nächstes kommt, in einfachem Deutsch und in ganzen Sätzen. Das ersetzt «kurz» in R4 und die Obergrenze von rund 80 Wörtern. R5 gilt weiter für das **Wann** (nur mit Ergebnis, Blocker oder Frage), R32 regelt das **Wie viel**; es gibt also nicht mehr Meldungen, aber jede ist vollständiger. Ausnahme: die «Online»-Zeile (R18) bleibt eine Zeile, mit Link und Testanleitung. Gilt für alle Threads.
 
 **R6 · Fragen** (Noah 26.10.2026; Projekt-Anweisung). Höchstens 5 pro Runde, a/b ausgeschrieben, mit Empfehlung ★. Zuerst alles fragen, was man braucht, dann selbständig arbeiten
 und mit Lösungsvorschlägen zurückkommen. Bei komplexen Dingen zuerst die Komplexität zeigen (Projekt-Anweisung).

@@ -2,7 +2,7 @@
 
 Personal tour-preparation PWA for Noah: plan, pack, ride, debrief, bike care. It is built with Svelte 5, Vite and Dexie (IndexedDB) and works offline. It is live on GitHub Pages; each PR also gets a Vercel preview.
 
-Noah writes German and is not a developer. Write replies to him in short, simple German, and explain GitHub steps click by click. The app's source language is English, and the German texts go through `t()`.
+Noah writes German and is not a developer. Write replies to him in simple German, and explain GitHub steps click by click. Since 24.11.2026 (Noah «aktuell immer eher zu knapp», R32 in `docs/regeln.md`) replies are fuller, not terse: say what happened, why, what it means for him and what comes next, in whole sentences. The app's source language is English, and the German texts go through `t()`.
 
 **Before every request, read two files:**
 1. `docs/app-stand.md` (Noah 03.11.2026: «jeder thread soll das und alles weitere projektrelevante immer vor jeder abfrage berücksichtigen»). It lists what the app can do, with the link of every function, the places, the data and the connections. Do not analyse again what it already says. If the code differs, the code is right and your PR corrects the file; `tests/appstand.test.js` fails on a dead link or a function that sits under no row.

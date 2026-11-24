@@ -1,10 +1,11 @@
-# Regel: Tests anderer Bereiche vor dem PR laufen lassen
+# Regeln R31 und R32: Tests anderer Bereiche, ausführlichere Antworten
 
-PR (Nummer steht im PR) · 24.11.2026 · Auftrag: Noah «a» (Thread «Regeln und Anweisungen auf neuen Stand bringen»)
+PR (Nummer steht im PR) · 24.11.2026 · Auftrag: Noah «a» (R31) und «ich möchte, dass du ab sofort mehr antwortest» (R32) (Thread «Regeln und Anweisungen auf neuen Stand bringen»)
 
 ## Was ist neu
 - `docs/regeln.md`: neue Regel R31. Wer eine Seite umbaut, sucht vor dem PR alle Tests, die diese Seite antippen (auch aus anderen Bereichen), und lässt sie lokal laufen.
-- `CLAUDE.md`, Abschnitt «Tests»: Verweis auf R31.
+- `docs/regeln.md`: neue Regel R32. Antworten an Noah sind ab sofort ausführlicher (was passiert ist, warum, was es für ihn bedeutet, nächster Schritt); R4 verweist darauf.
+- `CLAUDE.md`: Verweis auf R31 im Abschnitt «Tests», und der Satz zur Antwortlänge am Anfang folgt R32.
 - `tests/regeln-doku.test.js`: die Regeln müssen lückenlos nummeriert sein, aber nicht mehr in der Reihenfolge der Datei.
 - Nur Doku und ein Doku-Test, nichts sichtbar in der App.
 
