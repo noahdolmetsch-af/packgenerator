@@ -32,6 +32,7 @@
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js';
+  import { trashItem, forgetItem } from '../lib/trash/trash.js'; // «Zuletzt gelöscht»
 
   const today = localDay();
   const q = weekQuery(today);
@@ -86,8 +87,14 @@
     // a session paused by holidays: «leave it out» takes it out of the training plan
     const id = s.ref.slice('drop:'.length);
     const before = src.sessions;
+    const gone = before.find((x) => x.id === id);
     await putWeek(TRAIN_KEY, { sessions: prunePlan(src.sessions.filter((x) => x.id !== id), today) });
-    offerDone(t('«{name}» left out of the training plan.', { name: titleOf(s) }), () => putWeek(TRAIN_KEY, { sessions: before }));
+    // «Zuletzt gelöscht»: the session waits 30 days
+    const trashId = gone ? await trashItem(db, titleOf(s), { store: TRAIN_KEY, path: 'sessions', row: gone, kind: 'week' }) : null;
+    offerDone(t('«{name}» left out of the training plan.', { name: titleOf(s) }), async () => {
+      await putWeek(TRAIN_KEY, { sessions: before });
+      await forgetItem(db, trashId);
+    });
   }
   async function skip(s) {
     const before = src.no;
