@@ -15,11 +15,12 @@
 
   let { stored } = $props();
   async function snapshot() {
-    return { trip: await db.trips.get(SAMPLE_ID), race: structuredClone($state.snapshot(stored)) };
+    return { trip: await db.trips.get(SAMPLE_ID), race: structuredClone($state.snapshot(stored)), shots: (await db.photos.where('tripId').equals(SAMPLE_ID).toArray()).filter((p) => p.sample) };
   }
   async function restore(b) {
     if (b.trip) await db.trips.put(b.trip);
     await putRace(SAMPLE_ID, b.race);
+    if (b.shots?.length) await db.photos.bulkPut(b.shots);
   }
   async function reset() {
     const before = await snapshot();
@@ -33,6 +34,7 @@
         location.hash = '#/race';
         await db.trips.delete(SAMPLE_ID);
         await putRace(SAMPLE_ID, null);
+        await (await import('./samplebags.js')).dropSampleBags(db);
       },
       undo: () => restore(before),
       text: t('Sample race deleted.'),

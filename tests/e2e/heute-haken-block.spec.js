@@ -27,8 +27,16 @@ test('Heute: the haken block is the first tile and ticks with one tap', async ({
   const errors = await open(page, context, info);
   const block = page.locator('[data-section="haken"]');
   await expect(block).toBeVisible();
-  const order = await page.evaluate(() => [...document.querySelectorAll('.wall [data-tile]')].map((x) => x.dataset.tile));
-  expect(order[0]).toBe('haken');
+  // «Heute abhaken» stands right under the chips, above the wall and above the cards under the greeting (Noah 23.11.2026 «1a 2a»)
+  await expect(page.locator('[data-haken-top] [data-section="haken"]')).toBeVisible();
+  const before = await page.evaluate(() => {
+    const hk = document.querySelector('[data-haken-top]');
+    const wall = document.querySelector('.wall');
+    const chips = document.querySelector('.ghead');
+    const after = (a, b) => !!(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+    return { chips: after(chips, hk), wall: after(hk, wall), noTile: !document.querySelector('.wall [data-tile="haken"]') };
+  });
+  expect(before).toEqual({ chips: true, wall: true, noTile: true });
   await expect(block.getByRole('heading', { name: T('Tick off today') })).toBeVisible();
   const tiles = block.locator('[data-act]');
   expect(await tiles.count()).toBeGreaterThan(0);
