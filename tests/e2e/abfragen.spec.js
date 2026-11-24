@@ -267,10 +267,10 @@ test.describe('AB Deine Abfragen', () => {
     await expect(rules).toContainText(T('The app asks you'));
     expect(await rules.evaluate((d) => d.open)).toBe(false);
     await expect(page.locator('[data-rule-add]')).toBeHidden();
-    await rules.locator('> summary').click();
-    await expect(page.locator('[data-rule-add]')).toBeVisible();
     await noSideways(page);
     await shot(page, info, 'ab-reihenfolge');
+    await rules.locator('> summary').click();
+    await expect(page.locator('[data-rule-add]')).toBeVisible();
   });
 
   test('AB-O2: answered today shows the values and a way to change them', async ({ page, context }, info) => {
