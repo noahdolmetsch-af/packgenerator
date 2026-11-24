@@ -23,3 +23,18 @@ test('Ich: five groups, Documents under Data, one row for reminders, the log und
   await expect(page.locator('main').getByRole('link', { name: T('Alerts and news') }).last()).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+test('Logbuch: «?neu» opens the empty entry; the «?» window of every page has the line', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  const T = await openHome(page, context, info);
+  await page.goto('./#/week');
+  await page.locator('[data-help-open]').filter({ visible: true }).first().click();
+  const line = page.locator('dialog[data-help] [data-help-log]');
+  await expect(line).toContainText(T('Something missing? Into the log'));
+  await line.click();
+  await expect(page.locator('[data-logbuch-sheet]')).toBeVisible();
+  // the address no longer asks for a new entry (a reload does not open it again)
+  await expect(page).toHaveURL(/#\/me\/logbuch$/);
+  expect(errors).toEqual([]);
+});

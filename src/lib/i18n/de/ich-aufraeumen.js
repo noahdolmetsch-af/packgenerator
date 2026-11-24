@@ -4,4 +4,5 @@ export default {
   'Reminders and alerts': 'Erinnerungen und Hinweise',
   'In the app, on the phone, weather warnings and news': 'In der App, aufs Handy, Wetterwarnungen und News',
   'Small apps, project shelf, AI projects, try it out': 'Kleine Apps, Projekt-Ablage, KI-Projekte, Ausprobieren',
+  'Something missing? Into the log': 'Etwas fehlt? Ins Logbuch',
 };
