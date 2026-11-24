@@ -32,11 +32,12 @@
   import { formQuery } from '../lib/form-data.js';
   import { dayAnswer } from '../lib/flow/form/tagesantwort.js';
   import { answerLine } from '../lib/flow/form/words.js';
-  import { loadCore } from '../lib/wetter/kern.js';
+  import { loadCore, bestWindows, hoursBetween, warningsOf, packHints, PACK_TEXT, WARN_TEXT, costWord, COST_WORD } from '../lib/wetter/kern.js';
+  import { CHOICES, loadWetter, verdictFor, bestDay, weekOf, sortByWeather, addDays } from '../lib/vorschlaege/wetter.js';
   import { prefsOf, AGENDA_KEY } from '../lib/agenda.js';
   import { ITEMS_KEY } from '../lib/woche.js';
   import { t, num, locale } from '../lib/i18n.svelte.js';
-  import { Mountain, Download, Sparkles, EyeOff, Snowflake, TriangleAlert, Clock, MapPin, Check, Info, ChevronRight, TrainFront, Car, User } from '@lucide/svelte';
+  import { Mountain, Download, Sparkles, EyeOff, Snowflake, TriangleAlert, Clock, MapPin, Check, Info, ChevronRight, TrainFront, Car, User, CloudRain, Droplets, Shirt } from '@lucide/svelte';
   import '../lib/ich/ich.css';
 
   const today = localDay();
@@ -71,9 +72,10 @@
         maxAway: AWAYS.includes(f?.maxAway) ? f.maxAway : null,
         maxTravel: TRAVELS.includes(f?.maxTravel) ? f.maxTravel : null,
         mode: MODES.includes(f?.mode) ? f.mode : 'pt',
+        wday: CHOICES.includes(f?.wday) ? f.wday : null,
       };
     } catch {
-      return { regions: [], conds: [...COND_STD], techs: [...TECH_STD], maxHours: null, arts: [], maxAway: null, maxTravel: null, mode: 'pt' };
+      return { regions: [], conds: [...COND_STD], techs: [...TECH_STD], maxHours: null, arts: [], maxAway: null, maxTravel: null, mode: 'pt', wday: null };
     }
   };
   let flt = $state(read());
@@ -89,7 +91,7 @@
     const list = flt[key];
     flt[key] = list.includes(val) ? list.filter((x) => x !== val) : [...list, val];
   };
-  const resetFilters = () => (flt = { regions: [], conds: [...COND_STD], techs: [...TECH_STD], maxHours: null, arts: [], maxAway: null, maxTravel: null, mode: 'pt' });
+  const resetFilters = () => (flt = { regions: [], conds: [...COND_STD], techs: [...TECH_STD], maxHours: null, arts: [], maxAway: null, maxTravel: null, mode: 'pt', wday: null });
 
   // ---- list or map (kept on this device; the first time: the map on a wide screen, the list on a phone)
   const VIEW_KEY = 'vorschlaege.view';
@@ -132,7 +134,7 @@
     }
   });
   const toggleWhy = (k) => (whyOff = whyOff.includes(k) ? whyOff.filter((x) => x !== k) : [...whyOff, k]);
-  const WHY_NAME = { time: 'Time|why', trip: 'Journey|why', free: 'Free time|why', form: 'Form today|why', bike: 'Bike|why', snow: 'Snow|why', level: 'Difficulty|why', new: 'New for you|why', away: 'Distance from home|why' };
+  const WHY_NAME = { time: 'Time|why', trip: 'Journey|why', free: 'Free time|why', form: 'Form today|why', bike: 'Bike|why', weather: 'Weather|why', snow: 'Snow|why', level: 'Difficulty|why', new: 'New for you|why', away: 'Distance from home|why' };
 
   // ---- your data (only read)
   const paceQ = liveQuery(async () => (await db.settings.get(PACE_KEY))?.value ?? null);
@@ -172,7 +174,17 @@
       bikeNow ? (bikeNow.key === 'mtb' ? t('You have a mountain bike.') : t('You have no mountain bike yet: the tours are made for one.')) : null,
     ].filter(Boolean),
   );
+  // «Wetter» (Noah 24.11.2026 «a»): one forecast for the starts of all tours (wetter.js); without it the lines and the filter are simply not there
+  let wx = $state(null);
+  $effect(() => {
+    if (!tours) return;
+    let gone = false;
+    loadWetter(db, tours).then((d) => !gone && (wx = d)).catch(() => {});
+    return () => (gone = true);
+  });
   let onlyToday = $state(false); // «Doable today»: starts switched off and is not kept
+  const todayOkFn = $derived(onlyToday ? (x) => doableToday(x, { level, win, pace, home, mode: flt.mode }) : null);
+  const okFn = $derived(flt.wday && wx ? (x) => (!todayOkFn || todayOkFn(x)) && verdictFor(x, wx, flt.wday, today)?.level !== 'bad' : todayOkFn);
   const pace = $derived(paceOf($paceQ));
   const home = $derived($homeQ?.lat != null ? $homeQ : null);
   const hidden = $derived(Array.isArray($hideQ?.hidden) ? $hideQ.hidden : []);
@@ -194,8 +206,13 @@
     });
 
   // ---- the lists
-  const shown = $derived(tours ? filterTours(tours, { regions: flt.regions, conds: flt.conds, techs: flt.techs, maxHours: flt.maxHours, arts: flt.arts, maxAway: flt.maxAway, maxTravel: flt.maxTravel, mode: flt.mode, home, hidden, pace, ok: onlyToday ? (x) => doableToday(x, { level, win, pace, home, mode: flt.mode }) : null }) : []);
+  const shownRaw = $derived(tours ? filterTours(tours, { regions: flt.regions, conds: flt.conds, techs: flt.techs, maxHours: flt.maxHours, arts: flt.arts, maxAway: flt.maxAway, maxTravel: flt.maxTravel, mode: flt.mode, home, hidden, pace, ok: okFn }) : []);
+  const shown = $derived(flt.wday && wx ? sortByWeather(shownRaw, wx, flt.wday, today) : shownRaw);
   const split = $derived(splitNow(shown, month));
+  // the ring around each dot of the map: the traffic light of the chosen day (today when none is chosen)
+  const lightVerdicts = $derived(wx && tours ? Object.fromEntries(shown.map((x) => [x.id, verdictFor(x, wx, flt.wday ?? 'today', today)]).filter((e) => e[1])) : {});
+  const lightMap = $derived(Object.fromEntries(Object.entries(lightVerdicts).map(([id, v]) => [id, v.level])));
+  const lightTexts = $derived(Object.fromEntries(Object.entries(lightVerdicts).map(([id, v]) => [id, `${t(WX_DAY[flt.wday ?? 'today'])}: ${wxWord(v)}`])));
   const open = $derived(tours && openId ? tours.find((x) => x.id === openId) ?? null : null);
 
   // ---- texts
@@ -226,6 +243,10 @@
     }
     if (r.k === 'form') return t(FORM_TEXT[r.key]);
     if (r.k === 'bike') return r.key === 'mtb' ? t('You have a mountain bike.') : t('You have no mountain bike yet: the tours are made for one.');
+    if (r.k === 'weather') {
+      const better = r.level !== 'good' && r.best ? ` ${t('Better: {day}.', { day: dateText(r.best.date) })}` : '';
+      return r.level === 'good' ? t('The forecast for today fits this tour.') : `${t('Today: {what}.', { what: r.reasons.map((x) => t(WX_REASON[x])).join(', ') })}${better}`;
+    }
     if (r.k === 'snow') {
       if (r.state === 'likely') return t('Snow is likely at {m} m in this month.', { m: num(r.max) });
       if (r.state === 'possible') return t('Snow is possible at {m} m in this month.', { m: num(r.max) });
@@ -245,13 +266,41 @@
     long: 'A very long tour for a normal day: plan it for a rested day.',
     fit: 'Your form today is fine for this tour.',
   };
+  // «Wetter»: the words of the traffic light (a forecast, never a rule)
+  const WX_LEVEL = { good: 'Fits|wx', fair: 'With care|wx', bad: 'Better not|wx' };
+  const WX_REASON = { thunder: 'Thunderstorm|wx', rain: 'Rain|wx', wind: 'Wind|wx', cold: 'Cold|wx', hot: 'Hot|wx' };
+  const WX_DAY = { today: 'Today|tour', tomorrow: 'Tomorrow|tour', dayafter: 'Day after tomorrow|wx', weekend: 'Weekend|wx' };
+  const wxWord = (v) => (v.level === 'good' || !v.reasons.length ? t(WX_LEVEL[v.level]) : v.reasons.map((r) => t(WX_REASON[r])).join(', '));
+  const dateText = (d) => new Date(`${d}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'numeric' });
+  // «Startzeit» and «Anziehen» (Noah 24.11.2026 «a»): the hourly forecast of the start of the open tour (the weather core, kept for the place)
+  let tcore = $state(null);
+  let tkey = '';
+  $effect(() => {
+    const p = open?.line?.[0];
+    const k = p ? `${p[0]},${p[1]}` : '';
+    if (k === tkey) return;
+    tkey = k;
+    tcore = null;
+    if (p) loadCore(db, { lat: p[0], lon: p[1], name: '' }).then((c) => k === tkey && (tcore = c)).catch(() => {});
+  });
+  const rideH = $derived(open ? Math.max(1, Math.min(10, Math.round(hoursOf(open, pace)))) : 4);
+  const starts = $derived(tcore && open ? bestWindows(tcore, { durH: rideH, days: 3 }) : null);
+  const startRows = $derived((starts?.days ?? []).map((d) => ({ ...d, warns: warningsOf(hoursBetween(tcore, d.start, d.end)), best: starts.best?.date === d.date })));
+  const wear = $derived(starts?.best ? packHints(hoursBetween(tcore, starts.best.start, starts.best.end)) : []);
+  const dayName = (d) => (d === today ? t('Today|tour') : dateText(d));
+  const trailText = (tr) => (tr.state === 'slippery' ? t('After {mm} mm of rain in two days: roots and stones are slippery.', { mm: num(tr.mm) }) : t('After {mm} mm of rain in two days: this tour stays easy to ride.', { mm: num(tr.mm) }));
+  function weatherOf(tour) {
+    if (!wx || !tour) return null;
+    const v = verdictFor(tour, wx, 'today', today);
+    return v ? { today: v, best: bestDay(tour, wx, today) } : null;
+  }
   const ART_NAME = { trail: 'Single trail|tour', downhill: 'Downhill|tour', gravel: 'Gravel and paths|tour', loop: 'Round trip|tour' };
   const regionCount = $derived(tours ? tours.reduce((a, x) => ({ ...a, [x.region]: (a[x.region] ?? 0) + 1 }), {}) : {});
   const artCount = $derived(tours ? Object.fromEntries(ARTS.map((k) => [k, tours.filter((x) => artsOf(x).includes(k)).length])) : {});
   const toneIcon = (r) => (r.tone === 'warn' ? TriangleAlert : Check);
 
   // ---- the open tour
-  const why = $derived(open ? whyOf(open, { month, maxHours: flt.maxHours, pace, grid, home, mode: flt.mode, win, form: level, bikes }).filter((r) => !whyOff.includes(r.k)) : []);
+  const why = $derived(open ? whyOf(open, { month, maxHours: flt.maxHours, pace, grid, home, mode: flt.mode, win, form: level, bikes, weather: weatherOf(open) }).filter((r) => !whyOff.includes(r.k)) : []);
   const warns = $derived(open ? warnsOf(open, month) : []);
   // the profile and the map show the same place in both directions (Noah 23.11.2026 «1-5a», idea B): the cursor of the profile
   // is the dot on the map, and a tap on the map moves the cursor
@@ -376,6 +425,32 @@
       </div>
     </section>
 
+    {#if wx && weekOf(open, wx, today).length}
+      {@const wk = weekOf(open, wx, today)}
+      {@const best = bestDay(open, wx, today)}
+      <section class="ich-sec" aria-labelledby="vs-wx" data-vs-wx-week>
+        <div class="ich-h"><div><h2 id="vs-wx">{t('Weather for this tour')}</h2><p class="ich-hs">{t('The forecast for the start of the tour, the temperature counted up to its highest point. Only a forecast: look at the sky before you go.')}</p></div></div>
+        <div class="card pad">
+          {#if best}<p class="wxbest" data-vs-wx-best>{best.date === today ? t('Best day: today') : t('Best day: {day}', { day: dateText(best.date) })} ({wxWord(best)})</p>{:else}<p class="wxbest" data-vs-wx-best>{t('No good day in the next ten days.')}</p>{/if}
+          <ul class="wxweek">
+            {#each wk as d (d.date)}
+              <li data-wx-level={d.level}><b>{dateText(d.date)}</b><span class="wxp" data-wx-level={d.level}>{wxWord(d)}</span><span class="num wxn">{d.tmin !== null ? `${num(Math.round(d.tmin))}–${num(Math.round(d.tmax))} °C` : ''} · {t('{mm} mm rain', { mm: num(Math.round((d.rain ?? 0) * 10) / 10) })} · {t('gusts {kmh} km/h', { kmh: num(Math.round(d.gust ?? 0)) })}</span></li>
+            {/each}
+          </ul>
+          {#if startRows.length}
+            <h3 class="wxh">{t('Start time')}</h3>
+            <ul class="wxstarts" data-vs-wx-starts>
+              {#each startRows as r (r.date)}
+                <li class:best={r.best} data-vs-wx-start={r.best ? 'best' : undefined}><b>{dayName(r.date)}</b> {t('Start {from}, back about {to}', { from: hm(r.start), to: hm(r.end) })} · <span class="wxp" data-wx-level={costWord(r.cost) === 'good' ? 'good' : costWord(r.cost) === 'ok' ? 'fair' : 'bad'}>{t(COST_WORD[costWord(r.cost)])}</span>{#each r.warns as w (w.kind)}{' · '}<span class="wxp" data-wx-level="bad">{t(WARN_TEXT[w.kind], { at: hm(w.at), v: w.value ?? '' })}</span>{/each}{#if r.best}{' · '}<i>{t('best start|wx')}</i>{/if}</li>
+              {/each}
+            </ul>
+          {/if}
+          {#if wear.length}<p class="why" data-vs-wx-wear><Shirt size={14} aria-hidden="true" />{t('What to wear on {day}: {list}', { day: dayName(starts.best.date), list: wear.map((w) => t(PACK_TEXT[w.key])).join(', ') })} <a href="#/wardrobe">{t('Wardrobe|open')}<ChevronRight size={14} aria-hidden="true" /></a></p>{/if}
+          {#if wk[0]?.trail}<p class="why" class:bad={wk[0].trail.state === 'slippery'} data-vs-wx-trail><Droplets size={14} aria-hidden="true" />{trailText(wk[0].trail)}</p>{/if}
+        </div>
+      </section>
+    {/if}
+
     <section class="ich-sec" aria-labelledby="vs-why" data-vs-why>
       <details class="card pad whybox" open>
         <summary id="vs-why">{t('Why this suggestion?')}</summary>
@@ -443,6 +518,14 @@
           <span class="hint" data-vs-you-line>{t('Set your home place and fill in your form and the app says what fits you today.')}</span>
         {/if}
       </div>
+      <div class="grp" role="group" aria-label={t('Weather|wx')} data-vs-wx-group>
+        <span class="gl">{t('Weather|wx')}</span>
+        <button type="button" class="chip" aria-pressed={flt.wday === null} data-vs-wday="any" onclick={() => (flt.wday = null)}>{t('Any|tour')}</button>
+        {#each CHOICES as c (c)}
+          <button type="button" class="chip" aria-pressed={flt.wday === c} data-vs-wday={c} onclick={() => (flt.wday = c)}>{t(WX_DAY[c])}</button>
+        {/each}
+        <span class="hint" data-vs-wx-hint>{wx ? t('Only a forecast. A day that fits shows first; a day with thunderstorms, a lot of rain, strong wind or frost up high is left out.') : t('The forecast for the tours is loading. Without a connection the tours stay as they are.')}</span>
+      </div>
       <div class="grp" role="group" aria-label={t('Journey|tour')} data-vs-travel>
         <span class="gl">{t('Journey|tour')}</span>
         <button type="button" class="chip" aria-pressed={flt.mode === 'pt'} data-vs-mode="pt" onclick={() => (flt.mode = 'pt')}><TrainFront size={16} aria-hidden="true" />{t('Public transport with the bike')}</button>
@@ -480,7 +563,7 @@
     {#if !tours}
       <p class="hint" role="status">{t('Loading the tours…')}</p>
     {:else if !shown.length}
-      <Empty icon={Mountain} text={hidden.length && !filterTours(tours, { hidden: [], regions: flt.regions, conds: flt.conds, techs: flt.techs, maxHours: flt.maxHours, arts: flt.arts, maxAway: flt.maxAway, maxTravel: flt.maxTravel, mode: flt.mode, home, pace, ok: onlyToday ? (x) => doableToday(x, { level, win, pace, home, mode: flt.mode }) : null }).length ? t('Nothing left: you hid all of them.') : t('No tour fits these filters.')} action={{ label: t('Reset filters'), onclick: resetFilters }} />
+      <Empty icon={Mountain} text={hidden.length && !filterTours(tours, { hidden: [], regions: flt.regions, conds: flt.conds, techs: flt.techs, maxHours: flt.maxHours, arts: flt.arts, maxAway: flt.maxAway, maxTravel: flt.maxTravel, mode: flt.mode, home, pace, ok: okFn }).length ? t('Nothing left: you hid all of them.') : t('No tour fits these filters.')} action={{ label: t('Reset filters'), onclick: resetFilters }} />
     {:else}
       <div class="seg" role="group" aria-label={t('View|tour')}>
         <button type="button" class="chip" aria-pressed={view === 'list'} data-vs-view="list" onclick={() => setView('list')}>{t('List|tour')}</button>
@@ -488,7 +571,7 @@
         <span class="hint num" data-vs-count>{t('{n} tours', { n: shown.length })}</span>
       </div>
       {#if view === 'map'}
-        {#await import('../lib/vorschlaege/Karte.svelte') then m}<m.default tours={shown} grey={split.notNow.map((x) => x.id)} regions={flt.regions} onregion={(k) => toggle('regions', k)} region={regionName} {pace} />{:catch}{/await}
+        {#await import('../lib/vorschlaege/Karte.svelte') then m}<m.default tours={shown} grey={split.notNow.map((x) => x.id)} regions={flt.regions} onregion={(k) => toggle('regions', k)} region={regionName} {pace} light={lightMap} lightText={lightTexts} lightDay={t(WX_DAY[flt.wday ?? 'today'])} />{:catch}{/await}
       {:else}
       <section class="ich-sec" aria-labelledby="vs-fit" data-vs-fits>
         <div class="ich-h"><div><h2 id="vs-fit">{t('Fits now')} <small class="n num">{split.fits.length}</small></h2><p class="ich-hs">{t('Tours that suit this month.')}</p></div></div>
@@ -549,6 +632,15 @@
         <span class="why"><Snowflake size={14} aria-hidden="true" />{t('Snow is possible at {m} m in this month.', { m: num(tour.max) })}</span>
       {/if}
       {#if trip}<span class="why" data-vs-trip>{#if flt.mode === 'car'}<Car size={14} aria-hidden="true" />{:else}<TrainFront size={14} aria-hidden="true" />{/if}{t('Journey about {out} there', { out: minText(trip.out) })} {trip.back === trip.out ? t('and the same back') : t('and {back} back', { back: minText(trip.back) })} · {t('whole day about {h}', { h: hoursText(dayHours(hoursOf(tour, pace), trip)) })}</span>{/if}
+      {#if wx}{@const w3 = ['today', 'tomorrow', 'dayafter'].map((c) => [c, verdictFor(tour, wx, c, today)])}
+        {#if w3.some((x) => x[1])}
+          <span class="why wxl" data-vs-wx><CloudRain size={14} aria-hidden="true" /><span class="wxs">{#each w3.filter((x) => x[1]) as [c, v] (c)}<span class="wxp" data-wx-level={v.level}>{t(WX_DAY[c])} {wxWord(v)}</span>{/each}</span></span>
+          {@const best = bestDay(tour, wx, today)}
+          {#if best && best.date !== today && w3[0][1]?.level !== 'good'}<span class="why" data-vs-wx-best>{t('Best day: {day}', { day: dateText(best.date) })} ({wxWord(best)})</span>{/if}
+          {@const tr = w3[0][1]?.trail}
+          {#if tr}<span class="why" class:bad={tr.state === 'slippery'} data-vs-wx-trail><Droplets size={14} aria-hidden="true" />{trailText(tr)}</span>{/if}
+        {/if}
+      {/if}
       {#if todayOk !== null}<span class="why" class:bad={!todayOk} data-vs-doable={todayOk ? 'yes' : 'no'}>{#if todayOk}<Check size={14} aria-hidden="true" />{t('Doable today')}{:else}<TriangleAlert size={14} aria-hidden="true" />{t('Not doable today')}{/if}</span>{/if}
       {#if share !== null}<span class="why"><MapPin size={14} aria-hidden="true" />{t('About {n} % new for you', { n: Math.round(share * 100) })}</span>{/if}
     </a>
@@ -583,6 +675,18 @@
   .lvp { font-size: var(--fs-small); font-weight: 600; border-radius: 99px; padding: 1px var(--sp-2); background: var(--paper); border: 1px solid var(--line); color: var(--ink-2); }
   .lvp[data-lv='difficult'] { border-color: var(--bad); color: var(--bad); }
   .why.bad { color: var(--bad); }
+  .wxs { display: flex; flex-wrap: wrap; gap: 2px 14px; min-width: 0; }
+  .wxp { font-weight: 600; overflow-wrap: break-word; }
+  .wxp[data-wx-level='fair'] { color: var(--warn); }
+  .wxp[data-wx-level='bad'] { color: var(--bad); }
+  .wxweek { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+  .wxweek li { display: grid; grid-template-columns: 6.5em 1fr; gap: 2px 12px; padding: 8px 0; border-bottom: 1px solid var(--line); overflow-wrap: break-word; }
+  .wxweek li > .wxn { grid-column: 2; color: var(--ink-2); font-size: var(--fs-small); }
+  .wxh { margin: var(--sp-3) 0 var(--sp-1); font-size: var(--fs-sub); }
+  .wxstarts { list-style: none; margin: 0 0 var(--sp-2); padding: 0; display: grid; gap: 4px; overflow-wrap: break-word; }
+  .wxstarts li.best { font-weight: 600; }
+  .wxbest { margin: 0 0 var(--sp-2); font-weight: 600; }
+  @media (min-width: 700px) { .wxweek li { grid-template-columns: 7em 9em 1fr; } .wxweek li > .wxn { grid-column: auto; } }
   .why { display: flex; gap: 6px; align-items: center; font-size: var(--fs-small); color: var(--ink-2); }
   .map { border: 1px solid var(--line); border-radius: var(--r-card); overflow: hidden; margin-bottom: var(--sp-2); }
   .prof { display: grid; gap: var(--sp-3); }

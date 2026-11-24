@@ -6,6 +6,7 @@ import DE from '../../src/lib/i18n/de/index.js';
 import TOURS from '../../src/lib/vorschlaege/data/netz.js';
 import { anreiseOf, withinTravel } from '../../src/lib/vorschlaege/anreise.js';
 import { ready } from './settle.js';
+import { cellOf, cellsOf, addDays } from '../../src/lib/vorschlaege/wetter.js';
 
 const T = (en) => DE[en] ?? en.replace(/\|[a-z ]+$/, '');
 const hard = TOURS.filter((x) => x.cond === 'difficult');
@@ -181,4 +182,92 @@ test('Tour suggestions: 200 tours, filters, one tour, hide and undo', async ({ p
   await expect(tours).toHaveCount(hard.length);
   expect(errors).toEqual([]);
   void info;
+});
+
+// «Wetter» (Noah 24.11.2026 «a»): the forecast of one request for all starts; the tour next to Zurich gets heavy rain today, all others a good week
+test('Tour suggestions: weather light on every tour, best day, filter by day, the week on a tour', async ({ page, context }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+  await page.goto('./#/');
+  const today = await page.evaluate(() => new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Zurich' }));
+  const cells = cellsOf(TOURS);
+  const rainy = cells.indexOf(cellOf(TOURS.find((x) => x.id === FIRST)));
+  const times = Array.from({ length: 19 }, (_, i) => addDays(today, i - 2));
+  await context.route(/^https?:\/\/(?!localhost[:/])(?!api\.open-meteo\.com\/v1\/forecast)/, (r) => r.abort());
+  // the hourly forecast of a tour start (the weather core): cold, dry, rain from 13:00 today
+  const off = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Zurich', timeZoneName: 'longOffset' }).formatToParts(new Date()).find((p) => p.type === 'timeZoneName').value.replace('GMT', '') || '+00:00';
+  const t0 = Date.parse(`${addDays(today, -1)}T00:00:00${off}`) / 1000;
+  const hrs = Array.from({ length: 24 * 19 }, (_, i) => t0 + i * 3600);
+  const wetHour = (s) => s >= Date.parse(`${today}T13:00:00${off}`) / 1000 && s < Date.parse(`${today}T20:00:00${off}`) / 1000;
+  const core = () => ({
+    latitude: 47, longitude: 8, elevation: 500, utc_offset_seconds: (off === '+02:00' ? 7200 : 3600),
+    hourly: { time: hrs, temperature_2m: hrs.map(() => 6), apparent_temperature: hrs.map(() => 5), precipitation_probability: hrs.map((s) => (wetHour(s) ? 90 : 5)), precipitation: hrs.map((s) => (wetHour(s) ? 1.5 : 0)), weather_code: hrs.map((s) => (wetHour(s) ? 63 : 3)), wind_speed_10m: hrs.map(() => 10), wind_gusts_10m: hrs.map(() => 20), wind_direction_10m: hrs.map(() => 270), cape: hrs.map(() => 0), freezing_level_height: hrs.map(() => 2500), visibility: hrs.map(() => 20000), snowfall: hrs.map(() => 0), snow_depth: hrs.map(() => 0), snowfall_height: hrs.map(() => null) },
+    daily: { time: Array.from({ length: 19 }, (_, i) => t0 + i * 86400), sunrise: Array.from({ length: 19 }, (_, i) => t0 + i * 86400 + 7 * 3600), sunset: Array.from({ length: 19 }, (_, i) => t0 + i * 86400 + 17 * 3600), uv_index_max: Array.from({ length: 19 }, () => 2) },
+  });
+  await context.route(/api\.open-meteo\.com\/v1\/forecast/, (route) => {
+    const q = new URL(route.request().url()).searchParams;
+    if (q.get('hourly')) return route.fulfill({ json: core() });
+    const n = q.get('latitude').split(',').length;
+    const place = (i) => ({
+      elevation: 500,
+      daily: {
+        time: times,
+        weather_code: times.map(() => 3),
+        temperature_2m_max: times.map(() => 14),
+        temperature_2m_min: times.map(() => 5),
+        precipitation_sum: times.map((d) => (i === rainy && d === today ? 12 : 0)),
+        precipitation_probability_max: times.map(() => 10),
+        wind_gusts_10m_max: times.map(() => 20),
+      },
+    });
+    return route.fulfill({ json: Array.from({ length: n }, (_, i) => place(i)) });
+  });
+  await page.goto('./#/trips/vorschlaege');
+  await ready(page);
+  await page.locator('[data-vs-view="list"]').click();
+  const tours = page.locator('[data-vs-tour]');
+  await expect(tours).toHaveCount(hard.length);
+  const first = page.locator(`[data-vs-tour="${FIRST}"]`);
+  // the light: today bad (rain), tomorrow and the day after fit; the best day is tomorrow
+  await expect(first.locator('[data-vs-wx]')).toContainText(`${T('Today|tour')} ${T('Rain|wx')}`);
+  await expect(first.locator('[data-vs-wx] [data-wx-level="bad"]')).toHaveCount(1);
+  await expect(first.locator('[data-vs-wx] [data-wx-level="good"]')).toHaveCount(2);
+  await expect(first.locator('[data-vs-wx-best]')).toContainText(T('Best day: {day}').replace(' {day}', ''));
+  // every tour has its light line (all starts were in the one answer)
+  await expect(page.locator('[data-vs-wx]')).toHaveCount(hard.length);
+
+  // the filter «Today»: the tour with heavy rain is gone, the others stay; «Any» brings it back
+  await page.locator('[data-vs-wday="today"]').click();
+  await expect(first).toHaveCount(0);
+  await expect(tours.first()).toBeVisible();
+  const n = await tours.count();
+  expect(n).toBeGreaterThan(0);
+  expect(n).toBeLessThan(hard.length);
+  await page.locator('[data-vs-wday="tomorrow"]').click();
+  await expect(first).toHaveCount(1);
+  await page.locator('[data-vs-wday="any"]').click();
+  await expect(tours).toHaveCount(hard.length);
+
+  // the map: a ring around each dot with the light of today (the same traffic light as in the list)
+  await page.locator('[data-vs-view="map"]').click();
+  await expect(page.locator('[data-vs-ring="bad"]')).toHaveCount(1);
+  expect(await page.locator('[data-vs-ring="good"]').count()).toBeGreaterThan(0);
+  await expect(page.locator('[data-vs-ring-key]')).toBeVisible();
+  await page.locator('[data-vs-view="list"]').click();
+
+  // one tour: the week with the best day, and the line in «Why this suggestion?»
+  await first.locator('a.tl').click();
+  const week = page.locator('[data-vs-wx-week]');
+  await expect(week).toBeVisible();
+  await expect(week.locator('li')).toHaveCount(7);
+  await expect(week.locator('li').first()).toHaveAttribute('data-wx-level', 'bad');
+  await expect(week.locator('[data-vs-wx-best]')).toContainText(T('Best day: {day}').replace(' {day}', ''));
+  // start time (the hourly forecast: dry in the morning, rain from 13:00) and what to wear (cold: gloves)
+  await expect(week.locator('[data-vs-wx-starts] li')).toHaveCount(3);
+  await expect(week.locator('[data-vs-wx-start="best"]')).toHaveCount(1);
+  await expect(week.locator('[data-vs-wx-wear]')).toBeVisible();
+  await expect(week.locator('[data-vs-wx-wear] a')).toHaveAttribute('href', '#/wardrobe');
+  await expect(page.locator('[data-vs-why] li').filter({ hasText: T('Today: {what}.').replace(' {what}.', '') })).toHaveCount(1);
+  expect(errors).toEqual([]);
 });

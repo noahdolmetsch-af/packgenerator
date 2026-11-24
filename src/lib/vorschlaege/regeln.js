@@ -60,7 +60,7 @@ export const ARTS = ['trail', 'downhill', 'gravel', 'loop'];
 /** The start choices: km from your home place to the start (needs a home place); null = any. */
 export const AWAYS = [30, 60, 100];
 /** The lines of «Why this suggestion?» that can be switched off, in their order. */
-export const WHY_KEYS = ['time', 'trip', 'free', 'form', 'bike', 'snow', 'level', 'new', 'away'];
+export const WHY_KEYS = ['time', 'trip', 'free', 'form', 'bike', 'weather', 'snow', 'level', 'new', 'away'];
 
 /** The height (m) from which snow can lie on a typical day of the month (1 = January). A rule of thumb, not a forecast. */
 export const SNOW_LINE = { 1: 900, 2: 900, 3: 1200, 4: 1600, 5: 2000, 6: 2400, 7: 3000, 8: 3000, 9: 2500, 10: 2100, 11: 1700, 12: 1100 };
@@ -243,6 +243,8 @@ export function whyOf(t, ctx = {}) {
   if (form) out.push({ k: 'form', ...form, level: ctx.form });
   const bike = bikeFit(ctx.bikes);
   if (bike) out.push({ k: 'bike', ...bike });
+  // «Wetter» (Noah 24.11.2026 «a»): ctx.weather = { today: verdict, best: bestDay } from wetter.js; without a forecast there is no line
+  if (ctx.weather?.today) out.push({ k: 'weather', tone: ctx.weather.today.level === 'good' ? 'ok' : 'warn', level: ctx.weather.today.level, reasons: ctx.weather.today.reasons, best: ctx.weather.best ?? null });
   const snow = snowOf(t, ctx.month);
   if (snow) out.push({ k: 'snow', tone: 'warn', state: snow, max: t.max });
   else if (ctx.month) out.push({ k: 'snow', tone: 'ok', state: 'none', max: t.max });
