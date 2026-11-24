@@ -6,7 +6,7 @@
    * brake pads first.
    */
   import { liveQuery } from 'dexie';
-  import { FileText, Lightbulb } from '@lucide/svelte';
+  import { FileText, Lightbulb, Image as ImageIcon } from '@lucide/svelte';
   import RaceBox from './RaceBox.svelte';
   import EditList from './EditList.svelte';
   import { db } from '../db.js';
@@ -20,6 +20,7 @@
 
   let { ctx } = $props();
   const id = ctx.trip.id;
+  let card = $state(false); // R3: the mini report as a picture
   const days = $derived(tripDays(ctx.trip));
   const endDay = $derived(days.at(-1) ?? '');
 
@@ -177,5 +178,9 @@
 
   <RaceBox id="after-report" title={t('Race report')} what="One page with your times against the plan, food, sleep, contact points and stops; print it or save it as PDF." why="To keep, to share, and to read before next year’s race." from="Everything you logged in race mode and the rides of this trip.">
     <a class="btn hi" href="#/race/brief/{encodeURIComponent(id)}?report=1" data-race-report><FileText size={16} aria-hidden="true" />{t('Open the report')}</a>
+    <!-- R3 «Mini-Bericht als Bild» (Noah 23.11.2026): the postcard of the trip (line and four numbers), made only on a tap -->
+    <button type="button" class="btn" onclick={() => (card = true)} data-race-card><ImageIcon size={16} aria-hidden="true" />{t('Mini report as a picture')}</button>
+    <p class="rc-note">{t('One picture with the line of the race and four numbers, made on this device; you decide whether to share it.')}</p>
   </RaceBox>
+  {#if card}{#await import('../tourlernen/PostcardSheet.svelte') then m}<m.default trip={{ ...ctx.trip, route: ctx.route ?? ctx.trip.route }} onclose={() => (card = false)} />{:catch}{/await}{/if}
 </div>
