@@ -2,6 +2,11 @@
 
 Stand vor der Aufräumrunde vom 24.11.2026 (Noah «bringe regeln … auf den neusten stand»). Nur Verlauf, keine Regel. Aktuell gilt [regeln.md](regeln.md). Ersetzt eine neue Regel eine alte, kommt die alte hierher, mit Datum.
 
+## Ersetzt am 24.11.2026 16:58: PR-Grenze «höchstens 6 offen, Ziel 5»
+
+- Noah 24.11.2026 16:38 «lass uns die grenze auf 5-6 herunter tun. 6-9 ist mir zu vieles gleichzeitig»: «Höchstens 6 PRs offen, Ziel 5. Neues erst bauen, wenn höchstens 5 offen sind.» (Regeln R11.1, R12, R13, Block 4 der ersten Fassung der neun Blöcke.)
+- Ersetzt durch Noah «a» 24.11.2026 16:58: höchstens 5–6 PRs gleichzeitig in der Prüfung auf GitHub, bis 8 offen insgesamt; 6–10 Threads gleichzeitig.
+
 ## Ersetzt am 24.11.2026 16:38: PR-Grenze «höchstens 8 offen»
 
 - Stau-Regel 1 (Noah 24.11.2026 07:29, «1 2 3 4 5»): «Neues erst bauen, wenn höchstens 8 PRs offen sind; sonst wartende PRs abbauen helfen.»

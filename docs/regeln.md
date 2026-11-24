@@ -38,10 +38,10 @@ So fühlt sich die App für Nutzer an, auf jeder Seite:
 
 ## Block 4 · PRs und Stau
 
-(Noah 23.11.2026 18:58; Noah 24.11.2026 07:29 «1 2 3 4 5», 10:27, 16:38.)
+(Noah 23.11.2026 18:58; Noah 24.11.2026 07:29 «1 2 3 4 5», 10:27, 16:38, 16:58 «a».)
 - **Ein PR pro Seite**, kleine Änderungen derselben Seite gebündelt. Einzeln bleiben Datenänderungen (Dexie, Backup, Sync, `api/`) und Test-Fixes.
-- **Höchstens 6 PRs offen, Ziel 5** (Noah 16:38: «6-9 ist mir zu vieles gleichzeitig»). Neues erst bauen, wenn höchstens 5 offen sind; sonst wartende PRs abbauen helfen.
-- **Was darüber hinaus fertig wird** (Wellen der impeccable-Prüfung), wird **lokal gebaut und getestet, ohne PR und ohne Push**, bis der Bündler «Platz» meldet. Wartet ein PR auf CI, geht der Thread am nächsten Schritt weiter, lokal vorbereitet (Noah 27.10.2026).
+- **Grenzen** (Noah «a» 24.11.2026 16:58, ersetzt «höchstens 6 offen» von 16:38): **höchstens 5–6 PRs gleichzeitig in der Prüfung auf GitHub, bis 8 offen insgesamt; 6–10 Threads arbeiten gleichzeitig.** Ein neuer PR wird erst geöffnet, wenn in der Prüfung weniger als 5–6 sind und insgesamt weniger als 8 offen; sonst wartende PRs abbauen helfen.
+- **Was darüber hinaus fertig wird** (Wellen der impeccable-Prüfung), wird **lokal gebaut und getestet, ohne PR und ohne Push**, bis der Bündler «Platz» meldet (Platz heisst: unter den Grenzen oben). Wartet ein PR auf CI, geht der Thread am nächsten Schritt weiter, lokal vorbereitet (Noah 27.10.2026).
 - **Main rot:** bis zu 1 Stunde nichts anderes mergen, bis repariert.
 - **Ein Test, der 2× zufällig fällt,** kommt auf die Liste und wird noch am selben Tag stabil gemacht (Wackel-Thread).
 - Ziel der CI: etwa 15 Minuten statt 25–70, mit Tests nur der geänderten Seite (Thread «Tests schneller machen»).
