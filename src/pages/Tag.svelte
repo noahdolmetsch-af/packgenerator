@@ -148,7 +148,7 @@
     const item = items().find((x) => x.id === b.e.id);
     if (item) change(item, ev.shiftKey ? { mins: to.end - to.start } : { time: fmtMin(to.start) });
   }
-  const weekTodos = $derived(items().filter((x) => x.kind === 'todo').map((x) => ({ id: x.id, title: x.title, day: x.day, done: x.done })));
+  const weekTodos = $derived(items().filter((x) => x.kind === 'todo').map((x) => ({ id: x.id, title: x.title, day: x.day, done: x.done, time: x.time || '' })));
   async function tickItem(it) {
     const before = items();
     await saveItems(before.map((x) => (x.id === it.id ? { ...x, done: true } : x)));
@@ -191,7 +191,7 @@
   }
 </script>
 
-<PageHead title={tab === 'todos' ? t('My to-dos') : tab === 'abhaken' ? t('Tick off today') : t('My day')} what={tab === 'todos' ? t('Everything still open in one list: yours from Remember and the ones you put on a day.') : tab === 'abhaken' ? t('One tap ticks a sport or habit. Duration and feeling are optional.') : t('Read the day, tap an entry to open it where it lives.')} />
+<PageHead title={tab === 'todos' ? t('My to-dos') : tab === 'abhaken' ? t('Tick off today') : t('My day')} what={tab === 'todos' ? t('Everything still open, in one list.') : tab === 'abhaken' ? t('One tap ticks a sport or habit.') : t('Your day at a glance. Tap an entry to open it.')} />
 
 <p class="tabs"><Seg label={t('Views of My day')} value={tab} options={[{ key: 'day', name: t('Day') }, { key: 'todos', name: t('To-dos') }, { key: 'abhaken', name: t('Tick off|tab') }]} onchange={(k) => (remember(k), (location.hash = k === 'todos' ? '#/day/todos' : k === 'abhaken' ? '#/day/abhaken' : `#/day/${today}`))} /></p>
 

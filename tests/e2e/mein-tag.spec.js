@@ -193,7 +193,7 @@ test('Mein Tag: the tab «To-dos» lists Merken and day to-dos, adds, moves to t
   await page.waitForSelector('h1');
   await put(page, {
     settings: [
-      { key: 'week.items', value: [{ id: 'wi5', kind: 'todo', title: 'Steuern ordnen', day: addDays(TODAY, 2), time: '' }] },
+      { key: 'week.items', value: [{ id: 'wi5', kind: 'todo', title: 'Steuern ordnen', day: addDays(TODAY, 2), time: '09:30' }] },
       { key: 'merken', value: [{ id: 'td-1', text: 'Kette ölen', due: addDays(TODAY, -1), created: D0 }, { id: 'td-2', text: 'Velo putzen', due: null, created: D0 }] },
     ],
   });
@@ -202,6 +202,8 @@ test('Mein Tag: the tab «To-dos» lists Merken and day to-dos, adds, moves to t
   await expect(page).toHaveURL(/#\/day\/todos$/);
   await expect(page.locator('[data-todo-group="late"]')).toContainText('Kette ölen');
   await expect(page.locator('[data-todo-group="week"]')).toContainText('Steuern ordnen');
+  // the time of a to-do on a day stands under its title
+  await expect(page.locator('[data-todo="w:wi5"]')).toContainText('09:30');
   await expect(page.locator('[data-todo-group="none"]')).toContainText('Velo putzen');
   // write a new one with Enter
   await page.locator('[data-todo-new]').fill('Garage anrufen');
@@ -211,6 +213,8 @@ test('Mein Tag: the tab «To-dos» lists Merken and day to-dos, adds, moves to t
   await page.getByRole('button', { name: T('Move «{name}» to today').replace('{name}', 'Garage anrufen') }).click();
   await expect(page.locator('[data-todo-group="today"]')).toContainText('Garage anrufen');
   await expect(page.locator('[data-todo-group="none"]')).not.toContainText('Garage anrufen');
+  // the group «Today» says the day already: no «Heute» again under the title
+  await expect(page.locator('[data-todo-group="today"] .what small')).toHaveCount(0);
   // tick it off: it leaves the list, Undo is offered
   await page.getByRole('button', { name: T('Tick off «{name}»').replace('{name}', 'Garage anrufen') }).click();
   await expect(page.locator('[data-todo-group="today"]')).toHaveCount(0);

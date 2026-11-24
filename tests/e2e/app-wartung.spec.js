@@ -67,10 +67,8 @@ test('a copy before an update, the line in the news banner, and back to the stat
   await page.reload();
   await settle(page, { sameTrips: false });
 
-  // «Heute neu» A 5b (0.165.0, changed on purpose): the banner «New in …» is under Ich, not on Today
-  await expect(page.locator('[data-news-banner]')).toHaveCount(0);
+  // «Banner Was ist neu» (Noah 23.11.2026 «1-5a», changed on purpose): the banner «New: …» is one line on Today, under the chips
   await expect.poll(() => page.evaluate(() => localStorage.getItem('wasneu.update'))).not.toBeNull();
-  await page.goto('./#/me');
   const banner = page.locator('[data-news-banner]');
   await expect(banner.locator('[data-news-snapshot]')).toContainText(T('Your data was backed up before the update. Something wrong?'));
   await banner.getByRole('link', { name: T('Back to the state before the update') }).click();

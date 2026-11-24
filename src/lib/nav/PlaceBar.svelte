@@ -11,14 +11,18 @@
    */
   import { menuBar, placeHref, barPlace } from '../nav.js';
   import { anp, placeLabel } from '../anpassen.svelte.js'; // «Anpassen» 2a + 3a: your menu, your names
-  import { t } from '../i18n.svelte.js';
+  import { t, tn } from '../i18n.svelte.js';
   import PlaceIcon from './PlaceIcon.svelte';
+  import { dots as dotsNow } from './punkte.svelte.js'; // «Ruhige Punkte an allen Orten» (Noah 23.11.2026 «4a»)
   import { untrack } from 'svelte';
 
   let { place = null, hash = '#/', due = 0 } = $props();
   // AU1 «1b»: Velos and Ausrüstung share one slot; the switch on top of both pages changes between them
   const slot = $derived(barPlace(place));
   const places = $derived((void anp.v, menuBar()));
+  const dots = $derived(dotsNow());
+  const dotOf = (key) => (key === 'week' ? dots.week : key === 'trips' ? dots.trips : null);
+  const dotTip = (key, d) => (key === 'week' ? tn(d.n, 'Plan: {n} tick open today', 'Plan: {n} ticks open today') : tn(d.n, 'Tours: {n} tour to pack soon', 'Tours: {n} tours to pack soon'));
 
   // «Markierung gleitet» (Paket A Seitenwechsel 3, Noah 03.11.2026 «b»): the soft pill behind the chosen icon is one
   // piece that glides from place to place (about 0.2 s) instead of jumping. It takes its place and size from the chosen
@@ -58,9 +62,10 @@
 <nav class="bottom" class:has-mark={!!mark} class:glide aria-label={t('Sections')} bind:this={nav}>
   {#if mark}<span class="mark" aria-hidden="true" data-place-mark style="--mx:{mark.x}px;--my:{mark.y}px;--mw:{mark.w}px;--mh:{mark.h}px"></span>{/if}
   {#each places as p (p.key)}
+    {@const d = dotOf(p.key)}
     <a href={(void anp.v, placeHref(p, slot, hash))} data-place={p.key} aria-current={slot === p.key ? 'page' : undefined}>
-      <span class="pi"><PlaceIcon place={p.key} />{#if p.key === 'bikes' && due}<span class="due num" aria-hidden="true">{due}</span>{/if}</span>
-      <span class="pn" class:two={!!p.bar}>{placeLabel(p, true)}</span>{#if p.key === 'bikes' && due}<span class="sr">, {t('{n} due', { n: due })}</span>{/if}
+      <span class="pi"><PlaceIcon place={p.key} />{#if p.key === 'bikes' && due}<span class="due num" aria-hidden="true">{due}</span>{/if}{#if d}{#if p.key === 'week'}<span class="due num" aria-hidden="true" data-place-dot="week">{d.n}</span>{:else}<span class="dotm" aria-hidden="true" data-place-dot="trips"></span>{/if}{/if}</span>
+      <span class="pn" class:two={!!p.bar}>{placeLabel(p, true)}</span>{#if p.key === 'bikes' && due}<span class="sr">, {t('{n} due', { n: due })}</span>{/if}{#if d}<span class="sr">, {dotTip(p.key, d)}</span>{/if}
     </a>
   {/each}
 </nav>
@@ -163,6 +168,17 @@
     color: var(--hi-ink);
     font: 700 var(--fs-tiny) / 1.5 var(--font-body);
     text-align: center;
+  }
+  /* «Ruhige Punkte» (Noah 23.11.2026 «4a»): Touren gets a small dot, not a number; never red */
+  .dotm {
+    position: absolute;
+    top: 0;
+    left: calc(50% + 10px);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px var(--paper);
+    background: var(--hi);
   }
   /* A very narrow phone (320 px): five slots of about 63 px; the small type keeps «Auswerten» whole */
   @media (max-width: 359px) {
