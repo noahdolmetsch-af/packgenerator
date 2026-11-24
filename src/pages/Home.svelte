@@ -1254,7 +1254,7 @@
             <div><dt>{t('Distance')}</dt><dd>{num(Math.round(shown.route.km))} km</dd></div>
             {#if shown.route.gainM}<div><dt>{t('Climbing')}</dt><dd>{num(Math.round(shown.route.gainM))} m</dd></div>{/if}
           </dl>
-          <Profile points={prof} />
+          <Profile detail points={prof} />
         </div>
       {/if}
       <!-- «Neuer Schwung» Stil S2 (Noah 26.10.2026 «1a»): a drawn landscape with the dashed route at the foot of the trip card -->
