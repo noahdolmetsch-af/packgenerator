@@ -97,7 +97,7 @@ const LISTED_MOMENTS = {
   planen: [
     'f.racecheck', 'homeweather', 'f.plan', 'f.tripstate', 'f.assistent', 'f.askgemini', 'f.sports', 'f.travel',
     'f.komoot', 'f.tripcompare', 'f.snow', 'f.skiplan', 'f.swissmap', 'f.sosqr', 'f.scales', 'f.race',
-    'f.racesample', 'f.racemap', 'f.climbs', 'f.mapoffline', 'f.sleeplists', 'f.nightswx', 'f.abroad',
+    'f.racesample', 'f.raceatlas', 'f.racemap', 'f.climbs', 'f.mapoffline', 'f.sleeplists', 'f.nightswx', 'f.abroad',
     'f.mapmeasure', 'f.wxwatch', 'f.fuel', 'f.sleeporigin', 'f.devil', 'f.nogos', 'f.energy', 'f.gpxstops',
     'f.weather', 'f.webcams', 'f.air', 'f.racepush',
   ],

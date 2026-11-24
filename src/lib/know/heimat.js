@@ -139,6 +139,7 @@ const LISTED_HOME = {
   'f.scales': '#/mountain',
   'f.race': '#/race',
   'f.racesample': '#/race',
+  'f.raceatlas': '#/race',
   'f.racecheck': '#/racecheck',
   'f.racemap': '#/race/:race',
   'f.climbs': '#/race/:race',

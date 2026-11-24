@@ -7,7 +7,8 @@ test('Races: the groups of the race list are German', async ({ page, context }, 
   await start(page, context, info);
   await page.goto('./#/race');
   await expect(page.locator('h1')).toHaveText(tr('de')('Races'));
-  const heads = await page.locator('main h2.rc-h2').allInnerTexts();
-  expect(heads.map((h) => h.trim())).toContain('Kommende');
-  expect(heads.map((h) => h.trim())).not.toContain('Coming');
+  // the groups are tabs now (Noah 24.11.2026 «C mit A»); the first one is called «Kommende»
+  const first = (await page.locator('main [data-key="coming"]').innerText()).trim();
+  expect(first).toMatch(/^Kommende/);
+  expect(first).not.toContain('Coming');
 });

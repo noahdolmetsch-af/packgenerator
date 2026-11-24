@@ -1,6 +1,6 @@
 // «Velo-Countdown» (Noah 27.10.2026): the steps before a race, their day and where they stand.
 import { describe, it, expect } from 'vitest';
-import { STEPS, stepsOf, dueOf, stateOf, summary } from '../src/lib/race/countdown-lib.js';
+import { STEPS, stepsOf, dueOf, stateOf, summary, daysTo } from '../src/lib/race/countdown-lib.js';
 
 describe('the bike countdown', () => {
   it('shows the suggestions until you save your own list', () => {
@@ -24,5 +24,13 @@ describe('the bike countdown', () => {
     expect(stateOf({ weeks: 6, done: false }, '', '2027-03-30')).toBe('open');
     const steps = [{ weeks: 6, done: true }, { weeks: 6, done: false }, { weeks: 5, done: false }, { weeks: 1, done: false }];
     expect(summary(steps, race, '2027-03-28')).toEqual({ done: 1, of: 4, late: 1, now: 1 });
+  });
+});
+
+describe('days to a day', () => {
+  it('counts calendar days, also across the clock change', () => {
+    expect(daysTo('2027-03-20', '2027-03-20')).toBe(0);
+    expect(daysTo('2027-03-20', '2027-03-28')).toBe(8);
+    expect(daysTo('2027-03-28', '2027-03-20')).toBe(-8);
   });
 });

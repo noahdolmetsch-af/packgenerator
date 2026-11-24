@@ -720,6 +720,8 @@ import aktivrest from './aktivrest.js';
 import versionszeile from './versionszeile.js';
 // «Rennen detailliert planen» + «Rennen-Check» (Noah 27.10.2026 «1b 2b»); spread last
 import rennencheck from './rennencheck.js';
+// «Rennen aus dem Rennatlas» (Noah 24.11.2026 «a»); spread last
+import rennenAtlas from './rennen-atlas.js';
 // «332 sichtbar» 2a (Noah 27.10.2026): when a function appears, in the catalogue; spread last
 import wannsichtbar from './wannsichtbar.js';
 // «Bild bearbeiten» (Noah 28.10.2026); spread last
@@ -1131,6 +1133,7 @@ const ORDERED = [
   versionszeile,
   packenwischen,
   rennencheck,
+  rennenAtlas,
   wannsichtbar,
   bildbearbeiten,
   notfallkarte,
