@@ -74,11 +74,10 @@ So fühlt sich die App für Nutzer an, auf jeder Seite:
 
 ## Block 8 · Privat und gratis
 
-(Noah 04.10.2026 ff.; Noah 26.10.2026 «gratis»; Noah 23.11.2026 «KI-Schlüssel in Vercel»; ausdrücklich ergänzt Noah «1-5a» 24.11.2026 16:45.)
-Das Repo ist öffentlich. Keine persönlichen Daten, keine echten Namen, keine Backups, Belege, Fotos, GPX, Excel-Listen, Schlüssel.
-**Bankname, IBAN, Konten, Beträge, Fotos und ICS-Token stehen nie in Repo, Chat oder Gedächtnis.** Entwürfe mit Echtdaten (zum Beispiel Seiten oder Dokumente) werden nie öffentlich gemacht.
-Privates liegt nur in `/mnt/project-files/private/`. Tests und Bilder nutzen nur erfundene Daten. Gesundheitsdaten sind reine Beobachtung.
-**Null Kosten.** Der KI-Schlüssel bleibt in Vercel.
+(Noah 04.10.2026 ff.; Noah 26.10.2026 «gratis»; Noah 23.11.2026 «KI-Schlüssel in Vercel»; ausdrücklich ergänzt Noah «1-5a» 24.11.2026 16:45; Wortlaut wie in der Projekt-Anweisung.)
+**Privat und gratis, nichts darf Geld kosten.** Das öffentliche Repo bekommt keine persönlichen Daten. Bankname, IBAN, Kontonummern und Beträge, Fotos und der Kalender-Schlüssel (ICS-Token) gehen nie ins Repo, in den Chat oder ins Gedächtnis.
+Private Dateien liegen nur in `/mnt/project-files/private/`. Entwürfe mit echten Daten werden nie öffentlich geteilt.
+Dazu: keine echten Namen, Backups, Belege, GPX oder Excel-Listen im Repo; Tests und Bilder nutzen nur erfundene Daten; Gesundheitsdaten sind reine Beobachtung; der KI-Schlüssel bleibt in Vercel.
 
 ## Block 9 · Aktuell halten
 
