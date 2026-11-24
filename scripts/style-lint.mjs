@@ -7,6 +7,8 @@
 //   global     a component defines its own `.x {` rule for a class that src/app.css defines globally
 //              (the `.sw` bug: a label took the 10 px colour swatch and showed one letter per line)
 //   fontsize   a font size that is not a type-scale token var(--fs-…) (also in the `font:` shorthand)
+//   radius     a border-radius outside the ladder 4 · 8 · 12 · 16 · pill · circle (tokens --r-1…--r-4, --r-pill, --radius-card), «Feinschliff» (Noah 24.11.2026 «2a»)
+//   shadow     a box-shadow that is not one of the three steps var(--shadow-1/2/3), var(--card-shadow) or a plain 0 0 0 ring
 //
 // Today's violations live in tests/guard-baseline.json (section "style": file → rule → count).
 // tests/style-lint.test.js fails only when a file has MORE than its baseline. The baseline may only
@@ -22,7 +24,7 @@ import { fileURLToPath } from 'node:url';
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 export const BASELINE = join(ROOT, 'tests/guard-baseline.json');
-export const RULES = ['colour', 'breakword', 'global', 'fontsize'];
+export const RULES = ['colour', 'breakword', 'global', 'fontsize', 'radius', 'shadow'];
 /**
  * v0.67.0 «Übergänge 1» (Noah Ü2a, Mitziehen): what a release builds or brings onto the kit is STRICT:
  * no baseline, every rule must be 0 (style lint here; the Konsistenz-Test also: at most one main
@@ -191,6 +193,33 @@ const FUNC = /\b(?:rgba?|hsla?)\s*\(/i;
 const SIZE = /(?:^|[\s/(,])-?\d*\.?\d+(?:px|rem|em|pt|%|vw|vh|ch|ex)\b|\b(?:xx-small|x-small|small|medium|large|x-large|xx-large|smaller|larger)\b/;
 const OK_SIZE = /^\s*(?:inherit|initial|unset|revert|var\(--fs-[\w-]+\))\s*(?:!important)?\s*$/;
 
+// «Feinschliff» (Noah 24.11.2026 «2a»): the ladder of corners and the three shadow steps. Today's strays sit in the baseline and may only shrink.
+const RADIUS_PROPS = /^border(?:-(?:top|bottom)-(?:left|right))?-radius$/;
+const RADIUS_OK = /^(?:0|0px|2px|4px|8px|12px|16px|999px|50%|100%|inherit|initial|unset)$/;
+const SHADOW_RING = /^(?:inset\s+)?0\s+0\s+0\s+[\d.]+px\s+\S.*$/;
+function radiusStray(v) {
+  const bare = v.replace(/!important/g, ' ').replace(/var\([^()]*(?:\([^()]*\)[^()]*)*\)|calc\([^()]*(?:\([^()]*\)[^()]*)*\)/g, ' ');
+  return bare.split(/[\s/]+/).filter(Boolean).some((part) => !RADIUS_OK.test(part));
+}
+function shadowStray(v) {
+  const bare = v.replace(/!important/g, '').trim();
+  if (/^(?:none|inherit|initial|unset)$/.test(bare)) return false;
+  // split the layers at top-level commas
+  const layers = [];
+  let depth = 0;
+  let cur = '';
+  for (const ch of bare) {
+    if (ch === '(') depth++;
+    if (ch === ')') depth--;
+    if (ch === ',' && depth === 0) {
+      layers.push(cur.trim());
+      cur = '';
+    } else cur += ch;
+  }
+  layers.push(cur.trim());
+  return !layers.every((l) => /^var\(--[\w-]+\)$/.test(l) || SHADOW_RING.test(l));
+}
+
 /** The violations of one declaration (prop: value). */
 export function checkDecl(prop, value, { colours = true, fonts = true } = {}) {
   const p = prop.trim().toLowerCase();
@@ -201,6 +230,8 @@ export function checkDecl(prop, value, { colours = true, fonts = true } = {}) {
   if (p === 'word-break' && /\bbreak-all\b/i.test(v)) out.push('breakword');
   // var(--x, #fff) fallbacks count too: the literal is still a colour outside the tokens
   if (colours && (HEX.test(v) || FUNC.test(v))) out.push('colour');
+  if (RADIUS_PROPS.test(p) && radiusStray(v)) out.push('radius');
+  if (p === 'box-shadow' && shadowStray(v)) out.push('shadow');
   if (fonts && p === 'font-size' && !OK_SIZE.test(v)) out.push('fontsize');
   if (fonts && p === 'font') {
     // the shorthand: a size outside var(…) («500 15px/1.25 var(--font-body)»); `font: inherit` is fine

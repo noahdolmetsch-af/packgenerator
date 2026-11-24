@@ -81,6 +81,21 @@
   /* v0.99.0 Design-Refresh R3 (G2): buttons, fields and filter chips share one soft corner. */
   --r-ctl: 10px;
   --r-btn: 999px;
+  /* «Feinschliff» (Noah 24.11.2026 «2a»): the ladder of corners and the three shadow steps. New code uses these (the style lint's
+     rules `radius` and `shadow` hold the line); old pages move over when they are rebuilt. --r-ctl (fields) and --radius-card stay. */
+  --r-1: 4px; /* small bars, tags */
+  --r-2: 8px; /* chips with a square feel, rows, small cards */
+  --r-3: 12px; /* cards, sheets' inner blocks */
+  --r-4: 16px; /* big cards, sheets */
+  --r-pill: 999px; /* buttons, chips, badges */
+  --shadow-1: 0 1px 3px var(--shadow); /* a small lifted control */
+  --shadow-2: 0 6px 18px var(--shadow); /* floating: bars, menus, the + button */
+  --shadow-3: 0 12px 40px var(--shadow); /* windows: sheets and dialogs */
+  /* «Bewegung» (Noah 24.11.2026 «4a»): three durations for every move, always with --ease-out (or --ease-drawer for a window).
+     Whoever asks for less motion gets none (motion.css below, `prefers-reduced-motion`, «Bewegung reduzieren»). */
+  --t-fast: 120ms; /* press, hover, a tick */
+  --t-base: 200ms; /* choosing, folding, a row leaving */
+  --t-sheet: 320ms; /* windows and page changes */
   --gut: 16px;
   /* v0.46.0 (Noah 4b, 5a): tokens of the new start page, also set by every palette below. */
   --hi-hover: #a03605;
