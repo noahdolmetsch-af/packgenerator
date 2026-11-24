@@ -81,6 +81,7 @@
   import { quickDebrief, templateOffer, templateName, nextTrip, learningsFor } from '../lib/debrief.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   import StartHier from '../lib/home/StartHier.svelte';
+  import { health } from '../lib/health/client.svelte.js'; // connected Fitbit: the body tile also stands on an empty device (its line says why there is no value)
   import { openNew, openNote, openTrip, openPrep, addItem, wantBike, take, dayRide, openData, openPlay } from '../lib/nav.js';
   import { todayFocus, openDebrief, endedOn } from '../lib/today.js';
   import { t, tn, num, locale, lang, setLang, nameOf } from '../lib/i18n.svelte.js';
@@ -1035,7 +1036,7 @@
   const upEmpty = $derived(ready && !upRows.length && !calmRows.length && !cheers.length && !notice && !quick && !impulseUp && !essUp);
   // «Starte hier» (Noah 23.11.2026 «1-5a», V2): on an empty device the body block and «Up now» (with the idea) show only with content
   const healthQ = liveQuery(() => (db.healthDays ? db.healthDays.count() : 0));
-  const emptyTiles = $derived(timeWall.filter((x) => EMPTY_KEEP.has(x.id) && (x.id === 'body' ? ($healthQ ?? 0) > 0 : x.id === 'important' ? !upEmpty : true)));
+  const emptyTiles = $derived(timeWall.filter((x) => EMPTY_KEEP.has(x.id) && (x.id === 'body' ? ($healthQ ?? 0) > 0 || !!health.prefs?.connected : x.id === 'important' ? !upEmpty : true)));
   // P6 SN2l: the weekly weight only while no weight for 7 days (and not put away today); after «Save» it stays for its thanks
   let weighedNow = $state(false);
   const weighOn = $derived(weighedNow || (weightStore.loaded && weighDue(weightStore.entries, today, S[WEIGH_KEY] ?? null)));
