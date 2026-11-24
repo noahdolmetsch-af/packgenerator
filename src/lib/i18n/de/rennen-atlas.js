@@ -17,7 +17,7 @@ export default {
   'Favourites|race': 'Favoriten',
   'New|race': 'Neu',
   'Without a day|race': 'Ohne Datum',
-  'Same days: {names}. You can create both and drop one later.': 'Gleiche Tage: {names}. Du kannst beide anlegen und später eins streichen.',
+  'Same days: {names}. You can still create them and drop one later.': 'Gleiche Tage: {names}. Du kannst sie trotzdem anlegen und später eins streichen.',
   'same days as {name}': 'gleichzeitig mit {name}',
   '{n} race chosen': '{n} Rennen gewählt',
   '{n} races chosen': '{n} Rennen gewählt',

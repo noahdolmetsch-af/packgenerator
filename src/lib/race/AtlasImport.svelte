@@ -149,7 +149,7 @@
     {/if}
 
     {#if clashing.length}
-      <p class="atl-alert" role="status" data-race-atlas-clash><TriangleAlert size={20} aria-hidden="true" /><span>{t('Same days: {names}. You can create both and drop one later.', { names: clashing.map((r) => r.name).join(' · ') })}</span></p>
+      <p class="atl-alert" role="status" data-race-atlas-clash><TriangleAlert size={20} aria-hidden="true" /><span>{t('Same days: {names}. You can still create them and drop one later.', { names: clashing.map((r) => r.name).join(' · ') })}</span></p>
     {/if}
 
     <div class="atl-dock" data-race-atlas-dock>

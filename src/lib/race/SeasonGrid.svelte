@@ -20,9 +20,9 @@
         const a = Math.max(0, x0 ?? 0);
         const b = Math.min(100, (x1 ?? 100) + 100 / 365);
         const label = ((it.name.length * 8.5 + 14) / Math.max(w, 1)) * 100;
-        const right = b + 0.8 + label <= 100;
+        const right = b + 1.6 + label <= 100;
         const lo = right ? a : Math.max(0, a - 0.8 - label);
-        const hi = right ? b + 0.8 + label : b;
+        const hi = right ? b + 1.6 + label : b;
         return { ...it, a, b, label, right, lo, hi };
       })
       .filter(Boolean),
@@ -36,7 +36,7 @@
   <div class="lanes" style:height="{rows * 30}px" aria-hidden="true">
     {#each bars as b, i (b.key)}
       <span class="bar {b.state}" style:left="{b.a}%" style:width="{Math.max(b.b - b.a, 1.2)}%" style:top="{lanes[i] * 30 + 4}px"></span>
-      <span class="lab" style:left="{b.right ? b.b + 0.8 : b.lo}%" style:top="{lanes[i] * 30 + 5}px" style:width="{b.label}%" class:r={!b.right}>{b.name}</span>
+      <span class="lab" style:left="{b.right ? b.b + 1.6 : b.lo}%" style:top="{lanes[i] * 30 + 5}px" style:width="{b.label}%" class:r={!b.right}>{b.name}</span>
     {/each}
   </div>
   <div class="key" aria-hidden="true"><span><i class="bar on"></i>{t('chosen|race')}</span><span><i class="bar clash"></i>{t('same days|race')}</span><span><i class="bar known"></i>{t('already here|race')}</span></div>
