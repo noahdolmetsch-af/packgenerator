@@ -53,7 +53,7 @@
       "radius": 1
     },
     "src/lib/bikes/BikeCards.svelte": {
-      "radius": 1
+      "radius": 2
     },
     "src/lib/bikes/BikeOrderSheet.svelte": {
       "radius": 1,
@@ -563,7 +563,7 @@
       "shadow": 1
     },
     "src/lib/know/VersionNews.svelte": {
-      "radius": 1
+      "radius": 2
     },
     "src/lib/know/WhatsNew.svelte": {
       "breakword": 1,
@@ -905,8 +905,14 @@
     "src/lib/probe/ProbePage.svelte": {
       "radius": 1
     },
-    "src/lib/quick/PinMarks.svelte": {
-      "shadow": 1
+    "src/lib/race/AtlasFilters.svelte": {
+      "radius": 3
+    },
+    "src/lib/race/AtlasList.svelte": {
+      "radius": 4
+    },
+    "src/lib/race/BikeCountdown.svelte": {
+      "radius": 1
     },
     "src/lib/race/Check.svelte": {
       "radius": 1

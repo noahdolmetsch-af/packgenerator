@@ -70,8 +70,6 @@
     margin: 0;
     color: var(--ink-3);
     font: 600 var(--fs-tiny) var(--font-body);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
   }
   .pk-card,
   .pk-new {
