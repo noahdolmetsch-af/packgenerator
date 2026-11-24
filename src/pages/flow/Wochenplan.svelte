@@ -268,7 +268,7 @@
     if (type === 'bikeOut' && summer && cfg.bikeHours) bits.push(t('{h} h together', { h: num(cfg.bikeHours) }));
     // Noah 23.11.2026 «4a»: how many of the goal this week really holds (TrainingPeaks, team dates and the hours goal can take some away)
     const standing = cfg.counts[type] || 0;
-    if (type === 'hockey' && week.team?.on) bits.push(tn(week.team.dates.length, 'This week 1 from the team dates', 'This week {n} from the team dates'));
+    if (type === 'hockey' && isNow && sessions.some((s) => s.team === 'on')) bits.push(tn(week.team.length, 'This week 1 from the team dates', 'This week {n} from the team dates'));
     else if (standing > 0 && isNow) bits.push(t('This week {a} of {b}', { a: week.units.filter((u) => u.type === type).length, b: standing }));
     const fixed = Math.min((cfg.fixes[type] || []).length, cfg.counts[type] || 0);
     if (fixed) bits.push(t('{fixed} fixed, {free} free', { fixed, free: Math.max(0, (cfg.counts[type] || 0) - fixed) }));

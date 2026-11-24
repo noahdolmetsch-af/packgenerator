@@ -256,7 +256,7 @@
   const weekAll = $derived.by(() => {
     if (!wpWeek) return { mins: nums.planned, goalMins: goal?.hours ? goal.hours * 60 : 0 };
     const { wk, cfg } = wpWeek;
-    const team = (wk.team?.dates ?? []).reduce((a, x) => a + x.mins, 0);
+    const team = (wk.team ?? []).reduce((a, x) => a + x.mins, 0);
     const outside = (wk.tp ?? []).reduce((a, x) => a + x.mins, 0) + team;
     const own = suggested.reduce((a, x) => a + x.mins, 0);
     return { mins: nums.planned + own + team, goalMins: (outside > 0 ? cfg.tpHours || cfg.hours : cfg.hours) * 60 };

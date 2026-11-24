@@ -53,5 +53,16 @@ test('Meine Woche: «geplant» counts the suggestions of the weekly plan, the we
   await ready(page);
   await expect(page.locator('[data-goal="bikeOut"]')).toContainText('Diese Woche 0 von 1');
   await expect(page.locator('[data-goal="bikeIn"]')).toContainText('Diese Woche 0 von 1');
+  // Spielerplus: the team dates are the ice hockey; the weekly plan says so and the line over the week counts them
+  const day = (n) => ((x) => (x.setUTCDate(x.getUTCDate() + n), x.toISOString().slice(0, 10)))(new Date('2026-11-30T12:00:00Z'));
+  await seed(page, [['settings', { key: 'spielerplus', value: { cals: [{ id: 'c1', name: 'Team', url: 'https://www.spielerplus.de/events/ics?t=aaa&u=bbb', on: true, act: 'hockey', fetchedAt: '2026-12-01T08:00:00.000Z', error: '', events: [
+    { id: 'e1', title: 'Training', day: day(1), from: '20:30', to: '22:00', allDay: false, where: '' },
+    { id: 'e2', title: 'Spiel', day: day(5), from: '18:00', to: '19:30', allDay: false, where: '' }] }] } }]]);
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('[data-goal="hockey"]')).toContainText('Diese Woche 2 aus dem Spielplan');
+  await page.goto('./#/flow/training');
+  await ready(page);
+  await expect(page.locator('[data-week-range]')).toContainText('von 15:00 Std.');
   expect(errors).toEqual([]);
 });
