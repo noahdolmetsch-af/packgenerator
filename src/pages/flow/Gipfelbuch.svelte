@@ -20,7 +20,7 @@
   import ListSheet from '../../lib/flow/ListSheet.svelte';
   import { db } from '../../lib/db.js';
   import { GB_KEY, bookOf, suggestions, addPlace, addVisit, editPlace, removePlace, dismiss, yearGroups, coreOf, sportCounts, sportOf, isVelo, gbStars, starsOfPlace, nextPassStar, placeRows, PLACE_WORD, GB_SPORTS } from '../../lib/gipfelbuch.js';
-  import { loadCatalog, catalogSuggestions, mergeSuggestions, hitRef, collectionOf, ownCollection, COLLECTIONS, LISTS_KEY, listsOf, saveList, removeList, setHidden } from '../../lib/gipfelkatalog.js';
+  import { loadCatalog, catalogSuggestions, mergeSuggestions, groupFound, hitRef, collectionOf, ownCollection, COLLECTIONS, LISTS_KEY, listsOf, saveList, removeList, setHidden } from '../../lib/gipfelkatalog.js';
   import { localDay } from '../../lib/localday.js';
   import { t, tn, num, locale } from '../../lib/i18n.svelte.js';
 
@@ -57,7 +57,7 @@
   const lists = $derived(data?.lists ?? listsOf(null));
   const generic = $derived(data ? suggestions(book, { acts: data.acts, rides: data.rides }) : []);
   const found = $derived(data && catalog.length ? catalogSuggestions(book, catalog, { acts: data.acts, rides: data.rides }) : []);
-  const sugg = $derived(mergeSuggestions(generic, found));
+  const sugg = $derived(groupFound(mergeSuggestions(generic, found)));
   const colls = $derived([...COLLECTIONS.filter((c) => !lists.hidden.includes(c.id)).map((c) => collectionOf(c, catalog, book)).filter((c) => c.total), ...lists.own.map((l) => ownCollection(l, book))]);
   const hiddenColls = $derived(COLLECTIONS.filter((c) => lists.hidden.includes(c.id)));
   let listSheet = $state(null); // { list: the own list to change | null }
@@ -102,11 +102,14 @@
     await tick();
     if (typeof matchMedia === 'function' && !matchMedia('(min-width: 1000px)').matches) document.getElementById('gb-det')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
-  const visitAgain = (s) => save(addVisit(book, s.match, { day: s.day, ref: s.ref, hm: s.hm }), t('Visit added to {name}', { name: placeOf(s.match)?.name ?? '' }));
-  const noPeak = (s) => save(dismiss(book, s.cat ? hitRef(s.ref, s.cat) : s.ref), t('Suggestion put away'));
+  // a row stands for all rides over the same place (`more`): one tap handles them all
+  const ridesOf = (s) => [s, ...(s.more ?? [])];
+  const visitAgain = (s) => save(ridesOf(s).reduce((b, r) => addVisit(b, s.match, { day: r.day, ref: r.ref, hm: r.hm }), book), t('Visit added to {name}', { name: placeOf(s.match)?.name ?? '' }));
+  const noPeak = (s) => save(ridesOf(s).reduce((b, r) => dismiss(b, s.cat ? hitRef(r.ref, s.cat) : r.ref), book), t('Suggestion put away'));
   // a place of the catalogue found on a ride has its name, height and position: one tap puts it in the book
+  const withRides = (nb, more = []) => more.reduce((b, r) => addVisit(b, b.places.at(-1).id, { day: r.day, ref: r.ref, hm: r.hm }), nb);
   const addFound = (s) => {
-    const nb = addPlace(book, { name: s.name, sport: s.sport, ele: s.ele, lat: s.lat, lon: s.lon }, { day: s.day, ref: s.ref, hm: s.hm });
+    const nb = withRides(addPlace(book, { name: s.name, sport: s.sport, ele: s.ele, lat: s.lat, lon: s.lon }, { day: s.day, ref: s.ref, hm: s.hm }), s.more);
     sel = nb.places.at(-1).id;
     return save(nb, t('«{name}» is in the summit book', { name: s.name }));
   };
@@ -124,7 +127,7 @@
     if (s.mode === 'edit') return save(editPlace(book, s.place.id, { name: v.name, sport: v.sport, ele: v.ele, label: v.label, note: v.note }));
     if (s.mode === 'visit') return save(addVisit(book, s.place.id, { day: v.day, ref: 'hand' }), t('Visit added to {name}', { name: s.place.name }));
     const src = s.sugg;
-    const nb = addPlace(book, { ...v, lat: src?.lat ?? null, lon: src?.lon ?? null }, { day: v.day, ref: src?.ref ?? 'hand', hm: src?.hm ?? null });
+    const nb = withRides(addPlace(book, { ...v, lat: src?.lat ?? null, lon: src?.lon ?? null }, { day: v.day, ref: src?.ref ?? 'hand', hm: src?.hm ?? null }), src?.more);
     sel = nb.places.at(-1).id;
     return save(nb, t('«{name}» is in the summit book', { name: v.name }));
   }
@@ -170,7 +173,7 @@
           {#each sugg.slice(0, 3) as s (`${s.ref}|${s.cat ?? ""}`)}
             <li data-gb-sugg={s.ref}>
               <span class="ic" aria-hidden="true"><Mountain size={20} /></span>
-              <span class="t"><b class="num">{s.cat ? `${s.name} · ${m(s.ele)}` : `${m(s.ele)} · ${t(sportOf(s.sport).name)}`}</b><small>{[s.title ? `«${s.title}»` : '', dayWord(s.day), s.cat && s.level === 'maybe' ? t('near the route, please check') : ''].filter(Boolean).join(' · ')}</small></span>
+              <span class="t"><b class="num">{s.cat ? `${s.name} · ${m(s.ele)}` : `${m(s.ele)} · ${t(sportOf(s.sport).name)}`}</b><small>{[s.title ? `«${s.title}»` : '', dayWord(s.day), s.more?.length ? tn(s.more.length, 'and {n} more ride', 'and {n} more rides') : '', s.cat && s.level === 'maybe' ? t('near the route, please check') : ''].filter(Boolean).join(' · ')}</small></span>
               <span class="acts">
                 {#if s.match}<button type="button" class="btn sm hi" onclick={() => visitAgain(s)} data-gb-again>{t('Again at {name}', { name: placeOf(s.match)?.name ?? '' })}</button>
                 {:else if s.cat}<button type="button" class="btn sm hi" onclick={() => addFound(s)} data-gb-add>{t('Into the summit book')}</button><button type="button" class="btn sm" onclick={() => (sheet = { mode: 'confirm', sugg: s })} data-gb-confirm>{t('Change')}</button>

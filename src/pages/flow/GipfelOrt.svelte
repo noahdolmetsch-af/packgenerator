@@ -182,7 +182,7 @@
               {/if}
               {#if f.photos.length || own.length}
                 <div class="pics">
-                  {#each f.photos as u (u)}<img src={u} alt={t('Photo of the ride')} loading="lazy" referrerpolicy="no-referrer" />{/each}
+                  {#each f.photos as u (u)}<img src={u} alt={t('Photo of the ride')} loading="lazy" referrerpolicy="no-referrer" onerror={(e) => (e.currentTarget.hidden = true)} />{/each}
                   {#each own as u, i (i)}
                     <span class="own"><img src={u} alt={t('Your photo')} /><button type="button" class="x" aria-label={t('Remove photo')} onclick={() => dropPhoto(v, i)}><X size={14} aria-hidden="true" /></button></span>
                   {/each}

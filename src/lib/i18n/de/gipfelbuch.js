@@ -1,5 +1,7 @@
 // v0.165.0 «Gipfelbuch für alle» (Noah 15.10.2026 «1a 2a 3a 4a … 5b»): Aktiv › Gipfelbuch, its sheet, its stars in the showcase
 export default {
+  'and {n} more ride': 'und {n} weitere Fahrt',
+  'and {n} more rides': 'und {n} weitere Fahrten',
   'Passes, summits and trails of every sport.': 'Pässe, Gipfel und Trails aus allen Sportarten.',
   'Hm climbed in {year}': 'Hm geklettert {year}',
   '{n} suggestion from your rides': '{n} Vorschlag aus deinen Fahrten',

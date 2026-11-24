@@ -112,4 +112,20 @@ describe('finding places on a ride', () => {
     expect(K.mergeSuggestions(generic, found).map((x) => x.ref)).toEqual(['act:a1', 'act:a2']);
     expect(K.mergeSuggestions(generic, found)[0].cat).toBe('pass:testpass');
   });
+
+  it('groups the rides over the same place into one row, newest first, and leaves the unnamed tops alone', () => {
+    const list = [
+      { ref: 'act:a3', day: '2026-07-12', ele: 870, name: 'Testhügel', cat: 'peak:testhuegel', match: null, hm: 300 },
+      { ref: 'act:a2', day: '2026-07-10', ele: 2300, name: 'Testpass', cat: 'pass:testpass', match: null },
+      { ref: 'act:a1', day: '2026-07-09', ele: 870, name: 'Testhügel', cat: 'peak:testhuegel', match: null, hm: 280 },
+      { ref: 'act:a0', day: '2026-07-08', ele: 1800, name: '' },
+      { ref: 'act:a9', day: '2026-07-01', ele: 870, name: 'Testhügel', cat: 'peak:testhuegel', match: 'gbp_1' },
+    ];
+    const g = K.groupFound(list);
+    expect(g.map((x) => x.ref)).toEqual(['act:a3', 'act:a2', 'act:a0', 'act:a9']);
+    expect(g[0].more).toEqual([{ ref: 'act:a1', day: '2026-07-09', hm: 280 }]);
+    expect(g[1].more).toEqual([]);
+    expect(g[2].more).toBeUndefined();
+    expect(g[3].more).toEqual([]); // another match: its own row
+  });
 });

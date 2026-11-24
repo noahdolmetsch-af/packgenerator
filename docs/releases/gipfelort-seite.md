@@ -39,4 +39,5 @@ Alle vier Verbesserungen kommen in diesen einen Gipfelbuch-PR (`docs/decisions/g
 - Ort-Seite: Kopfbild, Kacheln, Besuche als Zeitleiste, «Notiz · Foto · Wetter» als leise Zeile, «⋯» für «Besuch entfernen».
 - Karte: startet «Um dich», grosse Punkte, pro Ort «Touren ›» und ein runder Haken «Ich war da».
 - Was rutscht tiefer: «Gefunden in deinen Fahrten» ist eine Zeile mit «Ansehen» (bei leerem Buch offen); die Meilenstein-Karte ist eine schmale Zeile unter der Liste; die Sammlungen sind eine eigene Ansicht; «Besuch entfernen» steht hinter «⋯».
+- Mit den echten Daten von Noah (257 Vorschläge, ein Hügel auf 34 Fahrten) gesehen: Fahrten über denselben Ort des Katalogs sind jetzt eine Zeile («und 33 weitere Fahrten»); «Ins Gipfelbuch», «Nochmal bei …» und «Nicht dort» gelten für alle diese Fahrten auf einmal (`groupFound` in `src/lib/gipfelkatalog.js`). Kaputte Strava-Fotos werden auf der Ort-Seite ausgeblendet.
 - Selbst entschieden: Die Erklärsätze in den Sammlungen bleiben (nur in der eigenen Ansicht); der Höhenbalken misst gegen 4000 m; die Silhouette der Ort-Seite ist ein Bild aus der App (später das erste eigene Foto).

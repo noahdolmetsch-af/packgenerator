@@ -173,3 +173,28 @@ export function mergeSuggestions(generic, found) {
   const rest = generic.filter((g) => !(byRef.get(g.ref) ?? []).some((f) => Math.abs((f.ele ?? 0) - (g.ele ?? 0)) <= 150));
   return [...found, ...rest].sort((a, b) => b.day.localeCompare(a.day) || (b.cat ? 1 : 0) - (a.cat ? 1 : 0));
 }
+
+/**
+ * One row per place of the catalogue (real data: one hill near home is on dozens of rides): the newest ride stays the row,
+ * the others of the same place and the same match are in `more` ([{ ref, day, hm }], newest first). Highest points
+ * without a name stay as they are. The list keeps its order (newest first).
+ */
+export function groupFound(list) {
+  const first = new Map();
+  const out = [];
+  for (const s of list) {
+    if (!s.cat) {
+      out.push(s);
+      continue;
+    }
+    const k = `${s.cat}|${s.match ?? ''}`;
+    const g = first.get(k);
+    if (g) g.more.push({ ref: s.ref, day: s.day, hm: s.hm ?? null });
+    else {
+      const row = { ...s, more: [] };
+      first.set(k, row);
+      out.push(row);
+    }
+  }
+  return out;
+}
