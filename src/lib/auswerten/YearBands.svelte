@@ -58,7 +58,7 @@
     position: absolute;
     top: 3px;
     height: 10px;
-    border-radius: 5px;
+    border-radius: var(--r-1);
   }
   .lt {
     background: var(--accent-soft);

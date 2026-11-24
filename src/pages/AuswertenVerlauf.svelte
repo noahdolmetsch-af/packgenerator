@@ -230,14 +230,14 @@
   .trk {
     grid-area: trk;
     height: 10px;
-    border-radius: 5px;
+    border-radius: var(--r-1);
     background: var(--paper-2);
     overflow: hidden;
   }
   .trk b {
     display: block;
     height: 100%;
-    border-radius: 5px;
+    border-radius: var(--r-1);
     background: color-mix(in srgb, var(--accent) 55%, var(--accent-soft));
   }
   .v {
