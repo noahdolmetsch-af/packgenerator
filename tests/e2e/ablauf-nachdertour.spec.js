@@ -77,9 +77,9 @@ test('Ablauf Erster Start: the first bike, then the bike page leads on to step 2
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await open(page, context);
-  const first = page.getByRole('region', { name: T('First steps') });
+  const first = page.getByRole('region', { name: T('Start here') });
   await expect(first).toBeVisible();
-  await first.getByRole('link', { name: T('Add your bike') }).click();
+  await first.getByRole('link', { name: T('Add your first bike') }).click();
   await expect(page).toHaveURL(/#\/bikes/);
   // the link may open the bike window right away; otherwise the empty page offers «Velo hinzufügen»
   const bike = page.getByRole('dialog').filter({ has: page.getByRole('button', { name: T('Add|bike') }) });

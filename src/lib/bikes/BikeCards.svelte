@@ -89,7 +89,7 @@
         {/if}
         <div class="acts">
           <a class="btn sm" href={bikesHash({ tab: 'care', bike: c.bike.id, open: true })}>{t('Open care')}</a>
-          <button type="button" class="btn sm hi" onclick={() => (dialog = { kind: 'visit', bikeId: c.bike.id })} data-card-visit>{t('Log a workshop visit')}</button>
+          <button type="button" class="btn sm" onclick={() => (dialog = { kind: 'visit', bikeId: c.bike.id })} data-card-visit>{t('Log a workshop visit')}</button>
           <button type="button" class="btn sm" onclick={() => (dialog = { kind: 'problem', bikeId: c.bike.id })} data-card-problem>{t('Log a problem')}</button>
           <button type="button" class="btn sm" onclick={() => showDetails(c.bike.id)} data-card-details>{t('Show details')}</button>
         </div>

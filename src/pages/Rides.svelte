@@ -521,7 +521,7 @@
     offerRename(name, () => db.rides.update(id, { name: was }));
   }
   async function remove() {
-    if ((await askDelete({ title: t('Delete this ride?'), text: t('Learnings you kept stay. You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete this ride?'), text: t('Learnings you kept stay. You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     const now = new Date().toISOString();
     const name = ride.name || ride.date || t('Ride');
     const ok = await deleteWithUndo({

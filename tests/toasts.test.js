@@ -34,9 +34,35 @@ describe('notes with Undo', () => {
       vi.advanceTimersByTime(1000);
     }
     expect(toasts.list.map((x) => x.text)).toEqual(['«2» deleted.', '«3» deleted.', '«4» deleted.']);
-    vi.advanceTimersByTime(UNDO_MS - 3000); // «2» was offered at 1 s, its 4 s end now
+    vi.advanceTimersByTime(UNDO_MS - 3000); // «2» was offered at 1 s, its time (UNDO_MS) ends now
     expect(toasts.list.map((x) => x.text)).toEqual(['«3» deleted.', '«4» deleted.']);
     vi.advanceTimersByTime(3000);
+    expect(toasts.list).toEqual([]);
+  });
+});
+
+describe('«Rückgängig» time', () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => {
+    for (const x of [...toasts.list]) closeToast(x.id);
+    vi.useRealTimers();
+  });
+
+  it('is 8 seconds', () => {
+    expect(UNDO_MS).toBe(8000);
+  });
+
+  it('stands still while the note is held and goes on with the rest', async () => {
+    const { pauseToast, resumeToast } = await import('../src/lib/ui/rename.svelte.js');
+    const id = offerDone('«A» deleted.', async () => {});
+    vi.advanceTimersByTime(3000);
+    pauseToast(id);
+    vi.advanceTimersByTime(60000);
+    expect(toasts.list.length).toBe(1);
+    resumeToast(id);
+    vi.advanceTimersByTime(UNDO_MS - 3000 - 1);
+    expect(toasts.list.length).toBe(1);
+    vi.advanceTimersByTime(2);
     expect(toasts.list).toEqual([]);
   });
 });

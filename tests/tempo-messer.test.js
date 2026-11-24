@@ -22,8 +22,9 @@ describe('Tempo-Messer', () => {
     expect(topPages(l)[0]).toEqual({ page: '#/', n: 2 });
   });
   it('writes one line with numbers only', () => {
-    const line = reportLine({ firstPaint: 1800, startBlocked: 600, frames: { n: 100, over50: 4, worst: 143 }, files: [{ file: 'start.js', ms: 130 }], pages: [{ page: '#/', n: 2 }], counts: { items: 700 }, cores: 8 });
-    expect(line).toContain('Start: 1.8 s');
+    const line = reportLine({ firstPaint: 200, content: 1800, startBlocked: 600, frames: { n: 100, over50: 4, worst: 143 }, files: [{ file: 'start.js', ms: 130 }], pages: [{ page: '#/', n: 2 }], counts: { items: 700 }, cores: 8 });
+    expect(line).toContain('Start: 0.2 s');
+    expect(line).toContain('Content shown: 1.8 s');
     expect(line).toContain('4 over 50 ms');
     expect(line).toContain('start.js 130 ms');
     expect(line).toContain('items 700');

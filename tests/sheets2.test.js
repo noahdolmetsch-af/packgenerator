@@ -213,7 +213,7 @@ describe('the Repair kit (W4 a, W5 a)', () => {
     lang.v = 'de';
     const k = repairKit(xc({ sheets: { kit: { ticks: { day: { multitool: true } } } } }), { items, tyres: tubeless, type: 'day' });
     const text = kitText(xc(), k);
-    expect(text).toContain('Repair-Kit');
+    expect(text).toContain('Reparaturset');
     expect(text).toContain('[x] Multitool: 150 g');
     expect(text).toContain('[ ] Reifenheber (2): fehlt im Material');
   });

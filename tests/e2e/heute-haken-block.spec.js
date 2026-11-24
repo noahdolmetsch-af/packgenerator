@@ -55,3 +55,11 @@ test('Heute: All opens the page, and Aktiv heute shows no tile twice', async ({ 
   await press(block.locator('[data-haken-all]'), info);
   await expect(page).toHaveURL(/#\/flow/);
 });
+
+test('Heute: n things to do under the greeting jumps to Up now', async ({ page, context }, info) => {
+  await open(page, context, info);
+  const jump = page.locator('[data-say-jump]');
+  await expect(jump).toBeVisible();
+  await press(jump, info);
+  await expect(page.locator('#imp-h')).toBeInViewport();
+});

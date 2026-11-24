@@ -13,7 +13,7 @@
   import SessionView from './hobby/SessionView.svelte';
   import StarWindow from './hobby/StarWindow.svelte';
   import { flowQuery } from './data.svelte.js';
-  import { ui, clockState, togglePause, openTimer, runUndo, closeToast, actName } from './ui.svelte.js';
+  import { ui, clockState, togglePause, openTimer, runUndo, closeToast, actName, pauseFlowToast, resumeFlowToast } from './ui.svelte.js';
   import { flowStates } from '../flow.js';
   import { remainingSec, isDone, clock } from '../flowtimer.js';
   import { localDay } from '../localday.js';
@@ -63,7 +63,7 @@
 
 {#if ui.toast}
   {#key ui.toast.id}
-    <div class="ftoast" role="status">
+    <div class="ftoast" role="status" onpointerenter={pauseFlowToast} onpointerleave={resumeFlowToast} onfocusin={pauseFlowToast} onfocusout={resumeFlowToast}>
       <Check size={18} aria-hidden="true" />
       <span>{ui.toast.text}{#if ui.toast.hint}<small class="fth" data-toast-hint>{almostLine(ui.toast.hint)}</small>{/if}</span>
       {#if ui.toast.undo}<button type="button" class="undo" onclick={runUndo}>{t('Undo')}</button>{/if}

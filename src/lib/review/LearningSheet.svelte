@@ -63,7 +63,7 @@
 
   const remove = once(async () => {
     const name = learning.rule;
-    if ((await askDelete({ title: t('Delete the learning "{name}"?', { name }), text: t('It is gone from Learned and from the packing hints. You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete the learning "{name}"?', { name }), text: t('It is gone from Learned and from the packing hints. You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     const ok = await deleteWithUndo({
       run: async () => {
         const rec = await db.learnings.get(learning.id);

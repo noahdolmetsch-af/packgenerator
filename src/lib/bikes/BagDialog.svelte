@@ -1,5 +1,5 @@
 <script>
-  import { askDelete, deleteWithUndo } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
+  import { askDelete, deleteWithUndo } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 8 s «Undo»
   import { closeKeep } from '../ui/keeptyped.js';
   import { backClose } from '../ui/backclose.js';
   import { offerRename } from '../ui/rename.svelte.js';
@@ -121,7 +121,7 @@
 
   async function remove() {
     const name = bag.name;
-    if ((await askDelete({ title: t('Delete the bag "{name}"?', { name }), text: t('It is taken off every bike. The gear item stays. You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete the bag "{name}"?', { name }), text: t('It is taken off every bike. The gear item stays. You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     const ok = await deleteWithUndo({
       run: () =>
         db.transaction('rw', db.containers, db.bikes, async () => {

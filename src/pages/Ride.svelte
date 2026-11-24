@@ -374,7 +374,7 @@
   // Impeccable Unterwegs 3: «Entfernen» sits in the «…» of each note. Paket C keeps the app-wide delete
   // question with 4 s «Rückgängig» of «Rückmeldungen» (Paket D) instead of an own toast.
   async function dropNote(n) {
-    if ((await askDelete({ title: t('Delete this note?'), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete this note?'), text: t('You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     const name = String(n.text ?? '').slice(0, 40);
     const tripId = trip.id;
     await deleteWithUndo({
@@ -863,7 +863,7 @@
                 <p>{t('Arrive about')} <b class="num">{st.arrive}</b> <small>{pace.mine ? t('without breaks, at your pace') : t('without breaks')}</small></p>
                 {#if pace.stops && st.hours}<p>{t('With your usual stops')} <b class="num">{addTime(st.start, st.hours * pace.stops)}</b></p>{/if}
               </div>
-              {#if prof}<div class="prof"><Profile points={prof.points} from={days > 1 ? prof.from : null} to={prof.to} label={days > 1 ? t('Elevation, stage {n} dark', { n: cur + 1 }) : t('Elevation')} /></div>
+              {#if prof}<div class="prof"><Profile detail points={prof.points} from={days > 1 ? prof.from : null} to={prof.to} label={days > 1 ? t('Elevation, stage {n} dark', { n: cur + 1 }) : t('Elevation')} /></div>
               {:else}<p class="tp-muted tp-small">{t('Load the GPX again in Pack to see the elevation profile.')}</p>{/if}
               {#if days > 1 && !nonstop}<p class="tp-muted tp-small">{prof ? t('The route is shared out evenly over {n} days (dark: this stage).', { n: days }) : t('The route is shared out evenly over {n} days.', { n: days })}</p>{/if}
             {:else}
