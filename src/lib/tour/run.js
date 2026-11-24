@@ -59,5 +59,6 @@ export async function startStaerken() {
   const [{ SAMPLE_ID, makeSample }, { putRace }, { RACES_KEY, racesOf }, { newTrip }, { t }] = await Promise.all([import('../race/sample.js'), import('../race/store.js'), import('../race/race.js'), import('../trips.js'), import('../i18n.svelte.js')]);
   const have = (await db.trips.get(SAMPLE_ID)) && racesOf((await db.settings.get(RACES_KEY))?.value)[SAMPLE_ID];
   if (!have) await makeSample({ db, newTrip, putRace, today: localDay(), title: t('Sample race 1000'), tr: t });
+  else await (await import('../race/samplebags.js')).putSampleBags({ db, today: localDay(), tr: t }); // a sample from before has no bag photos yet
   return startTour('staerken');
 }
