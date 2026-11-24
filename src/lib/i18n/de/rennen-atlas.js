@@ -2,7 +2,7 @@
 export default {
   'Races from your race list': 'Rennen aus der Rennliste',
   'Trips › Races › «Take races from your race list»: choose the JSON file of your own race list, tick the races, and each becomes a race with its day, days and the length the list knows.': 'Touren › Rennen › «Rennen aus deiner Rennliste übernehmen»: Wähl die JSON-Datei deiner eigenen Rennliste, kreuz die Rennen an, und jedes wird ein Rennen mit Tag, Tagen und der Länge, die die Liste kennt.',
-  'Open Trips › Races and tap «Take races from your race list».': 'Öffne Touren › Rennen und tippe auf «Rennen aus deiner Rennliste übernehmen».',
+  'Go to Trips › Races, then tap «Take races from your race list».': 'Geh zu Touren › Rennen und tippe auf «Rennen aus deiner Rennliste übernehmen».',
   'Choose the file of your race list and tick the races.': 'Wähl die Datei deiner Rennliste und kreuz die Rennen an.',
   'Tap «Create … races»; «Undo» takes them back.': 'Tippe «… Rennen anlegen»; «Rückgängig» nimmt sie zurück.',
   'Take races from your race list': 'Rennen aus deiner Rennliste übernehmen',

@@ -7,7 +7,7 @@ export default {
     { text: 'The race countdown: from 6 weeks before nothing changes on the bike, bags, lights and mounts; the bike service is 3 weeks before', go: 'f.racecheck' },
   ],
   test: [
-    'Open Trips › Races and tap «Take races from your race list».',
+    'Go to Trips › Races, then tap «Take races from your race list».',
     'Choose a file of your race list: the races are listed, the registered ones and your favourites are ticked.',
     'Tap «Create … races»: the races stand under «Coming races»; «Undo» takes them back.',
   ],
@@ -18,7 +18,7 @@ export default {
     'Trips › Races › «Take races from your race list»: choose the file, tick the races, and they become races with day and length': 'Touren › Rennen › «Rennen aus deiner Rennliste übernehmen»: Datei wählen, Rennen ankreuzen, und sie werden Rennen mit Tag und Länge',
     'Take races from your race list': 'Rennen aus deiner Rennliste übernehmen',
     'The race countdown: from 6 weeks before nothing changes on the bike, bags, lights and mounts; the bike service is 3 weeks before': 'Der Rennen-Countdown: ab 6 Wochen vorher ändert sich nichts mehr an Velo, Taschen, Licht und Halterungen; der Velo-Service ist 3 Wochen vorher',
-    'Open Trips › Races and tap «Take races from your race list».': 'Öffne Touren › Rennen und tippe auf «Rennen aus deiner Rennliste übernehmen».',
+    'Go to Trips › Races, then tap «Take races from your race list».': 'Geh zu Touren › Rennen und tippe auf «Rennen aus deiner Rennliste übernehmen».',
     'Choose a file of your race list: the races are listed, the registered ones and your favourites are ticked.': 'Wähl eine Datei deiner Rennliste: Die Rennen stehen in einer Liste, die angemeldeten und deine Favoriten sind angekreuzt.',
     'Tap «Create … races»: the races stand under «Coming races»; «Undo» takes them back.': 'Tippe auf «… Rennen anlegen»: Die Rennen stehen unter «Kommende»; «Rückgängig» nimmt sie zurück.',
   },
