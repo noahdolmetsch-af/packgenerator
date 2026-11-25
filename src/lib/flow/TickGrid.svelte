@@ -24,11 +24,16 @@
   import { tileSub } from './words.js';
   import { isMedAct } from './hobby/medstart.js';
   import { t } from '../i18n.svelte.js';
-  import { tickPop } from '../ui/rowout.js'; // «Bewegung» 4a: the tick of a tile that was just ticked pops once
+  import { tickPop, tickFlash } from '../ui/rowout.js'; // «Bewegung» 4a: the tick of a tile that was just ticked pops once
+  import { buzz } from '../bedienung.svelte.js'; // «Rückmeldung beim Tippen» (Noah 25.11.2026 «1a», «2a»): a short buzz and a soft ring when something gets ticked
   let { states = [], today, cols = 2, onmed = null, big = false, compact = false, help = false, medHelp = false, jump = false } = $props();
   const tap = async (s, el) => {
     if (onmed && isMedAct(s.act)) return onmed(s);
     const ticking = !s.todayDone;
+    if (ticking) {
+      buzz();
+      tickFlash(el);
+    }
     const e = await tapAct(s, today);
     if (ticking) requestAnimationFrame(() => tickPop(el?.querySelector?.('.ic')));
     // a new star keeps its own window and the message (nothing opens over a celebration); «almost a star» stays as the message's line
@@ -45,7 +50,7 @@
     <li>
       <button
         type="button"
-        class="tile {s.act.ring}"
+        class="tile tap-fx {s.act.ring}"
         class:done={s.todayDone}
         data-act={s.act.id}
         aria-pressed={s.todayDone}

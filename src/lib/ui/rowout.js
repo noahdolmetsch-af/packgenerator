@@ -4,6 +4,7 @@
  *   move up (use with `animate:flip` on the same keyed row). `out:rowOut` plays only when the list itself changes, not when the
  *   whole page goes.
  * - tickPop: the tick mark of what you just ticked grows a little and settles (one time, never on a page that opens with ticks).
+ * - tickFlash: the tile or row you tapped lights up once with a soft ring (Noah 25.11.2026 «2a»).
  * Both are still with «Bewegung: Aus» and with «reduce motion» (theme.svelte.js motionStill). The times are the tokens of app.css
  * (--t-fast, --t-base, --t-sheet); tests/bewegung.test.js keeps the two in step.
  */
@@ -22,6 +23,15 @@ export function rowOut(node, { duration = MOVE.base } = {}) {
 
 /** The `animate:flip` options for the rows that move up (200 ms, none when still). */
 export const flipOpts = () => ({ duration: motionStill() ? 0 : MOVE.base, easing: cubicOut });
+
+/** Let a tile or row light up once (Noah 25.11.2026 «2a»): a soft ring that fades, so a tap is seen on a computer too (no buzz there). Still with «Bewegung: Aus» and «reduce motion». */
+export function tickFlash(el) {
+  if (!el || motionStill()) return;
+  el.classList.remove('tick-flash');
+  void el.offsetWidth;
+  el.classList.add('tick-flash');
+  el.addEventListener('animationend', () => el.classList.remove('tick-flash'), { once: true });
+}
 
 /** Let the tick mark pop once: `el` is the box that now shows the tick. */
 export function tickPop(el) {

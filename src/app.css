@@ -1899,6 +1899,31 @@ html:root[data-contrast='high'][data-theme='dark'] {
     animation: tick-pop var(--t-base) var(--ease-out);
   }
 }
+/* «Rückmeldung beim Tippen» (Noah 25.11.2026 «2a»): a tile or row you tapped lights up once with a soft ring (rowout.js tickFlash), and
+   a tile, row or button that can be pressed shrinks a little while the finger is on it (.tap-fx, like .btn). Both are still with reduced
+   motion and with «Bewegung: Aus». */
+@keyframes tick-flash {
+  from {
+    box-shadow: 0 0 0 0px color-mix(in srgb, var(--ok) 55%, transparent);
+  }
+  to {
+    box-shadow: 0 0 0 10px transparent;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tick-flash {
+    animation: tick-flash var(--t-sheet) var(--ease-out);
+  }
+  .tap-fx {
+    transition: transform 120ms var(--ease-out);
+  }
+  .tap-fx:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+  html[data-motion='off'] .tap-fx:active:not(:disabled) {
+    transform: none;
+  }
+}
 
 /* Icons (Noah 24.11.2026 «5a»): sizes 14 / 16 / 20 / 24, stroke 2. An icon that stands in a line of text (instead of a ✓ ★ ✕ glyph)
    sits on the baseline like a letter and never shrinks. */

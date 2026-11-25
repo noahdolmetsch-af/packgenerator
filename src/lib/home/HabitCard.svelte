@@ -17,6 +17,8 @@
   import { itemName } from '../routine-words.js';
   import { lastSeven } from './habits.js';
   import { t, tn } from '../i18n.svelte.js';
+  import { buzz } from '../bedienung.svelte.js';
+  import { tickFlash } from '../ui/rowout.js';
 
   /** kind 'act': st = the state of the activity, log = Aktiv's log; kind 'routine': item, routine, auto */
   let { kind, today, st = null, log = [], item = null, routine = null, auto = {}, onpick = null } = $props();
@@ -34,9 +36,13 @@
   const href = $derived(isAct ? `#/flow/act/${encodeURIComponent(id ?? '')}` : '#/routine');
 
   let busy = false;
-  async function tickIt() {
+  async function tickIt(ev) {
     if (busy) return;
     busy = true;
+    if (!doneToday) {
+      buzz(); // «Rückmeldung beim Tippen» (Noah 25.11.2026 «1a», «2a»)
+      tickFlash(ev?.currentTarget?.closest?.('.mc'));
+    }
     try {
       if (isAct) await tapAct(st, today);
       else await saveRoutine(toggleTick(await readRoutine(), id, today));

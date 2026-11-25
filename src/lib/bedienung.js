@@ -4,7 +4,7 @@
  * mandatory.
  * - speak: the microphone button in note fields (FE10), on by default
  * - keys: keyboard shortcuts on a computer (FE6), on by default
- * - buzz: a short vibration when ticking off while packing (FE7), on by default
+ * - buzz: a short vibration when ticking off (FE7; since Noah 25.11.2026 «1a»: packing, «Tick off today», habits, to-dos, the challenge; «4a»: a longer double buzz for a finished moment), on by default
  * - quiet: night quiet on Today, 22–06 no tips (FE8), on by default
  * - search: the search offers go-to actions too (FE17), on by default
  * - path: the path line above every page (Noah 28.10.2026 «1a»), on by default
@@ -23,7 +23,7 @@
 export const OPS = [
   { key: 'speak', name: 'Speak instead of type', text: 'A microphone in note fields, where the browser can turn speech into text.', on: true },
   { key: 'keys', name: 'Keyboard shortcuts', text: 'On a computer: N new, / search, ? the list.', on: true },
-  { key: 'buzz', name: 'Short vibration when ticking', text: 'A short buzz when you tick off an item while packing, where the phone can.', on: true },
+  { key: 'buzz', name: 'Short vibration when ticking', text: 'A short buzz when you tick something off (packing, «Tick off today», to-dos, challenge), and a longer double buzz for a finished moment (new star, debrief, bike service), where the phone can.', on: true },
   { key: 'quiet', name: 'Night quiet', text: 'From 22:00 to 06:00 Today shows no tips.', on: true },
   { key: 'search', name: 'Search can act', text: 'The search also offers backup, settings, a quick note or a bike.', on: true },
   { key: 'path', name: 'Show the path on every page', text: 'A quiet line above the title, for example Plan › Week, so you see where you are. Pages with their own path keep it.', on: true },
@@ -49,6 +49,9 @@ export function opOf(key, stored, nav = typeof navigator !== 'undefined' ? navig
   if (key === 'improve' && nav?.webdriver) return false; // browser tests start without the floating button (as firststart.js)
   return !!OPS.find((o) => o.key === key)?.on;
 }
+
+/** The longer double buzz of a finished moment (Noah 25.11.2026 «4a»): a new star, a saved debrief, a done challenge day, a bike service. */
+export const DONE_PATTERN = [35, 70, 55];
 
 /** Vibrate shortly where the device can (FE7); never throws. */
 export function buzzNow(nav = typeof navigator !== 'undefined' ? navigator : null, ms = 15) {

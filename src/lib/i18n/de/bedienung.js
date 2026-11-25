@@ -9,7 +9,7 @@ export default {
   'A microphone in note fields, where the browser can turn speech into text.': 'Ein Mikrofon in Notizfeldern, wo der Browser Sprache in Text umwandeln kann.',
   'On a computer: N new, / search, ? the list.': 'Am Computer: N neu, / suchen, ? die Liste.',
   'Short vibration when ticking': 'Kurzes Vibrieren beim Abhaken',
-  'A short buzz when you tick off an item while packing, where the phone can.': 'Ein kurzes Summen, wenn du beim Packen etwas abhakst, wo das Handy es kann.',
+  'A short buzz when you tick something off (packing, «Tick off today», to-dos, challenge), and a longer double buzz for a finished moment (new star, debrief, bike service), where the phone can.': 'Ein kurzes Summen, wenn du etwas abhakst (Packen, «Heute abhaken», To-dos, Challenge), und ein längeres Doppel-Summen bei einem Fertig-Moment (neuer Stern, Debrief, Velo-Service), wo das Handy es kann.',
   'Night quiet': 'Nachtruhe',
   'From 22:00 to 06:00 Today shows no tips.': 'Von 22 bis 6 Uhr zeigt Heute keine Tipps.',
   'Show the path on every page': 'Pfad auf jeder Seite zeigen',
