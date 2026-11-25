@@ -163,16 +163,10 @@ export async function liteTable(db) {
   if (!db?.activitiesLite) return db.activities;
   const s = stateOf(db);
   // Dexie.Promise, not the plain promise of startLite: a liveQuery loses track of the tables it reads when it awaits a promise that
-  // began outside of it (the card would never see a later save)
+  // began outside of it (the card would never see a later save). No count of the two tables here: a count of `activities` reads the
+  // whole 36 MB store and cost seconds when a page asks twenty times (measured); the counts are checked once, at the start (startLite).
   await Dexie.Promise.resolve(startLite(db));
-  if (!s.ready) return db.activities;
-  // one cheap count of each table (no rows are read): a row that came into `activities` past the app (an older tab, a test writing straight
-  // into IndexedDB) shows as a different count; then the full table answers and the summary is made again
-  const [a, b] = await Dexie.Promise.all([db.activities.count(), db.activitiesLite.count()]).catch(() => [0, -1]);
-  if (a === b) return db.activitiesLite;
-  s.ready = false;
-  setTimeout(() => buildLite(db).catch(() => {}), 1000);
-  return db.activities;
+  return s.ready ? db.activitiesLite : db.activities;
 }
 
 /** `fn(table)` on the table a list should read: db.activitiesLite when ready, else db.activities (a one-line reader). */
