@@ -14,6 +14,7 @@
   import { X, LayoutGrid, ArrowUpDown, Calendar, Clock, NotebookPen, BookOpen, Inbox, Mail, Compass, ShoppingBasket, Sun, Lightbulb, Link2, Map as MapIcon, Copy, History, Star, Mountain, Wrench, Backpack, Shirt, Boxes, ShoppingCart, Package, Hand, Bike, Store, Ruler, Layers, Flower2, Dumbbell, Route, Target, Trophy, Sparkles, ChartLine, Smile, Heart, Scale, Circle } from '@lucide/svelte';
   import { tabInfo } from './tabinfo.js';
   import InfoDot from './InfoDot.svelte';
+  import { ops } from '../bedienung.svelte.js';
   import { infoOfTab } from './spotinfo.js';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
@@ -81,7 +82,7 @@
   const curTab = $derived(tabs.find((x) => x.key === cur));
   const curName = $derived(curTab ? tabLabel(place, curTab) : '');
   // «Navigation schlank» (Noah 24.11.2026 «was ja»): the «i» of the tab stands at the end of the chips, not on a row of its own (PathLine.svelte)
-  const tabHelp = $derived(infoOfTab(place, cur));
+  const tabHelp = $derived(ops.path ? infoOfTab(place, cur) : null);
 
   /** Bikes: the chosen bike stays chosen in the other tab (#/bikes?tab=care&bike=<id>). */
   function hrefOf(x, h = hash) {
