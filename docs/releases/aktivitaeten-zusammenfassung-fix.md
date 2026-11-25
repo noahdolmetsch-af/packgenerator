@@ -1,6 +1,6 @@
 # Heute und die Touren öffnen wieder schnell (Aktivitäten-Zusammenfassung, Korrektur)
 
-PR #NNNN · 25.11.2026 · Auftrag: Noah «a» vom 25.11.2026 (Thread «App doppelt so schnell machen»), Folge von Teil 2 (PR #1760, online)
+PR #1768 · 25.11.2026 · Auftrag: Noah «a» vom 25.11.2026 (Thread «App doppelt so schnell machen»), Folge von Teil 2 (PR #1760, online)
 
 ## Was ist neu
 - **Gefunden bei der Abschlussmessung** mit Noahs Backup (Handy, 4× gebremst, echter Build): nach Teil 2 stand der Inhalt von Heute erst nach 9–11 s (vorher 2–4 s), Touren öffnete in 5.2 s (vorher 1.2 s), die Blockierzeit beim Start war 3–3.5 s statt 0.6–0.9 s.
