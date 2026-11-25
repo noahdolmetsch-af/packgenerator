@@ -310,6 +310,10 @@
     { key: 'daysports', label: 'Sport per day', sel: '[data-prep-sports]' },
     { key: 'unclear', label: 'Unclear spots', sel: '[data-prep-unclear]' },
     { key: 'border', label: 'Crossing a border', sel: '[data-prep-border]' },
+    // Tour-Seite: Hauptsache zuerst (Noah 24.11.2026 «1-5a»): the power line and the guess of the effort sit under the packing list now,
+    // so they get a jump mark in the window «All n» (by their catalogue names)
+    { key: 'power', label: 'Power budget', sel: '[data-power-line]', page: true },
+    { key: 'expect', label: 'How hard will it be?', sel: '[data-expect]', page: true },
   ];
   let extraHere = $state([]);
   $effect(() => {

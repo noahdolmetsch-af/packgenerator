@@ -6,6 +6,7 @@ Ein Wackler ist ein Test, der ohne Änderung an der App mal grün und mal rot is
 
 | Test (Datei:Zeile) | Gerät | Gesehen | Ursache | Fix | Stand |
 |---|---|---|---|---|---|
+| pack-schritte.spec.js:7 (Schritte, gemerkte Reihenfolge) | Handy | 25.11. (PR 1776) | Neuladen, bevor die mit dem Pfeil verschobene Reihenfolge in den Einstellungen gespeichert war (`pack.steps.order`); das Warten fehlte, bei den Einstellungen weiter unten im Test war es da | #1776 | beobachten |
 | tote-knoepfe.spec.js:28 | Handy | 24.11. | Netz aus, bevor die nachgeladene Seite «Hinweise» da war | #1731 | stabil |
 | rueckblick-design.spec.js (Knöpfe 44 px) | Computer | 24.11. | kleine Knöpfe (`.btn.sm`) sind mit Maus 32 px, 44 nur bei Touch | #1727 | stabil |
 | wochenrueckblick-mehr.spec.js (Notiz/Ziel) | beide | 24.11. | Neuladen vor dem fertigen Speichern | #1727 | stabil |

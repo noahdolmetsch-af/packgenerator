@@ -22,6 +22,9 @@ PR #1776 · 24.11.2026 · Auftrag: Noah 24.11.2026 07:37 UTC «1-5a» (impeccabl
 - Das Kürzel «Tour · in 5 Tagen · Standard» über dem Titel bleibt (eine kleine Zeile).
 - Die Falte «Gewicht · Basisgewicht» unter der Liste bleibt vorerst; sie in die Karte «Gewicht» zu legen (Fund 4) ist ein eigener Schritt, damit dieser PR klein bleibt.
 - Der Wächter prüft «Packliste vor 1200 px» am Handy: die Karte «Gehört zu» über dem Titel (Paket 12) ist noch offen; sobald sie eine geschlossene Zeile ist, gilt das Ziel 700 px.
+- «Strom» und «Wie anstrengend wird es?» (jetzt unter der Liste) bekommen eine Sprungmarke im Fenster «Alle n ›», damit sie mit einem Tipp erreichbar bleiben.
+- Der Wächter `tests/e2e/heimat.spec.js` («jede Funktion ist auf ihrer Heimatseite sichtbar») öffnet zusätzlich das Fenster «Auf dieser Seite» von «Alle n ›», wie er schon das «?»-Fenster öffnet; die Liste der Ausnahmen (`GAPS`) bleibt unverändert.
+- `tests/e2e/pack-schritte.spec.js` wartet vor dem Neuladen, bis die verschobene Reihenfolge gespeichert ist (Wackler, in `docs/wackelliste.md`).
 - Mit PR 1514 (Packen in Schritten): beide ändern `CalmPack.svelte`; wer später kommt, löst die Konflikte.
 
 ## Entscheide (eigene Datei `docs/decisions/tour-seite-zuerst.md`)
