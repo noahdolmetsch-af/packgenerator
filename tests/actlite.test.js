@@ -148,8 +148,18 @@ describe('building and reading', () => {
     const stub = { activities: { name: 'activities' } };
     expect(await liteTable(stub)).toBe(stub.activities);
   });
-  it('startLite on a fresh database is ready at once (nothing to build)', async () => {
-    expect(await startLite(db, { delay: 1e9 })).toBe(false); // no marker yet: not ready, builds later
+  it('startLite on a fresh database is ready at once: nothing to build, nothing written', async () => {
+    expect(await startLite(db, { delay: 1e9 })).toBe(true);
+    expect(await db.meta.get(LITE_KEY)).toBeUndefined(); // no write that could redraw a page
+    // from then on a save keeps both in step
+    await db.activities.put(act(1));
+    expect(await db.activitiesLite.count()).toBe(1);
+    expect(await liteTable(db)).toBe(db.activitiesLite);
+  });
+  it('startLite with activities and no marker is not ready (it builds later), with the marker it is', async () => {
+    await db.activities.bulkPut([act(1), act(2)]);
+    await db.activitiesLite.clear();
+    expect(await startLite(db, { delay: 1e9 })).toBe(false);
     await buildLite(db, { breath: async () => {} });
     resetLite(db);
     expect(await startLite(db, { delay: 1e9 })).toBe(true);

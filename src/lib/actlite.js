@@ -100,9 +100,11 @@ const stateOf = (db) => {
 
 /** Is the summary complete? Built once (marker) and the same number of rows as `activities`. */
 export async function checkLite(db) {
+  const [a, b] = await Promise.all([db.activities.count(), db.table(LITE).count()]);
+  // no activities and an empty summary (a new app, a test): both are the same by definition, nothing to build and nothing to write
+  if (a === 0 && b === 0) return true;
   const mark = await db.meta.get(LITE_KEY);
   if (mark?.v !== LITE_V) return false;
-  const [a, b] = await Promise.all([db.activities.count(), db.table(LITE).count()]);
   return a === b;
 }
 
