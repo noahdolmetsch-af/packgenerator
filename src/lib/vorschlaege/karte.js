@@ -30,10 +30,43 @@ export const ZURICH = toXY([47.3779, 8.5403]);
 /** Tours per canton: { zh: 2, … }. */
 export const countBy = (tours = []) => tours.reduce((a, t) => ({ ...a, [t.region]: (a[t.region] ?? 0) + 1 }), {});
 
-/** The drawing sizes (frame units) for a map shown k times the frame size: dots, lines and text stay readable. */
+/**
+ * The drawing sizes (frame units) for a map shown k times the frame size. Dots, lines and text keep the same size on the screen,
+ * whether the whole country or one canton fills the map (Noah 25.11.2026 «die Punkte sind viel zu gross, gerade auf dem Handy»):
+ * a dot is about 3 px wide in radius, so that 600 starts still can be told apart on a phone.
+ */
 export function sizes(k) {
-  const s = Math.max(0.2, Math.min(1, k || 1));
-  return { dot: Math.max(5, 7 / s), line: Math.max(2, 1.6 / s), font: Math.max(13, 12 / s), pad: Math.max(14, 16 / s) };
+  const s = Math.max(0.2, Math.min(4, k || 1));
+  return { dot: 3.2 / s, hit: 8 / s, line: 1.4 / s, font: 12.5 / s, pad: 16 / s };
+}
+
+/**
+ * The part of the frame to show when cantons are chosen (Noah 25.11.2026): the box around their outlines with some room, in the
+ * shape of the frame (so the map keeps its height). No canton chosen, or none with an outline: the whole frame.
+ * paths: { key: 'M x y L x y …' }. Returns { x, y, w, h } in frame units.
+ */
+export function viewOf(paths, keys = [], frame = { w: FRAME.w, h: FRAME.h }, pad = 28) {
+  const whole = { x: 0, y: 0, w: frame.w, h: frame.h };
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const k of keys) {
+    const nums = (paths?.[k] ?? '').match(/-?\d+(?:\.\d+)?/g);
+    if (!nums) continue;
+    for (let i = 0; i + 1 < nums.length; i += 2) {
+      const x = +nums[i], y = +nums[i + 1];
+      x0 = Math.min(x0, x); x1 = Math.max(x1, x);
+      y0 = Math.min(y0, y); y1 = Math.max(y1, y);
+    }
+  }
+  if (!Number.isFinite(x0)) return whole;
+  let w = x1 - x0 + pad * 2, h = y1 - y0 + pad * 2;
+  const ratio = frame.w / frame.h;
+  if (w / h < ratio) w = h * ratio;
+  else h = w / ratio;
+  w = Math.min(w, frame.w);
+  h = Math.min(h, frame.h);
+  const x = Math.max(0, Math.min(frame.w - w, (x0 + x1) / 2 - w / 2));
+  const y = Math.max(0, Math.min(frame.h - h, (y0 + y1) / 2 - h / 2));
+  return { x, y, w, h };
 }
 
 /** The size of the hover card (px): the card is as wide as this at most and about this high. */
