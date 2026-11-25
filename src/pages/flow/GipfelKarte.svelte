@@ -135,7 +135,7 @@
         <a class="go" href="#/flow/gipfelbuch/{encodeURIComponent(r.place.id)}">{t('Open the page of this place')}</a>
       {:else}
         <button type="button" class="go" disabled={busy === r.id} onclick={() => askTours(r)} data-gk-tours aria-label={t('Tours toward it')}>{t('Tours')} ›</button>
-        <button type="button" class="tick" onclick={() => wasThere(r)} data-gk-there aria-label={t('I was there')} title={t('I was there')}><Check size={18} aria-hidden="true" /></button>
+        <button type="button" class="tick" onclick={() => wasThere(r)} data-gk-there aria-label={t('I was there')} title={t('I was there')}><Check size={20} aria-hidden="true" /></button>
       {/if}
     </div>
     {#if tours[r.id]}
@@ -264,7 +264,7 @@
     min-height: 44px;
     padding: 6px 14px;
     border: 1px solid var(--line-strong);
-    border-radius: 99px;
+    border-radius: var(--r-pill);
     background: var(--paper);
     color: var(--ink);
     font: 500 var(--fs-small) / 1.3 var(--font-body);
@@ -312,7 +312,7 @@
     gap: 6px;
     padding: 4px 10px;
     border: 1px solid var(--line);
-    border-radius: 99px;
+    border-radius: var(--r-pill);
     background: var(--paper);
     color: var(--ink-2);
   }
@@ -320,7 +320,7 @@
     display: inline-block;
     width: 12px;
     height: 12px;
-    border-radius: 99px;
+    border-radius: var(--r-pill);
     box-sizing: border-box;
   }
   .k.have {
@@ -405,7 +405,7 @@
     width: 44px;
     height: 44px;
     border: 1px solid var(--line-strong);
-    border-radius: 99px;
+    border-radius: var(--r-pill);
     background: var(--paper);
     color: var(--ink-2);
     cursor: pointer;

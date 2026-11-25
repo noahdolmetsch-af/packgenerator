@@ -256,7 +256,7 @@
         <p class="sub">{t('Lists to collect. The book only counts how many you have, there is no goal.')} <a href="#/flow/gipfelbuch/karte" data-gb-map>{t('See them on the map')}</a></p>
         {#each colls as c (c.id)}
           <details class="cl" data-gb-coll={c.id}>
-            <summary><span class="cn"><b>{c.own ? c.name : t(c.name)}</b>{#if c.total}<span class="hb" aria-hidden="true"><i style:width="{(c.have / c.total) * 100}%"></i></span>{/if}</span><small class="num">{t('{have} of {total}', { have: c.have, total: c.total })}</small><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+            <summary><span class="cn"><b>{c.own ? c.name : t(c.name)}</b>{#if c.total}<span class="hb" aria-hidden="true"><i style:width="{(c.have / c.total) * 100}%"></i></span>{/if}</span><small class="num">{t('{have} of {total}', { have: c.have, total: c.total })}</small><ChevronRight class="chev" size={20} aria-hidden="true" /></summary>
             {#if c.hint}<p class="sub pad">{t(c.hint)}</p>{/if}
             {#if !c.total}<p class="sub pad">{t('No places in this list yet. Tap «Change list» to add some.')}</p>{/if}
             <ul class="cli">
@@ -264,7 +264,7 @@
                 <li>
                   {#if r.place}<a class="have" href="#/flow/gipfelbuch/{encodeURIComponent(r.place.id)}"><Star size={14} aria-hidden="true" />{r.it.name}</a>{:else}<span class="miss">{r.it.name}</span>{/if}
                   {#if r.it.m}<small class="num">{m(r.it.m)}</small>{/if}
-                  {#if !r.place}<button type="button" class="tick" onclick={() => wasThere(r.it)} data-gb-there aria-label={t('I was there')} title={t('I was there')}><Check size={18} aria-hidden="true" /></button>{/if}
+                  {#if !r.place}<button type="button" class="tick" onclick={() => wasThere(r.it)} data-gb-there aria-label={t('I was there')} title={t('I was there')}><Check size={20} aria-hidden="true" /></button>{/if}
                 </li>
               {/each}
             </ul>
@@ -343,7 +343,7 @@
     min-height: 44px;
     padding: 6px 14px;
     border: 1px solid var(--line-strong);
-    border-radius: 99px;
+    border-radius: var(--r-pill);
     background: var(--paper);
     color: var(--ink);
     font: 500 var(--fs-small) / 1.3 var(--font-body);
@@ -401,7 +401,7 @@
     flex: none;
     width: 8px;
     height: 8px;
-    border-radius: 99px;
+    border-radius: var(--r-pill);
     background: var(--warn);
   }
   .line span {
@@ -436,7 +436,7 @@
     width: 8px;
     height: 8px;
     margin-left: 8px;
-    border-radius: 99px;
+    border-radius: var(--r-pill);
     background: var(--accent);
     vertical-align: 1px;
   }
@@ -453,7 +453,7 @@
     height: 44px;
     margin-left: auto;
     border: 1px solid var(--line-strong);
-    border-radius: 99px;
+    border-radius: var(--r-pill);
     background: var(--paper);
     color: var(--ink-2);
     cursor: pointer;
@@ -527,7 +527,7 @@
     place-items: center;
     width: 34px;
     height: 34px;
-    border-radius: 9px;
+    border-radius: var(--r-2);
     background: var(--paper-2);
     color: var(--ink-2);
   }
@@ -624,7 +624,7 @@
     display: inline-block;
     margin-left: 6px;
     padding: 1px 8px;
-    border-radius: 99px;
+    border-radius: var(--r-pill);
     font: 500 var(--fs-label) / 1.5 var(--font-body);
     font-style: normal;
     white-space: nowrap;

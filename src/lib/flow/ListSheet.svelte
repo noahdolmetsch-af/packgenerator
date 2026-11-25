@@ -80,7 +80,7 @@
     height: 44px;
     margin: -6px -6px 0 0;
     border: 0;
-    border-radius: 10px;
+    border-radius: var(--r-ctl);
     background: none;
     color: var(--ink-2);
     cursor: pointer;

@@ -202,7 +202,7 @@
                 {#if canWx(v, f)}<button type="button" class="qa" disabled={busy === v.id} onclick={() => getWx(v)} data-gp-getwx title={t('Get the weather of that day')}><Sun size={16} aria-hidden="true" />{t('Weather')}</button>{/if}
                 {#if visits.length > 1}
                   <details class="more">
-                    <summary aria-label={t('More')}><Ellipsis size={18} aria-hidden="true" /></summary>
+                    <summary aria-label={t('More')}><Ellipsis size={20} aria-hidden="true" /></summary>
                     <button type="button" class="link" onclick={() => dropVisit(v)} data-gp-drop>{t('Remove this visit')}</button>
                   </details>
                 {/if}
@@ -275,7 +275,7 @@
   .ele {
     margin-top: var(--sp-2);
     padding: 2px 12px;
-    border-radius: 99px;
+    border-radius: var(--r-pill);
     background: var(--paper);
     font-weight: 600;
   }
@@ -364,7 +364,7 @@
     height: 12px;
     box-sizing: border-box;
     border: 2px solid var(--accent);
-    border-radius: 99px;
+    border-radius: var(--r-pill);
     background: var(--paper);
   }
   .vis li.first .pt {
@@ -418,7 +418,7 @@
     place-items: center;
     width: 44px;
     height: 44px;
-    border-radius: 99px;
+    border-radius: var(--r-pill);
     color: var(--ink-2);
     list-style: none;
     cursor: pointer;
@@ -457,7 +457,7 @@
     width: 28px;
     height: 28px;
     border: 1px solid var(--line-strong);
-    border-radius: 99px;
+    border-radius: var(--r-pill);
     background: var(--paper);
     color: var(--ink);
     cursor: pointer;
