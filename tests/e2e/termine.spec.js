@@ -369,6 +369,8 @@ test('Heute suggests the usual time of a regular customer with a message ready',
   await add.locator('input[type=time]').fill('17:00');
   await add.getByRole('button', { name: T('Open the time') }).click();
   await expect(add).toBeHidden();
+  // the window closes and steps its history entry back; wait for that before leaving (else the step back lands after the goto and undoes it)
+  await expect(page).toHaveURL(/#\/me\/offers\/tennis-[a-z0-9]+$/);
   await page.goto('./#/me/offers/customers');
   await page.getByRole('button', { name: T('Add a customer') }).first().click();
   await page.locator('#cu-name').fill('Mia Muster');
