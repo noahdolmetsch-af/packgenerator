@@ -20,6 +20,8 @@ PR (offen) · 24.11.2026 · Auftrag: Noah «1-7 alle, zuerst 1-4» (Thread «App
 - Fahrten-Buch, Gipfelbuch und Höhenprofil nehmen `Stat` mit ihren Besitzer-Threads (dort sind Umbauten offen).
 - Dunkelmodus und alle sieben Farbwelten: Kontrast der Bereichsfarben für jeden Bereich mit einem Skript geprüft, keine Stelle unter 4,5:1.
 
+- Der Wächter-Test «Packkarten» (`pack-karten.spec.js`) erlaubt zwischen Titel und Karten jetzt 560 statt 500 px: der komoot-Link steht in der Kopfzeile (am Handy eine Zeile mehr, etwa 50 px), dafür fällt die Chip-Zeile unter den Karten weg (46 px). Der Inhalt beginnt unverändert im ersten Bildschirm.
+
 ## Entscheide (eigene Datei `docs/decisions/schoener-2b.md`)
 - 24.11.2026: Icon-Leiter und Zahlenstil (Noah «5a», «1-7 alle»).
 
