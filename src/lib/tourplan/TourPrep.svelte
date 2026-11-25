@@ -104,7 +104,7 @@
 
   {#if multi}
     <details class="fold" data-prep-sports open={isOpen('sports')} ontoggle={toggle('sports')}>
-      <summary><Shuffle size={20} aria-hidden="true" /><span class="lab">{t('Sport per day')}</span><span class="r tp-small tp-muted">{sportsSet ? tn(sportsSet, '{n} day set', '{n} days set') : t('not set')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
+      <summary><Shuffle size={16} aria-hidden="true" /><span class="lab">{t('Sport per day')}</span><span class="r tp-small tp-muted">{sportsSet ? tn(sportsSet, '{n} day set', '{n} days set') : t('not set')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
       <div class="body">
         <p class="tp-small tp-muted">{t('Bike, hiking or a rest day: the packing list stays one list. Where the kind changes, the app shows what to think of.')}</p>
         <ul class="days">
@@ -134,7 +134,7 @@
   {/if}
 
   <details class="fold" data-prep-unclear open={isOpen('unclear')} ontoggle={toggle('unclear')}>
-    <summary><CircleHelp size={20} aria-hidden="true" /><span class="lab">{t('Unclear spots')}</span><span class="r tp-small" class:warn={openN > 0}>{unclear.length ? tn(openN, '{n} open', '{n} open') : t('none')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
+    <summary><CircleHelp size={16} aria-hidden="true" /><span class="lab">{t('Unclear spots')}</span><span class="r tp-small" class:warn={openN > 0}>{unclear.length ? tn(openN, '{n} open', '{n} open') : t('none')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
     <div class="body">
       <p class="tp-small tp-muted">{t('What do you still want to find out on the route? Note it with the km; «Clarified» ticks it off.')}</p>
       {#if unclear.length}
@@ -158,7 +158,7 @@
   </details>
 
   <details class="fold" data-prep-border open={isOpen('border')} ontoggle={toggle('border')}>
-    <summary><Flag size={20} aria-hidden="true" /><span class="lab">{t('Crossing a border')}</span><span class="r tp-small tp-muted">{border.length ? tn(borderN, '{n} open', '{n} open') : t('no country')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
+    <summary><Flag size={16} aria-hidden="true" /><span class="lab">{t('Crossing a border')}</span><span class="r tp-small tp-muted">{border.length ? tn(borderN, '{n} open', '{n} open') : t('no country')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
     <div class="body">
       <p class="tp-small tp-muted">{t('Per country your own points on documents, phone network and insurance. Note where you read it; the date is set when you tick it.')}</p>
       <div class="chips" role="group" aria-label={t('Countries')}>
