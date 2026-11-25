@@ -104,5 +104,4 @@ export default {
   'Tick off ›|evening': 'Abhaken ›',
   'All to tomorrow|evening': 'Alles auf morgen',
   'All to today|evening': 'Alles auf heute',
-  '{n} entries moved to {day}.': '{n} Einträge auf {day} verschoben.',
 };
