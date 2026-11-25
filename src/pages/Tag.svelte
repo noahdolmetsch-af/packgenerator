@@ -85,10 +85,6 @@
   const busyOf = (x) => week?.days.find((w) => w.day === x)?.entries.filter((e) => e.kind !== 'away' && !(e.id.startsWith('tr:') && !e.done)).length ?? 0;
 
   const now = $derived(nowMin(day, today));
-  // empty hours are half as tall (Noah 24.11.2026); the rows come from the saved entries, so the layout holds still while dragging
-  const grid = $derived(hourRows(lay.blocks, { from: lay.from, to: lay.to, now }));
-  const top = (m) => grid.pos(m);
-  const hourLabels = $derived([...grid.rows.map((r) => r.from), lay.to]);
 
   // «When do I get my 90 minutes?» (Noah 25.11.2026 «1-3»): the free, dry window for the daily goal of the challenge «Outdoors», as a dashed block in the timeline
   const homeQ = liveQuery(() => db.settings.get(HOME_PLACE));
@@ -128,6 +124,11 @@
     await saveItems([...before, item]);
     offerDone(t('«{name}» set for {time}.', { name: outName, time: fmtMin(w.s) }), () => saveItems(before));
   }
+
+  // empty hours are half as tall (Noah 24.11.2026); the rows come from the saved entries, so the layout holds still while dragging
+  const grid = $derived(hourRows([...lay.blocks, ...(outdoor?.win ? [{ start: outdoor.win.s, end: outdoor.win.e }] : [])], { from: lay.from, to: lay.to, now }));
+  const top = (m) => grid.pos(m);
+  const hourLabels = $derived([...grid.rows.map((r) => r.from), lay.to]);
 
   const dayLong = (x) => dayName(x, true);
   const rel = $derived(day === today ? t('Today|day') : day === shiftDay(today, 1) ? t('Tomorrow|day') : day === shiftDay(today, -1) ? t('Yesterday|day') : '');
@@ -354,7 +355,7 @@
     {#if outdoor?.win}
       {@const g = outdoor.win}
       <div class="ghost" data-draussen style="top: {top(g.s)}px; height: {Math.max(44, top(g.e) - top(g.s) - 2)}px">
-        <span class="gt"><b>{t('{name}, {n} min', { name: outName, n: g.mins })}</b><small class="num">{fmtMin(g.s)}–{fmtMin(g.e)} · {g.temp != null ? t('Free and dry, {temp} °C', { temp: g.temp }) : t('Free and dry')}</small></span>
+        <span class="gt"><b>{outName}</b><small class="num">{fmtMin(g.s)}–{fmtMin(g.e)} · {g.temp != null ? t('Dry, {temp} °C', { temp: g.temp }) : t('Dry|weather')}</small></span>
         <button type="button" class="plan" data-draussen-plan onclick={planOutdoor}>{t('Plan it')}</button>
       </div>
     {/if}
@@ -680,6 +681,12 @@
   .ghost .gt {
     display: grid;
     min-width: 0;
+  }
+  .ghost b,
+  .ghost small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .ghost b {
     font-size: var(--fs-small);

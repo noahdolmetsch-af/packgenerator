@@ -342,7 +342,6 @@ test('Mein Tag: a free dry window for the daily goal of the challenge, planned o
   // 30 of 90 minutes are done, 60 are missing; «now» is 09:00 plus the seconds the page took, so the window starts at 09:30 or 09:45
   const ghost = page.locator('[data-draussen]');
   await expect(ghost).toContainText(T('Outdoors'));
-  await expect(ghost).toContainText('60');
   await expect(ghost).toContainText(/09:(30|45)–10:(30|45)/);
   const range = (await ghost.innerText()).match(/\d\d:\d\d–\d\d:\d\d/)[0];
   await ghost.locator('[data-draussen-plan]').click();
