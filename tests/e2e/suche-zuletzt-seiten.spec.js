@@ -36,9 +36,11 @@ test('Search: opened lately, a tap opens the page, forget with Undo', async ({ p
   const list = page.locator('[data-search-places]');
   await expect(list).toBeVisible();
   const rows = list.locator('li a');
-  await expect(rows).toHaveCount(2);
+  // the pages the test opened stand first, newest first; the page it is on is not there. A page the fixture opened before
+  // (the data window of the import, counted when it stayed open for a moment) can stand after them: it is not the test's.
   await expect(rows.nth(0)).toHaveAttribute('href', '#/bikes');
   await expect(rows.nth(1)).toHaveAttribute('href', '#/trips');
+  await expect(list.locator('a[href="#/gear"]')).toHaveCount(0);
   // the list stands before the commands to try
   const order = await page.evaluate(() => {
     const a = document.querySelector('[data-search-places]');
@@ -51,6 +53,9 @@ test('Search: opened lately, a tap opens the page, forget with Undo', async ({ p
   await rows.nth(1).click();
   await expect(page).toHaveURL(/#\/trips$/);
   await expect(list).toHaveCount(0);
+  // the app counts a page once its title has stood still for a moment, and writes the list then (read, change, write):
+  // forget and Undo only after that, or the late write lands on the cleared list and cancels Undo
+  await expect.poll(async () => (await counted(page))[0]).toBe('#/trips');
 
   // forget: the list is gone, Undo brings it back
   await openSearch(page);

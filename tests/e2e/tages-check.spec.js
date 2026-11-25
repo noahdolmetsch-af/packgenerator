@@ -367,6 +367,10 @@ test('the Sunday question (was question 15): «Näher an deiner Vision?» in the
   await v.locator('[data-step="8"]').click(); // UI-Ziele #12 (changed on purpose): 5 steps, «gut» = 8
   await page.locator('[data-section="abfragen"] [data-ab-save]').click();
   await expect.poll(async () => (await answers(page)).find((a) => a.qid === 'visionen.vision')?.value).toBe(8);
+  // saving closes the round's window, and a closed window gives back its history step one task later: reload only
+  // after that, or the step back cuts the reload off (net::ERR_ABORTED)
+  await expect(page.locator('dialog[data-section="abfragen"]')).toBeHidden();
+  await expect.poll(() => page.evaluate(() => history.state?.pgDialog ?? null)).toBeNull();
   // not on a weekday
   await page.clock.setSystemTime(new Date('2026-10-19T20:31:00+02:00'));
   await page.reload();

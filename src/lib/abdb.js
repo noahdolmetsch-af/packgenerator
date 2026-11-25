@@ -18,6 +18,7 @@ import { MERKEN_KEY } from './merkendb.js';
 import { PEOPLE_KEY as ALLTAG_PEOPLE_KEY } from './alltag.js';
 import { WEIGHT_KEY as ENTRIES_KEY, entriesOf, withEntry, cleanKg } from './weight.js';
 import { dreamEntry, DREAM_Q } from './tagebuch/traum.js';
+import { readLite } from './actlite.js';
 
 const plain = (x) => JSON.parse(JSON.stringify(x));
 
@@ -65,7 +66,7 @@ export function abQuery(today) {
       db.healthDays ? db.healthDays.where('date').aboveOrEqual(near.toISOString().slice(0, 10)).toArray().catch(() => []) : [],
       db.settings.get(DATA_KEY),
       // step 2: the Strava activities and the tennis entries of the last 40 days (rules «Long day yesterday» and «A pause from training»)
-      db.activities ? db.activities.where('day').aboveOrEqual(actFrom.toISOString().slice(0, 10)).toArray().catch(() => []) : [],
+      db.activities ? readLite(db, (T) => T.where('day').aboveOrEqual(actFrom.toISOString().slice(0, 10)).toArray()).catch(() => []) : [],
       db.sportItems ? db.sportItems.where('day').aboveOrEqual(actFrom.toISOString().slice(0, 10)).toArray().catch(() => []) : [],
       // step 2: the saved home forecast and the calendar copy on this device (rules «Grey day» and «Fine weather»); nothing is fetched here
       db.settings.get(HOME_PLACE),
