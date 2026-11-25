@@ -38,8 +38,8 @@ export default {
     "Lies ihn am Sonntagabend mit dem Plan der nächsten Woche offen. Eine kleine Änderung reicht.",
   "Readiness is an observation, not an order. If the number and your legs disagree, the legs know more.":
     "Die Bereitschaft ist eine Beobachtung, kein Befehl. Wenn Zahl und Beine nicht übereinstimmen, wissen die Beine mehr.",
-  "Sleep and pulse go up and down; look at the week, not at one night.":
-    "Schlaf und Puls schwanken. Schau auf die Woche, nicht auf eine Nacht.",
+  "Sleep and pulse go up and down; look at the week, not at one night. The period counts for the list and the averages of «Your questions»; «Today» and «In focus» always show the latest days.":
+    "Schlaf und Puls schwanken. Schau auf die Woche, nicht auf eine Nacht. Der Zeitraum gilt für die Liste und die Mittel von «Wi gaht's?»; «Heute» und «Im Fokus» zeigen immer die letzten Tage.",
   "The next star is shown first; it is often closer than the big goal and keeps you moving.":
     "Der nächste Stern steht zuoberst. Er ist oft näher als das grosse Ziel und hält dich in Bewegung.",
   "Confirm a found summit on the same day; a week later you will not remember whether you really were at the top.":

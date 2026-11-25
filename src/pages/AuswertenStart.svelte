@@ -16,7 +16,7 @@
   import Sec from '../lib/flow/kit/Sec.svelte';
   import Overview from '../lib/flow/garmin/Overview.svelte';
   import FormCard from '../lib/flow/form/FormCard.svelte';
-  import PeriodBar from '../lib/flow/PeriodBar.svelte';
+  import PeriodLine from '../lib/flow/PeriodLine.svelte';
   import { period, enterPage } from '../lib/flow/zeitraum.svelte.js';
   import { rangeOf, labelOf } from '../lib/flow/zeitraum.js';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
@@ -51,6 +51,11 @@
   {#if kmWaiting}<a class="kmwait" href={CHECK_HASH} data-km-waiting>{tn(kmWaiting, '{n} Strava ride without a bike waits in «To check»: it counts after «Fits»', '{n} Strava rides without a bike wait in «To check»: they count after «Fits»')} ›</a>{/if}
 {/snippet}
 
+<!-- «Zeitraum» (Noah 24.11.2026 «1-5a»): one line right above «Overview and last 7 days»; «Change» unfolds the known switch -->
+{#snippet zeitraum()}
+  <PeriodLine {today} />
+{/snippet}
+
 <div class="aus" data-page="auswerten">
   <header class="ph">
     <h1 class="title">{t('Analysis|place')}</h1>
@@ -59,14 +64,13 @@
          «Knapper Seitenkopf» (Noah 23.11.2026 «3a»): one sentence; the way to «Heute abhaken» stands in the same line -->
     <p class="sjl"><a href="#/auswerten/sportjahr" data-sportjahr-link>{t('Sports year')} ›</a><a href="#/flow" data-aktiv-link>{t('Tick off today')} ›</a></p>
   </header>
-  <PeriodBar {today} />
-  <!-- «Form und Erholung» (Noah 20.10.2026 «2b 3a»): the readiness of today, on top -->
+  <!-- «Form und Erholung» (Noah 20.10.2026 «2b 3a»): the readiness of today, directly under the title (Noah 24.11.2026 «1-5a»: the answer of the day first) -->
   <FormCard {today} />
   <div class="lay">
     <div class="col">
       <!-- Garmin-Übersicht (Noah 20.10.2026 «1:1 nachbauen»): today, «Im Fokus», «Überblick» and «Letzte 7 Tage» -->
       <!-- «Computer-Breite» (Noah 26.10.2026 «2a»): in two columns «Letzte 7 Tage» stands right, under «Wi gaht's?» -->
-      <Overview {today} {range} part={cols.matches ? 'main' : 'all'}>{#if !cols.matches}{@render waiting()}{/if}</Overview>
+      <Overview {today} {range} part={cols.matches ? 'main' : 'all'} lead={zeitraum}>{#if !cols.matches}{@render waiting()}{/if}</Overview>
     </div>
     <aside class="col">
       <Sec id="chk-h" title={t('Your questions')} sub={t('sleep, energy and mood · one tap per question')} more={{ href: '#/me/history', label: t('History') }}>
