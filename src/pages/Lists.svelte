@@ -303,7 +303,7 @@
                   <span class="ich-ib"><I size={18} aria-hidden="true" /></span>
                   <span class="ich-m"><b>{t(STANDARD_LIST[key].name)}</b><small>{lineOf(key)}</small></span>
                   <span class="badge" class:mine>{mine ? t('Adapted') : t('Standard')}</span>
-                  <ChevronRight class="ich-chev" size={20} aria-hidden="true" />
+                  <ChevronRight class="ich-chev" size={16} aria-hidden="true" />
                 </a>
               </li>
             {/each}
@@ -318,7 +318,7 @@
               <span class="ich-ib"><Mountain size={20} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t(STANDARD_LIST.domains.name)}</b><small>{lineOf('domains')}</small></span>
               <span class="badge" class:mine={isChanged(all.domains)}>{isChanged(all.domains) ? t('Adapted') : t('Standard')}</span>
-              <ChevronRight class="ich-chev" size={20} aria-hidden="true" />
+              <ChevronRight class="ich-chev" size={16} aria-hidden="true" />
             </a>
           </li>
           <li>
@@ -326,7 +326,7 @@
               <span class="ich-ib"><Bike size={20} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t(STANDARD_LIST.tripSports.name)}</b><small>{lineOf('tripSports')}</small></span>
               <span class="badge" class:mine={isChanged(all.tripSports)}>{isChanged(all.tripSports) ? t('Adapted') : t('Standard')}</span>
-              <ChevronRight class="ich-chev" size={20} aria-hidden="true" />
+              <ChevronRight class="ich-chev" size={16} aria-hidden="true" />
             </a>
           </li>
           <li>
@@ -334,7 +334,7 @@
               <span class="ich-ib"><ListChecks size={20} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Checks per trip type')}</b><small>{t('The evening before and after the trip')}</small></span>
               <span class="badge" class:mine={checksOwn}>{checksOwn ? t('Adapted') : t('Standard')}</span>
-              <ChevronRight class="ich-chev" size={20} aria-hidden="true" />
+              <ChevronRight class="ich-chev" size={16} aria-hidden="true" />
             </a>
           </li>
         </ul>
