@@ -374,6 +374,16 @@
       text-align: center;
     }
   }
+  /* Gesamttest Runde 2, C3 (Noah 25.11.2026): at 320 px the three columns are about 96 px; «Vergleiche» broke into «Vergleich / e».
+     Smaller type and tighter sides keep the longest word whole; a long word never breaks inside. */
+  @media (max-width: 359px) {
+    .tab {
+      padding: 4px 3px;
+      font-size: var(--fs-small);
+      overflow-wrap: normal;
+      word-break: normal;
+    }
+  }
   .tab.on {
     border-color: var(--hi);
     background: var(--hi-soft);
