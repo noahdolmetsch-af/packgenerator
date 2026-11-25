@@ -28,6 +28,16 @@ describe('tagesSatz', () => {
     expect(tagesSatz({ level: 'hard', dry: false })).toMatchObject({ kind: 'wet', href: '#/wetter' });
     expect(tagesSatz({ level: 'hard', dry: true, azm: busy })).toMatchObject({ kind: 'calm' });
   });
+  it('a mountain that calls replaces the question on a dry day, not in rain or after a busy week', () => {
+    const ruf = { kind: 'hard', text: 'Heute geht viel. Welcher Berg ruft? Säntis', href: '#/flow/gipfelbuch/karte' };
+    expect(tagesSatz({ level: 'hard', dry: true, ruf })).toMatchObject({ kind: 'berg', raw: true, text: ruf.text, href: ruf.href });
+    expect(tagesSatz({ level: 'normal', dry: true, ruf })).toMatchObject({ kind: 'berg', raw: true });
+    expect(tagesSatz({ level: 'hard', dry: false, ruf })).toMatchObject({ kind: 'wet' });
+    expect(tagesSatz({ level: 'normal', dry: false, ruf })).toBeNull();
+    expect(tagesSatz({ level: 'hard', dry: true, ruf, azm: busy })).toMatchObject({ kind: 'calm' });
+    expect(tagesSatz({ level: 'normal', dry: true, ruf, azm: busy })).toMatchObject({ kind: 'calm' });
+    expect(tagesSatz({ level: 'rest', dry: true, ruf })).toMatchObject({ kind: 'rest' });
+  });
   it('every text is an English key with a German entry', async () => {
     const de = (await import('../src/lib/i18n/de/tagessatz.js')).default;
     for (const level of ['rest', 'easy', 'normal', 'hard']) {
