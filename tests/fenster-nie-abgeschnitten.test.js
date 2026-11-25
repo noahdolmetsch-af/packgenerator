@@ -54,7 +54,6 @@ describe('«Nie abgeschnitten»: every window fits and scrolls', () => {
     for (const f of walk('src')) {
       const src = readFileSync(f, 'utf8');
       if (!src.includes('<dialog')) continue;
-      if (f.endsWith('abfragen/AbCard.svelte')) continue; // the thread «Wi gaht's?» rebuilds this window (25.11.2026) and brings dvh with it; remove this line when that PR is merged
       for (const r of dialogRules(src)) {
         for (const m of r.body.matchAll(/max-height:\s*([^;]+)/g)) if (/\d\s*vh\b/.test(m[1]) && !/dvh/.test(r.body)) bad.push(`${f}: ${r.sel} { max-height: ${m[1].trim()} }`);
       }

@@ -213,7 +213,7 @@ export const DATA_QUESTIONS = {
   'daten.vermutung': {
     id: 'daten.vermutung',
     area: 'achtsamkeit',
-    text: 'Does that fit today?',
+    text: 'Do you notice that today too?',
     form: {
       kind: 'chips',
       multi: false,
@@ -815,15 +815,23 @@ export function pageRandom(pool = [], answers = [], cfg = null, today) {
   return randomPick(pool, answers, cfg, today);
 }
 
-/** The guess of today: the hint (an insight row, with its `sentence` and `rho`) when it is strong enough: { sentence } or null. */
+/** A hint whose two averages differ by less than this share of the larger one («7 against 7.3») carries no question (Noah 24.11.2026). */
+export const VERMUTUNG_GAP = 0.1;
+/** The guess of today: the hint (an insight row, with its `sentence`, `rho` and the two averages) when it is strong enough and the gap shows: { sentence } or null. */
 export function vermutungHit(hint, strength = 30) {
   if (!hint?.sentence || !(Math.abs(hint.rho) * 100 >= strength)) return null;
+  const hi = hint.hi?.mean;
+  const lo = hint.lo?.mean;
+  if (typeof hi === 'number' && typeof lo === 'number') {
+    const big = Math.max(Math.abs(hi), Math.abs(lo));
+    if (big && Math.abs(hi - lo) / big < VERMUTUNG_GAP) return null;
+  }
   return { sentence: hint.sentence };
 }
 
 const WHY = {
   custom: 'Your rule «{title}» fits today.',
-  vermutung: 'Your data hints: {sentence} Today looks like such a day, so it is worth checking.',
+  vermutung: 'Your data shows: {sentence} Today is such a day. Does it fit for you too?',
   zufall: 'A random question from your sample questions that are switched off, at most one a day. It counts toward the three questions from your data.',
   todo: 'Your to-do «{title}» is {days} days past its date.',
   todoNoTitle: 'One of your to-dos is {days} days past its date.',

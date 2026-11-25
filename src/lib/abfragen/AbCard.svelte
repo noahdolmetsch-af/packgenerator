@@ -10,11 +10,17 @@
    * questions. They come as their own window (Morgen-Check / Abend-Check) with «Später» (the window comes
    * back in one hour), «Heute nicht» (put away until the next question time, as «Jetzt nicht» before) and
    * «Speichern». ✕, Escape and back count as «Später». The full page of the round is one tap away.
+   *
+   * Noah 24.11.2026 «Wi gaht's? am Abend» (screenshot: cut off, three questions at once, opens by itself): the window opens only
+   * when asked («Start» on Heute, no longer by itself: Heute starts with its content, the calm card says what waits); one question per
+   * screen with «Weiter» («Zurück», «Speichern» on the last); head and foot stay, only the middle scrolls, and a soft shadow says that
+   * more follows («Nie abgeschnitten»); ✕ and Escape just close it (the card stays), «Heute nicht» puts the questions away until
+   * tomorrow; in the evening the questions of the morning stay away (notMorningAtNight).
    */
   import { ClipboardList, X, ChevronRight } from '@lucide/svelte';
   import { backClose } from '../ui/backclose.js';
   import { connQuery, abQuery, hintQuery, ensureConfig, saveAnswers, saveSnooze, saveDataCfg } from '../abdb.js';
-  import { fitbitFill, dueList, snoozeAll, skipToday, quietToday, isQuiet, QUIET_KEY, QUIET_ROUND, answerRow, lastAnswer, stampOf, settingOf, fromChecks, dayOf, configOf, isEveningRound, windowPart, LATER_KEY, laterStamp, fitNow, allQuestions } from '../abfragen.js';
+  import { fitbitFill, dueList, snoozeAll, skipToday, quietToday, isQuiet, QUIET_KEY, QUIET_ROUND, answerRow, lastAnswer, stampOf, settingOf, fromChecks, dayOf, configOf, isEveningRound, windowPart, LATER_KEY, fitNow, notMorningAtNight, allQuestions } from '../abfragen.js';
   import { kgOf } from '../review/actdata.js';
   import { dataDue, ruleOn, DATA_QUESTIONS, noteSkip, clearSkips, setGap, neverAgain, FEWER_GAP } from '../datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
   import { t, tn, num as fmt } from '../i18n.svelte.js';
@@ -88,10 +94,12 @@
   // the random question never opens the window on its own: it joins when something else is due, and comes last
   const shown = $derived.by(() => {
     if (!data?.stored) return [];
-    const rules = fromData.filter((d) => !d.random);
-    const due = fitNow(dueList(data.cfg, answered, now, data.snooze), now);
+    const rounds = configOf(data.cfg).rounds;
+    const night = (rows) => notMorningAtNight(rows, now, rounds); // in the evening the morning questions stay away (Noah 24.11.2026)
+    const rules = night(fromData.filter((d) => !d.random));
+    const due = night(fitNow(dueList(data.cfg, answered, now, data.snooze), now));
     const base = [...rules, ...due];
-    return base.length ? [...base, ...fromData.filter((d) => d.random)] : [];
+    return base.length ? [...base, ...night(fromData.filter((d) => d.random))] : [];
   });
 
   let draft = $state({});
@@ -163,14 +171,24 @@
   const keepAsIs = (d) => saveDataCfg(clearSkips(data?.dataCfg, d.rule));
   // «Heute nicht» and ✕ (Noah 21.10.2026 «nie mehr eine Erinnerung»): the shown questions away, and neither the window
   // nor Heute's hint come back before tomorrow; in the morning only until the evening check (Noah 26.10.2026 «1a»)
-  const notToday = () => saveSnooze(quietToday(data?.snooze, shown, now, configOf(data?.cfg).rounds));
-  // «Später»: the window waits one hour (LATER_KEY in the snooze record; dueList reads only question ids)
-  const later = () => saveSnooze({ ...(data?.snooze ?? {}), [LATER_KEY]: laterStamp(now) });
-  const waiting = $derived(!!data?.snooze?.[LATER_KEY] && now < data.snooze[LATER_KEY]);
+  const notToday = () => {
+    asked = false;
+    step = 0;
+    saveSnooze(quietToday(data?.snooze, shown, now, configOf(data?.cfg).rounds));
+  };
   const evening = $derived(isEveningRound(now, configOf(data?.cfg).rounds));
   const part = $derived(windowPart(now, configOf(data?.cfg).rounds)); // 'morning' | 'rest' | 'evening': the title of the window
   const quiet = $derived(isQuiet(data?.snooze, now, configOf(data?.cfg).rounds));
-  const open = $derived(shown.length > 0 && !waiting && !quiet);
+  // the window opens only when asked (Noah 24.11.2026): `asked` is the «Start» of Heute; what waits shows on the calm card there
+  let asked = $state(false);
+  const waits = $derived(shown.length > 0 && !quiet);
+  const open = $derived(asked && waits);
+  $effect(() => {
+    if (data?.stored && !waits) {
+      asked = false;
+      step = 0;
+    }
+  });
   $effect(() => {
     due = quiet ? 0 : Math.min(shown.length, FIRST); // Noah 2: the row on Heute names the 3 questions of the window
     // P6 AB3 (Noah 21.10.2026 «2b»): what is due, by area, for the check row on Heute
@@ -180,6 +198,7 @@
   $effect(() => {
     if (!ask) return;
     ask = false;
+    asked = true;
     const { [LATER_KEY]: _, [QUIET_KEY]: __, [QUIET_ROUND]: ___, ...rest } = data?.snooze ?? {};
     saveSnooze(rest);
   });
@@ -191,6 +210,10 @@
   const ordered = $derived([...shown].sort((a, b) => (dayOf(b.slot) === today) - (dayOf(a.slot) === today)));
   const visible = $derived(more ? ordered : ordered.slice(0, FIRST));
   const hiddenN = $derived(Math.max(0, ordered.length - visible.length));
+  // one question per screen with «Weiter» (Noah 24.11.2026 «Eine Frage pro Bildschirm»); an answer you typed stays when you step back
+  let step = $state(0);
+  const cur = $derived(Math.max(0, Math.min(step, visible.length - 1)));
+  const last = $derived(cur >= visible.length - 1);
   $effect(() => {
     busy = !data?.stored || open;
   });
@@ -198,37 +221,41 @@
   // UI-Ziele #12 (Noah 20.10.2026 «freigabe»): yesterday's answer marked quietly; after a pick the next question comes into view
   const yday = $derived(((d) => (d.setUTCDate(d.getUTCDate() - 1), d.toISOString().slice(0, 10)))(new Date(`${today}T12:00:00Z`)));
   const yesterdayOf = (qid) => lastAnswer((data?.answers ?? []).filter((a) => a.day === yday), qid)?.value ?? null;
-  function next(i) {
-    const el = dialog?.querySelectorAll('[data-q]')[i + 1] ?? dialog?.querySelector('[data-ab-save]');
-    if (!el) return;
-    el.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
-    (el.matches('button') ? el : el.querySelector('button'))?.focus({ preventScroll: true });
+  // after an answer the main button («Weiter», on the last question «Speichern») takes the focus: one more tap goes on
+  function next() {
+    dialog?.querySelector('[data-ab-next], [data-ab-save]')?.focus({ preventScroll: true });
   }
   let dialog = $state();
   $effect(() => {
     if (!dialog) return;
-    if (open && !dialog.open) dialog.showModal();
-    else if (!open && dialog.open) dialog.close();
+    if (open && !dialog.open) {
+      dialog.showModal();
+      // the focus stays on the window, not on ✕: a thick ring made the ✕ look like the main button (Noah 24.11.2026)
+      dialog.focus({ preventScroll: true });
+    } else if (!open && dialog.open) dialog.close();
   });
-  // ✕, Escape and back (Noah 21.10.2026 «ignorieren»): like «Heute nicht», quiet until tomorrow; typed answers stay
+  // ✕, Escape and back (Noah 24.11.2026): the window closes, nothing is put away; typed answers stay and the card on Heute still says what waits
   function away() {
-    if (open) notToday();
+    asked = false;
+    step = 0;
   }
 </script>
 
 {#if shown.length && !quiet}
-  <dialog class="sheet vdlg from-below abm" bind:this={dialog} use:backClose={away} onclose={away} aria-labelledby="abc-h" data-section="abfragen" data-round={evening ? 'evening' : 'morning'}>
+  <dialog class="sheet vdlg from-below abm" bind:this={dialog} use:backClose={away} onclose={away} aria-labelledby="abc-h" tabindex="-1" data-section="abfragen" data-round={evening ? 'evening' : 'morning'}>
     <div class="vd-head">
       <span class="ib"><ClipboardList size={20} aria-hidden="true" /></span>
       <div class="vd-t">
         <h2 id="abc-h">{evening ? t('Evening check') : part === 'rest' ? t('Still open from this morning') : t('Morning check')}</h2>
         <!-- Noah 21.10.2026 «immer das datum und die uhrzeit der befragung, damit wir testen können» -->
         <p class="vd-sub num" data-ab-when>{dayShort(today)} · {timeText(now)}</p>
-        <p class="vd-sub">{tn(visible.length, '{n} question', '{n} questions')} · {t('one tap each, all can be skipped')}</p>
+        <p class="vd-sub" data-ab-step>{visible.length > 1 ? t('Question {n} of {m}', { n: cur + 1, m: visible.length }) : tn(visible.length, '{n} question', '{n} questions')} · {t('one tap each, all can be skipped')}</p>
       </div>
-      <button type="button" class="vd-x" aria-label={t('Not today|mask')} onclick={away}><X size={20} aria-hidden="true" /></button>
+      <button type="button" class="vd-x" aria-label={t('Close')} onclick={away}><X size={20} aria-hidden="true" /></button>
     </div>
+    <div class="mid" data-ab-mid>
     {#each visible as d, i (d.q.id)}
+      {#if i === cur}
       {@const qid = `abc-q-${i}`}
       {@const fit = fillOf(d)}
       <div class="dq" data-q={d.q.id}>
@@ -249,33 +276,78 @@
             <button type="button" class="btn sm" onclick={() => keepAsIs(d)} data-fewer-no>{t('No, keep it')}</button>
           </div>
         {/if}
-        <AnswerInput links={linksOf(d.q.id)} hint={hintOf(d.q.id)} q={d.q} bind:value={draft[d.q.id]} bind:note={notes[d.q.id]} id="{qid}-in" label={askText(d.q, today, data?.cfg)} quick last={yesterdayOf(d.q.id)} onanswer={() => next(i)} />
+        <AnswerInput links={linksOf(d.q.id)} hint={hintOf(d.q.id)} q={d.q} bind:value={draft[d.q.id]} bind:note={notes[d.q.id]} id="{qid}-in" label={askText(d.q, today, data?.cfg)} quick last={yesterdayOf(d.q.id)} onanswer={next} />
         {#if fit}<small class="last fit num" data-fitbit={fit.hint.key}><span class="ab-src fitbit">Fitbit</span> {fitText(fit.hint)}{fit.value != null ? ` · ${t('filled in, changeable')}` : ''}</small>{/if}
         {#if d.q.id === 'koerper.waage' && lastKg}
           <small class="last num">{lastKg.day ? t('last {v} on {day}', { v: `${lastKg.kg} ${unitText('kg')}`, day: dayShort(lastKg.day) }) : t('body weight under Me › My data: {v}', { v: `${lastKg.kg} ${unitText('kg')}` })}</small>
         {/if}
       </div>
+      {/if}
     {/each}
-    {#if hiddenN}<button type="button" class="btn more" onclick={() => (more = true)} data-ab-more>{tn(hiddenN, 'Show {n} more question', 'Show {n} more questions')}</button>{/if}
-    <CheckLine {today} {evening} />
-    <div class="lks">
-      <a class="ab-lnk" href={evening ? '#/check/evening' : '#/check/morning'} data-ab-page>{evening ? t('Whole evening review') : t('Whole morning check')}<ChevronRight size={14} aria-hidden="true" /></a>
-      <a class="ab-lnk" href="#/me/abfragen">{t('Adjust|questions')}</a>
-      <a class="ab-lnk" href="#/me/history">{t('History under Data')}</a>
+    {#if last}
+      {#if hiddenN}<button type="button" class="btn more" onclick={() => (more = true)} data-ab-more>{tn(hiddenN, 'Show {n} more question', 'Show {n} more questions')}</button>{/if}
+      <CheckLine {today} {evening} />
+      <div class="lks">
+        <a class="ab-lnk" href={evening ? '#/check/evening' : '#/check/morning'} data-ab-page>{evening ? t('Whole evening review') : t('Whole morning check')}<ChevronRight size={14} aria-hidden="true" /></a>
+        <a class="ab-lnk" href="#/me/abfragen">{t('Adjust|questions')}</a>
+        <a class="ab-lnk" href="#/me/history">{t('History under Data')}</a>
+      </div>
+    {/if}
     </div>
     <div class="ft">
-      <button type="button" class="btn" onclick={notToday} data-ab-today>{t('Not today|mask')}</button>
-      <button type="button" class="btn" onclick={later} data-ab-later>{t('Later|mask')}</button>
-      <button type="button" class="btn hi" onclick={save} disabled={!filled || saving} data-ab-save>{t('Save')}</button>
+      <div class="fm">
+        {#if cur > 0}<button type="button" class="btn" onclick={() => (step = cur - 1)} data-ab-back>{t('Back|round')}</button>{/if}
+        {#if last}
+          <button type="button" class="btn hi" onclick={save} disabled={!filled || saving} data-ab-save>{t('Save')}</button>
+        {:else}
+          <button type="button" class="btn hi" onclick={() => (step = cur + 1)} data-ab-next>{t('Next|round')}</button>
+        {/if}
+      </div>
+      <button type="button" class="not" onclick={notToday} data-ab-today>{t('Not today|mask')}</button>
     </div>
-    <small class="hint">{evening ? t('«Later» brings this window back in one hour. «Not today» and ✕ close it until tomorrow, without a reminder.') : t('«Later» brings this window back in one hour. «Not today» and ✕ close it until the evening check, without a reminder.')}</small>
   </dialog>
 {/if}
 
 <style>
-  .abm {
-    max-height: min(88vh, 900px);
+  /* «Nie abgeschnitten» (Noah 24.11.2026): head and foot with the main button stay, only the middle scrolls, and a soft shadow at the
+     edge says that more follows. The window never grows past the screen (dvh). */
+  dialog.sheet.vdlg.abm {
+    padding: 0;
+    max-height: min(88dvh, 760px);
+  }
+  dialog.sheet.vdlg.abm[open] {
+    display: flex;
+    flex-direction: column;
+  }
+  dialog.abm:focus {
+    outline: none;
+  }
+  /* the shared window style (app.css «Nie abgeschnitten») makes .vd-head sticky with negative margins; this window keeps its head in
+     the flex column itself, so its rules name the dialog too and win */
+  dialog.sheet.vdlg.abm .vd-head {
+    position: relative;
+    top: auto;
+    z-index: auto;
+    flex: none;
+    margin: 0;
+    padding: 20px 20px 12px;
+  }
+  dialog.sheet.vdlg.abm .vd-head::after {
+    display: none;
+  }
+  .mid {
+    flex: 1 1 auto;
+    /* the same height for every question: «Weiter» stays where the thumb or the mouse is (the window does not jump between steps) */
+    min-height: min(32dvh, 240px, calc(88dvh - 230px));
     overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 4px 20px 14px;
+    /* the soft shadows at the top and the bottom edge show only while there is more to scroll to */
+    background:
+      linear-gradient(var(--paper) 30%, transparent) 0 0 / 100% 28px no-repeat local,
+      linear-gradient(transparent, var(--paper) 70%) 0 100% / 100% 28px no-repeat local,
+      radial-gradient(farthest-side at 50% 0, var(--shadow), transparent) 0 0 / 100% 12px no-repeat scroll,
+      radial-gradient(farthest-side at 50% 100%, var(--shadow), transparent) 0 100% / 100% 12px no-repeat scroll;
   }
   .ib {
     flex: none;
@@ -288,9 +360,6 @@
     color: var(--ink-2);
   }
   .dq {
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid var(--line);
     min-width: 0;
   }
   .dqh {
@@ -350,6 +419,12 @@
   .why {
     margin: 0 0 8px;
   }
+  /* the link inside the sentence: a tall box made the last line higher than the others (Gesamttest 25.11.2026, C5) */
+  .why .ab-lnk {
+    display: inline;
+    min-height: 0;
+    padding: 2px 0;
+  }
   .why b {
     font-weight: 600;
     color: var(--ink-2);
@@ -375,26 +450,55 @@
     align-items: center;
     min-height: 44px;
   }
+  /* the foot: the main button on the right, «Heute nicht» quietly on the left; it never scrolls away */
   .ft {
+    flex: none;
     display: flex;
     flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 8px;
-    margin-top: 8px;
-    padding-top: 12px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 12px;
+    padding: 12px 20px calc(14px + env(safe-area-inset-bottom));
     border-top: 1px solid var(--line);
+    background: var(--paper);
   }
-  .hint {
-    display: block;
-    margin-top: 8px;
+  .fm {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+    order: 2;
+  }
+  .not {
+    order: 1;
+    min-height: 44px;
+    padding: 0 4px;
+    border: 0;
+    background: none;
     color: var(--ink-3);
-    font-size: var(--fs-tiny);
-    overflow-wrap: break-word;
+    font: 400 var(--fs-small) / 1.2 var(--font-body);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+  }
+  .not:hover {
+    color: var(--ink-2);
   }
   @media (max-width: 719px) {
-    .ft .btn {
-      flex: 1 1 30%;
+    /* on a phone the window sits on the bottom edge, so «Weiter» stays under the thumb whatever the height of the question */
+    .mid {
+      min-height: 0;
+    }
+    .fm {
+      flex: 1 1 100%;
+      order: 1;
+    }
+    .fm .btn {
+      flex: 1 1 0;
       min-height: 48px;
+    }
+    .not {
+      order: 2;
+      margin: 0 auto;
     }
   }
 </style>
