@@ -3,6 +3,7 @@
    * «Neue Ordnung» V4b2 (Noah 22.11.2026 «1a»): one row on top of Training › Woche: «Suggest the week», «Lighter», «Harder»,
    * «Rainy week», «Ski tour week». The last four switch the kind of this week (the same switches as in the weekly plan);
    * everything is a suggestion, a tap again takes it back, and Undo is offered. They need a saved weekly plan.
+   * With a weekly plan «Suggest the week» is a link to it (Noah 23.11.2026 «3a»: one proposal, the weekly plan); without one it opens the older suggestion.
    */
   import { Sparkles } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
@@ -18,7 +19,11 @@
 </script>
 
 <div class="wm" role="group" aria-label={t('Kind of week')} data-week-modes>
-  <button type="button" class="chip sug" onclick={onsuggest} data-wm-suggest><Sparkles size={16} aria-hidden="true" />{t('Suggest the week')}</button>
+  {#if hasPlan}
+    <a class="chip sug" href="#/flow/wochenplan" data-wm-suggest><Sparkles size={16} aria-hidden="true" />{t('Suggest the week')}</a>
+  {:else}
+    <button type="button" class="chip sug" onclick={onsuggest} data-wm-suggest><Sparkles size={16} aria-hidden="true" />{t('Suggest the week')}</button>
+  {/if}
   {#if hasPlan && canChange}
     {#each MODES as m (m.key)}
       <button type="button" class="chip" aria-pressed={!!mode[m.key]} onclick={() => onmode?.(m.key)} data-wm-mode={m.key}>{t(m.name)}</button>

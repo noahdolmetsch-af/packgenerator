@@ -23,7 +23,9 @@
   import Seg from '../../lib/ui/Seg.svelte';
   import Empty from '../../lib/ui/Empty.svelte';
   import { db } from '../../lib/db.js';
-  import { mondayOf, shiftDay, PLAN_KEY, plannerSessions as sessionsOf } from '../../lib/training.js';
+  import { mondayOf, shiftDay, PLAN_KEY, planValue, plannerSessions as sessionsOf } from '../../lib/training.js';
+  import { oldSuggestions, withoutOldSuggestions } from '../../lib/training/suggest.js';
+  import { SP_KEY, prefsOf as spPrefsOf, teamSessions } from '../../lib/spielerplus.js';
   import { WEEKPLAN_KEY, GOAL_TYPES, FIXABLE, MAX_COUNT, MIN_HOURS, MAX_HOURS, LIGHT_SHARE, HARD_SHARE, TYPES, planOf, isSummer, defaultsFor, setHours, stepCount, toggleFix, setFixTime, modeCfg, followsHours, planWeek, plannedMins, countsMins } from '../../lib/training/wochenplan.js';
   import { startUnitDone } from '../../lib/flow/ui.svelte.js';
   import { timedrag } from '../../lib/ui/timedrag.js';
@@ -42,7 +44,8 @@
   const plan = $derived(planOf(stored));
   // the sessions of the week suggestion: the ones from TrainingPeaks take their share of the hours (only real weeks, not the example)
   const sessQ = liveQuery(async () => (await db.settings.get(PLAN_KEY))?.value ?? null);
-  const sessions = $derived(sessionsOf($sessQ));
+  const spQ = liveQuery(async () => (await db.settings.get(SP_KEY))?.value ?? null); // the team dates replace the plan's own ice hockey (Noah 23.11.2026 «1a»)
+  const sessions = $derived(sessionsOf($sessQ, teamSessions(spPrefsOf($spQ))));
   const sessLoaded = $derived($sessQ !== undefined);
   // part 3: the ticks and the frozen weeks (undefined while read), and this week's Strava activities
   const logQ = liveQuery(async () => (await db.settings.get(WEEKLOG_KEY))?.value ?? null);
@@ -70,7 +73,11 @@
   const week = $derived(planWeek(cfgW, { monday, pins: pinsShown, ski: !!modeShown.ski, rain: !!modeShown.rain, sessions: isNow ? sessions : [] }));
   // TrainingPeaks counts on the hours (Noah «1a»): the plan plus what TrainingPeaks brings this week
   const mins = $derived(plannedMins(week.units) + week.tp.reduce((a, x) => a + x.mins, 0));
-  const pct = $derived(reachedPct(mins, cfgW.hours));
+  // the goal of this week: its own goal when TrainingPeaks or team dates are in it and one is set (Noah «2b»)
+  const goalNow = $derived(week.tp.length || week.team.length ? cfgW.tpHours || cfgW.hours : cfgW.hours);
+  const teamMins = $derived(week.team.reduce((a, x) => a + x.mins, 0));
+  const allMins = $derived(mins + teamMins); // what the week holds: own units, TrainingPeaks and the team dates
+  const pct = $derived(reachedPct(allMins, goalNow));
   const byHand = $derived(!followsHours(cfg, summer));
   const nothing = $derived(GOAL_TYPES.every((k) => !cfg.counts[k]));
   const seasonOptions = $derived([
@@ -156,17 +163,44 @@
     const next = setHours(cfg, cfg.hours + delta, summer);
     return commit(next, t('Units suggested for {n} hours.', { n: next.hours }));
   };
+  // «2b» (Noah 23.11.2026): its own goal for weeks with TrainingPeaks or team dates; without it the goal above counts for every week
+  const outsideWeeks = $derived(sessions.some((s) => s.src === 'tp' || s.team === 'on'));
+  const tpGoal = $derived(cfg.tpHours ?? cfg.hours);
+  const tpStep = (delta) => {
+    const h = Math.min(MAX_HOURS, Math.max(MIN_HOURS, tpGoal + delta));
+    return commit({ ...cfg, tpHours: h }, t('Goal for weeks with TrainingPeaks: {n} h.', { n: h }));
+  };
+  // Noah 24.11.2026 «2b»: the own goal starts with a suggestion of five hours more than the goal above (15 → 20); one tap sets it, the stepper changes it
+  const tpSuggest = $derived(Math.min(MAX_HOURS, cfg.hours + 5));
+  const tpSet = () => commit({ ...cfg, tpHours: tpSuggest }, t('Goal for weeks with TrainingPeaks: {n} h.', { n: tpSuggest }));
+  const tpSame = () => {
+    const { tpHours: _gone, ...rest } = cfg;
+    return commit(rest, t('Weeks with TrainingPeaks use the same goal again.'));
+  };
   const suggestAgain = () => commit(setHours(cfg, cfg.hours, summer), t('Units suggested again from {n} hours.', { n: cfg.hours }));
   const step = (type, delta) => {
     const next = stepCount(cfg, type, delta, summer);
     return commit(next, t('{what}: {n} per week.', { what: nameOf(type), n: next.counts[type] }));
   };
   const reset = () => commit(defaultsFor(summer), t('Back to the basic plan.'));
+  // Noah 24.11.2026 «5a»: the sessions an older «Suggest the week» wrote are still in the week and count beside the plan's own units; one tap takes them out (Undo)
+  const oldSug = $derived(oldSuggestions($sessQ?.sessions ?? [], today));
+  async function dropOldSuggestions() {
+    const cur = (await db.settings.get(PLAN_KEY))?.value ?? null;
+    const gone = oldSuggestions(cur?.sessions ?? [], today).length;
+    if (!gone) return;
+    history = [...history.slice(-19), { sessions: cur }];
+    await db.settings.put({ key: PLAN_KEY, value: planValue(cur, withoutOldSuggestions(cur?.sessions ?? [], today)) });
+    msg = tn(gone, '1 old suggestion taken out. Your own units and TrainingPeaks stay.', '{n} old suggestions taken out. Your own units and TrainingPeaks stay.');
+  }
   async function undo() {
     if (!history.length) return;
     const last = history[history.length - 1];
     history = history.slice(0, -1);
-    if ('pins' in last) await writeLog((cur) => setPins(cur, last.monday, last.pins, today));
+    if ('sessions' in last) {
+      if (last.sessions === null) await db.settings.delete(PLAN_KEY);
+      else await db.settings.put({ key: PLAN_KEY, value: last.sessions });
+    } else if ('pins' in last) await writeLog((cur) => setPins(cur, last.monday, last.pins, today));
     else if ('mode' in last) await writeLog((cur) => setMode(cur, last.monday, last.mode, today));
     else if (last.plan === null) await db.settings.delete(WEEKPLAN_KEY);
     else await db.settings.put({ key: WEEKPLAN_KEY, value: last.plan });
@@ -255,13 +289,21 @@
     if (UNIT_HINT[type]) bits.push(t(UNIT_HINT[type]));
     else bits.push(t('{len} each', { len: lengthText(TYPES[type].mins) }));
     if (type === 'bikeOut' && summer && cfg.bikeHours) bits.push(t('{h} h together', { h: num(cfg.bikeHours) }));
+    // Noah 23.11.2026 «4a»: how many of the goal this week really holds (TrainingPeaks, team dates and the hours goal can take some away)
+    const standing = cfg.counts[type] || 0;
+    const fromTeam = type === 'hockey' && isNow && sessions.some((s) => s.team === 'on');
+    if (fromTeam) bits.push(tn(week.team.length, 'This week 1 from the team dates', 'This week {n} from the team dates'));
+    else if (standing > 0 && isNow) bits.push(t('This week {a} of {b}', { a: week.units.filter((u) => u.type === type).length, b: standing }));
     const fixed = Math.min((cfg.fixes[type] || []).length, cfg.counts[type] || 0);
-    if (fixed) bits.push(t('{fixed} fixed, {free} free', { fixed, free: Math.max(0, (cfg.counts[type] || 0) - fixed) }));
+    if (fixed && !fromTeam) bits.push(t('{fixed} fixed, {free} free', { fixed, free: Math.max(0, (cfg.counts[type] || 0) - fixed) }));
     return bits.join(' · ');
   }
   // a session from TrainingPeaks has no unit of the plan: its own title (or the word TrainingPeaks)
-  const tpNameOf = (id) => (week.tp ?? []).find((x) => x.id === id)?.name || t('TrainingPeaks');
-  const noteText = (n) => (NOTE_TEXT[n.key] ? t(NOTE_TEXT[n.key], { day: n.d == null ? '' : dayName(n.d), h: num(n.hours ?? 0), n: n.n ?? 0, type: n.type ? nameOf(n.type) : '' }) : '');
+  const tpNameOf = (id) => (week.tp ?? []).find((x) => x.id === id)?.name || (week.team ?? []).find((x) => x.id === id)?.name || (String(id).startsWith('team:') ? nameOf('hockey') : t('TrainingPeaks'));
+  const noteText = (n) => {
+    const key = n.own ? `${n.key}-own` : n.key;
+    return NOTE_TEXT[key] ? t(NOTE_TEXT[key], { day: n.d == null ? '' : dayName(n.d), h: num(n.hours ?? 0), m: num(Math.round((n.mins ?? 0) / 6) / 10), n: n.n ?? 0, type: n.type ? nameOf(n.type) : '' }) : '';
+  };
   const warnText = (w) =>
     t(WARN_TEXT[w.key] ?? WARN_TEXT['no-room'], {
       day: w.d == null ? '' : dayName(w.d),
@@ -270,10 +312,35 @@
       a: unitById(w.a) ? nameOf(unitById(w.a).type) : tpNameOf(w.a),
       b: unitById(w.b) ? nameOf(unitById(w.b).type) : tpNameOf(w.b),
     });
-  const notes = $derived(week.notes.filter((n) => !n.key.startsWith('tp-')).map(noteText).filter(Boolean));
+  const said = (n) => n.key.startsWith('tp-') || n.key.startsWith('tpl-') || n.key.startsWith('soll-'); // what TrainingPeaks and the hours goal do to the week is said where the hours are
+  const notes = $derived(week.notes.filter((n) => !said(n)).map(noteText).filter(Boolean));
   // what TrainingPeaks does to the week is said where the hours are (never silent): how much it brings, what it replaced
-  const tpOver = $derived(week.tp.length > 0 && mins > cfgW.hours * 60 + 5 && !week.notes.some((n) => n.key === 'tp-over')); // Noah «a»: stays as it is, with a hint
-  const tpLines = $derived([...week.notes.filter((n) => n.key.startsWith('tp-')).map(noteText).filter(Boolean), ...(tpOver ? [t('With TrainingPeaks the week is above your {h} h. Nothing is taken away; take a unit out if it is too much.', { h: cfgW.hours })] : [])]);
+  const tpOver = $derived(week.tp.length > 0 && allMins > goalNow * 60 + 5 && !week.notes.some((n) => n.key === 'tp-over' || n.key === 'tpl-over' || n.key === 'soll-over' || n.key === 'soll-cut')); // Noah «a»: stays as it is, with a hint
+  // impeccable (Noah 24.11.2026 «b»): the numbers first, what dropped out as chips, the long sentences behind «More about this»
+  const LEAD = { 'soll-cut': 'To stay near your {h} h this week, this is left out:', 'tp-replaces': 'Replaced by TrainingPeaks:', 'tpl-replaces': 'Replaced by your training plan:' };
+  const noteOf = (key) => week.notes.find((n) => n.key === key);
+  const parts = $derived(
+    week.tp.length || week.team.length
+      ? [
+          { k: 'tp', label: t('TrainingPeaks'), m: noteOf('tp-in')?.mins ?? 0 },
+          { k: 'tpl', label: t('Your training plan'), m: noteOf('tpl-in')?.mins ?? 0 },
+          { k: 'team', label: t('Team dates'), m: teamMins },
+          { k: 'own', label: t('Your plan adds'), m: Math.max(0, allMins - (noteOf('tp-in')?.mins ?? 0) - (noteOf('tpl-in')?.mins ?? 0) - teamMins) },
+        ].filter((x) => x.m > 0)
+      : [],
+  );
+  const gone = $derived(
+    ['tp-replaces', 'tpl-replaces', 'soll-cut']
+      .map((key) => {
+        const list = week.notes.filter((n) => n.key === key && !n.own);
+        return list.length ? { key, lead: t(LEAD[key], { h: num(list[0].hours ?? 0) }), items: list.map((x) => `${x.n} × ${nameOf(x.type)}`) } : null;
+      })
+      .filter(Boolean),
+  );
+  const overKeys = ['soll-over', 'tp-over', 'tpl-over'];
+  const deepKeys = ['tp-in', 'tpl-in', 'tp-rest'];
+  const overLines = $derived([...week.notes.filter((n) => overKeys.includes(n.key)).map(noteText).filter(Boolean), ...(tpOver ? [t('With TrainingPeaks the week is above your {h} h. Nothing is taken away; take a unit out if it is too much.', { h: cfgW.hours })] : [])]);
+  const deepLines = $derived(week.notes.filter((n) => deepKeys.includes(n.key)).map(noteText).filter(Boolean));
   const hoursLine = $derived(
     modeShown.hard
       ? t('A harder week: {n} h instead of {m} h. Plus and minus change your normal plan.', { n: cfgW.hours, m: cfg.hours })
@@ -323,10 +390,37 @@
             <button type="button" class="btn sm" onclick={() => hoursStep(1)} disabled={cfg.hours >= MAX_HOURS} aria-label={t('One hour more')} data-wp-hinc><Plus size={20} aria-hidden="true" /></button>
           </div>
           <p class="sub">{t('with meditation and stretching, without the rest block')}</p>
-          <p class="plan num"><b data-wp-plan>{t('Plan: {a} h of {b} h', { a: hoursText(mins), b: cfgW.hours })}</b></p>
+          <p class="plan num"><b data-wp-plan>{t('Plan: {a} h of {b} h', { a: hoursText(allMins), b: goalNow })}</b></p>
           <span class="bar" role="img" aria-label={t('{n} percent of the goal', { n: pct })}><i style="width:{pct}%"></i></span>
-          <p class="hint" data-wp-hint>{hoursLine}</p>
-          {#each tpLines as line (line)}<p class="hint" data-wp-tp>{line}</p>{/each}
+          {#if parts.length}
+            <ul class="parts" data-wp-parts>
+              {#each parts as x (x.k)}<li data-wp-tp={x.k}><span>{x.label}</span><b class="num">{t('{n} h|plan', { n: hoursText(x.m) })}</b></li>{/each}
+            </ul>
+          {/if}
+          {#each gone as g (g.key)}
+            <p class="gone" data-wp-tp={g.key} data-wp-gone><span>{g.lead}</span> {#each g.items as it (it)}<span class="tag">{it}</span>{/each}</p>
+          {/each}
+          {#each overLines as line (line)}<p class="hint" data-wp-over>{line}</p>{/each}
+          {#if overLines.length && outsideWeeks && !cfg.tpHours}<button type="button" class="btn sm" onclick={tpSet} data-wp-tpsuggest>{t('Suggest {n} h for these weeks', { n: tpSuggest })}</button>{/if}
+          {#if oldSug.length}
+            <p class="hint" data-wp-oldsug>{tn(oldSug.length, '1 old suggestion from «Suggest the week» is still in your week.', '{n} old suggestions from «Suggest the week» are still in your week.')} <button type="button" class="btn sm" onclick={dropOldSuggestions} data-wp-oldsug-go>{t('Take them out')}</button></p>
+          {/if}
+          {#if outsideWeeks}
+            <div class="tpg" data-wp-tpgoal>
+              <p class="sub">{t('Goal in weeks with TrainingPeaks')}</p>
+              <div class="stepper">
+                <button type="button" class="btn sm" onclick={() => tpStep(-1)} disabled={tpGoal <= MIN_HOURS} aria-label={t('One hour less')} data-wp-tpdec><Minus size={20} aria-hidden="true" /></button>
+                <output class="big num" data-wp-tpvalue>{t('{n} h|plan', { n: tpGoal })}</output>
+                <button type="button" class="btn sm" onclick={() => tpStep(1)} disabled={tpGoal >= MAX_HOURS} aria-label={t('One hour more')} data-wp-tpinc><Plus size={20} aria-hidden="true" /></button>
+              </div>
+              {#if cfg.tpHours}<button type="button" class="btn sm" onclick={tpSame} data-wp-tpsame>{t('Same as the goal above')}</button>{:else}<p class="sub">{t('Same as the goal above, until you change it.')}</p>{#if !overLines.length}<button type="button" class="btn sm" onclick={tpSet} data-wp-tpsuggest>{t('Suggest {n} h for these weeks', { n: tpSuggest })}</button>{/if}{/if}
+            </div>
+          {/if}
+          <details class="more" data-wp-more>
+            <summary>{t('More about this')}</summary>
+            <p class="hint" data-wp-hint>{hoursLine}</p>
+            {#each deepLines as line (line)}<p class="hint">{line}</p>{/each}
+          </details>
           {#if byHand}<button type="button" class="btn sm" onclick={suggestAgain} data-wp-again>{t('Suggest the units from the hours again')}</button>{/if}
         </section>
 
@@ -589,6 +683,62 @@
   }
   .plan {
     margin: var(--sp-3) 0 var(--sp-2);
+  }
+  .parts {
+    list-style: none;
+    margin: var(--sp-3) 0 var(--sp-2);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-1);
+  }
+  .parts li {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--sp-3);
+    padding: var(--sp-1) 0;
+    border-bottom: 1px solid var(--line);
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .parts li b {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .gone {
+    margin: var(--sp-2) 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-1) var(--sp-2);
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .gone .tag {
+    padding: 2px var(--sp-2);
+    border-radius: 999px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    color: var(--ink);
+  }
+  .more {
+    margin-top: var(--sp-2);
+    font-size: var(--fs-small);
+  }
+  .more summary {
+    cursor: pointer;
+    color: var(--ink-2);
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    text-decoration: underline;
+  }
+  .tpg {
+    margin-top: var(--sp-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    align-items: flex-start;
   }
   .stepper {
     display: flex;

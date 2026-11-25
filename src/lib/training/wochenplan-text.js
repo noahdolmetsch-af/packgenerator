@@ -43,7 +43,15 @@ export const NOTE_TEXT = {
   'ski-day-taken': 'The ski tour takes {day}: «{type}» on that day does not take place.',
   'tp-in': 'TrainingPeaks brings {h} h this week. They count towards your hours; the plan only adds the rest.',
   'tp-replaces': 'Replaced by TrainingPeaks: {n} × «{type}».',
+  'tpl-in': 'Your training plan brings {h} h this week. They count towards your hours; the plan only adds the rest.',
+  'tpl-replaces': 'Replaced by your training plan: {n} × «{type}».',
+  'tpl-over': 'Your training plan alone is above your {h} h. Nothing else in the plan is taken away.',
   'tp-rest': 'TrainingPeaks has a free day on {day}: the plan puts nothing else there.',
+  'team-in': 'This week the ice hockey comes from your team calendar. The plan adds none of its own.',
+  'team-none': 'Your team calendar has no date this week: no ice hockey.',
+  'soll-cut': 'To stay near your {h} h this week, {n} × «{type}» is left out.',
+  'soll-over': 'With TrainingPeaks and team dates this week is still about {m} h above your {h} h. Below you can set your own goal for such weeks.',
+  'soll-over-own': 'With TrainingPeaks and team dates this week is still about {m} h above your goal of {h} h for such weeks.',
   'tp-over': 'TrainingPeaks alone is above your {h} h. Nothing else in the plan is taken away.',
 };
 

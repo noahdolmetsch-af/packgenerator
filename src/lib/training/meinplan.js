@@ -56,11 +56,11 @@ export function sumOf(rows) {
  *   week: { rows, ...sumOf }, weeks: [{ monday, kw, current, future, rows, ...sumOf }] (oldest first), last: [the 4 weeks before this one with a plan],
  *   soFar: share of the plan hours of the days up to today (null without a plan) }
  */
-export function meinPlan({ stored = null, rawLog = null, rawPlan = null, rawGoal = null, acts = [], today }) {
+export function meinPlan({ stored = null, rawLog = null, rawPlan = null, rawGoal = null, team = [], acts = [], today }) {
   const log = logOf(rawLog);
   const sessions = sessionsOf(rawPlan);
   const monday = mondayOf(today);
-  const ctx = { stored, log, sessions, planner: plannerSessions(rawPlan), acts };
+  const ctx = { stored, log, sessions, planner: plannerSessions(rawPlan, team), acts };
   const g = goalOf(rawGoal);
   const goal = g && (g.name || g.until) ? { name: g.name, until: g.until, weeks: weeksTo(g.until, today), passed: !!g.until && g.until < today } : null;
 

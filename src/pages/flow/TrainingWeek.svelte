@@ -33,6 +33,7 @@
   import { strava, STRAVA_HASH } from '../../lib/strava/client.svelte.js';
   import { saveAct } from '../../lib/flowdb.js';
   import { blankAct } from '../../lib/flow.js';
+  import { SP_KEY, prefsOf as spPrefsOf, teamSessions } from '../../lib/spielerplus.js';
   import SuggestWeek from '../../lib/training/plans/SuggestWeek.svelte'; // «Training verbessern» 2
   import { homeForecast } from '../../lib/home-weather.js';
   import { formQuery } from '../../lib/form-data.js';
@@ -54,6 +55,7 @@
 
   const today = localDay();
   const planQ = liveQuery(async () => (await db.settings.get(PLAN_KEY))?.value ?? null);
+  const spQ = liveQuery(async () => (await db.settings.get(SP_KEY))?.value ?? null); // the team dates replace the plan's own ice hockey (Noah 23.11.2026 «1a»)
   const goalQ = liveQuery(async () => (await db.settings.get(GOAL_KEY))?.value ?? null);
   const plan = $derived(planOf($planQ));
   const daysQ = liveQuery(async () => (await db.settings.get(DAYS_KEY))?.value ?? null);
@@ -228,21 +230,36 @@
   const weekDates = $derived(
     dateSrc
       ? buildWeek({ ...dateSrc, forecast: null, hide: [], monday, today, goalHours: null, actName: (id) => id })
-          .days.map((d) => ({ day: d.day, rows: d.entries.filter((e) => e.kind === 'date').map((e) => ({ key: e.id, title: e.title, time: e.time || '', mins: e.sub?.mins ?? 60 })) }))
+          .days.map((d) => ({ day: d.day, rows: d.entries.filter((e) => e.kind === 'date').map((e) => ({ key: e.id, title: e.sub?.src === 'spielerplus' && e.sub.name ? `${e.sub.name} · ${e.title}` : e.title, time: e.time || '', mins: e.sub?.mins ?? 60 })) }))
       : [],
   );
   const wpQ = liveQuery(async () => (await db.settings.get(WEEKPLAN_KEY))?.value ?? null);
   const wlQ = liveQuery(async () => (await db.settings.get(WEEKLOG_KEY))?.value ?? null);
   // only this week and next week carry suggestions, and only once a weekly plan was saved
-  const suggested = $derived.by(() => {
-    if ($wpQ == null || monday < mondayOf(today) || monday > shiftDay(mondayOf(today), 7)) return [];
+  const wpWeek = $derived.by(() => {
+    if ($wpQ == null || monday < mondayOf(today) || monday > shiftDay(mondayOf(today), 7)) return null;
     const sum = isSummer(monday);
     const cfgs = weekplanOf($wpQ);
     const log = weekLog(logOf($wlQ), monday);
     const cfg = modeCfg(sum ? cfgs.summer : cfgs.winter, sum, log.mode);
-    return planWeek(cfg, { monday, pins: log.pins, ski: !!log.mode.ski, rain: !!log.mode.rain, sessions: plannerSessions($planQ) })
-      .units.filter((u) => u.type !== 'med' && u.type !== 'stretch' && !log.released.includes(u.id))
+    const wk = planWeek(cfg, { monday, pins: log.pins, ski: !!log.mode.ski, rain: !!log.mode.rain, sessions: plannerSessions($planQ, teamSessions(spPrefsOf($spQ))) });
+    return { wk, log, cfg };
+  });
+  const suggested = $derived.by(() => {
+    if (!wpWeek) return [];
+    const { wk, log } = wpWeek;
+    return wk.units.filter((u) => u.type !== 'med' && u.type !== 'stretch' && !log.released.includes(u.id))
       .map((u) => ({ key: u.id, day: shiftDay(monday, u.d), title: t(UNIT_NAME[u.type] ?? 'Session'), time: u.t, mins: u.mins, done: !!log.done[u.id] }));
+  });
+  // Noah 23.11.2026 «4a»: «planned 19:20 of 15 h» counts everything the week holds: the days by hand and from TrainingPeaks, the suggestions of the
+  // weekly plan and the team dates; the goal is the one of the weekly plan (its own goal in a week with TrainingPeaks or team dates)
+  const weekAll = $derived.by(() => {
+    if (!wpWeek) return { mins: nums.planned, goalMins: goal?.hours ? goal.hours * 60 : 0 };
+    const { wk, cfg } = wpWeek;
+    const team = (wk.team ?? []).reduce((a, x) => a + x.mins, 0);
+    const outside = (wk.tp ?? []).reduce((a, x) => a + x.mins, 0) + team;
+    const own = suggested.reduce((a, x) => a + x.mins, 0);
+    return { mins: nums.planned + own + team, goalMins: (outside > 0 ? cfg.tpHours || cfg.hours : cfg.hours) * 60 };
   });
   // V4b2 «Lighter» / «Harder» / «Rainy week» / «Ski tour week»: the kind of the shown week (this week and next), with Undo
   const weekMode = $derived(weekLog(logOf($wlQ), monday).mode);
@@ -270,7 +287,10 @@
     rest: $formQ?.table ? restLine($formQ.table, today, $formQ.opts?.rest, (d, n) => shiftDay(d, -n)) : null,
     race: nextRace?.startDate ? { href: raceHref(nextRace.id), name: nextRace.title, when: daysBetween(today, nextRace.startDate) === 0 ? t('today') : tn(daysBetween(today, nextRace.startDate), 'in {n} day', 'in {n} days') } : null,
   });
-  const suggestWeek = () => window.dispatchEvent(new Event('pg:suggest-week'));
+  // Noah 23.11.2026 «3a»: with a weekly plan there is one proposal for the week, the weekly plan; «Suggest the week» opens it.
+  // Without a weekly plan the older suggestion below stays as it was.
+  const hasWeekPlan = $derived($wpQ != null);
+  const suggestWeek = () => (hasWeekPlan ? (location.hash = '#/flow/wochenplan') : window.dispatchEvent(new Event('pg:suggest-week')));
   // one day: what stands on it in order, and the free slot
   const dayRows = (d) => {
     const rows = [
@@ -426,7 +446,7 @@
     <Sec id="plan-h" title={t('My week|plan')} sub={t('Tap the free slot of a day to plan a session. Solid = yours, dashed = suggestion, green = done.')} edit={{ href: '#/flow/wochenplan', label: t('Weekly plan') }} more={{ href: '#/flow/plans', label: t('Training plans') }}>
       <div class="card plan" data-section="week-plan">
         <div class="nav">
-          <span class="rg num" data-week-range>{goal?.hours ? t('{range} · planned {a} of {b} h', { range, a: hours(nums.planned), b: hours(goal.hours * 60) }) : t('{range} · planned {a} h', { range, a: hours(nums.planned) })}</span>
+          <span class="rg num" data-week-range>{weekAll.goalMins ? t('{range} · planned {a} of {b} h', { range, a: hours(weekAll.mins), b: hours(weekAll.goalMins) }) : t('{range} · planned {a} h', { range, a: hours(weekAll.mins) })}</span>
           <button type="button" class="ib" aria-label={t('Week before')} onclick={() => ((monday = shiftDay(monday, -7)), (form = null))}><ChevronLeft size={20} aria-hidden="true" /></button>
           {#if monday !== mondayOf(today)}<button type="button" class="btn btn-link sm" onclick={() => ((monday = mondayOf(today)), (form = null))}>{t('This week|plan')}</button>{/if}
           <button type="button" class="ib" aria-label={t('Week after')} onclick={() => ((monday = shiftDay(monday, 7)), (form = null))}><ChevronRight size={20} aria-hidden="true" /></button>
@@ -503,7 +523,7 @@
         {#if !sessions.length && lastHad}<button type="button" class="btn sm like" onclick={likeLast}><Copy size={16} aria-hidden="true" />{tn(lastHad, 'Like last week (1 session)', 'Like last week ({n} sessions)')}</button>{/if}
         {#if sessions.length}<p class="hint">{t('Tap a planned one to change it.')}</p>{/if}
         <WeekSaved items={keptWeeks} canKeep hasSessions={sessions.length > 0} weekdays={days.map((d) => fmt(d, { weekday: 'short' }))} {hours} onkeep={keepWeek} onput={putWeek} onchange={changeWeeks} />
-        <SuggestWeek {acts} flowActs={$actsQ ?? []} {plan} {goal} {monday} {today} level={$formQ?.ready?.level ?? null} daysToRace={nextRace?.startDate ? daysBetween(today, nextRace.startDate) : null} {dayLimits} forecast={homeFc} {sportGoals} onsportgoals={saveSportGoals} {habits} onhabits={saveHabits} onlimits={saveLimits} onapply={applySuggestion} preset={nextPreset} />
+        {#if $wpQ === null}<SuggestWeek {acts} flowActs={$actsQ ?? []} {plan} {goal} {monday} {today} level={$formQ?.ready?.level ?? null} daysToRace={nextRace?.startDate ? daysBetween(today, nextRace.startDate) : null} {dayLimits} forecast={homeFc} {sportGoals} onsportgoals={saveSportGoals} {habits} onhabits={saveHabits} onlimits={saveLimits} onapply={applySuggestion} preset={nextPreset} />{/if}
       </div>
     </Sec>
 
@@ -518,7 +538,7 @@
         <BarChart id="lookback" cols={wCols} line={wLine} lineColor="var(--ink)" goal={goal?.hours ? { v: goal.hours, text: t('Goal a week: {n} h', { n: num(goal.hours) }) } : null} readout={wRead} table={wTable} unit="h" label={t('Hours per week, last six weeks')} onopen={(i) => (wSel = i)} hint={t('Point at a week for its hours, tap it for the zones.')} />
         <ZoneBar bar={false} legend />
         <p class="tw num" data-this-week>{goal?.hours ? t('This week {a} of {b} h', { a: hmm(nums.secs), b: hours(goal.hours * 60) }) : t('This week {a} h', { a: hmm(nums.secs) })}{#if baseShare != null}{' · '}{goal?.base != null ? t('Z1–Z2 {n} % (goal {g} %)', { n: baseShare, g: goal.base }) : t('Z1–Z2 {n} %', { n: baseShare })}{/if}</p>
-        {#if showNext}<NextWeek last={lastWeekHours} reason={nextReason} goals={nextGoals} hours={(h) => `${num(h)} h`} onpick={pickNext} onlater={laterNext} />{/if}
+        {#if showNext && !hasWeekPlan}<NextWeek last={lastWeekHours} reason={nextReason} goals={nextGoals} hours={(h) => `${num(h)} h`} onpick={pickNext} onlater={laterNext} />{/if}
         {/if}
         <p class="fb"><span><Timer size={16} aria-hidden="true" />{t('Active zone minutes')} <i class="pill">{t('with Fitbit')}</i></span><span><Heart size={16} aria-hidden="true" />{t('Resting heart rate')} <i class="pill">{t('with Fitbit')}</i></span></p>
       </div>

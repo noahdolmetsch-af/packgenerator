@@ -270,3 +270,15 @@ export function planAfterSuggestion(plan, list, { monday, today }) {
   const goes = (s) => s.day >= monday && s.day < end && s.day >= today && s.src !== TP_SRC;
   return [...plan.filter((s) => !goes(s)), ...list];
 }
+
+/**
+ * The sessions an older «Suggest the week» wrote that still lie ahead (Noah 24.11.2026 «5a»): src «sug», today or later, not ticked.
+ * With a weekly plan they count on the hours beside the plan's own units. Pure.
+ */
+export const oldSuggestions = (sessions, today) => (Array.isArray(sessions) ? sessions : []).filter((s) => s?.src === SRC && s.day >= today && s.done !== true);
+
+/** The sessions without those older suggestions; everything else (own, TrainingPeaks, training plans, free days) stays. Pure. */
+export const withoutOldSuggestions = (sessions, today) => {
+  const gone = new Set(oldSuggestions(sessions, today).map((s) => s.id));
+  return (Array.isArray(sessions) ? sessions : []).filter((s) => !gone.has(s.id));
+};
