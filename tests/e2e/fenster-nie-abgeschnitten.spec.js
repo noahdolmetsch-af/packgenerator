@@ -4,10 +4,8 @@
 // is cut at the edge of the window (whole or hidden, never half). Fictional data, German UI, no internet.
 // The static half (every window of the app can scroll, fits in dvh and has the soft edge) is tests/fenster-nie-abgeschnitten.test.js.
 import { test, expect } from './clock.js';
-import { ready, WINDOWS_ON } from './settle.js';
+import { ready } from './settle.js';
 import { newButton } from './newbutton.js';
-import { openHome, homeFixture } from './home0460-fixture.js';
-import { QUESTIONS, ON_AT_START } from '../../src/lib/abfragen.js';
 import DE from '../../src/lib/i18n/de/index.js';
 
 const T = (en) => DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -98,26 +96,5 @@ test.describe('Nie abgeschnitten', () => {
       await expect(page.getByRole('dialog')).toBeVisible();
     });
   });
-
-  test.describe('with the windows of Heute on', () => {
-    test.use({ storageState: WINDOWS_ON });
-    // «few»: the morning check with its three questions; «evening»: the evening check with all the questions that are on at the start,
-    // each with «Why am I asking this?», a field and chips (Noah's screenshot of 24.11.2026: it ended in the middle of the third question)
-    for (const [name, hour, keepOnly] of [['morning check', 9, true], ['evening check, all questions', 21, false]]) {
-      for (const s of SIZES) {
-        test(`${name} on Heute fits the screen at ${s.name}`, async ({ page, context }, info) => {
-          const d = homeFixture();
-          const keep = ['erholung.akku', 'koerper.waage', 'spass.emoji'];
-          const q = keepOnly ? { ...Object.fromEntries(QUESTIONS.filter((x) => ON_AT_START.has(x.id) && !keep.includes(x.id)).map((x) => [x.id, { on: false }])), ...Object.fromEntries(keep.filter((id) => !ON_AT_START.has(id)).map((id) => [id, { on: true }])) } : {};
-          d.tables.settings.push({ key: 'abfragen', value: { since: '2026-10-08T19:00', q, own: [] } });
-          d.tables.settings.push({ key: 'datenfragen', value: { zufall: { off: true } } });
-          await page.setViewportSize({ width: s.width, height: s.height });
-          await openHome(page, context, info, { data: d, hour });
-          await expect(page.locator('[data-section="abfragen"]')).toHaveJSProperty('open', true);
-          await page.waitForTimeout(450);
-          expect(await findings(page), `${name} at ${s.name}`).toEqual([]);
-        });
-      }
-    }
-  });
+  // The morning and evening check («Wi gaht's?») is built and tested by its own thread (tests/e2e/runde-*.spec.js); it uses the same .vd-head / .vd-foot.
 });
