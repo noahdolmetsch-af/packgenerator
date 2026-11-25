@@ -68,6 +68,7 @@ test('choose a model, load it on a tap, check the speed, ask in the search witho
   const f = page.getByRole('searchbox', { name: T('What do you want to do? Search or say an action') });
   await f.fill('Was nehme ich bei Regen mit?');
   const res = page.getByRole('region', { name: T('Search results') });
+  await res.locator('[data-search-ask-fold] summary').click(); // the closed line «Ask further at …» holds the AI on this device
   await expect(res.locator('[data-local-setup]')).toBeVisible();
   await expect(res.locator('[data-local-go]')).toHaveCount(0);
 
@@ -98,6 +99,7 @@ test('choose a model, load it on a tap, check the speed, ask in the search witho
   await context.setOffline(true);
   if (info.project.name === 'phone') await page.getByRole('button', { name: /Search everything|Alles durchsuchen/ }).click();
   await f.fill('Was nehme ich bei Regen mit?');
+  await res.locator('[data-search-ask-fold] summary').click();
   await res.getByRole('button', { name: T('Ask the AI on this device') }).click();
   await expect(res.getByText(T('AI on this device (small; check what matters)'))).toBeVisible();
   await expect(res.getByText('Regenhose, Überschuhe und Ersatzsocken.')).toBeVisible();
