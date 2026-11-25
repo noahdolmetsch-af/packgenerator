@@ -1,6 +1,6 @@
 # Schmale Handys: Pfeile in «Listen und Typen» und Symbole im Touren-Plan wieder 16 px
 
-PR #PRNR · 25.11.2026 · Auftrag: main reparieren (Bündler, Vorrang; guard «layout group 2» und «group 3» auf dem Handy waren rot seit PR 1733)
+PR #1761 · 25.11.2026 · Auftrag: main reparieren (Bündler, Vorrang; guard «layout group 2» und «group 3» auf dem Handy waren rot seit PR 1733)
 
 ## Was ist neu
 - Die Pfeile («›») der Zeilen in «Listen und Typen» (4 Stellen in `src/pages/Lists.svelte`) und die Symbole vor «Sport pro Tag», «Unklare Stellen» und «Grenzübertritt» im Touren-Plan (`src/lib/tourplan/TourPrep.svelte`) sind 16 px statt 20 px gross. Die 16 px stehen auf der Leiter der Symbolgrössen (14 · 16 · 20 · 24).
