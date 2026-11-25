@@ -1041,12 +1041,21 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
   const exported = JSON.parse(readFileSync(file, 'utf8'));
   // «Zuletzt geöffnet» of the Quick Links (setting quickLinks.used.*) notes every page opened, and this test opens
   // Daten und Backup after the snapshot: it is a visit log like the tips memory, not a record that must come back
-  const volatile = (r) => r.key !== 'tips' && !String(r.key).startsWith('quickLinks.used');
+  // Wackler 25.11. (PR 1760 und main, 2 von 12 Läufen): Heute schreibt zwei Merk-Einträge erst, wenn die Kachel
+  // gezeigt wird, und das fiel mal vor, mal nach den Snapshot: home.spruch (der gezeigte Spruch, wächst mit jedem neuen)
+  // und flow.medSeed (die drei Vorlagen der Meditation, einmal). Kein Datensatz, der zurückkommen muss, sondern
+  // etwas, das Heute von selbst anlegt: kam er schon im Snapshot vor, muss er zurückkommen (unten), sein Inhalt
+  // und ein Neuzugang danach zählen nicht.
+  const LAZY = ['home.spruch', 'flow.medSeed'];
+  const volatile = (r) => r.key !== 'tips' && !String(r.key).startsWith('quickLinks.used') && !LAZY.includes(r.key);
   await rec.check('backup: every record comes back the same (items, trips, debriefs, notes, photos, bikes, bags, learnings, settings)', async () => {
     for (const name of Object.keys(snapshot)) {
       const now = await table(page, name);
       if (name !== 'settings') expect(now, name).toEqual(snapshot[name]);
-      else expect(now.filter(volatile), name).toEqual(snapshot[name].filter(volatile));
+      else {
+        expect(now.filter(volatile), name).toEqual(snapshot[name].filter(volatile));
+        for (const key of LAZY) if (snapshot[name].some((r) => r.key === key)) expect(now.some((r) => r.key === key), `settings ${key} is back`).toBe(true);
+      }
     }
     // v0.45.1 (G015a): the tips memory is no longer in the file; the device keeps its own over "Replace all data"
     expect(tipsOf(exported.tables.settings)).toBeNull();

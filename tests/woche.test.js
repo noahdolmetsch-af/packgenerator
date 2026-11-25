@@ -229,7 +229,8 @@ describe('Google calendar and tasks in the week', () => {
     const w = buildWeek({ ...base, google: { events, tasks, prefs: on } });
     const wed = w.days.find((d) => d.day === '2026-10-21');
     expect(wed.entries.find((e) => e.title === 'Dentist')).toMatchObject({ kind: 'date', time: '09:30', sub: { src: 'google' } });
-    expect(w.days.find((d) => d.day === '2026-10-25').entries.some((e) => e.title === 'Jura weekend')).toBe(true);
+    expect(w.days.find((d) => d.day === '2026-10-25').entries.find((e) => e.title === 'Jura weekend')).toMatchObject({ kind: 'date', allDay: true });
+    expect(wed.entries.find((e) => e.title === 'Dentist').allDay).toBeUndefined();
     expect(w.days.find((d) => d.day === '2026-10-22').entries.find((e) => e.title === 'Pump the tyres')).toMatchObject({ kind: 'todo', sub: { src: 'google-tasks' } });
     const s = w.suggestions.find((x) => x.ref === 'gtask:t2');
     expect(s).toMatchObject({ kind: 'todo', title: 'Order brake pads', act: 'take' });

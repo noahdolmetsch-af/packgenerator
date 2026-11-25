@@ -149,7 +149,7 @@ export function googleWeek(google, monday) {
   if (!events.length && !tasks.length) return { cal: [], todos: [], open: [] };
   const rows = weekItems({ events, tasks, from: monday, to: shiftDay(monday, 6) });
   return {
-    cal: rows.filter((x) => x.kind === 'termin').map((x) => ({ id: `g:${x.id}`, title: String(x.title ?? '').trim().slice(0, CAL_TITLE_MAX) || '…', day: x.day, time: x.time, src: 'google' })),
+    cal: rows.filter((x) => x.kind === 'termin').map((x) => ({ id: `g:${x.id}`, title: String(x.title ?? '').trim().slice(0, CAL_TITLE_MAX) || '…', day: x.day, time: x.time, src: 'google', ...(x.allDay ? { allDay: true } : {}) })),
     todos: rows.filter((x) => x.kind === 'todo').map((x) => ({ id: `gt:${x.id}`, title: String(x.title ?? '').trim().slice(0, CAL_TITLE_MAX) || '…', day: x.day, done: x.done })),
     open: undatedTasks(tasks).map((x) => ({ id: x.id, title: String(x.title ?? '').trim().slice(0, 80) })).filter((x) => x.title),
   };
@@ -247,7 +247,7 @@ export function buildWeek(src) {
     for (let i = 0; i < Math.max(1, Math.round(Number(tr.days) || 1)); i++) tripDays.add(`${shiftDay(tr.startDate, i)}|${norm(tr.title)}`);
   }
   const isTripCopy = (x) => tripDays.has(`${x.day}|${tripCopy(x.title)}`);
-  for (const x of [...cal, ...g.cal].filter((y) => !isTripCopy(y))) at(x.day)?.entries.push({ id: `cal:${x.id}`, kind: 'date', title: x.title, sub: { src: x.src }, time: x.time, done: false, own: false });
+  for (const x of [...cal, ...g.cal].filter((y) => !isTripCopy(y))) at(x.day)?.entries.push({ id: `cal:${x.id}`, kind: 'date', title: x.title, sub: { src: x.src }, time: x.time, done: false, own: false, ...(x.allDay ? { allDay: true } : {}) });
   // Spielerplus (Noah 06.11.2026): the team dates, read only; a tap opens Spielerplus to sign up
   for (const x of spielerWeek(spielerplus, monday)) at(x.day)?.entries.push({ id: `sp:${x.id}`, kind: 'date', title: x.title, sub: { src: 'spielerplus', name: x.name }, time: x.time, done: false, own: false, href: x.href, ext: true });
   for (const x of g.todos) at(x.day)?.entries.push({ id: x.id, kind: 'todo', title: x.title, sub: { src: 'google-tasks' }, time: '', done: x.done, own: false, href: '#/me/agenda' });

@@ -170,14 +170,14 @@ test('Mein Tag: drag an own entry to another time, to another day, stretch it, U
     await page.mouse.move(to?.x ?? x, to?.y ?? y + dy, { steps: 6 });
     await page.mouse.up();
   };
-  // 72 px per hour: 72 px later = one hour later
+  // an hour with an entry is 72 px: 72 px later = one hour later (empty hours are only 36 px)
   await drag('[data-grip="wi1"]', 72);
   await expect(blk).toContainText('13:00–13:45');
   // Undo
   await page.getByRole('button', { name: T('Undo') }).click();
   await expect(blk).toContainText('12:00–12:45');
-  // the length: lower edge, 36 px = 30 minutes more
-  await drag('[data-size="wi1"]', 36);
+  // the length: lower edge, 18 px to 13:00 (end of the busy hour) + 9 px of the empty hour = 15 minutes more
+  await drag('[data-size="wi1"]', 27);
   await expect(blk).toContainText('12:00–13:15');
   // onto the chip of tomorrow
   const chip = await page.locator(`[data-day="${addDays(TODAY, 1)}"]`).boundingBox();
@@ -308,5 +308,24 @@ test('Mein Tag: «Plan my day» works on tomorrow too and gives a calendar date 
   await expect(page.locator('.tl [data-entry="wi9"]')).toBeVisible();
   await page.reload();
   await expect(page.locator('.tl [data-entry="cal:k1"]')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('Mein Tag: empty hours take half the room and a dot stands only under a day with something on it', async ({ page, context }) => {
+  const errors = await open(page, context, '#/day');
+  await page.waitForSelector('h1');
+  await put(page, { settings: [{ key: 'week.items', value: ITEMS }] });
+  await page.reload();
+  // «now» is 09:00: 08:00 is empty (36 px), 09:00 has «now» in it (72 px), 10:00 and 11:00 are empty, 12:00 holds the dentist
+  const y = async (h) => (await page.locator('.tl .hr', { hasText: h }).boundingBox()).y;
+  expect((await y('09:00')) - (await y('08:00'))).toBeCloseTo(36, 0);
+  expect((await y('10:00')) - (await y('09:00'))).toBeCloseTo(72, 0);
+  expect((await y('12:00')) - (await y('11:00'))).toBeCloseTo(36, 0);
+  expect((await y('13:00')) - (await y('12:00'))).toBeCloseTo(72, 0);
+  await expect(page.locator('.tl .hr.empty').first()).toBeVisible();
+  // dots: today and tomorrow have entries, the day after tomorrow has none
+  await expect(page.locator(`[data-day="${TODAY}"] .dot`)).toHaveCount(1);
+  await expect(page.locator(`[data-day="${addDays(TODAY, 1)}"] .dot`)).toHaveCount(1);
+  await expect(page.locator(`[data-day="${addDays(TODAY, 2)}"] .dot`)).toHaveCount(0);
   expect(errors).toEqual([]);
 });

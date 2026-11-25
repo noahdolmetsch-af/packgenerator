@@ -13,6 +13,8 @@ export const DAY_END = 23 * 60; // … and ends at 23:00, unless an entry is out
 /** How long an entry lasts when nothing says so (minutes). */
 export const DEFAULT_MINS = { date: 60, sport: 60, bike: 30, todo: 30 };
 export const MIN_MINS = 15; // shown at least this tall, so it can be tapped
+export const HOUR_PX = 72; // pixels of an hour with an entry (or «now») in it …
+export const EMPTY_PX = 36; // … and of an empty hour (Noah 24.11.2026: empty hours take less room)
 
 export const toMin = (hhmm) => (/^\d{2}:\d{2}$/.test(String(hhmm ?? '')) ? Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3)) : null);
 export const pad = (n) => String(n).padStart(2, '0');
@@ -27,8 +29,11 @@ export function lengthOf(e) {
 
 /**
  * The day as blocks.
- * → { allDay: [entry], untimed: [entry], blocks: [{ e, start, end, mins, guessed, col, cols }], from, to }
+ * → { allDay: [entry], bands: [entry], untimed: [entry], blocks: [{ e, start, end, mins, guessed, col, cols }], from, to }
  *   allDay   holidays and trips (kind 'away'): a strip above the timeline
+ *   bands    dates of the outside calendar that last all day, also for several days (kind 'date', `allDay`, no time):
+ *            a band across the top (Noah 24.11.2026). They stay in `untimed` too, so «Heute laut Plan» lists them as before;
+ *            the page shows `untimed` without the bands
  *   untimed  entries without a clock time: a list above the timeline («Ohne Zeit»)
  *   blocks   entries with a time; col/cols tell the page how to put overlapping ones side by side
  *   from, to the hours the timeline shows (whole hours; wider than 06:00–23:00 when an entry is outside;
@@ -36,6 +41,7 @@ export function lengthOf(e) {
  */
 export function layoutDay(entries = [], { now = null } = {}) {
   const allDay = entries.filter((e) => e.kind === 'away');
+  const bands = entries.filter((e) => e.kind === 'date' && e.allDay && toMin(e.time) == null);
   const untimed = [];
   const blocks = [];
   for (const e of entries) {
@@ -79,7 +85,7 @@ export function layoutDay(entries = [], { now = null } = {}) {
   const start = now == null ? DAY_START : Math.max(DAY_START, Math.floor((now - 60) / 60) * 60);
   const from = blocks.length ? Math.min(start, Math.floor(first / 60) * 60) : start;
   const to = Math.max(DAY_END, Math.ceil(last / 60) * 60);
-  return { allDay, untimed, blocks, from, to: Math.min(24 * 60, to) };
+  return { allDay, bands, untimed, blocks, from, to: Math.min(24 * 60, to) };
 }
 
 /**
@@ -97,6 +103,39 @@ export function nextBlocks(entries = [], now = 0, max = 4) {
   const all = [...timed, ...untimed];
   return { items: all.slice(0, Math.max(0, max)), more: Math.max(0, all.length - Math.max(0, max)) };
 }
+
+/**
+ * The vertical rows of the timeline (Noah 24.11.2026 «leere Stunden kompakter»): an hour with an entry in it, or with «now»,
+ * is HOUR_PX tall, an empty hour only EMPTY_PX. Returns the rows and the two conversions the page needs, both piecewise linear:
+ * pos(minute) → pixel from the top, at(pixel) → minute (to place and drag entries). Rows come from the entries as they are
+ * saved, never from a block that is being dragged, so the layout holds still while dragging.
+ * → { rows: [{ from, to, y, h, empty }], height, pos, at }
+ */
+export function hourRows(blocks = [], { from, to, now = null, hh = HOUR_PX, empty = EMPTY_PX } = {}) {
+  const rows = [];
+  let y = 0;
+  for (let h = from; h < to; h += 60) {
+    const busy = blocks.some((b) => b.start < h + 60 && b.end > h) || (now != null && now >= h && now < h + 60);
+    const px = busy ? hh : empty;
+    rows.push({ from: h, to: h + 60, y, h: px, empty: !busy });
+    y += px;
+  }
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const pos = (m) => {
+    const x = clamp(m, from, to);
+    const r = rows.find((q) => x <= q.to) ?? rows.at(-1);
+    return r ? r.y + ((x - r.from) / 60) * r.h : 0;
+  };
+  const at = (p) => {
+    const v = clamp(p, 0, y);
+    const r = rows.find((q) => v <= q.y + q.h) ?? rows.at(-1);
+    return r ? r.from + ((v - r.y) / r.h) * 60 : from;
+  };
+  return { rows, height: y, pos, at };
+}
+
+/** Whether a block is over today (its end is before «now»; `now` is null on other days, so nothing is over). */
+export const isOver = (b, now) => now != null && b.end <= now;
 
 /** Minutes of the day for «now» (null on another day). */
 export const nowMin = (day, today, now = new Date()) => (day === today ? now.getHours() * 60 + now.getMinutes() : null);
