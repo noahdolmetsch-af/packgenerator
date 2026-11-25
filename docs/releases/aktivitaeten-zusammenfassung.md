@@ -1,6 +1,6 @@
 # Die App startet etwa doppelt so schnell (Aktivitäten-Zusammenfassung, Teil 1)
 
-PR #<Nummer> · 25.11.2026 · Auftrag: Noah «a» vom 25.11.2026 (Thread «App doppelt so schnell machen»), Messbericht `notes/tempo-2-2026-11-24/README.md`
+PR #1752 · 25.11.2026 · Auftrag: Noah «a» vom 25.11.2026 (Thread «App doppelt so schnell machen»), Messbericht `notes/tempo-2-2026-11-24/README.md`
 
 ## Was ist neu
 - **Ursache:** Eine Strava-Aktivität wiegt in `activities` im Schnitt 25 KB, weil rund 90 % Rohkurven einer einzelnen Fahrt sind (Herzfrequenz, Leistung, Höhe, Kilometer-Abschnitte). Mit Noahs 1'447 Aktivitäten (36 MB) lasen acht Stellen beim Start von Heute die ganze Tabelle, und jeder Seitenwechsel noch einmal. Gemessen mit Noahs Backup vom 24.11. (Computer ungebremst, Handy 4× gebremst): Heute-Inhalt 8.2 s / 25 s, Seitenwechsel blockiert im Mittel 0.9 s / 1.3 s.
