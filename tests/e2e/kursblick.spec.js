@@ -103,6 +103,15 @@ test('Kursblick: gold with reference and sale value, the SMI, periods, the calcu
   await expect(page.locator('[data-netto]')).toContainText(num(verkaufswert(lastGold, 5)));
   await page.getByRole('button', { name: T('Coins') }).click(); // the form suggests 4 %
   await expect(page.locator('[data-netto]')).toContainText(num(verkaufswert(lastGold, 4)));
+  // the page saves each deduction (5, then 4) in the background: wait until the 4 is really stored, or the reload
+  // cuts the write off and the old 5 comes back
+  await expect.poll(() => page.evaluate(() => new Promise((ok) => {
+    const r = indexedDB.open('pack-generator');
+    r.onsuccess = () => {
+      const q = r.result.transaction('settings').objectStore('settings').get('kurse.abschlag');
+      q.onsuccess = () => { r.result.close(); ok(q.result?.value ?? null); };
+    };
+  }))).toBe(4);
   await page.reload();
   await expect(page.locator('[data-abschlag]')).toHaveValue('4');
   await expect(page.locator('[data-alle] tbody tr')).toHaveCount(PERIODS.length);
