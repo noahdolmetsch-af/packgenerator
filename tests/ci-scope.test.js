@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { existsSync } from 'node:fs';
-import { scope, newsScope, partsFor, quickStage, allSpecFiles, DATA_SPEC_NAME, CORE_SPECS, MAX_SPECS } from '../scripts/ci-scope.mjs';
+import { scope, newsScope, NEWEST_LINES, partsFor, quickStage, allSpecFiles, DATA_SPEC_NAME, CORE_SPECS, MAX_SPECS } from '../scripts/ci-scope.mjs';
 
 describe('ci-scope: which phone tests a PR needs', () => {
   it('docs and news only: no phone tests', () => {
@@ -103,9 +103,12 @@ describe('ci-scope: which news lines «Ausprobieren» taps in a PR', () => {
   it('a deleted news file is left out', () => {
     expect(newsScope(['src/lib/news/gone.js'], () => false)).toBe('');
   });
-  it('the update list, the go-map, the Ausprobieren code and the helpers: all lines', () => {
+  it('the update list, the go-map, the Ausprobieren code and the helpers: the newest 200 lines plus the own ones (Noah «a» 25.11.2026)', () => {
+    expect(NEWEST_LINES).toBe(200);
     for (const f of ['src/lib/whatsnew.js', 'src/lib/know/newsgo-map.js', 'src/lib/know/spot.js', 'src/lib/news/README.md', 'src/pages/WasNeu.svelte', 'tests/e2e/ausprobieren.spec.js', 'tests/e2e/clock.js', 'tests/e2e/gesamttest/lib.js'])
-      expect(newsScope(['src/lib/news/x.js', f], has), f).toBe('all');
+      expect(newsScope(['src/lib/news/x.js', f], has), f).toBe('newest:200 x.js');
+    // without an own news file only the newest lines
+    expect(newsScope(['src/lib/know/heimat.js'], has)).toBe('newest:200');
   });
   it('no files known: all lines', () => {
     expect(newsScope([], has)).toBe('all');

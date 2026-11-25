@@ -22,15 +22,20 @@ const NEWEST = WHATS_NEW[0].version;
 
 // Noah 03.11.2026 «1a»: a pull request taps only the lines of its own news files (NEWS_ONLY = their names, set by
 // deploy.yml from scripts/ci-scope.mjs; empty = none). Not set (the night run, locally) or «all»: every line.
+// 25.11.2026 (Noah «a»): when a PR changes what the lines run on, NEWS_ONLY also has `newest:200` = the newest 200 lines
+// (the first rows: the update list runs newest first); the rest is left to the night run.
 const ONLY = process.env.NEWS_ONLY;
 const mine = new Set();
+let newest = 0;
 if (ONLY && ONLY !== 'all') {
   for (const f of ONLY.split(/\s+/).filter(Boolean)) {
+    const m = /^newest:(\d+)$/.exec(f);
+    if (m) { newest = Number(m[1]); continue; }
     const e = (await import(`../../src/lib/news/${f}`)).default;
     for (const p of [...e.points, ...(e.small ?? [])]) mine.add(p.text);
   }
 }
-const LINES = ONLY === undefined || ONLY === 'all' ? ROWS : ROWS.filter(([, text]) => mine.has(text));
+const LINES = ONLY === undefined || ONLY === 'all' ? ROWS : ROWS.filter(([, text], i) => i < newest || mine.has(text));
 
 // The lines are tapped in parts of PART lines each, so that a part finishes well inside its time limit (one test over
 // all ~500 lines ran into the 10-minute limit). Every line is still tapped once; the parts are counted from the source.

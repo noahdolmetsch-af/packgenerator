@@ -17,6 +17,9 @@ const skipGesamttest = !!process.env.E2E_SKIP_GESAMTTEST;
 // check of the live app (tests/e2e/live, LIVE=1) run only in their own workflows, never in a pull request.
 const ignore = [
   ...(skipGesamttest ? ['**/gesamttest/**'] : []),
+  // 24.11.2026 (thread «Tests schneller machen»): the night run cuts «Ausprobieren» (85 slow tests that lie in one block) out of its
+  // 7 parts and runs them as their own parts (volle-pruefung.yml, job «ausprobieren»); otherwise part 1 had an hour of work for 45 minutes.
+  ...(process.env.E2E_SKIP_AUSPROBIEREN ? ['**/ausprobieren.spec.js'] : []),
   ...(process.env.RUNDGANG ? [] : ['**/nachtrundgang/**']),
   ...(process.env.LIVE ? [] : ['**/live/**']),
   // 06.11.2026: tests/e2e/tmp-durchklick are the Etappe-5 probes (click-through, fuzz, repro, shots; 30 to 60 minute
