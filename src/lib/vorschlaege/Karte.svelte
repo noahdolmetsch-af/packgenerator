@@ -132,7 +132,7 @@
   .ln.hot { opacity: 1; }
   .ln.dim { opacity: 0.18; }
   .frame { position: relative; }
-  .all { position: absolute; top: 8px; left: 8px; z-index: 1; min-height: 32px; padding: 0 12px; border: 1px solid var(--k-border); border-radius: 99px; background: var(--k-paper); color: var(--k-text); font: inherit; font-size: var(--fs-small); font-weight: 600; cursor: pointer; }
+  .all { position: absolute; top: 8px; left: 8px; z-index: 1; min-height: 32px; padding: 0 12px; border: 1px solid var(--k-border); border-radius: var(--r-pill); background: var(--k-paper); color: var(--k-text); font: inherit; font-size: var(--fs-small); font-weight: 600; cursor: pointer; }
   .tip { position: absolute; z-index: 2; display: grid; gap: 4px; padding: 8px 10px; background: var(--k-paper); color: var(--k-text); border: 1px solid var(--k-border); border-radius: 10px; box-shadow: 0 4px 14px var(--k-shadow); font-size: var(--fs-small); }
   .tip b { overflow-wrap: break-word; }
   .tnums { display: flex; flex-wrap: wrap; gap: 2px 12px; }
