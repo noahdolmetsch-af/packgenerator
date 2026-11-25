@@ -1,4 +1,4 @@
-# Nachtlauf: Morgenmeldung, Start am Abend, Teil 1 nicht mehr zu gross
+# Nachtlauf: Morgenmeldung, Start am Abend, Teil 1 nicht mehr zu gross; «Ausprobieren» im PR kürzer
 
 PR #<Nummer> · 24.11.2026 · Auftrag: Noah «a-c alle», Punkt c «Nachtlauf» (Thread «Tests schneller machen»), dazu die Meldung des Wackel-Threads über Teil 1
 
@@ -10,8 +10,11 @@ PR #<Nummer> · 24.11.2026 · Auftrag: Noah «a-c alle», Punkt c «Nachtlauf» 
 - **Teil 1 des Nachtlaufs läuft nicht mehr ins Zeitlimit.** Er wurde seit Tagen (auf Handy und Computer) nach 45 Minuten abgebrochen, bevor er die Liste der roten Tests schrieb; deshalb konnte der Nachtlauf nie grün werden. Ursache: Playwright 1.65 schneidet die Teile nur nach der Zahl der Tests, Stück für Stück in der Reihenfolge der Dateien. «Ausprobieren» (`tests/e2e/ausprobieren.spec.js`: 85 Tests, jeder tippt 20 Zeilen von «Was ist neu», gemessen 1 bis 1,5 Minuten pro Test) liegt in einem Block ganz in Teil 1, das sind etwa 60 Minuten Arbeit bei 45 Minuten Limit. Die übrigen Teile brauchten 16 bis 31 Minuten.
 - **Neu:** Die 7 Teile lassen «Ausprobieren» weg (`E2E_SKIP_AUSPROBIEREN`, `playwright.config.js`) und haben jetzt je rund 315 statt 328 Tests. «Ausprobieren» läuft als eigener Auftrag `ausprobieren` mit je 3 Teilen auf Handy und Computer (rund 28 Tests pro Teil, geschätzt 15 bis 25 Minuten). Der Bericht zählt den Auftrag mit (rot, wieder grün, Liste der roten Tests: jetzt 24 statt 18 Listen).
 
+- **«Ausprobieren» im PR, wenn die Technik geändert wird** (Noah «a» auf der Karte vom 25.11.2026 01:03): Ein PR, der ändert, worauf die Zeilen laufen (Update-Liste, Go-Karte, `src/lib/know/`, den Ausprobieren-Test selbst, die Testhelfer, die «Was ist neu»-Seiten), tippt nicht mehr alle rund 1400 Zeilen, sondern die **neuesten 200 plus die Zeilen seiner eigenen News-Dateien**. Das sind 10 bis 11 statt 85 Teile (`scripts/ci-scope.mjs`, `NEWEST_LINES`; der Test liest den Wert `newest:200` aus `NEWS_ONLY`). Den Rest prüft der Nachtlauf. Das ändert Noahs Regel vom 03.11.2026 («bei geänderter Technik alle Zeilen»). Grund: PR 1640 («Frag Gemini», ändert `src/lib/know/`) lief dreimal ins Zeitlimit von Teil 1, weil alle 85 Teile in Teil 1 lagen.
+
 ## Was fällt weg oder rutscht tiefer
-- nichts. Der Nachtlauf prüft dasselbe wie vorher, nur zu einer anderen Uhrzeit; er prüft main so, wie es am Abend steht.
+- Ein PR, der die Technik von «Ausprobieren» ändert, prüft nur noch die neuesten 200 und die eigenen Zeilen; die älteren Zeilen prüft erst der Nachtlauf (alter Weg: alle Zeilen im PR, neuer Weg: 200 + eigene im PR, alle in der Nacht).
+- Sonst nichts. Der Nachtlauf prüft dasselbe wie vorher, nur zu einer anderen Uhrzeit; er prüft main so, wie es am Abend steht.
 
 ## Selbst entschieden
 - Der Nachtlauf lief schon jede Nacht (und ist seit Wochen jede Nacht rot gewesen, mit Vergleich zur Vorhernacht). Neu ist nur die Meldung und die Startzeit.

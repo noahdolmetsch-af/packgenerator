@@ -14,3 +14,9 @@ Auf die Frage, was zusätzlich gegen rote Tests getan werden kann (a Prüfung di
 - **Entscheid:** «Ausprobieren» (85 Tests) läuft im Nachtlauf als eigener Auftrag in 3 Teilen pro Gerät, die 7 Browser-Teile lassen es weg.
 - **Grund:** Teil 1 bekam wegen der Schnitt-Regel von Playwright (nach Zahl der Tests, am Stück, in Dateireihenfolge) alle 85 langsamen Tests und lief jede Nacht ins Zeitlimit von 45 Minuten; die Liste der roten Tests wurde nie geschrieben.
 - **Abgelehnt:** das Limit des Teils auf 70 Minuten anheben (wie bei den PR-Läufen) – das verschiebt das Problem und macht den Nachtlauf länger; ein Testlimit anheben oder Tests lockern ist ausgeschlossen (Auftrag des Koordinators).
+
+## «Ausprobieren» im PR bei geänderter Technik (Noah «a», Karte vom 25.11.2026 01:03)
+
+- **Entscheid:** Ändert ein PR, worauf die Zeilen von «Was ist neu» laufen, tippt «Ausprobieren» nur die neuesten 200 Zeilen plus die der eigenen News-Dateien. Alle übrigen Zeilen prüft der Nachtlauf. Das passt Noahs Regel vom 03.11.2026 («1a») an.
+- **Grund:** Solche PRs tippten alle rund 1400 Zeilen (85 Teile, etwa eine Stunde Arbeit); alle 85 lagen in Teil 1 und liefen ins Zeitlimit (PR 1640, dreimal).
+- **Abgelehnt:** b alle Zeilen weiter, aber als eigener Auftrag mit 3 Teilen auch im PR (mehr Rechner pro PR); c nichts ändern.
