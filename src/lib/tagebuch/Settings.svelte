@@ -209,6 +209,7 @@
     flex-direction: column;
     gap: 18px;
     max-height: 70vh;
+    max-height: 70dvh;
     overflow-y: auto;
   }
   .tbs-sec {

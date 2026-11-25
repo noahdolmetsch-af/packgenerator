@@ -69,6 +69,7 @@
     flex-direction: column;
     gap: 10px;
     max-height: 62vh;
+    max-height: 62dvh;
     overflow-y: auto;
   }
   .fzs-err {

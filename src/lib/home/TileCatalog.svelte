@@ -62,6 +62,7 @@
     width: 100vw;
     max-width: 100vw;
     max-height: 90vh;
+    max-height: 90dvh;
     border-radius: 16px 16px 0 0;
     padding: 14px var(--gut) calc(16px + env(safe-area-inset-bottom));
   }

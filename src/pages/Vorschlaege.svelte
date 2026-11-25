@@ -879,7 +879,8 @@
   .fsum { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); margin-bottom: var(--sp-3); }
   .fsum .fl { margin: 0; min-width: 0; overflow-wrap: break-word; }
   .fsum .btn { flex: none; }
-  .fsheet { position: fixed; inset: auto 0 0 0; width: 100%; max-width: 100%; max-height: 90vh; margin: 0; padding: 12px 10px calc(16px + env(safe-area-inset-bottom)); box-sizing: border-box; border: 0; border-radius: 22px 22px 0 0; background: var(--paper); color: var(--ink); box-shadow: 0 -10px 40px var(--shadow); overflow-y: auto; }
+  .fsheet { position: fixed; inset: auto 0 0 0; width: 100%; max-width: 100%; max-height: 90vh;
+    max-height: 90dvh; margin: 0; padding: 12px 10px calc(16px + env(safe-area-inset-bottom)); box-sizing: border-box; border: 0; border-radius: 22px 22px 0 0; background: var(--paper); color: var(--ink); box-shadow: 0 -10px 40px var(--shadow); overflow-y: auto; }
   .fsheet::backdrop { background: var(--scrim); }
   .fgrip { display: block; width: 40px; height: 5px; margin: 0 auto 8px; border-radius: 9px; background: var(--line); }
   .fsheet .filters { margin-bottom: var(--sp-3); border: 0; box-shadow: none; padding: var(--sp-2); }

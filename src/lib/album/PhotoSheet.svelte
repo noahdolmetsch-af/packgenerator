@@ -99,6 +99,7 @@
     display: block;
     width: 100%;
     max-height: 50vh;
+    max-height: 50dvh;
     object-fit: contain;
     border-radius: var(--r-ctl);
     background: var(--paper-2);

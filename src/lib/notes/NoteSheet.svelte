@@ -492,6 +492,7 @@
       margin: 0;
       width: min(540px, 40vw);
       max-height: calc(100vh - 80px);
+    max-height: calc(100dvh - 80px);
       overflow: auto;
       z-index: 40;
     }
