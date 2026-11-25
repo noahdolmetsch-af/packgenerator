@@ -8,7 +8,7 @@
    * «Ganze App neu denken» Schritt 10 (Noah 18.11.2026): seven places and «Ich»; Ausrüstung is the tab «Sets» of Material,
    * Quick Links stands under Heute, Inspiration is a tab of Touren (nav.js SIDE_PLACES, sidePlaceOf).
    */
-  import { menuSide, shownTabs, tabOf, placeHref, sidePlaceOf } from '../nav.js';
+  import { menuSide, shownTabs, tabOf, placeHref, sidePlaceOf, subOf } from '../nav.js';
   import { anp, placeLabel, tabLabel } from '../anpassen.svelte.js'; // «Anpassen» 2a + 3a: your menu, tabs and names
   import { t, tn } from '../i18n.svelte.js';
   import LogoMark from '../logo/LogoMark.svelte'; // «Jahreszeit» (Idee 30)
@@ -93,7 +93,10 @@
             {#if on && (tabs.length > 1 || p.key === 'today') && tabs.length}
               <ul class="tabs">
                 {#each tabs as x (x.key)}
-                  <li><a href={x.href} class:cur={tab === x.key} aria-current={tab === x.key ? 'page' : undefined}>{tabLabel(p.key, x)}</a></li>
+                  <!-- «Navigation schlank» (Noah 24.11.2026 «was ja»): the page under the lit tab (a chip, e.g. «Mein Tag» under «Woche») is named in the sidebar too, so the row never says «Woche» while you are on «Mein Tag» -->
+                  {@const sub = tab === x.key && x.subs?.length > 1 ? subOf(p.key, hash) : null}
+                  {@const subName = sub && tabLabel(p.key, sub).trim() !== tabLabel(p.key, x).trim() ? tabLabel(p.key, sub) : ''}
+                  <li><a href={x.href} class:cur={tab === x.key && !subName} class:parent={!!subName} aria-current={tab === x.key ? (subName ? 'true' : 'page') : undefined}>{tabLabel(p.key, x)}</a>{#if subName}<a class="subnow cur" href={sub.href} aria-current="page" data-side-sub>{subName}</a>{/if}</li>
                 {/each}
               </ul>
             {/if}
@@ -315,6 +318,15 @@
   }
   .tabs a:hover {
     color: var(--ink);
+  }
+  .tabs a.parent {
+    min-height: 32px;
+    color: var(--ink-2);
+  }
+  .tabs a.subnow {
+    padding-left: var(--sp-5, 20px);
+    min-height: 32px;
+    overflow-wrap: break-word;
   }
   .tabs a.cur {
     margin-left: -1px;

@@ -13,6 +13,9 @@
   import { phone, wide } from '../media.svelte.js';
   import { X, LayoutGrid, ArrowUpDown, Calendar, Clock, NotebookPen, BookOpen, Inbox, Mail, Compass, ShoppingBasket, Sun, Lightbulb, Link2, Map as MapIcon, Copy, History, Star, Mountain, Wrench, Backpack, Shirt, Boxes, ShoppingCart, Package, Hand, Bike, Store, Ruler, Layers, Flower2, Dumbbell, Route, Target, Trophy, Sparkles, ChartLine, Smile, Heart, Scale, Circle } from '@lucide/svelte';
   import { tabInfo } from './tabinfo.js';
+  import InfoDot from './InfoDot.svelte';
+  import { ops } from '../bedienung.svelte.js';
+  import { infoOfTab } from './spotinfo.js';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import SortGrip from '../ui/SortGrip.svelte';
@@ -78,6 +81,8 @@
   const placeName = $derived(placeObj ? placeLabel(placeObj) : '');
   const curTab = $derived(tabs.find((x) => x.key === cur));
   const curName = $derived(curTab ? tabLabel(place, curTab) : '');
+  // «Navigation schlank» (Noah 24.11.2026 «was ja»): the «i» of the tab stands at the end of the chips, not on a row of its own (PathLine.svelte)
+  const tabHelp = $derived(ops.path ? infoOfTab(place, cur) : null);
 
   /** Bikes: the chosen bike stays chosen in the other tab (#/bikes?tab=care&bike=<id>). */
   function hrefOf(x, h = hash) {
@@ -212,6 +217,7 @@
     {#each subs as x (x.key)}
       <a href={hrefOf(x)} aria-current={curSub === x.key ? 'page' : undefined} data-sub={x.key}>{tabLabel(place, x)}{#if x.key === 'inbox' && waiting}<span class="pdot num" aria-label={t('{n} to sort', { n: waiting })}>{waiting}</span>{/if}</a>
     {/each}
+    {#if tabHelp}<span class="psi"><InfoDot info={tabHelp} id={`tab.${place}`} /></span>{/if}
   </nav>
 {/if}
 </div>
@@ -238,6 +244,10 @@
     font: 500 var(--fs-body) / 1.2 var(--font-body);
     text-decoration: none;
     white-space: nowrap;
+  }
+  .psi {
+    margin-left: auto;
+    align-self: center;
   }
   /* Schritt 11: the pages of a tab as small chips under the tabs */
   .psubs {
