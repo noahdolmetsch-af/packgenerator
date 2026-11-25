@@ -2,9 +2,9 @@
 export default {
   'Course|tab': 'Verlauf',
   'How your values moved, against your own usual. Only to look at, nothing is graded.': 'Wie sich deine Werte bewegt haben, gemessen an deinem eigenen Üblichen. Nur zum Ansehen, nichts wird bewertet.',
-  '4 wk|verlauf': '4 Wochen',
-  '12 wk|verlauf': '12 Wochen',
-  '6 mo|verlauf': '6 Monate',
+  '4 wk|verlauf': '4 Wo.',
+  '12 wk|verlauf': '12 Wo.',
+  '6 mo|verlauf': '6 Mon.',
   '2 yr|verlauf': '2 Jahre',
   'Day|verlauf': 'Tag',
   'No values from your watch yet': 'Noch keine Werte von deiner Uhr',

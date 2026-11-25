@@ -108,7 +108,7 @@
     <Empty icon={Activity} title={t('No values from your watch yet')} text={t('HRV, resting pulse and sleep come with Fitbit. After 30 days with a value, your usual range appears here.')} action={{ label: t('Connect your data'), href: '#/auswerten/quellen' }} />
   {:else}
     <section class="card blk" aria-label={t('Period')}>
-      <Seg full label={t('Period')} value={spanKey} onchange={pickSpan} {options} />
+      <Seg full small label={t('Period')} value={spanKey} onchange={pickSpan} {options} />
     </section>
 
     {#each charts as c (c.key)}
