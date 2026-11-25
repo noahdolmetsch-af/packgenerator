@@ -11,6 +11,7 @@
   import { t, tn } from '../lib/i18n.svelte.js';
   import { db } from '../lib/db.js';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
+  import KarteSkizze from '../lib/ich/KarteSkizze.svelte';
   import { ChevronDown, ChevronRight, Star } from '@lucide/svelte';
   import { buildMap, buildTree, filterMap, filterPoints, markOf, freshIds, mapSize, pathText } from '../lib/appmap.js';
   import { featureData, usedOf } from '../lib/know/featureData.js';
@@ -22,6 +23,12 @@
   const full = buildMap();
   let q = $state('');
   let filter = $state('all');
+  // the three views of the map (Noah 24.11.2026 «beide»): the list (the tree, the default), the cycle of a tour and the mind map
+  let view = $state('list');
+  const VIEWS = [
+    { key: 'list', label: 'List|view' },
+    { key: 'mind', label: 'Mind map|view' },
+  ];
   const FILTERS = [
     { key: 'all', label: 'All|map' },
     { key: 'never', label: 'Never opened' },
@@ -64,6 +71,14 @@
           <p class="ich-hs" data-am-count>{searching ? t('{n} functions in {places} places', { n: mapSize(shown), places }) : $dataQ ? t('{n} of {total} tried', { n: used.size, total }) : t('{total} functions in {places} places', { total, places: full.length })}</p>
         </div>
       </div>
+      <div class="am-filter" role="group" aria-label={t('Map view')}>
+        {#each VIEWS as v (v.key)}
+          <button type="button" class="am-chip" class:on={view === v.key} aria-pressed={view === v.key} onclick={() => (view = v.key)} data-am-view={v.key}>{t(v.label)}</button>
+        {/each}
+      </div>
+      {#if view !== 'list'}
+        <KarteSkizze map={full} marks={state} pages={pageList} />
+      {:else}
       <p class="am-help">{t('Tap a place to see its tabs, then a tab to see its pages. A filled dot: you opened the page or your data shows you used it. A ring: never opened. A star: new in the last two weeks.')}</p>
       <div class="am-filter" role="group" aria-label={t('Show')}>
         {#each FILTERS as f (f.key)}
@@ -120,6 +135,7 @@
       {:else}
         <p class="am-help" data-am-none>{searching ? t('Nothing found. Try another word.') : t('Nothing here. You have opened everything in this filter.')}</p>
       {/each}
+      {/if}
     </section>
   </div>
 </div>
