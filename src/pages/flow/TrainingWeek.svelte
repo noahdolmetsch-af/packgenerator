@@ -714,6 +714,7 @@
   .cn {
     min-width: 0;
     overflow-wrap: break-word;
+    hyphens: auto; /* Gesamttest Runde 2, C6: a long word in a narrow chip breaks at a syllable with «-», not letter by letter */
     text-align: left;
   }
   .ch.done,
