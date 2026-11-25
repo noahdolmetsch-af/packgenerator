@@ -40,6 +40,6 @@ describe('readSeries: one series over everything', () => {
 
   it('names every table it reads, for the transaction on Today', () => {
     const db = fresh();
-    expect(seriesTables(db).map((x) => x.name).sort()).toEqual(['activities', 'debriefs', 'flowLog', 'kmBook', 'rides', 'settings', 'trips']);
+    expect(seriesTables(db).map((x) => x.name).sort()).toEqual(['activities', 'activitiesLite', 'debriefs', 'flowLog', 'kmBook', 'rides', 'settings', 'trips']);
   });
 });

@@ -20,6 +20,7 @@
   import { beginMed, tplStart, medTemplates, lastStart, isMedAct } from '../flow/hobby/medstart.js';
   import { daysGrid, streaks } from '../flowmed.js';
   import { t, tn } from '../i18n.svelte.js';
+  import { readLite } from '../actlite.js';
 
   let { today } = $props();
 
@@ -28,7 +29,7 @@
     liveQuery(async () => {
       const [set, push] = await Promise.all([db.settings.get(OUTDOOR_KEY), db.settings.get(PUSH_KEY)]);
       const rec = outdoorOf(set?.value);
-      const acts = rec?.from ? await db.activities.where('day').between(rec.from, rec.until, true, true).toArray() : [];
+      const acts = rec?.from ? await readLite(db, (T) => T.where('day').between(rec.from, rec.until, true, true).toArray()) : [];
       return { rec, acts, remind: outdoorRemindOn(push?.value) };
     }),
   );

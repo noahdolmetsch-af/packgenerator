@@ -27,6 +27,7 @@
   import { levelWord } from '../flow/form/words.js';
   import BodySheet from './BodySheet.svelte';
   import { t, tn, locale } from '../i18n.svelte.js';
+  import { readLite } from '../actlite.js';
 
   let { today, due = 0, areas = [], evening = false, open = false, onstart = () => {}, check = true } = $props();
   const late = afterMorning(stampOf()); // from 11:00: «Open from this morning» instead of «Morning check» (17.11.2026)
@@ -38,7 +39,7 @@
     liveQuery(async () => {
       const rec = outdoorOf((await db.settings.get(OUTDOOR_KEY))?.value);
       if (!rec?.from || rec.stopped || today < rec.from || today > rec.until) return null;
-      const acts = await db.activities.where('day').equals(today).toArray();
+      const acts = await readLite(db, (T) => T.where('day').equals(today).toArray());
       return { goal: rec.goalMin, total: dayOf(rec, acts, today).total, rec, acts };
     }),
   );

@@ -24,6 +24,7 @@
   import WeekWhere from '../flow/WeekWhere.svelte';
   import SurpriseLines from '../wohl/SurpriseLines.svelte'; // Paket P #256: surprises of the week (carried here from the Sunday window, Schritt F)
   import { t, tn, num } from '../i18n.svelte.js';
+  import { readLite } from '../actlite.js';
 
   let { now } = $props();
   const today = $derived(dayOf(now));
@@ -36,7 +37,7 @@
     week
       ? liveQuery(async () => {
           const [acts, flowActs, log, checks, answers, plan, trips] = await Promise.all([
-            db.activities.toArray(),
+            readLite(db, (T) => T.toArray()),
             db.flowActs.toArray(),
             db.flowLog.toArray(),
             db.flowChecks.toArray(),

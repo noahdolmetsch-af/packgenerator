@@ -23,7 +23,7 @@ beforeEach(async () => {
 
 describe('the table', () => {
   it('is schema 21, a data table (backup) and stays on this device in the sync', () => {
-    expect(SCHEMA_VERSION).toBe(21);
+    expect(SCHEMA_VERSION).toBe(22);
     expect(DATA_TABLES).toContain('trash');
     expect(syncLocal('trash', 'x')).toBe(true);
     expect(syncLocal('items', 'x')).toBe(false);

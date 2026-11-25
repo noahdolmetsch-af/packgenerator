@@ -1,6 +1,7 @@
 import Dexie from 'dexie';
 import { trackSync } from './sync/track.js';
 import { watchDeletes } from './trash/capture.js';
+import { maintainLite } from './actlite.js';
 
 /**
  * The app's database. It lives in IndexedDB, inside the browser on this device.
@@ -15,7 +16,7 @@ import { watchDeletes } from './trash/capture.js';
  */
 
 /** Bump this when the stored shape changes, and add a Dexie upgrade step below. */
-export const SCHEMA_VERSION = 21; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 9: AB «Deine Abfragen». 10: Strava activities («Training»). 11: timer log. 12: documents (Ich › Dokumente). 13: Fitbit daily values. 15: Google calendar and tasks (14 left out: DP needs none). 16: Reise-Spur (own recordings and «Hier bin ich» places). 17: Paket O «Sportarten» (sportItems). 18: «Velo-Inspektion» (inspections). 19: Paket T «Freie Zeit» (frei). 20: «Verbesserungs-Logbuch» (logbuch). 21: «Zuletzt gelöscht» (trash)
+export const SCHEMA_VERSION = 22; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 9: AB «Deine Abfragen». 10: Strava activities («Training»). 11: timer log. 12: documents (Ich › Dokumente). 13: Fitbit daily values. 15: Google calendar and tasks (14 left out: DP needs none). 16: Reise-Spur (own recordings and «Hier bin ich» places). 17: Paket O «Sportarten» (sportItems). 18: «Velo-Inspektion» (inspections). 19: Paket T «Freie Zeit» (frei). 20: «Verbesserungs-Logbuch» (logbuch). 21: «Zuletzt gelöscht» (trash). 22: «Aktivitäten-Zusammenfassung» (activitiesLite, derived, not in a backup: actlite.js)
 
 /** Tables that belong to the user's data and go into every backup file. */
 /** Tables on the device that never go into a backup: GA's copy of Google's events and tasks (Google keeps the truth). */
@@ -246,6 +247,13 @@ export function createDb(name = 'pack-generator') {
   db.version(21).stores({
     trash: 'id, at, kind',
   });
+  // Version 22 («Aktivitäten-Zusammenfassung», Noah 25.11.2026 «a») only adds the table activitiesLite: the activities without their raw
+  // curves, derived and kept by actlite.js (never in a backup, never synced). Existing data stays as it is; the table is filled in the background.
+  db.version(22).stores({
+    activitiesLite: 'id, day, kind',
+  });
+  // the summary is written in the same step as every save of an activity (actlite.js)
+  maintainLite(db);
   // «Zuletzt gelöscht»: while a delete of the user runs, the rows that go are kept (trash/capture.js); outside of that nothing is noted
   watchDeletes(db, DATA_TABLES);
   // P8 «Automatischer Abgleich»: every save of a data record notes when it changed (and a delete leaves

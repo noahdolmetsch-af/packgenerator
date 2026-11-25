@@ -47,6 +47,7 @@ try {
   /* private mode */
 }
 import { db } from './lib/db.js';
+import { startLite } from './lib/actlite.js';
 import { tidyData } from './lib/tidy.js';
 import { loadLists, watchLists } from './lib/lists.js';
 import { watchHelloButtons } from './lib/home/hallobuttons.js'; // Gruss B: the user's own buttons of the greeting
@@ -79,6 +80,9 @@ import { watchSync } from './lib/sync/auto.svelte.js';
 import { watchUpdates } from './lib/swupdate.js';
 import FirstStart from './lib/firststart/FirstStart.svelte';
 import { mayAsk } from './lib/firststart.js';
+
+// «Aktivitäten-Zusammenfassung» (actlite.js): checks the small table of the activities before the first list reads it; builds it in the background when it is missing
+startLite(db);
 
 // v0.46.0 (Noah 4b, 5a): the colour world and light or dark, before the first paint of the app.
 // v0.97.0: also the font and the text size (Ich › Darstellung).
