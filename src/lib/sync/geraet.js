@@ -129,6 +129,7 @@ export const GERAET_DATEIEN = {
   'pages/Abfahrt.svelte': 'ansicht',
   'pages/Agenda.svelte': 'ansicht',
   'pages/Analyse.svelte': 'ansicht',
+  'pages/AuswertenVerlauf.svelte': 'ansicht',
   'pages/Chronik.svelte': 'ansicht',
   'pages/Debrief.svelte': 'ansicht',
   'pages/Gear.svelte': 'ansicht',

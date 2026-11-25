@@ -57,6 +57,7 @@ export const TAB_INFO = {
   'analysis:wohl': ['heart', 'What does you good, from your own answers.'],
   'analysis:ideen': ['sparkles', 'Ideas for your balance.'],
   'analysis:analyse': ['chart', 'Every value as a tile with its course.'],
+  'analysis:verlauf': ['chart', 'Your values over time, your normal over the years and what your data shows.'],
   'analysis:insights': ['chart', 'The strongest patterns in your data.'],
   'analysis:weight': ['scale', 'Your weight and its curve.'],
   'analysis:milestones': ['star', 'Stars and trophies of every sport.'],
