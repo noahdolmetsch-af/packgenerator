@@ -31,7 +31,7 @@
       <li class="sk-branch" class:on>
         <button type="button" class="sk-bbox" class:on aria-expanded={on} data-am-branch={b.key} onclick={() => (openBranch = on ? null : b.key)}>
           <span class="sk-bt"><b>{t(b.label)}</b><small>{t('{n} of {m} opened', { n: countOpen(b.points), m: b.points.length })}</small></span>
-          <ChevronDown class="sk-chev" size={18} aria-hidden="true" />
+          <ChevronDown class="sk-chev" size={20} aria-hidden="true" />
         </button>
         {#if on}
           <ul class="sk-twigs" data-am-twigs={b.key}>
