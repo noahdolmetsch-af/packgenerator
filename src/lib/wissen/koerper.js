@@ -24,6 +24,7 @@ export default {
   'f.weekgoals': "Two or three goals are plenty: a goal you can reach by Thursday keeps the week friendly, a big one only on Sunday.",
   'f.form': "Readiness is an observation, not an order. If the number and your legs disagree, the legs know more.",
   'f.overview': "Sleep and pulse go up and down; look at the week, not at one night.",
+  'f.auswertenwoche': "A week with few hours is not a bad week. Look at the recovery next to it before you judge.",
   'f.auswertenheute': "Your usual range is the middle half of your last 12 months. A value outside it is a hint to look, not a verdict.",
   'f.milestones': "The next star is shown first; it is often closer than the big goal and keeps you moving.",
   'f.gipfelbuch': "Confirm a found summit on the same day; a week later you will not remember whether you really were at the top.",

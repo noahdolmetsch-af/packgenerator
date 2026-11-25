@@ -31,8 +31,8 @@ test('AG-1 Auswerten has five tabs by question, the other pages are chips under 
     await expect(chips.locator(`a[data-sub="${sub}"]`), hash).toHaveAttribute('aria-current', 'page');
   }
   await page.goto('./#/trips/rides');
-  await expect(chips.locator('a')).toHaveCount(9); // Fahrten: Fahrten, Haken, Gelernt, Meilensteine, Challenges, Heatmap, Neuland, Gipfelbuch, Jahr
-  await expect(chips.locator('a')).toHaveText([/./, /./, /Erkenntnisse/, /Meilensteine/, /Challenges/, /Heatmap/, /Neuland/, /Gipfel/, /Jahr/]);
+  await expect(chips.locator('a')).toHaveCount(10); // Woche: Woche, Fahrten, Haken, Gelernt, Meilensteine, Challenges, Heatmap, Neuland, Gipfelbuch, Jahr
+  await expect(chips.locator('a')).toHaveText([/./, /./, /./, /Erkenntnisse/, /Meilensteine/, /Challenges/, /Heatmap/, /Neuland/, /Gipfel/, /Jahr/]);
   await noSideScroll(page);
   expect(errors).toEqual([]);
 });

@@ -108,14 +108,14 @@ describe('Auswerten in five tabs by question', () => {
     const subs = Object.fromEntries(all.map((x) => [x.key, x.subs.map((s) => s.key)]));
     expect(subs.start).toEqual(['heute', 'fragen', 'start']); // «Auswerten neu» (Noah 24.11.2026): «Heute» is the new first chip
     expect(subs.body).toEqual(expect.arrayContaining(['form', 'body', 'weight', 'insights']));
-    expect(subs.rides).toEqual(expect.arrayContaining(['rides', 'ticks', 'milestones', 'heatmap', 'neuland', 'gipfel', 'year', 'learned', 'challenges']));
+    expect(subs.rides).toEqual(expect.arrayContaining(['woche', 'rides', 'ticks', 'milestones', 'heatmap', 'neuland', 'gipfel', 'year', 'learned', 'challenges']));
     expect(subs.history).toEqual(expect.arrayContaining(['history', 'wohl', 'ideen']));
     expect(subs.analyse).toEqual(['analyse']);
   });
   it('no page of the old eighteen tabs is lost or stands twice', () => {
     const shown = all.flatMap((x) => x.subs.map((s) => s.key));
     expect(new Set(shown).size).toBe(shown.length);
-    expect([...shown].sort()).toEqual(['analyse', 'fragen', 'form', 'body', 'rides', 'ticks', 'history', 'wohl', 'ideen', 'insights', 'weight', 'milestones', 'heatmap', 'neuland', 'gipfel', 'learned', 'year', 'start', 'challenges', 'heute'].sort());
+    expect([...shown].sort()).toEqual(['analyse', 'fragen', 'form', 'body', 'rides', 'ticks', 'history', 'wohl', 'ideen', 'insights', 'weight', 'milestones', 'heatmap', 'neuland', 'gipfel', 'learned', 'year', 'start', 'challenges', 'heute', 'woche'].sort());
   });
 });
 
@@ -126,6 +126,10 @@ describe('Auswerten: Heute is the start, the old overview moved', () => {
     expect(subOf('analysis', '#/auswerten?x=1')?.key).toBe('heute');
     expect(subOf('analysis', '#/auswerten/uebersicht')?.key).toBe('start');
     expect(subOf('analysis', '#/auswerten/fragen')?.key).toBe('fragen');
+    // «Auswerten neu» Teil 2: «Woche» is the first chip of the tab that was «Rides»; the Heute tab does not claim its address
+    expect(subOf('analysis', '#/auswerten/woche')?.key).toBe('woche');
+    expect(PLACE_TABS.analysis.find((x) => x.match('#/auswerten/woche'))?.key).toBe('rides');
+    expect(PLACE_TABS.analysis.find((x) => x.key === 'rides').href).toBe('#/auswerten/woche');
     const tab = PLACE_TABS.analysis[0];
     expect(tab.href).toBe('#/auswerten');
     expect(tab.match('#/auswerten') && tab.match('#/auswerten/uebersicht')).toBe(true);

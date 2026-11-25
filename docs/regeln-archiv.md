@@ -19,6 +19,14 @@ Noah 24.11.2026 17:19: «ich möchte für jeden PR vor merge bilder sehen … di
 - Merge-Prüfung (Basis `main`, konfliktfrei, linearer Zweig): `CLAUDE.md`.
 ~~~~
 
+## Ersetzt am 24.11.2026 23:18: «höchstens 5–6 PRs gleichzeitig in der Prüfung» (Block 4)
+
+Noah «a» 24.11.2026 16:58: «höchstens 5–6 PRs gleichzeitig in der Prüfung auf GitHub, bis 8 offen insgesamt; 6–10 Threads arbeiten gleichzeitig. Ein neuer PR wird erst geöffnet, wenn in der Prüfung weniger als 5–6 sind und insgesamt weniger als 8 offen.» Ersetzt für die Zahl in der Prüfung durch Noah 24.11.2026 23:18 («wenn main wieder grün ist, bitte nur 4 tests gleichzeitig laufen lassen ab sofort. ich möchte weniger rote tests haben»): höchstens 4 PRs gleichzeitig in der Prüfung; 8 offen und 6–10 Threads bleiben.
+
+## Ersetzt am 24.11.2026 22:19: Wackel-Regel «2× zufällig» (Block 4)
+
+Block 4 vom 17:19: «**Ein Test, der 2× zufällig fällt,** kommt auf die Liste und wird noch am selben Tag stabil gemacht (Wackel-Thread).» Ersetzt durch Noah «a-c alle» 24.11.2026 22:19 (Vorschlag b): schon ein einmal zufällig roter Test kommt auf die Liste und wird noch am selben Tag stabil gemacht, bevor neue PRs dazukommen.
+
 ## Ersetzt am 24.11.2026 18:07: «Entwurf vor dem Bauen» als Bild für Noah (Block 5)
 
 Block 5 vom 17:19 sagte: «Entweder **vor dem Bauen** als Entwurf oder **nach dem Bauen** vom fertigen PR, **wenn möglich mit Noahs aktuellen Daten** …». Ersetzt durch Noah 24.11.2026 18:07 und 18:08 («bilder immer im app design … das gilt immer überall»): Bilder nur aus der echten, gebauten App, ein Bildschirm pro Bild, daneben das Bild der heutigen Online-Version, Prüfung mit impeccable vor dem Senden.
