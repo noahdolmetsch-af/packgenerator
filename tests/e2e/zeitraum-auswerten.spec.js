@@ -15,7 +15,14 @@ async function open(page, context) {
   await flowSeeded(page);
   await putWall(page);
   await page.goto('./#/auswerten/uebersicht');
-  await expect(page.locator('[data-period-bar]')).toBeVisible();
+  await unfold(page);
+}
+// «Zeitraum» is one line with «Ändern» (Noah 24.11.2026 «1-5a»); the known switch unfolds there
+async function unfold(page) {
+  await expect(page.locator('[data-period-line]')).toBeVisible();
+  const bar = page.locator('[data-period-bar]');
+  if (!(await bar.count())) await page.locator('[data-period-change]').click();
+  await expect(bar).toBeVisible();
 }
 const pick = (page, name) => page.locator('[data-period-bar]').getByRole('button', { name, exact: true }).click();
 // on a phone the lists sit behind one row
@@ -50,7 +57,8 @@ test('ZR-1 the week is the start; Month pages back with ‹ ›; the list follow
 
 test('ZR-2 Everything and Own range; the hint names what stays; the choice is remembered', async ({ page, context }) => {
   await open(page, context);
-  await expect(page.locator('[data-period-hint]')).toContainText(T('Today'));
+  // the sentence about what the period touches moved to the «?» window; the unfolded switch carries no hint
+  await expect(page.locator('[data-period-hint]')).toHaveCount(0);
   await pick(page, T('Everything|period'));
   await expect(page.locator('[data-period-label]')).toHaveText(T('Everything you have recorded'));
   await expect(await listTitle(page)).toHaveText(T('All time'));
@@ -62,11 +70,14 @@ test('ZR-2 Everything and Own range; the hint names what stays; the choice is re
   await expect(page.locator('[data-period-incomplete]')).toHaveCount(0);
   // remembered: after a reload the own range is still there, with both days
   await page.reload();
+  await expect(page.locator('[data-period-sum]')).toContainText(T('Own range|period'));
+  await unfold(page);
   await expect(page.locator('[data-period-bar]').getByRole('button', { name: T('Own range|period'), exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('[data-period-own] input[data-period-from]')).toHaveValue('2026-09-01');
   await pick(page, T('Month|period'));
   await page.locator('[data-period-prev]').click();
   await page.reload();
+  await unfold(page);
   // paging back starts at the present again; the mode stays
   await expect(page.locator('[data-period-label]')).toHaveText('Oktober 2026');
 });

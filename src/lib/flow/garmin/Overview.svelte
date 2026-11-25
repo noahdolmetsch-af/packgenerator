@@ -37,7 +37,7 @@
   // «Letzte 7 Tage»; Auswerten shows them in its two columns on a computer. A phone always shows everything.
   // «Zeitraum» (Noah 05.11.2026 «1a 2b 3a 4a»): `range` = { from, to, now, title } of the switch on Auswerten; the list of
   // the sports follows it, «Im Fokus» and the tiles of «Überblick» keep showing the latest days. Without it: 7 days.
-  let { today, children, part = 'all', range = null } = $props();
+  let { today, children, part = 'all', range = null, lead = null } = $props();
   const top = $derived(phone.matches || part !== 'last7');
   const tail = $derived(phone.matches || part !== 'main');
   const q = tableQuery();
@@ -187,6 +187,7 @@
 {/if}
 {/snippet}
 
+{#if top}{@render lead?.()}{/if}
 {#if phone.matches}
   <div class="card ovfold" data-ov-fold>
     <FoldRow icon={LayoutGrid} label={asWeek ? t('Overview and last 7 days') : t('Overview and period')} summary={foldSum} bind:open={more}>{@render body()}</FoldRow>
