@@ -19,8 +19,8 @@ import { maintainLite } from './actlite.js';
 export const SCHEMA_VERSION = 22; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 9: AB «Deine Abfragen». 10: Strava activities («Training»). 11: timer log. 12: documents (Ich › Dokumente). 13: Fitbit daily values. 15: Google calendar and tasks (14 left out: DP needs none). 16: Reise-Spur (own recordings and «Hier bin ich» places). 17: Paket O «Sportarten» (sportItems). 18: «Velo-Inspektion» (inspections). 19: Paket T «Freie Zeit» (frei). 20: «Verbesserungs-Logbuch» (logbuch). 21: «Zuletzt gelöscht» (trash). 22: «Aktivitäten-Zusammenfassung» (activitiesLite, derived, not in a backup: actlite.js)
 
 /** Tables that belong to the user's data and go into every backup file. */
-/** Tables on the device that never go into a backup: GA's copy of Google's events and tasks (Google keeps the truth). */
-export const NOT_IN_BACKUP = ['gEvents', 'gTasks'];
+/** Tables on the device that never go into a backup: GA's copy of Google's events and tasks (Google keeps the truth), and the derived summary of the activities (actlite.js, made again from `activities`). */
+export const NOT_IN_BACKUP = ['gEvents', 'gTasks', 'activitiesLite'];
 export const DATA_TABLES = [
   'items', // gear inventory and wishlist
   'kits', // named setups, e.g. "Training ride"
