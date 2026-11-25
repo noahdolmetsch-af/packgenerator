@@ -1,6 +1,6 @@
 # Test: leeres Gerät koppelt und bekommt alles
 
-PR #1783 · 22.11.2026 · Auftrag: Noah «1b 2a 3a 4a 5a», Punkt 5a (Thread «Sync»)
+PR #<Nummer> · 22.11.2026 · Auftrag: Noah «1b 2a 3a 4a 5a», Punkt 5a (Thread «Sync»)
 
 Nichts Sichtbares in der App (nur ein Test). Er läuft in der Prüfung und in der Nachtprüfung.
 

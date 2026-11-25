@@ -1,6 +1,6 @@
 # Kleider «heute»: Vorschlag bei Kälte, Aufräumen nach Vorschlag
 
-PR #1783 · 23.11.2026 · Auftrag: Noah «ja» (Befund des Koordinators zu seinem Bild vom Kleiderschrank)
+PR #<Nummer> · 23.11.2026 · Auftrag: Noah «ja» (Befund des Koordinators zu seinem Bild vom Kleiderschrank)
 
 Bilder: /mnt/project-files/bilder/kleider-heute/
 

@@ -1,6 +1,6 @@
 # Zonen ändern: gleich zum Formular
 
-PR #1783 · 17.11.2026 · Auftrag: Noah «alle umsetzen 1-10» (Thread «UI-Test der Seite Flow Training», Fund 1)
+PR #<Nummer> · 17.11.2026 · Auftrag: Noah «alle umsetzen 1-10» (Thread «UI-Test der Seite Flow Training», Fund 1)
 
 ## Was ist neu
 - Der Tipp auf «Zonen ändern» bei einer Aktivität öffnet Training und bringt das Formular der Pulszonen ins Bild. Vorher blieb die Seite oben, das Formular stand rund 3 100 px (Computer) bzw. 4 100 px (Handy) tiefer, und es sah aus, als passiere nichts.

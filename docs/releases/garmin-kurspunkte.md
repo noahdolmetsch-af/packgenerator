@@ -1,6 +1,6 @@
 # Kurspunkte für den Garmin
 
-PR #1783 · 23.11.2026 · Auftrag: Noah «P1 und p2 k1 k2 k3 u1 u2 r1 r2 r3» (Thread «Bikepacking-Rennen: Stand und Ideen zeigen»), Vorschlag P1 (gehört zu U2)
+PR #<Nummer> · 23.11.2026 · Auftrag: Noah «P1 und p2 k1 k2 k3 u1 u2 r1 r2 r3» (Thread «Bikepacking-Rennen: Stand und Ideen zeigen»), Vorschlag P1 (gehört zu U2)
 
 ## Was ist neu
 - Neben dem Knopf «GPX mit n Stopps» (bei der Route, unter Verpflegung, auf der Rennkarte) steht der Knopf «FIT-Kurs mit n Kurspunkten». Er speichert die Route als FIT-Kurs für den Garmin Edge 850 und 1040, mit den gewählten Orten (Läden, Wasser, Essen, Betten …) als Kurspunkte. Der Edge meldet sie unterwegs («Wasser in 12 km»), auch bei ausgeschaltetem Handy.

@@ -1,6 +1,6 @@
 # Katalog-Namen wie auf der Seite
 
-PR #1783 · 27.10.2026 · Auftrag: Noah «1a» (Thread «332 Use Cases sichtbar machen»)
+PR #<Nummer> · 27.10.2026 · Auftrag: Noah «1a» (Thread «332 Use Cases sichtbar machen»)
 
 ## Was ist neu
 - Vier Einträge in «Was die App alles kann» heissen jetzt wie auf ihrer Seite: «Meine Sportarten» (statt «Eine Seite pro Sportart»), «Alle Tipps» (statt «Tipps und «Wusstest du»»), «Neue Notiz» (statt «Schnellnotiz»), «Rückblick» (statt «Rückblick in 1 Minute»).

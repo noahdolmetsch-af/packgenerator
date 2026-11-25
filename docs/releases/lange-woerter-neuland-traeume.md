@@ -1,6 +1,6 @@
 # Lange Wörter passen bei Neuland und Träumen auf den Bildschirm
 
-PR #1783 · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 5, Thread «Durchklicken Etappe 5: Training und Auswerten»), Befunde E5-002 und E5-003
+PR #<Nummer> · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 5, Thread «Durchklicken Etappe 5: Training und Auswerten»), Befunde E5-002 und E5-003
 
 ## Was ist neu
 - Neuland: Ein sehr langes Wort in der Suche («Nichts gefunden für …») machte die Seite auf dem Handy rund 2900 px breit. Jetzt bricht das Wort um.

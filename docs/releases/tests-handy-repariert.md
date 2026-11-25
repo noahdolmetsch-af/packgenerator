@@ -1,6 +1,6 @@
 # Handy-Prüfungen repariert
 
-PR #1783 · 23.11.2026 · Auftrag: Bündler «ein Test-Fix-PR für die roten Handy-Specs» (Thread «Sync»)
+PR #<Nummer> · 23.11.2026 · Auftrag: Bündler «ein Test-Fix-PR für die roten Handy-Specs» (Thread «Sync»)
 
 ## Was ist neu
 - Nichts in der App. Drei automatische Prüfungen der Handy-Ansicht passen wieder zu dem, was die App seit V5 zeigt:

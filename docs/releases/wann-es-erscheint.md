@@ -1,6 +1,6 @@
 # Wann eine Funktion erscheint
 
-PR #1783 · 27.10.2026 · Auftrag: Noah «2a» (Thread «332 Use Cases sichtbar machen»)
+PR #<Nummer> · 27.10.2026 · Auftrag: Noah «2a» (Thread «332 Use Cases sichtbar machen»)
 
 ## Was ist neu
 - 17 Funktionen zeigen sich nur in der passenden Lage (z. B. Vorabend, Auslandstour, nach drei Wochen Pause). Im Katalog «Was die App alles kann» steht bei ihnen jetzt eine Zeile mit Uhr: wann sie erscheinen.

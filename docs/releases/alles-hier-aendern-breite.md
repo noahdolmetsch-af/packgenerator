@@ -1,6 +1,6 @@
 # «Alles hier»: Die Liste bei «Ändern» passt aufs Handy
 
-PR #1783 · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 5, Thread «Durchklicken Etappe 5: Training und Auswerten»), Befund E5-001
+PR #<Nummer> · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 5, Thread «Durchklicken Etappe 5: Training und Auswerten»), Befund E5-001
 
 ## Was ist neu
 - Aktiv, Auswerten, Touren, Velos und Material: Tippt man auf dem Handy bei «Alles hier» auf «Ändern», wurde die Liste breiter als der Bildschirm (446 statt 390 px) und der Knopf «Ausblenden» lag teils ausserhalb. Jetzt bleibt die Liste auf Bildschirmbreite; ist eine Zeile voll, rutscht «Ausblenden» unter den Namen.

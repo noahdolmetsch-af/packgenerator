@@ -1,6 +1,6 @@
 # Meldungen kommen ins Bild
 
-PR #1783 · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 2, Thread «Durchklicken Etappe 2: Touren und Material»), Klasse-D-Idee «Design a» (Befund E2-005 überall)
+PR #<Nummer> · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 2, Thread «Durchklicken Etappe 2: Touren und Material»), Klasse-D-Idee «Design a» (Befund E2-005 überall)
 
 ## Was ist neu
 - Schreibt ein Formular seine rote Meldung weit oben (zum Beispiel «Gib der Vorlage einen Namen.» unter dem Namen, wenn der Bildschirm kurz ist), während der Knopf, den du getippt hast, weit unten steht, sah es aus, als geschehe nichts. Jetzt rückt jede Meldung, die gleich nach einem Tipp oder einer Taste erscheint und nicht ganz im Bild ist, ins Bild. Die Seite bewegt sich nur so viel wie nötig; der Cursor bleibt, wo er ist.

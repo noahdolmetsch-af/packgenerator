@@ -1,6 +1,6 @@
 # Notizen: Ein Doppeltipp auf «Speichern» legt nur eine Notiz an
 
-PR #1783 · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 4, Thread «Durchklicken Etappe 4: Velos und Alltag»), Befund E4-004
+PR #<Nummer> · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 4, Thread «Durchklicken Etappe 4: Velos und Alltag»), Befund E4-004
 
 ## Was ist neu
 - Planen › Notizen: Tippte man bei «Neue Notiz» zweimal schnell auf «Speichern», entstanden zwei gleiche Notizen. Jetzt gilt nur der erste Tipp.

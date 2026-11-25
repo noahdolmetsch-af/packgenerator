@@ -1,6 +1,6 @@
 # Die Suche findet Seiten
 
-PR #1783 · 23.11.2026 · Auftrag: Noah «ja» (Thread «Navigation ohne Sackgassen», «Die Suche (/) könnte auch Seiten und Abschnitte finden»)
+PR #<Nummer> · 23.11.2026 · Auftrag: Noah «ja» (Thread «Navigation ohne Sackgassen», «Die Suche (/) könnte auch Seiten und Abschnitte finden»)
 
 ## Was ist neu
 - Die Suche findet jeden Ort, Reiter und jede Seite der Karte der App (`src/lib/nav/seiten.js`, aus `nav.js`) über ihren Namen, auch die, die bisher keine handgeschriebene Zeile hatten (zum Beispiel «Erholung», «Gewicht», «Heatmap»). Das Ergebnis sagt, wo die Seite steht («Woche › Training»).

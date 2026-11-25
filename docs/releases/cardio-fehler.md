@@ -1,6 +1,6 @@
 # Cardio-Belastung: besser lesbar
 
-PR #1783 · 07.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5b» (Thread «UI-Test Analyse-Seite: Design und Verständlichkeit»)
+PR #<Nummer> · 07.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5b» (Thread «UI-Test Analyse-Seite: Design und Verständlichkeit»)
 
 ## Was ist neu
 - **Wochentag-Balken:** sie zeigen jetzt echte Unterschiede, mit der Zahl über jedem Balken. Vorher waren alle gleich hoch (das Layout drückte sie auf 105 px).

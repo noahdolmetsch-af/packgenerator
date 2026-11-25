@@ -1,6 +1,6 @@
 # Training: «Meine Woche» und der Weg zum Wochenplan
 
-PR #1783 · 17.11.2026 · Auftrag: Noah «alle umsetzen 1-10» (Thread «UI-Test der Seite Flow Training», Fund 3)
+PR #<Nummer> · 17.11.2026 · Auftrag: Noah «alle umsetzen 1-10» (Thread «UI-Test der Seite Flow Training», Fund 3)
 
 ## Was ist neu
 - Die Karte auf Training, in der man die Woche von Hand plant (Plus bei jedem Tag), heisst «Meine Woche» statt «Woche planen». «Woche planen» ist der Ort Planen › Woche, vorher hiessen beide gleich.

@@ -1,6 +1,6 @@
 # Ziehen-Test: die Berührungen kommen sicher auf der Seite an
 
-PR #1783 · 24.11.2026 · Auftrag: Noah «beheben» / Regel 3 (Thread «Wackel-Tests zuverlässig machen», `ziehen-aktualisieren.spec.js:18` und `:33`, Handy, rot auf main bei den meisten Läufen)
+PR #<Nummer> · 24.11.2026 · Auftrag: Noah «beheben» / Regel 3 (Thread «Wackel-Tests zuverlässig machen», `ziehen-aktualisieren.spec.js:18` und `:33`, Handy, rot auf main bei den meisten Läufen)
 
 ## Was ist neu
 - Nichts in der App. Nur der Test. Er schickte die Wischbewegung über die Eingabe des Browsers (CDP `Input.dispatchTouchEvent`). Chrome gibt davon der Seite oft nur den Anfang weiter: gemessen standen 6 von 8 Zügen nach ein bis zwei Bewegungen bei 10–40 px statt 96 px still, und manchmal kam das Loslassen nie an. Langsamere Schritte oder `touch-action: none` änderten das nicht.

@@ -1,6 +1,6 @@
 # Ein leeres FTP-Feld sagt, was es getan hat
 
-PR #1783 · 06.11.2026 · Auftrag: Noah «1a» (Thread «Durchklicken Etappe 5», Bericht Frage 1)
+PR #<Nummer> · 06.11.2026 · Auftrag: Noah «1a» (Thread «Durchklicken Etappe 5», Bericht Frage 1)
 
 ## Was ist neu
 - Aktiv › Training › FTP: Wer das Feld leer speichert, nimmt die eigene FTP weg (zurück auf Strava oder die Schätzung). Die Meldung sagt jetzt «Eigene FTP entfernt.» statt «FTP gespeichert.». «Rückgängig» bringt die Zahl wie bisher zurück.

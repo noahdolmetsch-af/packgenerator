@@ -1,6 +1,6 @@
 # Sprachnotizen in der Zeitleiste
 
-PR #1783 · 27.10.2026 · Auftrag: Noah «1a 2a 3b 4a 5a» (Thread «Klären Sprachnotiz in Rückblick und Notizvorlagen»)
+PR #<Nummer> · 27.10.2026 · Auftrag: Noah «1a 2a 3b 4a 5a» (Thread «Klären Sprachnotiz in Rückblick und Notizvorlagen»)
 
 ## Was ist neu
 - Rückblick einer Tour › «Zeitleiste»: Eine Notiz mit Sprachnotiz hat den Knopf «Abspielen» mit der Länge (z. B. 0:14). Wurde sie schon in Text umgewandelt («Als Text»), stehen die Worte darunter.

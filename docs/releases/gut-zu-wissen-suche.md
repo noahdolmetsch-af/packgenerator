@@ -1,6 +1,6 @@
 # «Gut zu wissen» über die Suche ausblenden
 
-PR #1783 · 28.10.2026 · Auftrag: Noah «b» (Karte «Welche «Gut zu wissen»-Kachel …?», Thread «Heute ruhiger»)
+PR #<Nummer> · 28.10.2026 · Auftrag: Noah «b» (Karte «Welche «Gut zu wissen»-Kachel …?», Thread «Heute ruhiger»)
 
 ## Was ist neu
 - In der Suche (Lupe) gibt es zwei neue Befehle: «Gut zu wissen ausblenden» (auch «Tipps ausblenden», «hide tips») blendet die Tipp-Zeile «Gut zu wissen» oben auf allen Seiten aus, mit Rückgängig. «Gut zu wissen einblenden» (auch «Tipps einblenden», «show tips») zeigt sie wieder.

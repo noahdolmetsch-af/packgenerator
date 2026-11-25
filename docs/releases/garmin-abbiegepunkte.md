@@ -1,6 +1,6 @@
 # Abbiegepunkte für den Garmin
 
-PR #1783 · 23.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5b» (Thread «Live-Navigation», Punkt C)
+PR #<Nummer> · 23.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5b» (Thread «Live-Navigation», Punkt C)
 
 ## Was ist neu
 - Der FIT-Kurs für den Garmin Edge 850 und 1040 (Knopf «FIT-Kurs mit n Kurspunkten» bei der Route, unter Verpflegung, auf der Rennkarte) enthält jetzt auch die Abbiegepunkte der Strecke. Der Edge zeigt vor jedem einen Pfeil und «Links abbiegen», «Rechts abbiegen», «Leicht links» …, auch bei ausgeschaltetem Handy.

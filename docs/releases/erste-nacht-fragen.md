@@ -1,6 +1,6 @@
 # Erste Nacht: drei Fragen danach und Übernahme in die Packliste
 
-PR #1783 · 05.11.2026 · Auftrag: Noah «7a» (Thread «Bauen: Freie Zeit Teil 2»), Idee «Erste Nacht – nach der Nacht drei Fragen (Schlaf, Kälte, was fehlte) und Übernahme in die Packliste». Baut auf «Fürs nächste Mal: Notizen direkt auf die Packliste» auf (gleiche Übernahme-Funktion).
+PR #<Nummer> · 05.11.2026 · Auftrag: Noah «7a» (Thread «Bauen: Freie Zeit Teil 2»), Idee «Erste Nacht – nach der Nacht drei Fragen (Schlaf, Kälte, was fehlte) und Übernahme in die Packliste». Baut auf «Fürs nächste Mal: Notizen direkt auf die Packliste» auf (gleiche Übernahme-Funktion).
 
 ## Was ist neu
 - Schritt 4 «Nach der Nacht» fragt drei Dinge: «Wie hast du geschlafen?» (Gut / Geht so / Schlecht), «Hat es dich gefroren?» (Nein / Ein bisschen / Ja, zu kalt, mit «Wo hast du es gespürt?») und «Was hat gefehlt?» (ein Ding pro Zeile). Alles wird beim Tippen gespeichert.

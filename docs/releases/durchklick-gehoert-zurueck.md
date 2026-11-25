@@ -1,6 +1,6 @@
 # «Gehört dazu» unter dem Titel; «Zurück» nennt die Herkunft
 
-PR #1783 · 23.11.2026 · Auftrag: Noah «2a» und «3a» (Warteliste 2, Durchklick-Funde 2 und 3)
+PR #<Nummer> · 23.11.2026 · Auftrag: Noah «2a» und «3a» (Warteliste 2, Durchklick-Funde 2 und 3)
 
 ## Was ist neu
 - **Fund 2:** Die Zeile «Gehört zu: …» stand vor dem Titel (am Handy rutschte der Titel bis y=350). Jetzt ist sie auf allen Seiten, die sie zeigen (Packen, Touren, Ich, Velos, Material, Rückblick, Neuland, Wetter), eine geschlossene Zeile mit Zahl («Gehört zu: Planen 12») hinter dem Titel und hinter «Was du hier tun kannst». Ein Tipp öffnet die Knöpfe, «Zuklappen» schliesst sie wieder; die Wahl wird gemerkt (`src/lib/know/GehoertDazu.svelte`, `src/lib/ui/nachtitel.js`, `src/lib/ui/kartenzeile.js`).

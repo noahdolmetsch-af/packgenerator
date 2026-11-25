@@ -1,6 +1,6 @@
 # Rekorde: das Datum ist lesbar
 
-PR #1783 · 08.11.2026 · Auftrag: Noah «2a» (Thread «UI-Test Analyse-Seite: Design und Verständlichkeit»)
+PR #<Nummer> · 08.11.2026 · Auftrag: Noah «2a» (Thread «UI-Test Analyse-Seite: Design und Verständlichkeit»)
 
 ## Was ist neu
 - In der Karte «Rekorde» steht das Datum («Juli 2026», «Woche ab 28. Sept.») klein unter dem Bestwert. Vorher gab es eine dritte Spalte «Wann», die am Handy abgeschnitten war («Wa», «Juli 20»).

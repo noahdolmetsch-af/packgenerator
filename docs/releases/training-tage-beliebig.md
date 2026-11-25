@@ -1,6 +1,6 @@
 # Tage-Knöpfe sagen, was sie tun
 
-PR #1783 · 17.11.2026 · Auftrag: Noah «alle umsetzen 1-10» (Thread «UI-Test der Seite Flow Training», Fund 6)
+PR #<Nummer> · 17.11.2026 · Auftrag: Noah «alle umsetzen 1-10» (Thread «UI-Test der Seite Flow Training», Fund 6)
 
 ## Was ist neu
 - Im Vorschlag für die Woche steht bei einem Tag ohne Grenze «beliebig» statt «offen» («offen» klang wie «noch nicht geplant»).

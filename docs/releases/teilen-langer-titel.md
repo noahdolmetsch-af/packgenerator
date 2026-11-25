@@ -1,6 +1,6 @@
 # Langer Titel beim Teilen
 
-PR #1783 · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 3, Befund E3-002; Thread «Durchklicken Etappe 3: Unterwegs und Wetter»)
+PR #<Nummer> · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 3, Befund E3-002; Thread «Durchklicken Etappe 3: Unterwegs und Wetter»)
 
 ## Was ist neu
 - Ein Titel aus einem sehr langen Wort (ohne Leerzeichen) schob unter Ich › Ruhig und persönlich › Teilen mit Vorschau die Kontrolle «Prüfe, was mitgeht» und damit die ganze Seite nach rechts. Er bricht jetzt am Rand um.

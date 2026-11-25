@@ -1,6 +1,6 @@
 # «Deine Abfragen» baut wieder weniger Elemente (Knöpfe im Gruss erst beim Aufklappen)
 
-PR #1783 · 21.11.2026 · Auftrag: Koordinator (Test «Seitengrösse» auf main rot, der Thread «Prüfungen» wartet darauf), Thread «Wackel-Tests auf main reparieren»
+PR #<Nummer> · 21.11.2026 · Auftrag: Koordinator (Test «Seitengrösse» auf main rot, der Thread «Prüfungen» wartet darauf), Thread «Wackel-Tests auf main reparieren»
 
 ## Was ist neu
 - Nichts, was man sieht. Der Block «Knöpfe im Gruss» auf `#/me/abfragen` (`HelloButtonsSection.svelte`, seit #1047) baute seinen Editor auch zugeklappt: gut 1500 Elemente. Die Seite kam so auf rund 3700 statt der erlaubten 2420 (Wächter `tests/e2e/seitengroesse.spec.js`, Budget aus `tests/seitengroesse-budget.json`).

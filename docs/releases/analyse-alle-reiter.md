@@ -1,6 +1,6 @@
 # Analyse: alle Reiter auf einen Blick
 
-PR #1783 · 08.11.2026 · Auftrag: Noah «1a» (Thread «UI-Test Analyse-Seite: Design und Verständlichkeit»)
+PR #<Nummer> · 08.11.2026 · Auftrag: Noah «1a» (Thread «UI-Test Analyse-Seite: Design und Verständlichkeit»)
 
 ## Was ist neu
 - Die sechs Reiter der Analyse (Übersicht, Eigenes Diagramm, Vergleiche, Rekorde und Serien, Velos, Alle Werte) sind am Handy alle sichtbar, in zwei Zeilen zu je drei. Vorher schob sich die Zeile seitlich, vier Reiter waren versteckt und nichts zeigte, dass es mehr gibt.

@@ -1,6 +1,6 @@
 # Tour quer am Handy: das Band ist wieder niedrig
 
-PR #1783 · 24.11.2026 · Auftrag: Regel 3 (Thread «Wackel-Tests zuverlässig machen»; Hinweis vom Velos-Thread; `landscape.spec.js:69`, Prüfung D6)
+PR #<Nummer> · 24.11.2026 · Auftrag: Regel 3 (Thread «Wackel-Tests zuverlässig machen»; Hinweis vom Velos-Thread; `landscape.spec.js:69`, Prüfung D6)
 
 ## Was ist neu
 - Wenn das Handy quer gehalten wird (844×390 und ähnlich), war das Tour-Band (Name, Fakten, Schritte) 16 Pixel höher als vorgesehen. Auslöser: die Änderung «Velos: ruhiger Werkstatt-Knopf, Gehört-zu und Hilfe in einer Zeile» packte die Hilfezeile «Was du hier tun kannst» in eine Reihe (`.si-row`). Quer ist die Zeile ausgeblendet, ihre leere Reihe blieb aber als eigene Zeile im Band stehen (zusätzlicher Zeilenabstand).

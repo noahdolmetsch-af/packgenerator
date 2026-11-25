@@ -1,6 +1,6 @@
 # Sackgassen bei Rennen und Unterwegs geschlossen
 
-PR #1783 · 23.11.2026 · Auftrag: Noah «ja» (Thread «Navigation ohne Sackgassen»)
+PR #<Nummer> · 23.11.2026 · Auftrag: Noah «ja» (Thread «Navigation ohne Sackgassen»)
 
 ## Was ist neu
 - **Rennseite eines Rennens, das es nicht gibt:** Sie zeigte für immer «Laden …», ohne Weg weiter (die Abfrage lieferte für «nicht da» denselben Wert wie für «lädt noch»). Jetzt steht dort «Dieses Rennen ist nicht da» mit «Zu den Rennen». Betrifft auch ein Rennen, das auf einem anderen Gerät liegt.

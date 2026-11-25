@@ -1,6 +1,6 @@
 # Adresse einer Quelle prüfen
 
-PR #1783 · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 3, Befund E3-003; Thread «Durchklicken Etappe 3: Unterwegs und Wetter»)
+PR #<Nummer> · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 3, Befund E3-003; Thread «Durchklicken Etappe 3: Unterwegs und Wetter»)
 
 ## Was ist neu
 - Unter Ich › Hinweise und News › «Quelle hinzufügen» nahm Chrome auch ein einzelnes Wort («hallo») oder eine Adresse mit Leerzeichen als Quelle an; die Quelle stand dann mit «Gerade nicht ladbar» in der Liste. Jetzt erscheint «Das ist keine Webadresse.» und nichts wird hinzugefügt.

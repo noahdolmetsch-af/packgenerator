@@ -1,6 +1,6 @@
 # Lange Wörter passen in Wohlbefinden
 
-PR #1783 · 06.11.2026 · Auftrag: Noah «4a» (Thread «Durchklicken Etappe 5»), Fund des Nacht-Roboters «Langes Wort»
+PR #<Nummer> · 06.11.2026 · Auftrag: Noah «4a» (Thread «Durchklicken Etappe 5»), Fund des Nacht-Roboters «Langes Wort»
 
 ## Was ist neu
 - Ich › Wohlbefinden › Glas der guten Momente: Ein sehr langes Wort ohne Lücke in einer Dank- oder Stolz-Notiz machte die ganze Seite breiter als den Bildschirm (2060 px statt 1440 px am Computer). Jetzt bricht es in die nächste Zeile um.

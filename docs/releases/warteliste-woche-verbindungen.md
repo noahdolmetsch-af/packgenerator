@@ -1,6 +1,6 @@
 # Drei kleine Verbesserungen: Woche und Verbindungen
 
-PR #1783 · 23.11.2026 · Auftrag: Noah «F3, F4, F6 auf die Warteliste» (Thread «Warteliste fertig bauen, online später»)
+PR #<Nummer> · 23.11.2026 · Auftrag: Noah «F3, F4, F6 auf die Warteliste» (Thread «Warteliste fertig bauen, online später»)
 
 ## Was ist neu
 - **F3:** Ein eigenes To-do ohne Tag steht unter «Noch einplanen» als «Dein To-do, noch ohne Tag · passt auf …» und hat «Entfernen» statt «Nie mehr vorschlagen». Ideen der App (Saison, Google, Velo) behalten «Nie mehr vorschlagen».

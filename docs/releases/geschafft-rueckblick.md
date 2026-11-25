@@ -1,6 +1,6 @@
 # Von «Geschafft» zum Wochenrückblick
 
-PR #1783 · 21.11.2026 · Auftrag: Noah «a» (Thread «App-Landkarte»)
+PR #<Nummer> · 21.11.2026 · Auftrag: Noah «a» (Thread «App-Landkarte»)
 
 ## Was ist neu
 - Auf der Seite «Geschafft» (`#/flow/geschafft`) steht unter «Meilensteine» ein dritter Link «Wochenrückblick» (`#/flow/review`).

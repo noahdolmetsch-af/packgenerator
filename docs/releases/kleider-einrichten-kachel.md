@@ -1,6 +1,6 @@
 # Kleiderschrank einrichten: Kachel in «Alles hier»
 
-PR #1783 · 22.11.2026 · Reparatur zu #1435 («Kleiderschrank einrichten»), Regel «jede Funktion höchstens 3 Tipps von Heute»
+PR #<Nummer> · 22.11.2026 · Reparatur zu #1435 («Kleiderschrank einrichten»), Regel «jede Funktion höchstens 3 Tipps von Heute»
 
 ## Was ist neu
 - Unter Material hat «Alles hier» die Kachel «Kleiderschrank einrichten» (neben «Kleiderschrank»). Damit ist die Seite von Heute aus in 3 Tipps erreichbar.

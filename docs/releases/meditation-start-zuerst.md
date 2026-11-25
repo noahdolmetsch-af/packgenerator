@@ -1,6 +1,6 @@
 # Meditation: «Starten» kommt vor «Als Vorlage speichern?»
 
-PR #1783 · 06.11.2026 · Auftrag: Noah «3a» (Thread «Durchklicken Etappe 5», Bericht Frage 3)
+PR #<Nummer> · 06.11.2026 · Auftrag: Noah «3a» (Thread «Durchklicken Etappe 5», Bericht Frage 3)
 
 ## Was ist neu
 - Aktiv › Meditation › Neue Sitzung: Der Knopf «Starten» (und «Meine Musik» darunter) steht direkt unter den Einstellungen. Die Karte «Als Vorlage speichern?» kommt danach. Vorher schob sie den Start-Knopf auf dem Computer aus dem ersten Bild.

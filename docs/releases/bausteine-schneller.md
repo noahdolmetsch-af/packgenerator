@@ -1,6 +1,6 @@
 # Bausteine öffnet schneller
 
-PR #1783 · 05.11.2026 · Auftrag: Noah «Idee A: Tempo-Runde für Seiten» (Thread «Umsetzen Tempo-Runde für Seiten»)
+PR #<Nummer> · 05.11.2026 · Auftrag: Noah «Idee A: Tempo-Runde für Seiten» (Thread «Umsetzen Tempo-Runde für Seiten»)
 
 ## Was ist neu
 - Material › Bausteine: Das Feld «n leere Bausteine» (unter «Je nach Lage») baut seine Karten erst beim Öffnen. Bisher waren es zugeklappt schon rund 400 Elemente.

@@ -1,6 +1,6 @@
 # Fragen-Bereich: kurzer Kopf, schmale Zeilen, Namen, «Stand»
 
-PR #1783 · 23.11.2026 · Auftrag: Noah «1-5a» (Prüfung «Fragen-Bereich», Entscheide 1, 2, 3 und die kleine Zeile «Stand»); Bündler: gleiche Seite = ein PR
+PR #<Nummer> · 23.11.2026 · Auftrag: Noah «1-5a» (Prüfung «Fragen-Bereich», Entscheide 1, 2, 3 und die kleine Zeile «Stand»); Bündler: gleiche Seite = ein PR
 
 Ziele von Noah (23.11.2026 18:09): **Klarheit** (man sieht sofort die Antwort; pro Bildschirm eine Hauptsache) und **Auffindbarkeit** (Wichtiges oben, wenige Tipps; die Suche findet die Seite weiter mit «Fragen» und «Frag deine Daten»).
 

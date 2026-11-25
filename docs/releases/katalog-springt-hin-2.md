@@ -1,6 +1,6 @@
 # Der Katalog zeigt zwei weitere Stellen
 
-PR #1783 · 28.10.2026 · Auftrag: Noah «c und d zusammen», Teil c, Schritt 2 (Thread «332 Use Cases sichtbar machen»)
+PR #<Nummer> · 28.10.2026 · Auftrag: Noah «c und d zusammen», Teil c, Schritt 2 (Thread «332 Use Cases sichtbar machen»)
 
 ## Was ist neu
 - «Folgen vorher sehen» und «Nach Bedürfnis packen» stecken im Fenster «Material ergänzen» auf Packen. Ein Tipp im Katalog «Was die App alles kann» öffnet jetzt Packen, dann das Fenster, und lässt den Knopf kurz aufleuchten.

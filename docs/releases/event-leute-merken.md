@@ -1,6 +1,6 @@
 # Merken, wen du kennengelernt hast
 
-PR #1783 · 27.10.2026 · Auftrag: Noah «prüfe, ob wir wirklich alles so gemacht haben» (Thread «Bikepacking und Ultra-Rennen»)
+PR #<Nummer> · 27.10.2026 · Auftrag: Noah «prüfe, ob wir wirklich alles so gemacht haben» (Thread «Bikepacking und Ultra-Rennen»)
 
 ## Was ist neu
 - Machst du eine Gruppenfahrt über 3 oder 7 Tage, legt die App eine Erinnerung in Kalender › Merken: «Wen hast du am Event kennengelernt? Speichere die Kontakte unter Ich › Mit Freunden › Kontaktkarte.», fällig am Tag nach dem Ende. Zugesagt am 26.10.2026 («Nach dem Event bekommst du eine Erinnerung»).

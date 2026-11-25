@@ -1,6 +1,6 @@
 # Handy: Die Hinweiskästen starten als eine Zeile
 
-PR #1783 · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 2, Antwort «1a»)
+PR #<Nummer> · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 2, Antwort «1a»)
 
 ## Was ist neu
 - Auf dem Handy starten «Gehört zu …» (Packen, Touren, Material, Velos) und «Alles hier» (Touren, Material, Velos) als je eine Zeile mit dem Namen und «Aufklappen». Ein Tipp öffnet den Kasten, «Einklappen» schliesst ihn wieder. Die Wahl bleibt gespeichert (Einstellung `karten.offen`, also im Backup).

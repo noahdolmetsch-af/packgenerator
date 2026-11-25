@@ -1,6 +1,6 @@
 # Zuletzt geöffnet in der Suche
 
-PR #1783 · 05.11.2026 · Auftrag: Noah «7a» (Ideen-Doc «Ideen für alle Bereiche», Teil 7 «Oben in der App»; Thread «Bauen: Quick Links 6a und Oben 7a»)
+PR #<Nummer> · 05.11.2026 · Auftrag: Noah «7a» (Ideen-Doc «Ideen für alle Bereiche», Teil 7 «Oben in der App»; Thread «Bauen: Quick Links 6a und Oben 7a»)
 
 ## Was ist neu
 - Öffnet man die Suche, steht unter dem leeren Feld zuerst «Zuletzt geöffnet»: die letzten fünf Seiten dieses Geräts, ein Tippen öffnet die Seite und schliesst die Suche (`src/lib/nav/Search.svelte`, `recentPlaces` in `src/lib/quick/usage.js`).

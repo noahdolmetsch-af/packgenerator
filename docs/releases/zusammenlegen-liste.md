@@ -1,6 +1,6 @@
 # Zusammenlegen: Die Vorschläge stehen wieder untereinander
 
-PR #1783 · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 2, Thread «Durchklicken Etappe 2: Touren und Material»), Befund E2-004
+PR #<Nummer> · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 2, Thread «Durchklicken Etappe 2: Touren und Material»), Befund E2-004
 
 ## Was ist neu
 - Material › Teil öffnen › Mehr › «Zusammenlegen mit …»: Die Liste der Vorschläge (und der Suchtreffer) war auf etwa 26 px Breite zusammengedrückt. Namen, «Vorschlag» und Gewicht liefen auf Handy und Computer ineinander, die Zeilen lagen nebeneinander statt untereinander. Jetzt steht jede Zeile in voller Breite untereinander.

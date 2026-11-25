@@ -1,6 +1,6 @@
 # Packen: zuerst die Liste, der Rest in fünf Gruppen
 
-PR #1783 · 07.11.2026 · Auftrag: Noah «1a 2a 3a 4b 5a» und «ja» (Thread «Vereinfachen der App ohne Verlust», Schritt 2 der Reihenfolge)
+PR #<Nummer> · 07.11.2026 · Auftrag: Noah «1a 2a 3a 4b 5a» und «ja» (Thread «Vereinfachen der App ohne Verlust», Schritt 2 der Reihenfolge)
 
 ## Was ist neu
 - Auf der Seite Packen steht die Packliste mit ihren Taschen wie bisher. Alles Weitere, was eine Tour haben kann, liegt darunter in **«Mehr zu dieser Tour»**, in fünf geschlossenen Gruppen (echte `<details>`, der Inhalt bleibt auf der Seite):

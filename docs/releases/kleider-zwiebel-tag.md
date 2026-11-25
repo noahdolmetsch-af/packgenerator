@@ -1,6 +1,6 @@
 # Zwiebel für Morgen und Mittag, Kleider-Frage im Rückblick
 
-PR #1783 · 23.11.2026 · Auftrag: Noah «1-5a 4b» (Thread «Kleiderschrank wieder ins Zentrum rücken»), Koordinator: a und b zusammen in einem PR
+PR #<Nummer> · 23.11.2026 · Auftrag: Noah «1-5a 4b» (Thread «Kleiderschrank wieder ins Zentrum rücken»), Koordinator: a und b zusammen in einem PR
 
 ## Was ist neu
 - Zwiebel in der Packliste: im geöffneten Teil wählt «Die Zwiebel für» zwischen «Kälteste Stunde» (wie bisher), «Morgen» und «Mittag» des ersten Fahrtags. Zeilen, Lücken und das Kit richten sich nach der Wahl. Die Auswahl erscheint nur, wenn Morgen oder Mittag von der kältesten Stunde abweicht.

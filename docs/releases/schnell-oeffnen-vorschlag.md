@@ -1,6 +1,6 @@
 # Anpinn-Vorschlag auf Heute
 
-PR #1783 · 05.11.2026 · Auftrag: Noah «6a» (Ideen-Doc «Ideen für alle Bereiche», Teil 6 «Quick Links»; Thread «Bauen: Quick Links 6a und Oben 7a»)
+PR #<Nummer> · 05.11.2026 · Auftrag: Noah «6a» (Ideen-Doc «Ideen für alle Bereiche», Teil 6 «Quick Links»; Thread «Bauen: Quick Links 6a und Oben 7a»)
 
 ## Was ist neu
 - «Du öffnest «Touren» oft. Hier anpinnen?» steht jetzt auch in der Kachel «Schnell öffnen» auf Heute (`src/lib/home/PinsTile.svelte`), mit «Anpinnen» (mit Rückgängig) und «Nein, danke» (30 Tage Ruhe). Vorher kam der Vorschlag nur auf der Seite Quick Links, die man dafür extra öffnen musste.

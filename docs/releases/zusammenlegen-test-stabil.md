@@ -1,6 +1,6 @@
 # Test «Zusammenlegen-Liste» misst wieder ruhig
 
-PR #1783 · 07.11.2026 · Auftrag: Koordinator (roter Test blockiert u. a. #1011), Thread «Fix roter Test Zusammenlegen-Liste»
+PR #<Nummer> · 07.11.2026 · Auftrag: Koordinator (roter Test blockiert u. a. #1011), Thread «Fix roter Test Zusammenlegen-Liste»
 
 ## Was ist neu
 - Nichts in der App. Nur der Test `tests/e2e/zusammenlegen-liste.spec.js` (Handy) war rot: Er las die Zeilen der Vorschlags-Liste eine nach der anderen. Seit #949 steht die Suche im Fenster auch mit den Vorschlägen und das Fenster wird höher; es wächst dabei nach oben, die Zeilen wanderten zwischen zwei Messungen.

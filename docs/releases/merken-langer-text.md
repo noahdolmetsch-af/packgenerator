@@ -1,6 +1,6 @@
 # Merken und Heute: Ein langes Wort im To-do passt auf den Bildschirm
 
-PR #1783 · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 4, Thread «Durchklicken Etappe 4: Velos und Alltag»), Befund E4-002
+PR #<Nummer> · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 4, Thread «Durchklicken Etappe 4: Velos und Alltag»), Befund E4-002
 
 ## Was ist neu
 - Planen › Merken (Handy): Ein To-do mit einem sehr langen Wort ohne Leerzeichen (zum Beispiel 320 Zeichen: eine Internetadresse oder Bestellnummer) machte die Seite fast 1900 px breit; der Knopf «To-do hinzufügen» war dann kaum noch zu treffen. Jetzt bricht das Wort in der Zeile um.

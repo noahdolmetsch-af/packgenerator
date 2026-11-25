@@ -1,6 +1,6 @@
 # Analyse: leere Reiter erklären sich
 
-PR #1783 · 07.11.2026 · Auftrag: Noah «3 ja» (Thread «UI-Test Analyse-Seite: Design und Verständlichkeit»)
+PR #<Nummer> · 07.11.2026 · Auftrag: Noah «3 ja» (Thread «UI-Test Analyse-Seite: Design und Verständlichkeit»)
 
 ## Was ist neu
 - **Übersicht ohne Daten:** statt Nullen (0 Tage, 0 Haken) steht ein Satz, warum sie leer ist, mit «Aktiv öffnen» und «Fitbit verbinden». Ohne eingeschaltete Quelle sagt sie, dass man oben eine Quelle einschalten soll.

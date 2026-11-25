@@ -1,6 +1,6 @@
 # Analyse: ein kurzer Satz unter dem Titel
 
-PR #1783 · 08.11.2026 · Auftrag: Noah «4a» (Thread «UI-Test Analyse-Seite: Design und Verständlichkeit»)
+PR #<Nummer> · 08.11.2026 · Auftrag: Noah «4a» (Thread «UI-Test Analyse-Seite: Design und Verständlichkeit»)
 
 ## Was ist neu
 - Unter dem Titel «Analyse» steht nur noch «Nur zum Anschauen, nichts wird bewertet.» Der lange Satz («Alle deine Werte aus Fitbit, Strava, deinem Körper … Tippe einen Wert an …») wiederholte die Karte «Was du hier tun kannst» darüber. Am Handy sind die Daten dadurch eine Zeile näher.

@@ -1,6 +1,6 @@
 # Laufende Timer schweben am Computer oben rechts
 
-PR #1783 · 06.11.2026 · Auftrag: Noah «2a» (Thread «Durchklicken Etappe 5», Bericht Frage 2)
+PR #<Nummer> · 06.11.2026 · Auftrag: Noah «2a» (Thread «Durchklicken Etappe 5», Bericht Frage 2)
 
 ## Was ist neu
 - Am Computer (ab 720 px Breite) sitzen die Pille des laufenden Timers (`TimerFloat.svelte`) und die der Stoppuhr oder Meditation (`FlowLayer.svelte`) oben rechts statt unten rechts. Vorher deckten sie «Speichern» und andere Knöpfe unten rechts zu.

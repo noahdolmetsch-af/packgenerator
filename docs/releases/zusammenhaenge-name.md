@@ -1,6 +1,6 @@
 # Aus «Erkenntnisse» wird «Zusammenhänge»
 
-PR #1783 · 21.11.2026 · Auftrag: Noah «1a» (Thread «App-Landkarte»)
+PR #<Nummer> · 21.11.2026 · Auftrag: Noah «1a» (Thread «App-Landkarte»)
 
 ## Was ist neu
 - Zwei Seiten hiessen «Erkenntnisse»: «Gelernt» (deine eigenen Erkenntnisse nach Touren, `#/gelernt`) und die Seite mit den Zusammenhängen in deinen Daten (Ruhepuls, Schlaf, Fahrten, `#/me/insights`).

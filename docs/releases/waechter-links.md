@@ -1,6 +1,6 @@
 # Wächter gegen tote Adressen und doppelte Reiternamen
 
-PR #1783 · 21.11.2026 · Auftrag: Noah «a» (Thread «App-Landkarte»)
+PR #<Nummer> · 21.11.2026 · Auftrag: Noah «a» (Thread «App-Landkarte»)
 
 ## Was ist neu
 - Neuer Test `tests/links.test.js`. W1: Jede Adresse `#/…`, die im Code ausgeschrieben steht, führt auf eine Seite. Bisher öffnete eine unbekannte Adresse still Heute, und niemand merkte es.

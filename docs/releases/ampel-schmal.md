@@ -1,6 +1,6 @@
 # «Bereit zur Abfahrt?» passt wieder auf schmale Handys
 
-PR #1783 · 23.11.2026 · Auftrag: Bündler (zwei rote Handy-Tests auf main); Ziele: Klarheit und Auffindbarkeit
+PR #<Nummer> · 23.11.2026 · Auftrag: Bündler (zwei rote Handy-Tests auf main); Ziele: Klarheit und Auffindbarkeit
 
 ## Was ist neu
 - Auf einem 320-px-Handy machte die Karte «Bereit zur Abfahrt?» (Packen, vor der Tour) die ganze Seite 1 px zu breit. Seit «Griffbereit» hat die Karte eine Zeile mehr, und ihre Titelzeile (Titel, Zeichen, «Fast bereit», Pfeil) passte nicht mehr in eine Zeile.

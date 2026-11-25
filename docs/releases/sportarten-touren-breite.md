@@ -1,6 +1,6 @@
 # Lange Namen passen bei den Sportarten deiner Touren
 
-PR #1783 · 06.11.2026 · Auftrag: Noah «4a» (Thread «Durchklicken Etappe 5»), Fund des Nacht-Roboters «Langes Wort»
+PR #<Nummer> · 06.11.2026 · Auftrag: Noah «4a» (Thread «Durchklicken Etappe 5»), Fund des Nacht-Roboters «Langes Wort»
 
 ## Was ist neu
 - Aktiv › Meine Sportarten › «Sportarten deiner Touren»: Ein sehr langer Name ohne Lücke machte die Seite auf dem Handy breiter als den Bildschirm (492 px statt 390 px). Jetzt bricht er in die nächste Zeile um.

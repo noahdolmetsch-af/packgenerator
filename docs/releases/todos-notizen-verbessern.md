@@ -1,6 +1,6 @@
 # Bessere To-dos und Notizen
 
-PR #1783 · 05.11.2026 · Auftrag: Noah «f1-f3, n1-n3 alle. in einem PR. bilder vorher» (Thread «Verbessern: To-Dos und Notizen»)
+PR #<Nummer> · 05.11.2026 · Auftrag: Noah «f1-f3, n1-n3 alle. in einem PR. bilder vorher» (Thread «Verbessern: To-Dos und Notizen»)
 
 Ausgangspunkt war die Analyse im Thread (Bericht mit Vergleich Things, Todoist, Apple Notes, Obsidian, Notion). Noah wählte alle sechs Vorschläge und ausdrücklich **einen** PR (das ersetzt hier die Regel «kleine PRs, keine Bündel»).
 

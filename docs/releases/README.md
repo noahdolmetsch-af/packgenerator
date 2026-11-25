@@ -12,7 +12,7 @@ Die Versionsnummer steht **nicht** in der Datei: sie entsteht beim Merge aus der
 ```markdown
 # <Titel wie in «Was ist neu»>
 
-PR #1783 · <Datum> · Auftrag: Noah «<Antwort>» (Thread «<Name>»)
+PR #<Nummer> · <Datum> · Auftrag: Noah «<Antwort>» (Thread «<Name>»)
 
 ## Was ist neu
 - …

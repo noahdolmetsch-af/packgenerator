@@ -1,6 +1,6 @@
 # Neuland rechnet nicht mehr jedes Mal alles neu
 
-PR #1783 · 05.11.2026 · Auftrag: Noah «Idee A: Tempo-Runde für Seiten» (Thread «Umsetzen Tempo-Runde für Seiten»)
+PR #<Nummer> · 05.11.2026 · Auftrag: Noah «Idee A: Tempo-Runde für Seiten» (Thread «Umsetzen Tempo-Runde für Seiten»)
 
 ## Was ist neu
 - Heute («Neu gesammelt»), Neuland, Träume und die Tourtipps fragen alle dasselbe: welche Gemeinden, Pässe, Seen und Gipfel deine Fahrten erreicht haben. Das ist die schwere Rechnung (Flächen gegen Linien). Bisher rechnete jede Seite sie neu.

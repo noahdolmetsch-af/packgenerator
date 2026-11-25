@@ -1,6 +1,6 @@
 # Test «Training › Woche: Vorschlag» läuft ruhig
 
-PR #1783 · 07.11.2026 · Auftrag: Koordinator (roter Test `training.spec.js:274` blockiert den Spruch-PR #1060), Thread «Fix wackelnden Training-Wochentest»
+PR #<Nummer> · 07.11.2026 · Auftrag: Koordinator (roter Test `training.spec.js:274` blockiert den Spruch-PR #1060), Thread «Fix wackelnden Training-Wochentest»
 
 ## Was ist neu
 - Nichts in der App. Nur der Test `tests/e2e/training.spec.js` (Teil 5, «Woche: a suggestion for the week …») war rot.

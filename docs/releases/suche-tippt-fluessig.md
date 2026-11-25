@@ -1,6 +1,6 @@
 # Die Suche im Material tippt flüssig
 
-PR #1783 · 05.11.2026 · Auftrag: Noah «a: Gemessenes gleich beheben» (Thread «Beheben: Verzögerung bei Eingaben und Tabs»)
+PR #<Nummer> · 05.11.2026 · Auftrag: Noah «a: Gemessenes gleich beheben» (Thread «Beheben: Verzögerung bei Eingaben und Tabs»)
 
 ## Was ist neu
 - Material › Suche: Die Buchstaben erscheinen sofort im Feld; die Liste baut sich 0,18 s nach dem letzten Buchstaben neu. Vorher baute jeder Buchstabe die Liste neu (gemessen: erster Buchstabe bei 4× langsamem Prozessor ca. 1,7 s).

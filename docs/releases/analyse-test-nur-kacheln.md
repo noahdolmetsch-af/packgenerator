@@ -1,6 +1,6 @@
 # Test «Aktiv heute: Punkte decken keinen Namen» läuft ruhig
 
-PR #1783 · 07.11.2026 · Auftrag: Thread «Plane Entdecken und Sammeln» (rot auf #1094, auch auf main reproduzierbar)
+PR #<Nummer> · 07.11.2026 · Auftrag: Thread «Plane Entdecken und Sammeln» (rot auf #1094, auch auf main reproduzierbar)
 
 ## Was ist neu
 - Nichts in der App. Nur der Test `tests/e2e/analyse.spec.js` («Aktiv heute: the dots never cover a name») war rot (`Cannot read properties of null (reading 'x')`).

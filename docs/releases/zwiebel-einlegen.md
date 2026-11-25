@@ -1,6 +1,6 @@
 # Zwiebel einlegen
 
-PR #1783 · 22.11.2026 · Auftrag: Noah «4b» (Thread «Kleiderschrank wieder ins Zentrum rücken», Weg B, erster Schritt)
+PR #<Nummer> · 22.11.2026 · Auftrag: Noah «4b» (Thread «Kleiderschrank wieder ins Zentrum rücken», Weg B, erster Schritt)
 
 ## Was ist neu
 - In der Packliste (Zeile «Zwiebel: n Lücken» unter dem Wetter) gibt es den Knopf «Lücken füllen: n Teile dazu». Ein Tipp legt für jede Lücke das beste passende Teil aus dem Kleiderschrank auf die Liste (dieselbe Wahl wie bisher der Knopf je Zeile). Ein «Rückgängig» nimmt alle wieder heraus.

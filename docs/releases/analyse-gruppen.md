@@ -1,6 +1,6 @@
 # Alle Werte: Gruppen mit Vorschau
 
-PR #1783 · 08.11.2026 · Auftrag: Noah «3a» (Thread «UI-Test Analyse-Seite: Design und Verständlichkeit»)
+PR #<Nummer> · 08.11.2026 · Auftrag: Noah «3a» (Thread «UI-Test Analyse-Seite: Design und Verständlichkeit»)
 
 ## Was ist neu
 - Eine geschlossene Gruppe in «Alle Werte» (Herz, Bewegung, Deine Aktivitäten in Aktiv, …) zeigt unter dem Namen bis zu drei ihrer Werte mit Zahl, zum Beispiel «Aktivzonen-Minuten 1’266 min · Schritte 269’100». Vorher stand nur «2 Werte».

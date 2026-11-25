@@ -1,6 +1,6 @@
 # Pfad aus einer Quelle: der Pfad passt zur Seitenleiste
 
-PR #1783 · 23.11.2026 · Auftrag: Noah «ja» (Thread «Navigation ohne Sackgassen»)
+PR #<Nummer> · 23.11.2026 · Auftrag: Noah «ja» (Thread «Navigation ohne Sackgassen»)
 
 ## Was ist neu
 - Der Anfang des Pfads über einer Seite kommt jetzt aus der einen Karte der App (`src/lib/nav.js`: `pageOf`, `placeOf`, `tabOf`), die auch die Seitenleiste markiert. Neu: `src/lib/nav/wege.js` (rein, getestet in `tests/wege.test.js`) und `src/lib/nav/wege.svelte.js` (Namen wie in der Seitenleiste, mit deinen Umbenennungen aus «Anpassen»).

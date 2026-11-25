@@ -1,6 +1,6 @@
 # Aktionen in Auswerten: eine neue Frage meldet sich mit «Rückgängig» und «Ansehen»
 
-PR #1783 · 24.11.2026 · Auftrag: Noah «1-5a» (Prüfung «Aktionen in Auswerten», Entscheid 2a), Teil 3 von 5
+PR #<Nummer> · 24.11.2026 · Auftrag: Noah «1-5a» (Prüfung «Aktionen in Auswerten», Entscheid 2a), Teil 3 von 5
 
 Ziele von Noah (23.11.2026 18:09): **Klarheit** (die App sagt, dass die Frage gespeichert ist und wann sie kommt) und **Auffindbarkeit** (ein Tipp bringt dich zur neuen Frage). Leitfaden `docs/leitfaden.md`: «Eine App, die mich im Alltag unterstützt» (nichts geschieht still).
 

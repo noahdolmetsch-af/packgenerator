@@ -1,6 +1,6 @@
 # Notizen erklärt, was eine offene Notiz kann (Wegweiser 26c)
 
-PR #1783 · 02.11.2026 · Auftrag: Noah «speichere schritt 1-26 als geplant … freigabe» (01.11.2026), «kannst du damit schon beginnen während du wartest?» (02.11.2026), Thread «Entdeckbarkeit versteckter Funktionen planen»
+PR #<Nummer> · 02.11.2026 · Auftrag: Noah «speichere schritt 1-26 als geplant … freigabe» (01.11.2026), «kannst du damit schon beginnen während du wartest?» (02.11.2026), Thread «Entdeckbarkeit versteckter Funktionen planen»
 
 ## Was ist neu
 - Die 6 Funktionen einer offenen Notiz (Erinnern an einem Ort der Strecke, Verknüpfte Notizen, Skizze, Formatieren, Datei anhängen, Erinnern) stehen in der Karte «Was du hier tun kannst» auf Notizen, je mit «Gut zu wissen».

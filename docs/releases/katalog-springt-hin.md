@@ -1,6 +1,6 @@
 # Der Katalog zeigt die Stelle
 
-PR #1783 · 27.10.2026 · Auftrag: Noah «c und d zusammen» (Thread «332 Use Cases sichtbar machen»), Teil c, Schritt 1
+PR #<Nummer> · 27.10.2026 · Auftrag: Noah «c und d zusammen» (Thread «332 Use Cases sichtbar machen»), Teil c, Schritt 1
 
 ## Was ist neu
 - Ein Tipp auf eine Funktion in «Was die App alles kann» öffnet ihre Seite wie bisher und springt dann genau an die Stelle: Er öffnet nötigenfalls ein Fenster oder eine Falte, scrollt hin und lässt die Stelle kurz aufleuchten.

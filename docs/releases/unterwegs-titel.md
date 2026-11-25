@@ -1,6 +1,6 @@
 # Unterwegs hat immer eine Überschrift
 
-PR #1783 · 05.11.2026 · Auftrag: Noah («3a» zu Frage 3 im Bericht Etappe 3; Thread «Durchklicken Etappe 3: Unterwegs und Wetter»)
+PR #<Nummer> · 05.11.2026 · Auftrag: Noah («3a» zu Frage 3 im Bericht Etappe 3; Thread «Durchklicken Etappe 3: Unterwegs und Wetter»)
 
 ## Was ist neu
 - Unterwegs ohne laufende Tour (zum Beispiel vor der ersten Tour oder an einem Tag ohne Tour) begann mit dem Leerzustand, ohne Seitentitel. Jetzt steht oben die Überschrift «Unterwegs», darunter der Leerzustand wie bisher. Mit einer Tour ändert sich nichts.

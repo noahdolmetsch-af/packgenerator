@@ -1,6 +1,6 @@
 # Wackel-Tests: vier Ursachen behoben
 
-PR #1783 · 23.11.2026 · Auftrag: Noah «ja» (Thread «Wackel-Tests zuverlässig machen»)
+PR #<Nummer> · 23.11.2026 · Auftrag: Noah «ja» (Thread «Wackel-Tests zuverlässig machen»)
 
 ## Was ist neu
 - Nichts in der App. Nur Testcode; kein Test gelockert, keiner gelöscht, kein App-Verhalten geändert.

@@ -1,6 +1,6 @@
 # Rückgängig statt Undo
 
-PR #1783 · 19.11.2026 · Auftrag: Noah «mache einen kompletten test der website … behebe dabei kleine fehler direkt» (Thread «Ganze Website testen und Fehler beheben»)
+PR #<Nummer> · 19.11.2026 · Auftrag: Noah «mache einen kompletten test der website … behebe dabei kleine fehler direkt» (Thread «Ganze Website testen und Fehler beheben»)
 
 ## Was ist neu
 - Vier alte Zeilen unter Ich › Was ist neu (`src/lib/whatsnew-alt-de.js`) hatten im deutschen Text das englische Wort «Undo»: «mit Ändern und Undo», «Grund und Undo pro Zeile», «sofort, mit Undo», «Teile zwischen Taschen verschieben, mit Undo». Sie sagen jetzt «Rückgängig» wie `docs/namen.md` und der Rest der App.

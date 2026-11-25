@@ -1,6 +1,6 @@
 # Rückblick: Fragen später, aus der Fahrdatei und Mini-Bericht
 
-PR #1783 · 23.11.2026 · Auftrag: Noah «P1 und p2 k1 k2 k3 u1 u2 r1 r2 r3» (Thread «Bikepacking-Rennen: Stand und Ideen zeigen»), gebündelt als ein PR (Bündler 18:14)
+PR #<Nummer> · 23.11.2026 · Auftrag: Noah «P1 und p2 k1 k2 k3 u1 u2 r1 r2 r3» (Thread «Bikepacking-Rennen: Stand und Ideen zeigen»), gebündelt als ein PR (Bündler 18:14)
 
 Beitrag zu den Zielen (Noah 23.11. 18:09): *Klarheit*: jede Frage steht dort, wo man zurückschaut (Rückblick einer Tour, Seite «Fahrt», Teil «Danach» eines Rennens), mit einer Hauptsache. *Auffindbarkeit*: die Fragen kommen von selbst zur richtigen Zeit; das Bild ist ein Knopf im Teil «Danach».
 

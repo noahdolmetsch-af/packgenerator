@@ -1,6 +1,6 @@
 # Ein Wort auf Training: erledigt
 
-PR #1783 · 17.11.2026 · Auftrag: Noah «alle umsetzen 1-10» (Thread «UI-Test der Seite Flow Training», Fund 8)
+PR #<Nummer> · 17.11.2026 · Auftrag: Noah «alle umsetzen 1-10» (Thread «UI-Test der Seite Flow Training», Fund 8)
 
 ## Was ist neu
 - Eine fertige Einheit heisst auf Training überall «Erledigt»: Knopf «Erledigt» (vorher «Gemacht»), «Noch nicht erledigt», die Meldung «als erledigt markiert», die Legende «grün = erledigt» (vorher «grün = gemacht»), die Zeile im Rückblick «Erledigt 0:48 h» (vorher «Fertig»), die Karte «Plan erfüllt?» («nicht erledigt») und die Sätze im Wochenrückblick.

@@ -1,6 +1,6 @@
 # Meilensteine öffnet schneller
 
-PR #1783 · 05.11.2026 · Auftrag: Noah «Idee A: Tempo-Runde für Seiten» (Thread «Umsetzen Tempo-Runde für Seiten»)
+PR #<Nummer> · 05.11.2026 · Auftrag: Noah «Idee A: Tempo-Runde für Seiten» (Thread «Umsetzen Tempo-Runde für Seiten»)
 
 ## Was ist neu
 - Aktiv › Meilensteine: Die zugeklappten Teile werden erst gebaut, wenn du sie öffnest: «Zahlen und Stufen ändern» (jeder Meilenstein mit Zahlen und Kästchen, allein rund 550 Elemente) und am Handy «Alle n zeigen» und «Serien, Touren und Velos».

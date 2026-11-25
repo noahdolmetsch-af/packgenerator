@@ -1,6 +1,6 @@
 # Ausgeliehen: Die Meldung steht beim Speichern
 
-PR #1783 · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 2, Thread «Durchklicken Etappe 2: Touren und Material»), Befund E2-005
+PR #<Nummer> · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 2, Thread «Durchklicken Etappe 2: Touren und Material»), Befund E2-005
 
 ## Was ist neu
 - Material › Ausgeliehen › Neue Leihliste: Tippte man «Speichern» ohne Namen oder ohne gewählte Sache, stand die rote Meldung ganz oben über dem Formular. Mit langer Liste war sie ausser Sicht, es sah aus, als geschehe nichts. Jetzt steht sie direkt über «Speichern».

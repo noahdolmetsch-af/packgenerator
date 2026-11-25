@@ -1,6 +1,6 @@
 # Packen in Schritten
 
-PR #1783 · 23.11.2026 · Auftrag: Noah «2a», «3a» (Warteliste 4, Baustein 2)
+PR #<Nummer> · 23.11.2026 · Auftrag: Noah «2a», «3a» (Warteliste 4, Baustein 2)
 
 ## Was ist neu
 - Über der Packliste wählt ein Umschalter die Ansicht: **Schritte**, nach Taschen (die ganze Liste wie bisher) oder nach Kategorie.

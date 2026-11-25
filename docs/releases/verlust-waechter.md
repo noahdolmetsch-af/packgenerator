@@ -1,6 +1,6 @@
 # Verlust-Wächter: beim Vereinfachen geht keine Funktion verloren
 
-PR #1783 · 07.11.2026 · Auftrag: Noah «1a 2a 3a 4b 5a» und «ok» (Thread «Vereinfachen der App ohne Verlust», Schritt 1 der Reihenfolge)
+PR #<Nummer> · 07.11.2026 · Auftrag: Noah «1a 2a 3a 4b 5a» und «ok» (Thread «Vereinfachen der App ohne Verlust», Schritt 1 der Reihenfolge)
 
 ## Was ist neu
 - Nichts in der App. Neu ist ein Test, `tests/verlust.test.js`, mit der Liste `tests/fixtures/funktionen.json` (alle Kennungen aus `features.js`).

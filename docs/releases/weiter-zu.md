@@ -1,6 +1,6 @@
 # «Weiter zu …» am Seitenende
 
-PR #1783 · 23.11.2026 · Auftrag: Noah «ja» (Thread «Navigation ohne Sackgassen», Punkt 3 «Keine Sackgassen»)
+PR #<Nummer> · 23.11.2026 · Auftrag: Noah «ja» (Thread «Navigation ohne Sackgassen», Punkt 3 «Keine Sackgassen»)
 
 ## Was ist neu
 - 27 Seiten, deren einziger Link zurück zu ihrem Ort führte (Stopps in der Nähe, Quiz am Vorabend, Kleine Apps, Handbuch, Tour-Pfad, Weg zum Ziel, Kursblick …), enden jetzt mit einer ruhigen Zeile «Weiter zu» und bis zu drei Seiten, die meist als Nächstes kommen (`src/lib/nav/WeiterZu.svelte`, Liste `src/lib/nav/weiter.js`, in `src/App.svelte` vor «Diese Seite anpassen»).

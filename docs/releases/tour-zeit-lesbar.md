@@ -1,6 +1,6 @@
 # Die Tour-Seite liest sich leichter
 
-PR #1783 · 27.10.2026 · Auftrag: Noah «1a 2b 3a» (Thread «Tour-Detailseite übersichtlicher machen»)
+PR #<Nummer> · 27.10.2026 · Auftrag: Noah «1a 2b 3a» (Thread «Tour-Detailseite übersichtlicher machen»)
 
 ## Was ist neu
 - Tour-Seite: verstrichene Zeit, Gesamtzeit (unter dem Geschwindigkeitsprofil) und Stopps heissen «2 h 02 min 18 s» statt «00:02:02:18». Ab einem Tag ohne Sekunden: «1 Tag 2 h 15 min».
