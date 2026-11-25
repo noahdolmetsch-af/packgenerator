@@ -59,5 +59,6 @@ Verbindlich seit 08.11.2026 (Noah «namen ok»; Zeile 1 mit «b»). Quelle: UX-T
 | 51 | Die drei grossen Zahlen oben auf einem Bereich, mit einem Verlauf darunter | Kennzahlen, Dashboard, Landingpage, Mini-Landingpage | **«Dein Stand in Zahlen»** (Noah 24.11.2026 «b»); der Schalter unter Ich › Darstellung › Bedienung heisst gleich; zuerst auf Velos und Material, danach Alltag |
 | 52 | Die Zeile unter einer Frage in der Suche, die zur Seite des Assistenten führt | Gespräch öffnen, Chat öffnen | **«Assistent öffnen»** (Noah «1-3a» 24.11.2026; «Gespräch» stand nur im Entwurf, das Wort bleibt **Assistent**) |
 | 53 | Die Zeichnung der Karte der App neben der Liste: die App mit ihren Bereichen als Äste | Skizze, Diagramm, Baum, Karte | **«Mindmap»** (Knopf neben «Liste»; Noah 24.11.2026 «beide», ohne «Kreislauf» 25.11.2026) |
+| 54 | Die gratis Frage an Gemini im Assistenten (dritter Reiter) und «aus einem Satz etwas anlegen» | Gemini-Helfer, KI fragen | **«Frag Gemini»** für Reiter und Seite, **«Mach es für mich»** für den Knopf, der aus einem Satz ein To-do, eine Liste, eine Notiz oder einen Wert macht |
 
 Umgesetzt wird die Umbenennung in eigenen kleinen PRs (nach Bereich). Die Zeilen oben gelten ab heute auch für alles Neue.

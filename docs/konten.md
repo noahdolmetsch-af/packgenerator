@@ -32,7 +32,7 @@ Die Werte stehen nur in Vercel › packgen › Settings › Environment Variable
 | `KV_REST_API_URL`, `KV_REST_API_TOKEN` | Upstash (setzt Vercel selbst) | Abgleich und Logins aus |
 | `TRELLO_API_KEY` | Trello | Trello aus |
 
-**Alte KI-Schlüssel (Noah 22.11.2026):** `ANTHROPIC_API_KEY`, `HELPER_TOKEN`, `GEMINI_API_KEY` und `HELPER_MONTHLY_CHF` bleiben in Vercel liegen, falls die KI später wiederkommt. Der Server liest sie nicht mehr, der Wächter verlangt sie nicht.
+**KI-Schlüssel:** `GEMINI_API_KEY` (gratis, ohne Zahlkarte) wird seit 23.11.2026 von `api/ask.js` («Frag Gemini») gelesen; optional `GEMINI_MODEL` und `GEMINI_FALLBACKS` (Modellnamen, falls Google einen ändert). Ohne Schlüssel sagt die App «auf dem Server noch nicht eingerichtet». `ANTHROPIC_API_KEY`, `HELPER_TOKEN` und `HELPER_MONTHLY_CHF` bleiben liegen (Noah 22.11.2026), der Server liest sie nicht. Der Wächter verlangt keinen davon.
 
 Der Wächter prüft jeden Morgen, ob diese Schlüssel da sind und funktionieren, und schickt bei einem Fehler eine Mail.
 

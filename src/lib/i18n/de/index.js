@@ -279,6 +279,7 @@ import mail from './mail.js';
 
 // «Assistent» (Noah 15.10.2026): Frag die App + Hilf mir planen
 import assistent from './assistent.js';
+import gemini from './gemini.js';
 
 // Termine buchen (BU1–BU5): Ich › Angebote, freie Termine, Buchungsseite
 import termine from './termine.js';
@@ -925,6 +926,7 @@ const ORDERED = [
   trainingInhalt,
   agenda,
   assistent,
+  gemini,
   termine,
   flyer,
   probestunde,
