@@ -118,7 +118,7 @@ export const partsFor = (specs) => Math.min(5, Math.max(1, Math.ceil(specs.lengt
 // «Ausprobieren» (tests/e2e/ausprobieren.spec.js) taps every line of «Was ist neu»; that grows with every PR
 // (555 lines took 10 minutes). Noah 03.11.2026 «1a»: a PR taps only the lines of its own news files, the night
 // run (volle-pruefung.yml) taps them all. Changes to what the lines run on (the update list, the go-map, the
-// Ausprobieren code, the test helpers, the news pages) still tap all of them.
+// Ausprobieren code, the test helpers, the news pages) tap the newest 200 lines and their own (since 25.11.2026, see below).
 const NEWS_FILE = /^src\/lib\/news\/([a-z0-9][a-z0-9-]*\.js)$/;
 const NEWS_MACHINERY = [
   /^src\/lib\/whatsnew\.js$/, /^src\/lib\/know\//, /^src\/lib\/news\/(?!(?:[a-z0-9][a-z0-9-]*\.js)$)/,
@@ -126,11 +126,20 @@ const NEWS_MACHINERY = [
   /^tests\/e2e\/(?:ausprobieren\.spec|clock|settle)\.js$/, /^tests\/e2e\/gesamttest\/lib\.js$/,
 ];
 
-/** 'all', or the news files (names) whose lines «Ausprobieren» taps in a PR; '' = none. */
+// 24.11.2026 (Noah «a» on the card of 25.11.2026 01:03, thread «Tests schneller machen»): when a PR changes the machinery, it
+// no longer taps ALL ~1400 lines (85 tests, an hour of work: PR 1640 ran into the time limit of part 1 three times) but the
+// newest NEWEST_LINES lines plus the lines of its own news files; the night run still taps every line (it is the safety net).
+// This changes Noah's rule of 03.11.2026 («when the machinery changes, all lines»).
+export const NEWEST_LINES = 200;
+
+/** 'all' (nothing known), or the words «Ausprobieren» works from in a PR: the news files whose lines it taps, and
+ *  `newest:N` (the newest N lines) when the machinery changed; '' = none. */
 export function newsScope(files, exists = () => true) {
   const list = files.map((f) => f.trim()).filter(Boolean);
-  if (!list.length || list.some((f) => NEWS_MACHINERY.some((re) => re.test(f)))) return 'all';
-  return list.map((f) => NEWS_FILE.exec(f)?.[1]).filter((n) => n && exists(`src/lib/news/${n}`)).join(' ');
+  if (!list.length) return 'all';
+  const own = list.map((f) => NEWS_FILE.exec(f)?.[1]).filter((n) => n && exists(`src/lib/news/${n}`));
+  if (list.some((f) => NEWS_MACHINERY.some((re) => re.test(f)))) return [`newest:${NEWEST_LINES}`, ...own].join(' ');
+  return own.join(' ');
 }
 
 if (process.argv[1] && process.argv[1].endsWith('ci-scope.mjs')) {
