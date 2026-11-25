@@ -7,7 +7,7 @@
   import { LIVE_LABEL } from './saveride.js';
 </script>
 
-<span class="livelabel" data-live-label><Navigation size={13} aria-hidden="true" />{LIVE_LABEL}</span>
+<span class="livelabel" data-live-label><Navigation size={14} aria-hidden="true" />{LIVE_LABEL}</span>
 
 <style>
   .livelabel {

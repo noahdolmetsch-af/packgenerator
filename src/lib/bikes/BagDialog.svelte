@@ -157,7 +157,7 @@
         <h2 id="bag-h">{#if isNew}{t('Add bag')}{:else}<span>{shownName}</span><button type="button" class="pen" aria-label={t('Rename {name}', { name: shownName })} title={t('Rename')} onclick={() => (renaming = true)}><Pencil size={16} aria-hidden="true" /></button>{/if}</h2>
         <p class="vd-sub meta">{[t(SLOT[draft.slot]?.name ?? 'Bag'), onBikes.length ? t('on {bike}', { bike: onBikes.join(', ') }) : ''].filter(Boolean).join(' · ')}</p>
       </div>
-      <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => closeKeep(dialog)}><X size={18} aria-hidden="true" /></button>
+      <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => closeKeep(dialog)}><X size={20} aria-hidden="true" /></button>
     </div>
     <label class="vd-field"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.name} required enterkeyhint="done" placeholder={t('e.g. Seat pack 10 L')} /></label>
     <!-- SN7: the place as option buttons (was a list); the rare places in a fold -->

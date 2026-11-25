@@ -24,7 +24,7 @@
 
 {#if wd.length}
   <div class="card pad mu" data-weekdays>
-    <b class="wh"><CalendarDays size={15} aria-hidden="true" /> {t('Days of the week')}</b>
+    <b class="wh"><CalendarDays size={16} aria-hidden="true" /> {t('Days of the week')}</b>
     {#each wd as w (w.y)}
       <div class="wrow" data-weekday={w.y}>
         <p><b>{t(SHORT[w.y])}</b>: {t('lowest on {low} ({a}), highest on {high} ({b})', { low: dayLong(locale(), w.low), a: fmt(w.means[w.low].mean), high: dayLong(locale(), w.high), b: fmt(w.means[w.high].mean) })}</p>
@@ -41,7 +41,7 @@
 
 {#if showRec}
   <div class="card pad mu" data-recovery>
-    <b class="wh"><HeartPulse size={15} aria-hidden="true" /> {t('Recovery')}</b>
+    <b class="wh"><HeartPulse size={16} aria-hidden="true" /> {t('Recovery')}</b>
     {#if rec.steps.length}
       <p>
         {t('After a day with more than {c} active zone minutes ({n} days):', { c: fmt(rec.cut), n: rec.n })}

@@ -68,7 +68,7 @@
 </script>
 
 <div class="al" data-atlas-list>
-  <label class="al-search"><Search size={18} aria-hidden="true" /><input type="search" class="al-q" value={filter.q} placeholder={t('Search: name, place, country …')} aria-label={t('Search races')} oninput={(e) => setF({ q: e.currentTarget.value })} data-atlas-search /></label>
+  <label class="al-search"><Search size={20} aria-hidden="true" /><input type="search" class="al-q" value={filter.q} placeholder={t('Search: name, place, country …')} aria-label={t('Search races')} oninput={(e) => setF({ q: e.currentTarget.value })} data-atlas-search /></label>
   <div class="al-lay">
     {#if wide}<aside class="al-side" aria-label={t('Filters|race')}><AtlasFilters {filter} {facet} {counts} onchange={setF} /></aside>{/if}
     <div class="al-main">
@@ -80,7 +80,7 @@
       {/if}
       {#if pills.length}
         <div class="al-pills" data-atlas-pills>
-          {#each pills as p (p.k)}<button type="button" class="al-pill" onclick={p.off} aria-label={t('Remove «{name}»', { name: p.label })}>{p.label}<X size={13} aria-hidden="true" /></button>{/each}
+          {#each pills as p (p.k)}<button type="button" class="al-pill" onclick={p.off} aria-label={t('Remove «{name}»', { name: p.label })}>{p.label}<X size={14} aria-hidden="true" /></button>{/each}
         </div>
       {/if}
       <div class="al-sum">
@@ -93,8 +93,8 @@
         {#each atlas.saved as s (s.id)}
           <button type="button" class="al-chip" aria-pressed={savedId === s.id} onclick={() => onfilter({ ...newFilter(), ...s.filter, show: filter.show })} data-atlas-saved-pick={s.id}>{s.name}</button>
         {/each}
-        {#if n && !savedId && !naming}<button type="button" class="al-chip add" onclick={() => (naming = true)} data-atlas-save><Plus size={13} aria-hidden="true" />{t('Save this filter')}</button>{/if}
-        {#if atlas.saved.length}<button type="button" class="al-chip add" onclick={() => (manage = true)} data-atlas-saved-manage><Pencil size={13} aria-hidden="true" />{t('Edit|race')}</button>{/if}
+        {#if n && !savedId && !naming}<button type="button" class="al-chip add" onclick={() => (naming = true)} data-atlas-save><Plus size={14} aria-hidden="true" />{t('Save this filter')}</button>{/if}
+        {#if atlas.saved.length}<button type="button" class="al-chip add" onclick={() => (manage = true)} data-atlas-saved-manage><Pencil size={14} aria-hidden="true" />{t('Edit|race')}</button>{/if}
       </div>
       {/if}
       {#if naming}

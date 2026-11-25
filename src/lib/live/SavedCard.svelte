@@ -37,7 +37,7 @@
 </script>
 
 <div class="lv-saved" role="status" data-live-saved>
-  <CircleCheck size={28} aria-hidden="true" />
+  <CircleCheck size={24} aria-hidden="true" />
   <div class="lv-saved-main">
     <b>{t('Saved in Trips')} <LiveLabel /></b>
     {#if editing}

@@ -38,7 +38,7 @@
           <ActIcon icon={a.icon} ring={a.ring} dim />
           <span class="m">{actName(a)}</span>
           <button type="button" class="btn sm" onclick={() => restore(a)} data-gone-restore><RotateCcw size={16} aria-hidden="true" />{t('Restore')}</button>
-          <button type="button" class="ib" onclick={() => drop(a)} aria-label={t('Delete «{name}» with history', { name: actName(a) })}><Trash2 size={18} aria-hidden="true" /></button>
+          <button type="button" class="ib" onclick={() => drop(a)} aria-label={t('Delete «{name}» with history', { name: actName(a) })}><Trash2 size={20} aria-hidden="true" /></button>
         </li>
       {/each}
     </ul>

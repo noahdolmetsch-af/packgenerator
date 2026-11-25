@@ -46,7 +46,7 @@
 
 {#if strip}
   <section class="card wx-r3" aria-labelledby="wx-r3" data-wx-r3>
-    <h2 id="wx-r3" class="wx-r3-h"><CloudRain size={18} aria-hidden="true" />{t('Rain in the next 3 hours')}</h2>
+    <h2 id="wx-r3" class="wx-r3-h"><CloudRain size={20} aria-hidden="true" />{t('Rain in the next 3 hours')}</h2>
     <p class="wx-r3-say" data-wx-r3-say>{say}</p>
     <div class="wx-r3-bars" role="img" aria-label={say}>
       {#each strip.bars as b (b.ms)}

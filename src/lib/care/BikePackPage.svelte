@@ -138,7 +138,7 @@
       {#if msg}<p class="err" role="alert">{msg}</p>{/if}
     </section>
     <section class="gcard" aria-labelledby="bp-shots">
-      <h2 id="bp-shots"><Camera size={18} aria-hidden="true" />{t('Photos before packing')}</h2>
+      <h2 id="bp-shots"><Camera size={20} aria-hidden="true" />{t('Photos before packing')}</h2>
       <p class="quiet">{t('From all sides, with the date: if the bike arrives damaged, you can show how it was. They stay on this device.')}</p>
       {#if shots.length}
         <div class="shots">{#each shots as p (p.id)}<figure data-pack-shot={p.id}><img src={p.data} alt={t('Before packing, {date}', { date: dateOf(p.date) })} /><figcaption><span class="grow">{dateOf(p.date)}</span><DrawOn src={p.data} list={[p.data]} inks={p.inks} icon cls="ib" onsave={({ list, inks }) => db.photos.update(p.id, { data: list[0], inks })} data-pack-draw /><button type="button" class="ib" aria-label={t('Delete the photo of {date}', { date: dateOf(p.date) })} onclick={() => removeShot(p)}><Trash2 size={16} aria-hidden="true" /></button></figcaption></figure>{/each}</div>

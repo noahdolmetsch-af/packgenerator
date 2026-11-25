@@ -156,7 +156,7 @@
         <h2 id="bike-dlg-h">{isNew ? t('Add bike') : t('Bike details')}</h2>
         <p class="vd-sub num">{isNew ? t('Only the name is needed, everything else later.') : [bike.name, bike.km != null ? `${num(bike.km)} km` : ''].filter(Boolean).join(' · ')}</p>
       </div>
-      <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => closeKeep(dialog)}><X size={18} aria-hidden="true" /></button>
+      <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => closeKeep(dialog)}><X size={20} aria-hidden="true" /></button>
     </div>
     <label class="vd-field"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={draft.name} required enterkeyhint="done" placeholder={t('e.g. Gravel Grinder')} /></label>
     <!-- SN7: the kind as option buttons; a suggestion only: tap again and it is empty -->
@@ -167,7 +167,7 @@
     <div class="vd-folds">
       <FoldRow icon={Image} label={t('Photo')} summary={draft.photo ? t('chosen|photo') : t('side view works best')}>
         <div class="prow">
-          <span class="pthumb">{#if draft.photo}<img src={draft.photo} alt={draft.name} />{:else}<Bike size={22} aria-hidden="true" />{/if}</span>
+          <span class="pthumb">{#if draft.photo}<img src={draft.photo} alt={draft.name} />{:else}<Bike size={24} aria-hidden="true" />{/if}</span>
           <div class="pside">
             <small>{t('shown in Pack behind the bags; side view works best')}</small>
             <div class="pacts">

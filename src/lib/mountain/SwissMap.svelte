@@ -104,7 +104,7 @@
       {#each OVERLAYS as o (o.key)}
         <li>
           <button type="button" class="sk-tick" role="switch" aria-checked={on.includes(o.key)} onclick={() => toggle(o.key)} data-layer={o.key}>
-            <span class="sk-box" aria-hidden="true">{#if on.includes(o.key)}<Check size={18} strokeWidth={3} />{/if}</span>
+            <span class="sk-box" aria-hidden="true">{#if on.includes(o.key)}<Check size={20} strokeWidth={2.5} />{/if}</span>
             <span class="sk-tt"><b>{t(o.name)}</b><small>{t(o.sub)}</small></span>
           </button>
         </li>

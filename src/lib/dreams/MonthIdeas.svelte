@@ -64,7 +64,7 @@
     <ul class="mi-list">
       {#each ideas as x (x.id)}
         <li class="mi-row" data-idea={x.id}>
-          <span class="ich-ib"><Lightbulb size={18} aria-hidden="true" /></span>
+          <span class="ich-ib"><Lightbulb size={20} aria-hidden="true" /></span>
           <span class="mi-t">{shown(x)}</span>
           <span class="mi-acts">
             <button type="button" class="btn sm" onclick={() => onmakedream?.({ title: shown(x), months: x.months })} data-idea-dream><Sparkles size={16} aria-hidden="true" />{t('As a dream')}</button>

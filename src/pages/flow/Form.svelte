@@ -116,7 +116,7 @@
     {#if f.tour}
       <Sec id="tour-h" title={t('Tour readiness')} sub={t('before and during a tour of several days: the resting pulse per tour day')}>
         <div class="card tour" data-form-tours>
-          <p class="tl" data-tour-now><Mountain size={18} aria-hidden="true" /><span>{tourText(f.tour)}</span></p>
+          <p class="tl" data-tour-now><Mountain size={20} aria-hidden="true" /><span>{tourText(f.tour)}</span></p>
           <!-- «Diagramme zum Antippen» K4 (Noah 27.10.2026 «1-5 a»): one chart, day 1 = tour start, earlier tours on top -->
           <FormTour {f} {today} />
           <p class="hint">{t('A resting pulse rising day after day on a tour often means: more sleep, more food, an easier stage.')}</p>

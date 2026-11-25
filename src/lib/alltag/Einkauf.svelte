@@ -189,7 +189,7 @@
                 <button type="button" class="al-tick" aria-pressed="false" aria-label={t('Tick {name}', { name: x.text })} onclick={() => tick(x)} data-shop-tick></button>
                 <span class="fz-row-main"><b>{x.text}</b>{#if forOf(x)}<small data-shop-for>{t('for {name}', { name: forOf(x) })}</small>{/if}</span>
                 {#if !phone.matches}<SortArrows name={x.text} i={n} n={open.length} onstep={(dir) => stepItem(sec, x.id, dir)} />{/if}
-                <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: x.text })} onclick={() => openEdit(x)} data-shop-edit><Pencil size={18} aria-hidden="true" /></button>
+                <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: x.text })} onclick={() => openEdit(x)} data-shop-edit><Pencil size={20} aria-hidden="true" /></button>
               </li>
             {/each}
           </ul>
@@ -200,7 +200,7 @@
               <li class="fz-row" data-shop-item={x.text} data-done>
                 <button type="button" class="al-tick" aria-pressed="true" aria-label={t('Untick {name}', { name: x.text })} onclick={() => tick(x)} data-shop-tick><Check size={16} aria-hidden="true" /></button>
                 <span class="fz-row-main"><s>{x.text}</s></span>
-                <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: x.text })} onclick={() => openEdit(x)}><Pencil size={18} aria-hidden="true" /></button>
+                <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: x.text })} onclick={() => openEdit(x)}><Pencil size={20} aria-hidden="true" /></button>
               </li>
             {/each}
           </ul>
@@ -236,7 +236,7 @@
     </label>
     {#if tripShop}
       {#if tripShop.rows.length}
-        <h2 class="fz-h2"><ShoppingCart size={18} aria-hidden="true" />{t('For the trip «{title}»', { title: tripShop.trip.title })}</h2>
+        <h2 class="fz-h2"><ShoppingCart size={20} aria-hidden="true" />{t('For the trip «{title}»', { title: tripShop.trip.title })}</h2>
         <ul class="fz-list al-items">
           {#each tripShop.rows as r (r.itemId)}
             <li class="fz-row" data-trip-item={r.name}>
@@ -264,8 +264,8 @@
             <SortGrip name={g.name} onstep={(dir) => stepGroup(g.id, dir)} />
             <span class="fz-row-main"><b>{g.name}</b><small>{tn(countIn(g.id), '{n} point', '{n} points')}</small></span>
             {#if !phone.matches}<SortArrows name={g.name} i={n} n={groups.length} onstep={(dir) => stepGroup(g.id, dir)} />{/if}
-            <button type="button" class="fz-icon" aria-label={t('Rename {name}', { name: g.name })} onclick={() => (renaming = g)} data-grp-rename><Pencil size={18} aria-hidden="true" /></button>
-            <button type="button" class="fz-icon" aria-label={t('Delete {name}', { name: g.name })} onclick={() => (deleting = g)} data-grp-delete><X size={18} aria-hidden="true" /></button>
+            <button type="button" class="fz-icon" aria-label={t('Rename {name}', { name: g.name })} onclick={() => (renaming = g)} data-grp-rename><Pencil size={20} aria-hidden="true" /></button>
+            <button type="button" class="fz-icon" aria-label={t('Delete {name}', { name: g.name })} onclick={() => (deleting = g)} data-grp-delete><X size={20} aria-hidden="true" /></button>
           </li>
         {/each}
       </ul>

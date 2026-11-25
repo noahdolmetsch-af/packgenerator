@@ -36,15 +36,15 @@
 {:else if phone}
   <span class="pp" class:big>
     <label class="btn hi cam" class:sm={!big}><Camera size={big ? 22 : 18} aria-hidden="true" />{camText}<input bind:this={camEl} type="file" accept="image/*" capture="environment" onchange={pick} hidden /></label>
-    <label class="btn sm"><ImageIcon size={18} aria-hidden="true" />{t('Gallery')}<input type="file" accept="image/*" onchange={pick} hidden /></label>
+    <label class="btn sm"><ImageIcon size={20} aria-hidden="true" />{t('Gallery')}<input type="file" accept="image/*" onchange={pick} hidden /></label>
   </span>
 {:else if big}
   <!-- «Beleg direkt fotografieren» (Noah 1.11.2026): on a computer the main photo button is as big and green as on the phone -->
   <span class="pp big" data-photo-big>
-    <label class="btn hi cam"><ImageIcon size={22} aria-hidden="true" />{has ? t(pages ? 'Another page' : again) : t(choose)}<input type="file" accept="image/*" onchange={pick} hidden /></label>
+    <label class="btn hi cam"><ImageIcon size={24} aria-hidden="true" />{has ? t(pages ? 'Another page' : again) : t(choose)}<input type="file" accept="image/*" onchange={pick} hidden /></label>
   </span>
 {:else}
-  <label class="btn sm"><ImageIcon size={18} aria-hidden="true" />{has ? t(pages ? 'Another page' : again) : t(choose)}<input type="file" accept="image/*" onchange={pick} hidden /></label>
+  <label class="btn sm"><ImageIcon size={20} aria-hidden="true" />{has ? t(pages ? 'Another page' : again) : t(choose)}<input type="file" accept="image/*" onchange={pick} hidden /></label>
 {/if}
 
 <style>

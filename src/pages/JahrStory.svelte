@@ -85,7 +85,7 @@
   <div class="dashes" aria-hidden="true">
     {#each slides as _, n (n)}<i class:on={n <= i}></i>{/each}
   </div>
-  <button type="button" class="close" aria-label={t('Close')} onclick={close}><X size={22} aria-hidden="true" /></button>
+  <button type="button" class="close" aria-label={t('Close')} onclick={close}><X size={24} aria-hidden="true" /></button>
   <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
   <div class="stage" onclick={tap} onpointerdown={down} onpointerup={up}>
     {#if s}

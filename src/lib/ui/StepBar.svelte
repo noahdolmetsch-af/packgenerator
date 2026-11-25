@@ -37,8 +37,8 @@
   {#each bars as key (key)}
     {@const s = status[key] ?? { text: '', done: false }}
     <a href={tabHref(key, trip)} class:done={s.done} class:past={s.past} aria-current={key === here ? 'page' : undefined} onclick={() => onpick(key)}>
-      {#if tone === 'steps'}<span class="no" class:tick={s.done && key !== here} aria-hidden="true">{#if s.done && key !== here}<Check size={14} strokeWidth={2.6} />{/if}</span>{/if}<span class="tn">{t(STEP_BAR[key])}</span>
-      {#if s.text || s.done}<small>{#if s.done}<Check size={13} aria-hidden="true" />{/if}{#if s.text}{s.text}{:else}<span class="sr">{t('done|step')}</span>{/if}</small>{/if}
+      {#if tone === 'steps'}<span class="no" class:tick={s.done && key !== here} aria-hidden="true">{#if s.done && key !== here}<Check size={14} strokeWidth={2.5} />{/if}</span>{/if}<span class="tn">{t(STEP_BAR[key])}</span>
+      {#if s.text || s.done}<small>{#if s.done}<Check size={14} aria-hidden="true" />{/if}{#if s.text}{s.text}{:else}<span class="sr">{t('done|step')}</span>{/if}</small>{/if}
     </a>
   {/each}
 </nav>

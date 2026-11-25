@@ -130,7 +130,7 @@
     </ul>
     <form class="add" onsubmit={add}>
       <input class="inp" bind:value={words} placeholder={kind === 'eve' ? t('Own row, e.g. pack the ski crampons') : t('Own row, e.g. wax the skis')} aria-label={t('Add an own row')} />
-      <button type="submit" class="btn"><Plus size={15} aria-hidden="true" />{t('Add|row')}</button>
+      <button type="submit" class="btn"><Plus size={16} aria-hidden="true" />{t('Add|row')}</button>
     </form>
   </div>
 
@@ -154,7 +154,7 @@
   {/if}
 
   <div class="foot">
-    <button type="button" class="tp-link back" onclick={restore}><Undo2 size={15} aria-hidden="true" />{t('Restore the suggestion')}</button>
+    <button type="button" class="tp-link back" onclick={restore}><Undo2 size={16} aria-hidden="true" />{t('Restore the suggestion')}</button>
     <span class="bt">
       <button type="button" class="btn" onclick={close}>{t('Cancel')}</button>
       <button type="button" class="btn hi" disabled={saving} onclick={save}>{t('Save')}</button>

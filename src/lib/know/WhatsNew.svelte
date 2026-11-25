@@ -54,22 +54,22 @@
 <section class="news" id="news" aria-labelledby="news-h">
   <details class="newsfold" open={opened}>
   <summary class="lrow">
-    <span class="ic" aria-hidden="true"><Star size={18} /></span>
+    <span class="ic" aria-hidden="true"><Star size={20} /></span>
     <h2 id="news-h" class="m t">{t('New in {versions}', { versions: recent.map((e) => shortVersion(e.version)).join(' · ') })}</h2>
     <span class="nbadge num">{recent.reduce((n, e) => n + e.points.length, 0)}</span>
-    <ChevronRight class="chev" size={18} aria-hidden="true" />
+    <ChevronRight class="chev" size={20} aria-hidden="true" />
   </summary>
   <div class="in">
   {@render list(recent)}
   {#if older.length}
     <details class="older">
-      <summary><span>{t('Older updates')}</span><span class="n num">{older.length}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+      <summary><span>{t('Older updates')}</span><span class="n num">{older.length}</span><ChevronRight class="chev" size={20} aria-hidden="true" /></summary>
       {#each groups as g (g.key)}
         <details class="range" data-range={g.key}>
           <summary>
             <span class="num">{g.from === g.to ? g.from : t('{from} to {to}|versions', { from: g.from, to: g.to })}</span>
             <span class="n num">{g.entries.length}</span>
-            <ChevronRight class="chev" size={18} aria-hidden="true" />
+            <ChevronRight class="chev" size={20} aria-hidden="true" />
           </summary>
           {@render list(g.entries)}
         </details>

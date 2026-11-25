@@ -57,7 +57,7 @@
 </script>
 
 <section class="card" aria-labelledby="keeper-h" data-keeper>
-  <h2 id="keeper-h" class="sh"><KeyRound size={18} aria-hidden="true" /> {t('List for the flat sitter')}</h2>
+  <h2 id="keeper-h" class="sh"><KeyRound size={20} aria-hidden="true" /> {t('List for the flat sitter')}</h2>
   <p class="tp-small tp-muted">{t('What the person looking after your flat should do. You share it as a link or a QR code; it is stored only in the link.')}</p>
   <LinesEdit
     name="keeper"
@@ -76,9 +76,9 @@
   </label>
   <p class="tp-small tp-muted">{t('Do not put door codes or alarm numbers in the link: anyone who gets it can read it.')}</p>
   <div class="acts">
-    <button type="button" class="btn hi" onclick={share} data-keeper-share><Share2 size={18} aria-hidden="true" />{t('Share link')}</button>
-    <button type="button" class="btn" onclick={copy} data-keeper-copy><Copy size={18} aria-hidden="true" />{t('Copy link')}</button>
-    <button type="button" class="btn" aria-expanded={!!qr} onclick={showQr} data-keeper-qr><QrCode size={18} aria-hidden="true" />{t('QR code')}</button>
+    <button type="button" class="btn hi" onclick={share} data-keeper-share><Share2 size={20} aria-hidden="true" />{t('Share link')}</button>
+    <button type="button" class="btn" onclick={copy} data-keeper-copy><Copy size={20} aria-hidden="true" />{t('Copy link')}</button>
+    <button type="button" class="btn" aria-expanded={!!qr} onclick={showQr} data-keeper-qr><QrCode size={20} aria-hidden="true" />{t('QR code')}</button>
   </div>
   {#if msg}<p class="tp-small" role="status">{msg}</p>{/if}
   {#if long}<p class="tp-small" role="status">{t('The list is long: the QR code gets dense. Shorter lines help.')}</p>{/if}

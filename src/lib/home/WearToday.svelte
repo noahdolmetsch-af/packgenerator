@@ -16,7 +16,7 @@
   import { todayOutfit } from './outfit.js';
   import HomePlaceForm from '../know/HomePlaceForm.svelte';
   import { t, tn, nameOf } from '../i18n.svelte.js';
-  import { Shirt } from '@lucide/svelte';
+  import { Shirt, Star } from '@lucide/svelte';
 
   // edit: the window on Today (swap, add, why); without it a calm read-only card (the day card).
   let { items = [], trips = [], edit = false } = $props();
@@ -257,7 +257,7 @@
         {#each shown.rows as r (r.key)}
           <li data-wear-row={r.key}>
             <span class="k">{t(r.name)}</span>
-            {#if r.item}<span class="v">{nameOf(r.item)}{#if r.mine}<small class="own">{r.added ? t('added by you · today only') : t('chosen by you · today only')}</small>{:else if r.item.favorite && !r.fromSet}<small class="own" data-wear-fav>★ {t('Your favourite')}</small>{:else if r.fromSet && active}<small class="own" data-wear-fromset>{r.light ? t('from the set · too light for {c} °C', { c: o.outfit.c }) : t('from the set')}</small>{/if}</span>
+            {#if r.item}<span class="v">{nameOf(r.item)}{#if r.mine}<small class="own">{r.added ? t('added by you · today only') : t('chosen by you · today only')}</small>{:else if r.item.favorite && !r.fromSet}<small class="own" data-wear-fav><Star size={14} class="ic-in" aria-hidden="true" /> {t('Your favourite')}</small>{:else if r.fromSet && active}<small class="own" data-wear-fromset>{r.light ? t('from the set · too light for {c} °C', { c: o.outfit.c }) : t('from the set')}</small>{/if}</span>
             {:else if r.none}<span class="v gap">{t('nothing|wear')}<small class="own">{t('left out by you · today only')}</small></span>
             {:else if r.setOff && active}<span class="v gap">{t('nothing|wear')}<small class="own">{t('left out in the set {set}', { set: active.name })}</small></span>
             {:else}<span class="v gap">{r.rain ? t('nothing waterproof') : t('nothing warm enough')}</span>{/if}

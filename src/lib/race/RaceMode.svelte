@@ -126,9 +126,9 @@
   <section class="rc-box" data-race-box="ride-km">
     <label class="rm-kmlab" for="rm-km">{t('I am at km')}</label>
     <div class="rm-km">
-      <button type="button" class="btn" onclick={() => setKm(km - 10)} aria-label={t('10 km back')} data-race-km-minus><Minus size={18} aria-hidden="true" />10</button>
+      <button type="button" class="btn" onclick={() => setKm(km - 10)} aria-label={t('10 km back')} data-race-km-minus><Minus size={20} aria-hidden="true" />10</button>
       <input id="rm-km" class="inp rm-kminp" type="number" min="0" step="0.1" inputmode="decimal" value={km} onchange={(e) => setKm(e.currentTarget.value)} data-race-km />
-      <button type="button" class="btn" onclick={() => setKm(km + 10)} aria-label={t('10 km on')} data-race-km-plus><Plus size={18} aria-hidden="true" />10</button>
+      <button type="button" class="btn" onclick={() => setKm(km + 10)} aria-label={t('10 km on')} data-race-km-plus><Plus size={20} aria-hidden="true" />10</button>
     </div>
     {#if plan}<button type="button" class="btn sm" onclick={() => setKm(plan.kmAt(now))} data-race-km-plan>{t('Use the plan (km {km} now)', { km: num(Math.round(plan.kmAt(now))) })}</button>{/if}
     {#if total}<p class="rc-note">{t('{left} km to the finish', { left: num(Math.round(total - km)) })}</p>{/if}
@@ -252,7 +252,7 @@
     </Box>
 
     <Box id="ride-bad" title={t('Bad weather now')} what="Shows the shelters and stations in the next 20 km and your own plans for bad weather." why="In a storm you need a roof fast, not a search." from="Shelters and stations from your stop file and OpenStreetMap, your plans from «Prepare».">
-      <button type="button" class="btn" aria-expanded={bad} onclick={() => (bad = !bad)} data-race-bad><CloudLightning size={18} aria-hidden="true" />{t('Bad weather now')}</button>
+      <button type="button" class="btn" aria-expanded={bad} onclick={() => (bad = !bad)} data-race-bad><CloudLightning size={20} aria-hidden="true" />{t('Bad weather now')}</button>
       {#if bad}
         {#if roofs.length}
           <ul class="rc-list">

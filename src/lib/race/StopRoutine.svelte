@@ -24,7 +24,7 @@
 </script>
 
 <section class="rc-box" aria-labelledby="st-h" data-race-stops>
-  <h2 id="st-h" class="rc-h2"><Moon size={18} aria-hidden="true" /> {t('Night stop routine')}</h2>
+  <h2 id="st-h" class="rc-h2"><Moon size={20} aria-hidden="true" /> {t('Night stop routine')}</h2>
   <p class="rc-note">{t('What you do at every night stop, one after the other. Tick it off, then start fresh at the next stop.')}</p>
   {#if rows.length}
     <div class="st-head">

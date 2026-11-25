@@ -135,7 +135,7 @@
 
   {#if finished}
     <section class="card wc fin" data-plan-done>
-      <h2><Check size={22} aria-hidden="true" />{t('Your week is planned')}</h2>
+      <h2><Check size={24} aria-hidden="true" />{t('Your week is planned')}</h2>
       <p class="why">{t('Everything stays changeable. Heute shows what is on today.')}</p>
       <a class="btn hi" href="#/week">{t('To the week')}</a>
     </section>
@@ -182,8 +182,8 @@
               <span class="d">{dayName(s.day)}</span>
               <span class="tx k-sport"><b>{sessName(s)}</b><small>{hours(s.mins)}{#if off}{' · '}{t('falls on holidays')}{/if}</small></span>
               <span class="acts">
-                {#if !off}<button type="button" class="ib" aria-label={t('Move {name} to the next day', { name: sessName(s) })} onclick={() => moveSession(s)}><ArrowRight size={18} aria-hidden="true" /></button>{/if}
-                <button type="button" class="ib" aria-label={t('Leave out {name}', { name: sessName(s) })} onclick={() => removeSession(s)}><X size={18} aria-hidden="true" /></button>
+                {#if !off}<button type="button" class="ib" aria-label={t('Move {name} to the next day', { name: sessName(s) })} onclick={() => moveSession(s)}><ArrowRight size={20} aria-hidden="true" /></button>{/if}
+                <button type="button" class="ib" aria-label={t('Leave out {name}', { name: sessName(s) })} onclick={() => removeSession(s)}><X size={20} aria-hidden="true" /></button>
               </span>
             </li>
           {/each}
@@ -193,8 +193,8 @@
               <span class="d">{dayName(s.day)}</span>
               <span class="tx k-sport"><b>{sessName(s)}</b><small>{hours(s.mins)} · {off ? t('falls on holidays') : t('like last week')}</small></span>
               <span class="acts">
-                <button type="button" class="ib" aria-label={t('Leave out {name}', { name: sessName(s) })} onclick={() => (gone = [...gone, keyOf(s)])}><X size={18} aria-hidden="true" /></button>
-                {#if !off}<button type="button" class="ib ok" aria-label={t('Take {name}', { name: sessName(s) })} onclick={() => takeProp(s)}><Check size={18} aria-hidden="true" /></button>{/if}
+                <button type="button" class="ib" aria-label={t('Leave out {name}', { name: sessName(s) })} onclick={() => (gone = [...gone, keyOf(s)])}><X size={20} aria-hidden="true" /></button>
+                {#if !off}<button type="button" class="ib ok" aria-label={t('Take {name}', { name: sessName(s) })} onclick={() => takeProp(s)}><Check size={20} aria-hidden="true" /></button>{/if}
               </span>
             </li>
           {/each}
@@ -203,7 +203,7 @@
           <h3 class="sub">{t('The weather')}</h3>
           <ul class="rows">{#each sugg('sport').filter((s) => s.act === 'move') as s (s.ref)}{@render suggRow(s)}{/each}</ul>
         {/if}
-        {#each week.hints as h (h.key + (h.day ?? ''))}<p class="why hint" data-load-hint={h.key}><Info size={15} aria-hidden="true" /><span>{hintText(h)}</span></p>{/each}
+        {#each week.hints as h (h.key + (h.day ?? ''))}<p class="why hint" data-load-hint={h.key}><Info size={16} aria-hidden="true" /><span>{hintText(h)}</span></p>{/each}
         {#if reviewLine(week.review)}<p class="why sm" data-review>{reviewLine(week.review)}</p>{/if}
         <!-- Klick-Rundgang 22.10.2026: «none last week» meant the plan; rides and ticks of last week are not «none» -->
         {#if !sessions.length && !proposals.length}<p class="none" data-train-none>{week.review?.rides ? t('No sessions planned yet. Last week you trained without a plan (see above); add one below.') : t('No sessions planned and none last week. Add one below.')}</p>{/if}
@@ -259,9 +259,9 @@
     <span class="d">{dayName(dayFor(s))}</span>
     <span class="tx k-{s.kind}"><b>{titleOf(s)}</b>{#if subOf(s)}<small>{subOf(s)}</small>{/if}</span>
     <span class="acts">
-      <button type="button" class="ib" aria-label={t('Leave out {name}', { name: titleOf(s) })} onclick={() => skip(s)}><X size={18} aria-hidden="true" /></button>
-      <button type="button" class="ib" aria-label={t('Move {name} to the next day', { name: titleOf(s) })} onclick={() => other(s)}><ArrowRight size={18} aria-hidden="true" /></button>
-      <button type="button" class="ib ok" aria-label={t('Take {name}', { name: titleOf(s) })} onclick={() => take(s)}><Check size={18} aria-hidden="true" /></button>
+      <button type="button" class="ib" aria-label={t('Leave out {name}', { name: titleOf(s) })} onclick={() => skip(s)}><X size={20} aria-hidden="true" /></button>
+      <button type="button" class="ib" aria-label={t('Move {name} to the next day', { name: titleOf(s) })} onclick={() => other(s)}><ArrowRight size={20} aria-hidden="true" /></button>
+      <button type="button" class="ib ok" aria-label={t('Take {name}', { name: titleOf(s) })} onclick={() => take(s)}><Check size={20} aria-hidden="true" /></button>
     </span>
   </li>
 {/snippet}

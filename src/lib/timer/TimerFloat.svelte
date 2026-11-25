@@ -22,13 +22,13 @@
 {#if run && pos}
   <div class="tfl" class:up={!!clockState.tm} role="group" aria-label={t('Timer')} data-timer-float>
     <a class="open" href="#/timer" aria-label={t('Open the timer')}>
-      <TimerIcon size={18} aria-hidden="true" />
+      <TimerIcon size={20} aria-hidden="true" />
       <span class="mt"><small>{name}</small><b class="num">{digits(pos.show, timer.prefs.fmt)}</b></span>
     </a>
-    <button type="button" class="pp" onclick={togglePause} aria-label={run.pausedAt ? t('Go on') : t('Pause')}>{#if run.pausedAt}<Play size={18} aria-hidden="true" />{:else}<Pause size={18} aria-hidden="true" />{/if}</button>
+    <button type="button" class="pp" onclick={togglePause} aria-label={run.pausedAt ? t('Go on') : t('Pause')}>{#if run.pausedAt}<Play size={20} aria-hidden="true" />{:else}<Pause size={20} aria-hidden="true" />{/if}</button>
   </div>
 {:else if timer.done}
-  <a class="tfl done" class:up={!!clockState.tm} href="#/timer" data-timer-float="done"><Check size={18} aria-hidden="true" />{t('Timer done · add a note')}</a>
+  <a class="tfl done" class:up={!!clockState.tm} href="#/timer" data-timer-float="done"><Check size={20} aria-hidden="true" />{t('Timer done · add a note')}</a>
 {/if}
 
 <style>

@@ -102,7 +102,7 @@
       <h2 id="sr-h"><Dices size={20} aria-hidden="true" /> {t('Surprise round')}</h2>
       <p class="vd-sub">{t('You choose adventure and time; the app suggests a round from home on the side you know least.')}</p>
     </div>
-    <button type="button" class="btn icon" aria-label={t('Close')} onclick={() => dialog?.close()}><X size={18} aria-hidden="true" /></button>
+    <button type="button" class="btn icon" aria-label={t('Close')} onclick={() => dialog?.close()}><X size={20} aria-hidden="true" /></button>
   </div>
 
   {#if $homeQ !== undefined && !home}
@@ -128,7 +128,7 @@
     <label class="sr-hide"><input type="checkbox" bind:checked={hide} data-sr-hide /> <span>{t('Show the direction only on the way')}</span></label>
 
     {#if !round}
-      <button type="button" class="btn hi" disabled={busy} onclick={() => suggest()} data-sr-go><Dices size={18} aria-hidden="true" />{busy ? t('Looking for a round…') : t('Suggest a round')}</button>
+      <button type="button" class="btn hi" disabled={busy} onclick={() => suggest()} data-sr-go><Dices size={20} aria-hidden="true" />{busy ? t('Looking for a round…') : t('Suggest a round')}</button>
       <RouterNote round cls="sr-note" />
     {:else}
       <div class="sr-out" role="status" data-sr-result>
@@ -138,9 +138,9 @@
         {:else}<span>{t('Towards the {dir}, where you rarely rode.', { dir: t(SECTORS[round.sector]) })}</span>{/if}
       </div>
       <div class="sr-row">
-        <button type="button" class="btn hi" disabled={busy} onclick={plan} data-sr-plan><Route size={18} aria-hidden="true" />{t('Plan as a trip')}</button>
-        <button type="button" class="btn" disabled={busy} onclick={gpx} data-sr-gpx><Download size={18} aria-hidden="true" />{t('GPX for the Garmin')}</button>
-        <button type="button" class="btn" disabled={busy} onclick={() => suggest(true)} data-sr-again><RefreshCw size={18} aria-hidden="true" />{t('Another round')}</button>
+        <button type="button" class="btn hi" disabled={busy} onclick={plan} data-sr-plan><Route size={20} aria-hidden="true" />{t('Plan as a trip')}</button>
+        <button type="button" class="btn" disabled={busy} onclick={gpx} data-sr-gpx><Download size={20} aria-hidden="true" />{t('GPX for the Garmin')}</button>
+        <button type="button" class="btn" disabled={busy} onclick={() => suggest(true)} data-sr-again><RefreshCw size={20} aria-hidden="true" />{t('Another round')}</button>
       </div>
     {/if}
     {#if err}<p class="sr-note err" role="alert">{err}</p>{/if}

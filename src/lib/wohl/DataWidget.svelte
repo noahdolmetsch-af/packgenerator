@@ -51,11 +51,11 @@
   <h2 id="{idp}-h">{title || t('Your values today')}</h2>
   {#if v}
     <ul>
-      <li data-dw="km"><Bike size={18} aria-hidden="true" /><span><b class="num">{n1(v.kmToday)} km</b><small>{t('today · {km} km in 7 days', { km: n1(v.kmWeek) })}</small></span></li>
-      <li data-dw="weather"><CloudSun size={18} aria-hidden="true" /><span>{#if v.weather}<b class="num">{v.weather.min}–{v.weather.max} °C</b><small>{t(RAIN[v.weather.rain] ?? 'weather at home')}</small>{:else}<b>–</b><small>{$placeQ?.value ? t('weather not loaded right now') : t('weather: set a home place under Me')}</small>{/if}</span></li>
-      <li data-dw="sleep"><Moon size={18} aria-hidden="true" /><span><b class="num">{v.sleepH == null ? '–' : `${n1(v.sleepH)} h`}</b><small>{v.sleepH == null ? missing(t('sleep')) : sleepLabel(v.sleepDay, v.sleepNormal != null ? t('sleep · your normal {n} h', { n: n1(v.sleepNormal) }) : null)}</small></span></li>
-      <li data-dw="hrv"><Activity size={18} aria-hidden="true" /><span><b class="num">{v.hrv == null ? '–' : `${v.hrv} ms`}</b><small>{v.hrv == null ? missing(t('HRV')) : label(t('HRV'), v.hrvDay, v.hrvNormal != null ? t('HRV · your normal {n} ms', { n: Math.round(v.hrvNormal) }) : null)}</small></span></li>
-      <li data-dw="pulse"><HeartPulse size={18} aria-hidden="true" /><span><b class="num">{v.restingHr == null ? '–' : `${v.restingHr}`}</b><small>{v.restingHr == null ? missing(t('resting pulse')) : label(t('resting pulse'), v.restingDay, v.restingNormal != null ? t('resting pulse · your normal {n}', { n: Math.round(v.restingNormal) }) : null)}</small></span></li>
+      <li data-dw="km"><Bike size={20} aria-hidden="true" /><span><b class="num">{n1(v.kmToday)} km</b><small>{t('today · {km} km in 7 days', { km: n1(v.kmWeek) })}</small></span></li>
+      <li data-dw="weather"><CloudSun size={20} aria-hidden="true" /><span>{#if v.weather}<b class="num">{v.weather.min}–{v.weather.max} °C</b><small>{t(RAIN[v.weather.rain] ?? 'weather at home')}</small>{:else}<b>–</b><small>{$placeQ?.value ? t('weather not loaded right now') : t('weather: set a home place under Me')}</small>{/if}</span></li>
+      <li data-dw="sleep"><Moon size={20} aria-hidden="true" /><span><b class="num">{v.sleepH == null ? '–' : `${n1(v.sleepH)} h`}</b><small>{v.sleepH == null ? missing(t('sleep')) : sleepLabel(v.sleepDay, v.sleepNormal != null ? t('sleep · your normal {n} h', { n: n1(v.sleepNormal) }) : null)}</small></span></li>
+      <li data-dw="hrv"><Activity size={20} aria-hidden="true" /><span><b class="num">{v.hrv == null ? '–' : `${v.hrv} ms`}</b><small>{v.hrv == null ? missing(t('HRV')) : label(t('HRV'), v.hrvDay, v.hrvNormal != null ? t('HRV · your normal {n} ms', { n: Math.round(v.hrvNormal) }) : null)}</small></span></li>
+      <li data-dw="pulse"><HeartPulse size={20} aria-hidden="true" /><span><b class="num">{v.restingHr == null ? '–' : `${v.restingHr}`}</b><small>{v.restingHr == null ? missing(t('resting pulse')) : label(t('resting pulse'), v.restingDay, v.restingNormal != null ? t('resting pulse · your normal {n}', { n: Math.round(v.restingNormal) }) : null)}</small></span></li>
     </ul>
     <p class="note">{t('Only to look at, no score.')}</p>
   {/if}

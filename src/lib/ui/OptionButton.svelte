@@ -26,10 +26,10 @@
     {#if badge && !pressed}<span class="obadge">{badge}</span>{/if}
     <span class="otile" aria-hidden="true">{#if lead}{@render lead()}{:else if Icon}<Icon size={20} />{/if}</span>
     <span class="otext"><b>{label}</b>{#if sub}<small>{sub}</small>{/if}</span>
-    <span class="omark" aria-hidden="true">{#if pressed}<Check size={18} strokeWidth={2.5} />{:else}<Plus size={18} />{/if}</span>
+    <span class="omark" aria-hidden="true">{#if pressed}<Check size={20} strokeWidth={2.5} />{:else}<Plus size={20} />{/if}</span>
   </button>
 {:else}
-  <button type="button" class="obtn {cls}" aria-pressed={pressed} data-explain={explain || undefined} data-explain-sub={explainSub || undefined} {onclick} {...rest}>{#if pressed}<Check size={18} aria-hidden="true" />{:else if lead}{@render lead()}{:else if Icon}<Icon size={18} aria-hidden="true" />{/if}<span>{label}</span></button>
+  <button type="button" class="obtn {cls}" aria-pressed={pressed} data-explain={explain || undefined} data-explain-sub={explainSub || undefined} {onclick} {...rest}>{#if pressed}<Check size={20} aria-hidden="true" />{:else if lead}{@render lead()}{:else if Icon}<Icon size={18} aria-hidden="true" />{/if}<span>{label}</span></button>
 {/if}
 
 <style>

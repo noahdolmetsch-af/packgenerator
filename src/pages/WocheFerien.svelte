@@ -107,16 +107,16 @@
         <h2 id="fe-form-h">{t('Coming up')}</h2>
         <ul class="list">
           {#each coming as a (a.id)}
-            <li><button type="button" class="ar" data-away={a.id} onclick={() => edit(a)}><Palmtree size={20} aria-hidden="true" /><span><b>{a.title || t('Holidays|away')}</b><small>{line(a)}</small></span><ChevronRight size={18} aria-hidden="true" /></button></li>
+            <li><button type="button" class="ar" data-away={a.id} onclick={() => edit(a)}><Palmtree size={20} aria-hidden="true" /><span><b>{a.title || t('Holidays|away')}</b><small>{line(a)}</small></span><ChevronRight size={20} aria-hidden="true" /></button></li>
           {:else}
             <li class="none">{t('No holidays entered. A long weekend away? Enter it once and the week plans around it.')}</li>
           {/each}
         </ul>
-        <button type="button" class="btn hi" onclick={startNew} data-add-away><Plus size={18} aria-hidden="true" />{t('Enter holidays')}</button>
+        <button type="button" class="btn hi" onclick={startNew} data-add-away><Plus size={20} aria-hidden="true" />{t('Enter holidays')}</button>
         {#if past.length}
           <h3>{t('Past')}</h3>
           <ul class="list">
-            {#each past.slice(-5).reverse() as a (a.id)}<li><button type="button" class="ar" onclick={() => edit(a)}><Palmtree size={20} aria-hidden="true" /><span><b>{a.title || t('Holidays|away')}</b><small>{line(a)}</small></span><ChevronRight size={18} aria-hidden="true" /></button></li>{/each}
+            {#each past.slice(-5).reverse() as a (a.id)}<li><button type="button" class="ar" onclick={() => edit(a)}><Palmtree size={20} aria-hidden="true" /><span><b>{a.title || t('Holidays|away')}</b><small>{line(a)}</small></span><ChevronRight size={20} aria-hidden="true" /></button></li>{/each}
           </ul>
         {/if}
       {/if}

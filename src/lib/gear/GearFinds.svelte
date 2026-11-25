@@ -29,7 +29,7 @@
 <section class="finds" data-gear-finds={kind} aria-labelledby="gf-h">
   <div class="fh">
     <h2 id="gf-h">{kind === 'light' ? t('Lighter alternatives') : t('Power values of a device')}</h2>
-    <button type="button" class="gfx" aria-label={t('Close')} onclick={onclose}><X size={18} aria-hidden="true" /></button>
+    <button type="button" class="gfx" aria-label={t('Close')} onclick={onclose}><X size={20} aria-hidden="true" /></button>
   </div>
   <p class="quiet">{kind === 'light' ? t('Lighter things from your own gear. Tap an item to see all of them at its weight.') : t('Battery, how long it lasts and charges. Tap a device to type or measure the values.')}</p>
   {#if rows.length}

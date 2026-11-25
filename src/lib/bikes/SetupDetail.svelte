@@ -75,7 +75,7 @@
 </script>
 
 <VeloHead crumbs={[{ label: t('My setup|tab'), href: bikesHash({ tab: 'rig', bike: bike.id }) }]} here={`${bike.name} · ${nm(setup)}`} title={nm(setup)} sub={whenText}>
-  {#if isLast}<span class="badge ok"><Clock3 size={12} aria-hidden="true" />{t('last used')}</span>{/if}
+  {#if isLast}<span class="badge ok"><Clock3 size={14} aria-hidden="true" />{t('last used')}</span>{/if}
   {#if !setup.std}<button type="button" class="btn" onclick={() => (renaming = true)}><Pencil size={16} aria-hidden="true" />{t('Rename')}</button>{/if}
   <button type="button" class="btn" onclick={copy}><Copy size={16} aria-hidden="true" />{t('Copy')}</button>
   {#if actions.length}<MoreActions title={nm(setup)} label={t('More for {name}', { name: nm(setup) })} {actions} />{/if}

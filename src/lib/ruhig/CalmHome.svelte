@@ -40,7 +40,7 @@
 
 {#if on}
   <section class="chm" data-calm-home aria-labelledby="chm-h">
-    <Moon size={28} aria-hidden="true" />
+    <Moon size={24} aria-hidden="true" />
     <p class="chm-l" id="chm-h">{t('You are doing')}</p>
     <p class="chm-w">{$q.what}</p>
     {#if left}<p class="chm-t" data-calm-home-left>{t('{n} min left', { n: left })}</p>{/if}

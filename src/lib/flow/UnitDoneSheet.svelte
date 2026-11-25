@@ -81,7 +81,7 @@
   {#if st}
     <div class="hd">
       <div class="ht"><h2 id="ud-h">{t('Done: {what}', { what })}</h2><p class="muted">{t('Everything here is optional.')}</p></div>
-      <button type="button" class="xb" aria-label={t('Close')} onclick={close}><X size={18} aria-hidden="true" /></button>
+      <button type="button" class="xb" aria-label={t('Close')} onclick={close}><X size={20} aria-hidden="true" /></button>
     </div>
 
     {#if chosen && !showChoice}

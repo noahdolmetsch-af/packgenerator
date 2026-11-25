@@ -36,7 +36,7 @@
 
 {#if list.length || undo}
   <section class="tp-card st" aria-labelledby="st-h" data-stories>
-    <h2 id="st-h"><Mic size={18} aria-hidden="true" /> {t('Little stories')}</h2>
+    <h2 id="st-h"><Mic size={20} aria-hidden="true" /> {t('Little stories')}</h2>
     <p class="st-sub">{t('Your voice notes on the things of this list: what for and the trick.')}</p>
     <ul class="st-list">
       {#each list as s (s.item.id)}
@@ -49,14 +49,14 @@
             </span>
             {#if a.text}<p class="st-said">«{a.text}»</p>{/if}
           {/each}
-          <button type="button" class="st-x" aria-label={t('Not on this trip: {name}', { name: nameOf(s.item) })} onclick={() => hide(s.item)} data-story-hide><X size={17} aria-hidden="true" /></button>
+          <button type="button" class="st-x" aria-label={t('Not on this trip: {name}', { name: nameOf(s.item) })} onclick={() => hide(s.item)} data-story-hide><X size={16} aria-hidden="true" /></button>
         </li>
       {/each}
     </ul>
-    {#if undo}<p class="st-undo" role="status"><span>{t('«{name}» is no longer shown.', { name: undo.name })}</span><button type="button" class="tp-link" onclick={back}><Undo2 size={15} aria-hidden="true" />{t('Undo')}</button></p>{/if}
+    {#if undo}<p class="st-undo" role="status"><span>{t('«{name}» is no longer shown.', { name: undo.name })}</span><button type="button" class="tp-link" onclick={back}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button></p>{/if}
   </section>
 {:else if hint}
-  <p class="tp-small tp-muted st-hint" data-stories-hint><Mic size={15} aria-hidden="true" /> <b>{t('Little stories while packing')}</b>: {t('a voice note on an item plays here on the packing day.')}</p>
+  <p class="tp-small tp-muted st-hint" data-stories-hint><Mic size={16} aria-hidden="true" /> <b>{t('Little stories while packing')}</b>: {t('a voice note on an item plays here on the packing day.')}</p>
 {/if}
 
 <style>

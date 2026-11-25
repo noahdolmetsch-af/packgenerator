@@ -29,7 +29,7 @@
 
 {#if show}
   <section class="ew" aria-labelledby="ew-h" data-wx-stages>
-    <h3 id="ew-h"><CalendarDays size={18} aria-hidden="true" />{t('Weather per riding day')}</h3>
+    <h3 id="ew-h"><CalendarDays size={20} aria-hidden="true" />{t('Weather per riding day')}</h3>
     {#if days.length}
       <ol class="ew-list">
         {#each days as d (d.day)}

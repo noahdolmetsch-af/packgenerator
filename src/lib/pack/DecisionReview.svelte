@@ -68,7 +68,7 @@
                   {/if}
                   {#if item?.perHours && item?.note}
                     <div class="quantity-review">
-                      <CircleAlert size={18} aria-hidden="true" /><span>{t('Check amount rule and material note')}</span><button type="button" class="tp-link" aria-expanded={inspected === row.slot} onclick={() => inspected = inspected === row.slot ? null : row.slot}>{t('Check|review')}</button>
+                      <CircleAlert size={20} aria-hidden="true" /><span>{t('Check amount rule and material note')}</span><button type="button" class="tp-link" aria-expanded={inspected === row.slot} onclick={() => inspected = inspected === row.slot ? null : row.slot}>{t('Check|review')}</button>
                       {#if inspected === row.slot}<div class="quantity-note"><p>{t('Rule: one piece per {hours} h. Suggested for this trip: {qty}.', { hours: item.perHours, qty: row.qty })}</p><p><strong>{t('Material note')}:</strong> {item.note}</p><p>{t('The app does not interpret free text. Confirm the amount above.')}</p></div>{/if}
                     </div>
                   {/if}
@@ -79,11 +79,11 @@
             {#each checks as c (c.id)}
               {@const item = byId[c.id]}
               <div class="decision info">
-                <span class="ck ic" aria-hidden="true"><CircleAlert size={18} /></span>
+                <span class="ck ic" aria-hidden="true"><CircleAlert size={20} /></span>
                 <div class="decision-reason">
                   <h3>{nameOf(item)}</h3><p>{c.amount.text}</p>
                   <div class="quantity-review">
-                    <CircleAlert size={18} aria-hidden="true" /><span>{c.note ? t('Check amount rule and material note') : t('Check the amount: the maximum is below the need')}</span><button type="button" class="tp-link" aria-expanded={inspected === c.id} onclick={() => inspected = inspected === c.id ? null : c.id}>{t('Check|review')}</button>
+                    <CircleAlert size={20} aria-hidden="true" /><span>{c.note ? t('Check amount rule and material note') : t('Check the amount: the maximum is below the need')}</span><button type="button" class="tp-link" aria-expanded={inspected === c.id} onclick={() => inspected = inspected === c.id ? null : c.id}>{t('Check|review')}</button>
                     {#if inspected === c.id}<div class="quantity-note"><p>{t('Rule: one piece per {hours} h. Need for this trip: {need}. On your list: {qty}.', { hours: item.perHours, need: c.amount.need, qty: c.amount.qty })}</p>{#if c.note}<p><strong>{t('Material note')}:</strong> {c.note}</p>{/if}<p>{t('Change the amount in the packing list (tap the row).')}</p></div>{/if}
                   </div>
                 </div>
@@ -107,7 +107,7 @@
       </div>
 
       <details class="rsec basic-equipment">
-        <summary><span class="bt"><b class="sh">{t('Material already on your list')}</b><small>{tn(trip.entries.length, '{n} item', '{n} items')} · {t('Existing items stay on this trip')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+        <summary><span class="bt"><b class="sh">{t('Material already on your list')}</b><small>{tn(trip.entries.length, '{n} item', '{n} items')} · {t('Existing items stay on this trip')}</small></span><ChevronRight class="chev" size={20} aria-hidden="true" /></summary>
         <ul class="card done">{#each trip.entries as e (e.itemId)}<li><span class="ok" aria-hidden="true"><Check size={16} /></span><span class="nm">{byId[e.itemId] ? nameOf(byId[e.itemId]) : e.itemId}</span><small class="num">× {e.qty || 1}</small></li>{:else}<li>{t('Your list is still empty.')}</li>{/each}</ul>
       </details>
     </div>
@@ -115,9 +115,9 @@
     <aside class="rside" aria-labelledby="src-h">
       <div class="shead"><h2 id="src-h" class="sh">{t('Where the suggestions come from')}</h2><button type="button" class="tp-link" onclick={onconditions}>{t('Edit trip conditions')}<ChevronRight size={16} aria-hidden="true" /></button></div>
       <ul class="card src">
-        <li><span class="ic" aria-hidden="true"><CloudSun size={18} /></span><span class="bt"><b>{t('Trip weather|source')}</b><small class="num">{wxText}</small></span></li>
-        <li><span class="ic" aria-hidden="true"><Tent size={18} /></span><span class="bt"><b>{tn(days, '{n} day', '{n} days')}</b><small class="num">{trip.hours ? t('{n} h riding a day', { n: num(trip.hours) }) : t('No riding hours set')}</small></span></li>
-        <li><span class="ic" aria-hidden="true"><Package size={18} /></span><span class="bt"><b>{t('Material rules')}</b><small>{tn(rows.length + checks.length, '{n} suggestion', '{n} suggestions')}</small></span></li>
+        <li><span class="ic" aria-hidden="true"><CloudSun size={20} /></span><span class="bt"><b>{t('Trip weather|source')}</b><small class="num">{wxText}</small></span></li>
+        <li><span class="ic" aria-hidden="true"><Tent size={20} /></span><span class="bt"><b>{tn(days, '{n} day', '{n} days')}</b><small class="num">{trip.hours ? t('{n} h riding a day', { n: num(trip.hours) }) : t('No riding hours set')}</small></span></li>
+        <li><span class="ic" aria-hidden="true"><Package size={20} /></span><span class="bt"><b>{t('Material rules')}</b><small>{tn(rows.length + checks.length, '{n} suggestion', '{n} suggestions')}</small></span></li>
       </ul>
       <p class="note"><TriangleAlert size={16} aria-hidden="true" /><span>{t('The app does not interpret free text. Confirm the amount above.')}</span></p>
     </aside>

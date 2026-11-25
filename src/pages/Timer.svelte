@@ -203,7 +203,7 @@
   {#if timer.done}
     {@const d = timer.done}
     <section class="surf pad done" aria-label={t('Done')} data-done>
-      <span class="ok" aria-hidden="true"><Check size={26} /></span>
+      <span class="ok" aria-hidden="true"><Check size={24} /></span>
       <h2 class="dh">{t('Done: {time} {name}', { time: dur(d.sec), name: d.label || t(modeOf(d.mode).label) })}</h2>
       <p class="dl">{t('{from} to {to} · {kind} · in the log', { from: hmOf(Date.parse(d.at)), to: hmOf(Date.parse(d.at) + d.sec * 1000), kind: t(modeOf(d.mode).label) })}</p>
       <label class="nl" for="tnote">{t('Note (optional)')}</label>
@@ -212,8 +212,8 @@
         {#each ['calm', 'restless', 'tired'] as x (x)}<button type="button" class="ch" onclick={() => addWord(t(x))}>{t(x)}</button>{/each}
       </div>
       <div class="acts">
-        <button type="button" class="btn hi" onclick={() => keepNote(true)} data-act="keep"><Check size={18} aria-hidden="true" />{t('Into the log')}</button>
-        <button type="button" class="btn" onclick={again}><RotateCcw size={18} aria-hidden="true" />{t('Again')}</button>
+        <button type="button" class="btn hi" onclick={() => keepNote(true)} data-act="keep"><Check size={20} aria-hidden="true" />{t('Into the log')}</button>
+        <button type="button" class="btn" onclick={again}><RotateCcw size={20} aria-hidden="true" />{t('Again')}</button>
         <button type="button" class="btn" onclick={() => ((note = ''), closeDone())} data-act="skip">{t('Without a note')}</button>
       </div>
       {#if aktivActs.length}
@@ -264,8 +264,8 @@
             {#if run.setup.mode !== 'up'}<button type="button" class="btn" onclick={plusMinute} data-act="plus">{t('+1 min')}</button>{/if}
             <button type="button" class="btn" onclick={() => finish(true)} data-act="stop"><Square size={16} aria-hidden="true" />{t('Stop|timer')}</button>
           {/if}
-          <button type="button" class="btn" onclick={reset} disabled={!run} data-act="reset"><RotateCcw size={18} aria-hidden="true" />{t('Reset')}</button>
-          <button type="button" class="btn k" onclick={() => (timer.big = true)} aria-label={t('Show big')} title={t('Show big')} disabled={!run}><Maximize2 size={18} aria-hidden="true" /></button>
+          <button type="button" class="btn" onclick={reset} disabled={!run} data-act="reset"><RotateCcw size={20} aria-hidden="true" />{t('Reset')}</button>
+          <button type="button" class="btn k" onclick={() => (timer.big = true)} aria-label={t('Show big')} title={t('Show big')} disabled={!run}><Maximize2 size={20} aria-hidden="true" /></button>
         </div>
 
         {#if !run}
@@ -288,7 +288,7 @@
         {/if}
 
         <form class="typed" onsubmit={startTyped}>
-          <Keyboard size={18} aria-hidden="true" />
+          <Keyboard size={20} aria-hidden="true" />
           <input class="inp" bind:value={typed} oninput={() => (typedBad = false)} aria-label={t('Type a time')} placeholder={t('Type a time: «7 min», «1h 20m», «until 17:30»')} aria-invalid={typedBad} data-typed />
           <button type="submit" class="btn hi sm"><Play size={16} aria-hidden="true" />{t('Start')}</button>
         </form>
@@ -321,7 +321,7 @@
               <p class="sm">{t('Keeps the timer set on the left: {what}', { what: `${t(modeOf(cur.mode).label)} ${w(setupWords(cur))}` })}</p>
             </form>
           {:else}
-            <button type="button" class="blk new" onclick={() => (ownOpen = true)} data-block="new"><Plus size={18} aria-hidden="true" />{t('Own quick start')}</button>
+            <button type="button" class="blk new" onclick={() => (ownOpen = true)} data-block="new"><Plus size={20} aria-hidden="true" />{t('Own quick start')}</button>
           {/if}
         </div>
       </section>
@@ -358,7 +358,7 @@
 
 {#if timer.big && run}
   <div class="bigv" role="dialog" aria-modal="true" aria-label={t('Timer')}>
-    <div class="bt2"><span class="pill">{pill}</span><button type="button" class="btn k" onclick={() => (timer.big = false)} aria-label={t('Make small')} title={t('Make small')}><Minimize2 size={18} aria-hidden="true" /></button></div>
+    <div class="bt2"><span class="pill">{pill}</span><button type="button" class="btn k" onclick={() => (timer.big = false)} aria-label={t('Make small')} title={t('Make small')}><Minimize2 size={20} aria-hidden="true" /></button></div>
     <Face {face} {sec} {frac} fmt={timer.prefs.fmt} size="xl" sub={line} label={t('{time} on the timer', { time: dur(sec) })} />
     {#if run?.why}<p class="sm" data-timer-why-big>{t('For: {why}', { why: run.why })}</p>{/if}
     {#if face !== 'ring' && line}<p class="line">{line}</p>{/if}

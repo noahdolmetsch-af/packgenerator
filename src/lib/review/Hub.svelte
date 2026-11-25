@@ -280,7 +280,7 @@
      SN2: the head with the state pills, the trip whose debrief is missing on top, then left the period
      (tiles, bars, «Alle Kennzahlen») and trips compared; right your pace, Gelernt and «Mehr». -->
 <div class="hub rv-page">
-  <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{t('Look back|page')}</span></nav>
+  <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={14} aria-hidden="true" /><span aria-current="page">{t('Look back|page')}</span></nav>
   <header class="head">
     <div class="ht">
       <h1 class="title">{t('Look back|page')}</h1>
@@ -312,7 +312,7 @@
       <!-- SN2: the trip whose debrief is missing, with the one main button «Bewerten» -->
       {@const r = openList[0]}
       <section class="rv-box pad hero" aria-labelledby="open-h" data-open-debrief>
-        <span class="hic" aria-hidden="true"><Flag size={22} /></span>
+        <span class="hic" aria-hidden="true"><Flag size={24} /></span>
         <span class="hm">
           <TripState state="done" extra={r.debrief === 'draft' ? t('debrief started') : t('debrief missing')} />
           <b id="open-h" class="hname">{r.title}</b>
@@ -334,7 +334,7 @@
           </ul>
           <!-- 0.159.1: on a phone one more open debrief shows, the rest behind one tap -->
           {#if phone.matches && openList.length > 2}
-            <button type="button" class="fold-btn" aria-expanded={moreOpen} onclick={() => (moreOpen = !moreOpen)}>{moreOpen ? t('Show fewer') : tn(openList.length - 2, '{n} more to rate', '{n} more to rate')}<ChevronRight size={15} aria-hidden="true" /></button>
+            <button type="button" class="fold-btn" aria-expanded={moreOpen} onclick={() => (moreOpen = !moreOpen)}>{moreOpen ? t('Show fewer') : tn(openList.length - 2, '{n} more to rate', '{n} more to rate')}<ChevronRight size={16} aria-hidden="true" /></button>
           {/if}
         {/if}
       </section>
@@ -360,7 +360,7 @@
                   {/each}
                 </div>
               {/if}
-              <button type="button" class="fold-btn" aria-expanded={allFigures} aria-controls="kz-all" onclick={() => (allFigures = !allFigures)}>{t('All figures')}<ChevronRight size={15} aria-hidden="true" /></button>
+              <button type="button" class="fold-btn" aria-expanded={allFigures} aria-controls="kz-all" onclick={() => (allFigures = !allFigures)}>{t('All figures')}<ChevronRight size={16} aria-hidden="true" /></button>
               {#if allFigures}
                 <table class="kz" id="kz-all">
                   <thead><tr><th scope="col">{t('Figure')}</th><th scope="col" class="n">{periodName}</th>{#if mode !== 'all'}<th scope="col" class="n">{t('Previous year')}</th>{/if}<th scope="col">{t('Average')}</th><th scope="col">{t('Best')}</th></tr></thead>
@@ -434,20 +434,20 @@
           {#if storyReady(today)}<p class="rv-note" data-story-ready><Sparkles size={16} aria-hidden="true" /><a href="#/jahr">{t('Your year as pictures is ready')}</a></p>{/if}
           <ul class="rv-box">
             <!-- Paket M «Aus Touren lernen»: Neuland, Chronik, Was die App gelernt hat, Jahr als Bildgeschichte, Quiz -->
-            <li><a class="rv-row" href="#/neuland" data-m-row="neuland"><span class="rv-ic" aria-hidden="true"><Compass size={18} /></span><span class="rv-m"><span class="rv-t">{t('New ground')}</span><span class="rv-s">{t('Cantons, passes, huts and more you reached for the first time')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
-            <li><a class="rv-row" href="#/heatmap" data-m-row="heatmap"><span class="rv-ic" aria-hidden="true"><Flame size={18} /></span><span class="rv-m"><span class="rv-t">{t('Heatmap')}</span><span class="rv-s">{t('All your rides on one map, stronger where you ride often')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
-            <li><a class="rv-row" href="#/chronik" data-m-row="chronik"><span class="rv-ic" aria-hidden="true"><History size={18} /></span><span class="rv-m"><span class="rv-t">{t('Chronicle')}</span><span class="rv-s">{t('Everything on one time line, month by month')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
-            <li><a class="rv-row" href="#/gelernt" data-m-row="gelernt"><span class="rv-ic" aria-hidden="true"><GraduationCap size={18} /></span><span class="rv-m"><span class="rv-t">{t('What the app learned')}</span><span class="rv-s">{t('Month card and year letter')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
-            <li><a class="rv-row" href="#/jahr" data-m-row="jahr"><span class="rv-ic" aria-hidden="true"><Images size={18} /></span><span class="rv-m"><span class="rv-t">{t('Your year as pictures')}</span><span class="rv-s">{t('Your trips of a year as a picture story')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
-            <li><a class="rv-row" href="#/quiz" data-m-row="quiz"><span class="rv-ic" aria-hidden="true"><CircleHelp size={18} /></span><span class="rv-m"><span class="rv-t">{t('Quiz the evening before')}</span><span class="rv-s">{t('3 questions on gear and route, your own ones too')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
-            <li><a class="rv-row" href="#/debrief/sammlung" data-m-row="sammlung"><span class="rv-ic" aria-hidden="true"><LayoutGrid size={18} /></span><span class="rv-m"><span class="rv-t">{t('Collection wall')}</span><span class="rv-s">{t('Stamps, passes, summits and new ground on one page')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
-            <li><a class="rv-row" href="#/debrief/paesse" data-m-row="paesse"><span class="rv-ic" aria-hidden="true"><Mountain size={18} /></span><span class="rv-m"><span class="rv-t">{t('Passes')}</span><span class="rv-s">{t('Passes you rode over as yellow signs')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
-            <li><a class="rv-row" href="#/debrief/freude" data-m-row="freude"><span class="rv-ic" aria-hidden="true"><Smile size={18} /></span><span class="rv-m"><span class="rv-t">{t('What made it good?')}</span><span class="rv-s">{t('Fun, nature, flow and company of your tours')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
-            <li><a class="rv-row" href="#/debrief/technik" data-m-row="technik"><span class="rv-ic" aria-hidden="true"><Bike size={18} /></span><span class="rv-m"><span class="rv-t">{t('Riding technique diary')}</span><span class="rv-s">{t('What you practised and want to practise')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
-            <li><a class="rv-row" href="#/debrief/tourenpass" data-m-row="tourenpass"><span class="rv-ic" aria-hidden="true"><Stamp size={18} /></span><span class="rv-m"><span class="rv-t">{t('Tour pass')}</span><span class="rv-s">{t('A stamp for every trip you looked back on')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
-            <li><a class="rv-row" href="#/debrief/logbook" aria-label={t('Logbook')}><span class="rv-ic" aria-hidden="true"><BookOpen size={18} /></span><span class="rv-m"><span class="rv-t">{t('Logbook')}</span><span class="rv-s">{log.length ? logbookLine(log.filter((x) => x.kind !== 'event').length, log.filter((x) => x.kind === 'event').length) : t('No entries yet.')}</span></span><span class="rv-v">{num(log.length)}</span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
-            <li><a class="rv-row" href="#/pack/past"><span class="rv-ic" aria-hidden="true"><Archive size={18} /></span><span class="rv-m"><span class="rv-t">{t('Past trips')}</span><span class="rv-s">{t('Table, filter, year')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
-            <li><a class="rv-row" href="#/debrief/ride"><span class="rv-ic" aria-hidden="true"><Upload size={18} /></span><span class="rv-m"><span class="rv-t">{t('Upload ride')}</span><span class="rv-s">{t('Strava, Garmin or GPX')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/neuland" data-m-row="neuland"><span class="rv-ic" aria-hidden="true"><Compass size={18} /></span><span class="rv-m"><span class="rv-t">{t('New ground')}</span><span class="rv-s">{t('Cantons, passes, huts and more you reached for the first time')}</span></span><ChevronRight class="rv-chev" size={20} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/heatmap" data-m-row="heatmap"><span class="rv-ic" aria-hidden="true"><Flame size={18} /></span><span class="rv-m"><span class="rv-t">{t('Heatmap')}</span><span class="rv-s">{t('All your rides on one map, stronger where you ride often')}</span></span><ChevronRight class="rv-chev" size={20} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/chronik" data-m-row="chronik"><span class="rv-ic" aria-hidden="true"><History size={18} /></span><span class="rv-m"><span class="rv-t">{t('Chronicle')}</span><span class="rv-s">{t('Everything on one time line, month by month')}</span></span><ChevronRight class="rv-chev" size={20} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/gelernt" data-m-row="gelernt"><span class="rv-ic" aria-hidden="true"><GraduationCap size={18} /></span><span class="rv-m"><span class="rv-t">{t('What the app learned')}</span><span class="rv-s">{t('Month card and year letter')}</span></span><ChevronRight class="rv-chev" size={20} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/jahr" data-m-row="jahr"><span class="rv-ic" aria-hidden="true"><Images size={18} /></span><span class="rv-m"><span class="rv-t">{t('Your year as pictures')}</span><span class="rv-s">{t('Your trips of a year as a picture story')}</span></span><ChevronRight class="rv-chev" size={20} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/quiz" data-m-row="quiz"><span class="rv-ic" aria-hidden="true"><CircleHelp size={18} /></span><span class="rv-m"><span class="rv-t">{t('Quiz the evening before')}</span><span class="rv-s">{t('3 questions on gear and route, your own ones too')}</span></span><ChevronRight class="rv-chev" size={20} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/debrief/sammlung" data-m-row="sammlung"><span class="rv-ic" aria-hidden="true"><LayoutGrid size={18} /></span><span class="rv-m"><span class="rv-t">{t('Collection wall')}</span><span class="rv-s">{t('Stamps, passes, summits and new ground on one page')}</span></span><ChevronRight class="rv-chev" size={20} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/debrief/paesse" data-m-row="paesse"><span class="rv-ic" aria-hidden="true"><Mountain size={20} /></span><span class="rv-m"><span class="rv-t">{t('Passes')}</span><span class="rv-s">{t('Passes you rode over as yellow signs')}</span></span><ChevronRight class="rv-chev" size={20} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/debrief/freude" data-m-row="freude"><span class="rv-ic" aria-hidden="true"><Smile size={18} /></span><span class="rv-m"><span class="rv-t">{t('What made it good?')}</span><span class="rv-s">{t('Fun, nature, flow and company of your tours')}</span></span><ChevronRight class="rv-chev" size={20} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/debrief/technik" data-m-row="technik"><span class="rv-ic" aria-hidden="true"><Bike size={20} /></span><span class="rv-m"><span class="rv-t">{t('Riding technique diary')}</span><span class="rv-s">{t('What you practised and want to practise')}</span></span><ChevronRight class="rv-chev" size={20} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/debrief/tourenpass" data-m-row="tourenpass"><span class="rv-ic" aria-hidden="true"><Stamp size={18} /></span><span class="rv-m"><span class="rv-t">{t('Tour pass')}</span><span class="rv-s">{t('A stamp for every trip you looked back on')}</span></span><ChevronRight class="rv-chev" size={20} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/debrief/logbook" aria-label={t('Logbook')}><span class="rv-ic" aria-hidden="true"><BookOpen size={20} /></span><span class="rv-m"><span class="rv-t">{t('Logbook')}</span><span class="rv-s">{log.length ? logbookLine(log.filter((x) => x.kind !== 'event').length, log.filter((x) => x.kind === 'event').length) : t('No entries yet.')}</span></span><span class="rv-v">{num(log.length)}</span><ChevronRight class="rv-chev" size={20} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/pack/past"><span class="rv-ic" aria-hidden="true"><Archive size={20} /></span><span class="rv-m"><span class="rv-t">{t('Past trips')}</span><span class="rv-s">{t('Table, filter, year')}</span></span><ChevronRight class="rv-chev" size={20} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/debrief/ride"><span class="rv-ic" aria-hidden="true"><Upload size={20} /></span><span class="rv-m"><span class="rv-t">{t('Upload ride')}</span><span class="rv-s">{t('Strava, Garmin or GPX')}</span></span><ChevronRight class="rv-chev" size={20} aria-hidden="true" /></a></li>
           </ul>
         </section>
       </div>
@@ -480,7 +480,7 @@
                 <Seg full={false} label={t('Compare with')} value={base} options={BASES} onchange={setBase} />
                 <a class="rv-more" href="#/pack/past">{t('As a table')}<ChevronRight size={16} aria-hidden="true" /></a>
               </div>
-              <button type="button" class="fold-btn" aria-expanded={allColumns} aria-controls="cmp-all" onclick={() => (allColumns = !allColumns)}>{t('Charts and all columns')}<ChevronRight size={15} aria-hidden="true" /></button>
+              <button type="button" class="fold-btn" aria-expanded={allColumns} aria-controls="cmp-all" onclick={() => (allColumns = !allColumns)}>{t('Charts and all columns')}<ChevronRight size={16} aria-hidden="true" /></button>
               {#if allColumns}
                 <div id="cmp-all">
                   {#if sentence}<p class="lead">{sentence}</p>{/if}
@@ -526,7 +526,7 @@
 
 {#snippet lastBody()}
             <div class="rv-box pad lastride">
-              <button type="button" class="fold-btn top" aria-expanded={lastOpen} aria-controls="last-all" onclick={() => (lastOpen = !lastOpen)}>{t('Numbers of the last ride')}<ChevronRight size={15} aria-hidden="true" /></button>
+              <button type="button" class="fold-btn top" aria-expanded={lastOpen} aria-controls="last-all" onclick={() => (lastOpen = !lastOpen)}>{t('Numbers of the last ride')}<ChevronRight size={16} aria-hidden="true" /></button>
               {#if lastOpen}
                 <div id="last-all">
                   <dl class="rv-tiles big">
@@ -569,13 +569,13 @@
 
 {#snippet paceBody()}
           <ul class="rv-box">
-            <li><a class="rv-row" href="#/debrief/pace" aria-label={t('Your pace')}><span class="rv-ic" aria-hidden="true"><Gauge size={18} /></span><span class="rv-m"><span class="rv-t">{t('{kmh} km/h · 1 h per {m} Hm', { kmh: num(rule && pace.mine ? rule.kmh : pace.kmh), m: num(rule && pace.mine ? rule.climbMh : pace.climbMh) })}</span><span class="rv-s">{pace.mine ? tn(pace.n, 'The riding time uses your rule (from {n} ride).', 'The riding time uses your rule (from {n} rides).') : pace.need ? tn(pace.need, '{n} more ride, then your own pace counts', '{n} more rides, then your own pace counts') : t('The riding time uses the standard rule, as you chose.')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/debrief/pace" aria-label={t('Your pace')}><span class="rv-ic" aria-hidden="true"><Gauge size={20} /></span><span class="rv-m"><span class="rv-t">{t('{kmh} km/h · 1 h per {m} Hm', { kmh: num(rule && pace.mine ? rule.kmh : pace.kmh), m: num(rule && pace.mine ? rule.climbMh : pace.climbMh) })}</span><span class="rv-s">{pace.mine ? tn(pace.n, 'The riding time uses your rule (from {n} ride).', 'The riding time uses your rule (from {n} rides).') : pace.need ? tn(pace.need, '{n} more ride, then your own pace counts', '{n} more rides, then your own pace counts') : t('The riding time uses the standard rule, as you chose.')}</span></span><ChevronRight class="rv-chev" size={20} aria-hidden="true" /></a></li>
           </ul>
 {/snippet}
 
 {#snippet learnBody()}
           <ul class="rv-box">
-            {#each newest as l (l.id)}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><Lightbulb size={18} /></span><span class="rv-m"><span class="rv-t">{l.rule}</span>{#if l.source}<span class="rv-s">{sourceText(l.source)}</span>{/if}</span></li>
+            {#each newest as l (l.id)}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><Lightbulb size={20} /></span><span class="rv-m"><span class="rv-t">{l.rule}</span>{#if l.source}<span class="rv-s">{sourceText(l.source)}</span>{/if}</span></li>
             {:else}<li class="rv-row muted">{openList.length ? t('Nothing learned yet. It comes from every debrief, «Write the debrief» above is the next one.') : t('No learnings yet. They come from every debrief.')}</li>{/each}
           </ul>
 {/snippet}

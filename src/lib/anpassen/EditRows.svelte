@@ -49,7 +49,7 @@
             onblur={() => done(r)}
             onkeydown={(e) => e.key === 'Escape' && (e.preventDefault(), e.stopPropagation(), (editing = null))}
           />
-          <button type="submit" class="ib" aria-label={t('Keep the name')}><Check size={18} aria-hidden="true" /></button>
+          <button type="submit" class="ib" aria-label={t('Keep the name')}><Check size={20} aria-hidden="true" /></button>
         </form>
       {:else}
         <span class="nm">

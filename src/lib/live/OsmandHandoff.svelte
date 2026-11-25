@@ -26,7 +26,7 @@
 
 {#if route?.line?.length > 1}
   <li class="lv-ready-row" data-live-osmand>
-    <Smartphone size={18} aria-hidden="true" />
+    <Smartphone size={20} aria-hidden="true" />
     <span class="lv-ready-main"><b>{t('Ride with OsmAnd instead?')}</b>
       <small>{t('OsmAnd leads you with the screen off and without internet. The storm warning and the stops of this page stay here.')}</small>
       {#if msg}<small role="status" data-live-osmand-say>{msg}</small>{/if}</span>

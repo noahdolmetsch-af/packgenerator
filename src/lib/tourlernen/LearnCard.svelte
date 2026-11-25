@@ -160,7 +160,7 @@
       <form class="frm" onsubmit={addSpot}>
         <input class="inp" bind:value={sName} placeholder={t('e.g. Hotel Post or bivy by the lake')} aria-label={t('Name')} />
         <div class="starrow" role="group" aria-label={t('Stars')}>
-          {#each [1, 2, 3, 4, 5] as n (n)}<button type="button" class="st" aria-pressed={sStars >= n} aria-label={tn(n, '{n} star', '{n} stars')} onclick={() => (sStars = n)} data-star={n}><Star size={22} aria-hidden="true" /></button>{/each}
+          {#each [1, 2, 3, 4, 5] as n (n)}<button type="button" class="st" aria-pressed={sStars >= n} aria-label={tn(n, '{n} star', '{n} stars')} onclick={() => (sStars = n)} data-star={n}><Star size={24} aria-hidden="true" /></button>{/each}
         </div>
         <input class="inp" bind:value={sNote} placeholder={t('Note, e.g. quiet, water at the church')} aria-label={t('Note|sleep')} />
         <label class="tp-small fl" for="ln-where">{t('Place')}</label>
@@ -173,7 +173,7 @@
   </div>
 
   <div class="part">
-    <button type="button" class="btn pc" onclick={() => (card = true)} data-postcard-open><ImageIcon size={18} aria-hidden="true" />{t('Tour picture')}<ChevronRight size={16} aria-hidden="true" /></button>
+    <button type="button" class="btn pc" onclick={() => (card = true)} data-postcard-open><ImageIcon size={20} aria-hidden="true" />{t('Tour picture')}<ChevronRight size={16} aria-hidden="true" /></button>
   </div>
   <p class="tp-small" role="status">{msg}</p>
 </section>

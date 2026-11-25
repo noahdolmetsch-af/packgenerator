@@ -133,7 +133,7 @@
         {#if goals.length}
           <ul class="tk">
             {#each goals as g (g.act.id)}
-              <li class:d={g.todayDone && !g.open}><span class="o" aria-hidden="true">{#if g.todayDone && !g.open}<Check size={12} strokeWidth={3} />{/if}</span>{actName(g.act)}<small>{g.todayDone && !g.open ? t('done|goal') : t('open|goal')}</small></li>
+              <li class:d={g.todayDone && !g.open}><span class="o" aria-hidden="true">{#if g.todayDone && !g.open}<Check size={14} strokeWidth={2.5} />{/if}</span>{actName(g.act)}<small>{g.todayDone && !g.open ? t('done|goal') : t('open|goal')}</small></li>
             {/each}
           </ul>
         {:else}

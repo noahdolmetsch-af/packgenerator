@@ -103,9 +103,9 @@
             {#each orders as c (c.bike.id)}
               <li>
                 <button type="button" class="lrow" onclick={() => (orderOpen = c.bike.id)}>
-                  <span class="ic"><Wrench size={18} aria-hidden="true" /></span>
+                  <span class="ic"><Wrench size={20} aria-hidden="true" /></span>
                   <span class="m"><span class="t">{t('Order for {bike}', { bike: c.bike.name })}</span><span class="s">{c.order.rows.slice(0, 3).map((r) => r.name).join(', ')}{c.order.rows.length > 3 ? ` + ${c.order.rows.length - 3}` : ''}</span></span>
-                  <ChevronRight class="chev" size={18} aria-hidden="true" />
+                  <ChevronRight class="chev" size={20} aria-hidden="true" />
                 </button>
               </li>
             {/each}
@@ -116,8 +116,8 @@
         {#if pick}
           <!-- v0.69.0 «Velo-Blätter» (V1 a): the order as a sheet before the visit, the check at the pick-up -->
           <ul class="card srows sheets">
-            <li><a class="lrow" href={bikesHash({ tab: 'setup', bike: pick, sheet: 'order', from: 'shop' })}><span class="ic"><ClipboardList size={18} aria-hidden="true" /></span><span class="m"><span class="t">{t('Workshop order|sheet')}</span><span class="s">{names[pick]}</span></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
-            <li><a class="lrow" href={bikesHash({ tab: 'setup', bike: pick, sheet: 'pickup', from: 'shop' })}><span class="ic"><ListChecks size={18} aria-hidden="true" /></span><span class="m"><span class="t">{t('Pick-up check')}</span><span class="s">{names[pick]}</span></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
+            <li><a class="lrow" href={bikesHash({ tab: 'setup', bike: pick, sheet: 'order', from: 'shop' })}><span class="ic"><ClipboardList size={20} aria-hidden="true" /></span><span class="m"><span class="t">{t('Workshop order|sheet')}</span><span class="s">{names[pick]}</span></span><ChevronRight class="chev" size={20} aria-hidden="true" /></a></li>
+            <li><a class="lrow" href={bikesHash({ tab: 'setup', bike: pick, sheet: 'pickup', from: 'shop' })}><span class="ic"><ListChecks size={20} aria-hidden="true" /></span><span class="m"><span class="t">{t('Pick-up check')}</span><span class="s">{names[pick]}</span></span><ChevronRight class="chev" size={20} aria-hidden="true" /></a></li>
           </ul>
         {/if}
       </section>
@@ -135,10 +135,10 @@
               {#each m.rows as v (v.id)}
                 <li>
                   <button type="button" class="lrow" data-visit-id={v.id} onclick={() => (open = v.id)}>
-                    {#if v.photos?.[0]}<img class="rc" src={v.photos[0]} alt="" loading="lazy" />{:else}<span class="ic"><ReceiptText size={18} aria-hidden="true" /></span>{/if}
+                    {#if v.photos?.[0]}<img class="rc" src={v.photos[0]} alt="" loading="lazy" />{:else}<span class="ic"><ReceiptText size={20} aria-hidden="true" /></span>{/if}
                     <span class="m"><span class="t">{v.shop || t('Workshop')}</span><span class="s">{dayName(v.date)}{pick ? '' : ` · ${names[v.bikeId] ?? ''}`}{v.km != null ? ` · ${v.km.toLocaleString('de-CH')} km` : ''}{(v.parts ?? []).length ? ` · ${tn(v.parts.length, '{n} job', '{n} jobs')}` : ''}</span></span>
                     <span class="v num">{chfText(visitTotal(v))}</span>
-                    <ChevronRight class="chev" size={18} aria-hidden="true" />
+                    <ChevronRight class="chev" size={20} aria-hidden="true" />
                   </button>
                 </li>
               {/each}
@@ -158,7 +158,7 @@
         <section class="ssec" aria-labelledby="rc-h">
           <h2 id="rc-h" class="sh">{t('Receipts')}</h2>
           <ul class="card srows">
-            <li><span class="lrow still"><span class="ic"><ImageIcon size={18} aria-hidden="true" /></span><span class="m"><span class="t">{t('Receipts with a photo')}</span></span><span class="v">{t('{n} of {all}', { n: visits.filter((v) => v.photos?.length).length, all: visits.length })}</span></span></li>
+            <li><span class="lrow still"><span class="ic"><ImageIcon size={20} aria-hidden="true" /></span><span class="m"><span class="t">{t('Receipts with a photo')}</span></span><span class="v">{t('{n} of {all}', { n: visits.filter((v) => v.photos?.length).length, all: visits.length })}</span></span></li>
           </ul>
         </section>
       {/if}

@@ -172,7 +172,7 @@
       <CameraButton onchange={addPhotos} />
       <label class="shot add">
         <input type="file" accept="image/*" multiple onchange={addPhotos} />
-        <span class="addbox"><Camera size={26} aria-hidden="true" /></span>
+        <span class="addbox"><Camera size={24} aria-hidden="true" /></span>
         <span class="cap">{t('Add photo')}</span>
       </label>
     </div>
@@ -273,7 +273,7 @@
     <header class="bh"><h2 id="rg-races">{t('Your races')}</h2><p>{t('from your links')}</p></header>
     {#each races as r (r.id)}
       <div class="evr">
-        <Flag size={18} aria-hidden="true" />
+        <Flag size={20} aria-hidden="true" />
         <span class="t"><a href={r.url} target="_blank" rel="noopener noreferrer">{r.title}</a><small>{raceDays(r)}</small></span>
         {#if r.rigs}<span class="rpill">{tn(r.rigs, '{n} rig of this race', '{n} rigs of this race')}</span>{/if}
         <button type="button" class="iconb" aria-label={t('Change {name}', { name: r.title })} onclick={() => (dialog = { link: r })}><Pencil size={16} aria-hidden="true" /></button>
@@ -303,7 +303,7 @@
             <div class="bd">
               <div class="meta">
                 {#if l.year}<span class="yr num">{l.year}</span>{/if}<span class="src">{domainOf(l.url)}</span>
-                <button type="button" class="iconb rstar" aria-pressed={!!l.star} aria-label={l.star ? t('Unstar {name}', { name: l.title }) : t('Star {name}', { name: l.title })} onclick={() => toggleStar(l)}><Star size={18} aria-hidden="true" /></button>
+                <button type="button" class="iconb rstar" aria-pressed={!!l.star} aria-label={l.star ? t('Unstar {name}', { name: l.title }) : t('Star {name}', { name: l.title })} onclick={() => toggleStar(l)}><Star size={20} aria-hidden="true" /></button>
               </div>
               <h3>{l.title}</h3>
               <span class="own">{t('Added by you · your key words')}</span>

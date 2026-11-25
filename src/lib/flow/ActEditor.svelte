@@ -258,12 +258,12 @@
       {#each goals as q, i (q.id)}
         <div class="goal" data-goal={i}>
           {#if goals.length > 1}
-            <div class="subname"><input class="inp" type="text" value={goalName(q)} placeholder={t('Sub-goal, e.g. at home')} aria-label={t('Name of sub-goal {n}', { n: i + 1 })} oninput={(e) => upd(i, { label: e.currentTarget.value, labelDe: undefined })} /><button type="button" class="ib" onclick={() => removeSub(i)} aria-label={t('Remove sub-goal {n}', { n: i + 1 })}><X size={18} aria-hidden="true" /></button></div>
+            <div class="subname"><input class="inp" type="text" value={goalName(q)} placeholder={t('Sub-goal, e.g. at home')} aria-label={t('Name of sub-goal {n}', { n: i + 1 })} oninput={(e) => upd(i, { label: e.currentTarget.value, labelDe: undefined })} /><button type="button" class="ib" onclick={() => removeSub(i)} aria-label={t('Remove sub-goal {n}', { n: i + 1 })}><X size={20} aria-hidden="true" /></button></div>
           {/if}
           <div class="step">
-            <button type="button" class="rb" onclick={() => upd(i, { count: Math.max(0, q.count - 1) })} aria-label={t('One less')}><Minus size={18} aria-hidden="true" /></button>
+            <button type="button" class="rb" onclick={() => upd(i, { count: Math.max(0, q.count - 1) })} aria-label={t('One less')}><Minus size={20} aria-hidden="true" /></button>
             <span class="cnum num" aria-live="polite" data-count={q.count}>{q.count}</span>
-            <button type="button" class="rb" onclick={() => upd(i, { count: q.count + 1 })} aria-label={t('One more|count')}><Plus size={18} aria-hidden="true" /></button>
+            <button type="button" class="rb" onclick={() => upd(i, { count: q.count + 1 })} aria-label={t('One more|count')}><Plus size={20} aria-hidden="true" /></button>
             <span class="quiet">{q.count ? t('× in') : t('rests in this season')}</span>
           </div>
           <Seg chips full={false} label={t('Window')} value={q.days} onchange={(d) => upd(i, { days: d })} options={WINDOWS.map((d) => ({ key: d, name: WIN_NAME(d) }))} />
@@ -286,7 +286,7 @@
     </section>
 
     <details class="card acc">
-      <summary><b id="ed-season">{t('Season')}</b><small>{a.season ? `${t('Summer')} ${goalsText(a.goals)}, ${t('Winter')} ${goalsText(a.season.winter)}` : t('the same goal all year')}</small><ChevronDown class="cv" size={18} aria-hidden="true" /></summary>
+      <summary><b id="ed-season">{t('Season')}</b><small>{a.season ? `${t('Summer')} ${goalsText(a.goals)}, ${t('Winter')} ${goalsText(a.season.winter)}` : t('the same goal all year')}</small><ChevronDown class="cv" size={20} aria-hidden="true" /></summary>
       <div class="sh-row">
         <span class="quiet">{t('Another goal in summer than in winter')}</span>
         <input type="checkbox" class="switch" checked={!!a.season} onchange={(e) => seasonOn(e.currentTarget.checked)} aria-labelledby="ed-season" />
@@ -299,14 +299,14 @@
           {/each}
         </div>
         <ul class="halves">
-          <li><Sun size={18} class="sun" aria-hidden="true" /><span class="m"><b>{t('Summer')}</b><small>{monthsText(a.season.summer)}{#if a.season.summer.includes(nowMonth)}{" · "}{t('now')}{/if}</small></span><button type="button" class="chip" aria-pressed={half === 'summer'} onclick={() => (half = 'summer')}>{goalsText(a.goals)}</button></li>
-          <li><Snowflake size={18} class="snow" aria-hidden="true" /><span class="m"><b>{t('Winter')}</b><small>{monthsText(winter)}{#if winter.includes(nowMonth)}{" · "}{t('now')}{/if}</small></span><button type="button" class="chip" aria-pressed={half === 'winter'} onclick={() => (half = 'winter')}>{goalsText(a.season.winter)}</button></li>
+          <li><Sun size={20} class="sun" aria-hidden="true" /><span class="m"><b>{t('Summer')}</b><small>{monthsText(a.season.summer)}{#if a.season.summer.includes(nowMonth)}{" · "}{t('now')}{/if}</small></span><button type="button" class="chip" aria-pressed={half === 'summer'} onclick={() => (half = 'summer')}>{goalsText(a.goals)}</button></li>
+          <li><Snowflake size={20} class="snow" aria-hidden="true" /><span class="m"><b>{t('Winter')}</b><small>{monthsText(winter)}{#if winter.includes(nowMonth)}{" · "}{t('now')}{/if}</small></span><button type="button" class="chip" aria-pressed={half === 'winter'} onclick={() => (half = 'winter')}>{goalsText(a.season.winter)}</button></li>
         </ul>
       {/if}
     </details>
 
     <details class="card acc">
-      <summary><b id="ed-counts">{t('Also counts')}</b><small>{a.counts.length ? [a.counts.includes('commute') ? t('Commute') : '', a.counts.includes('trip') ? t('Bike trip') : '', ...others.filter((o) => a.counts.includes(o.id)).map((o) => actName(o))].filter(Boolean).join(', ') : t('nothing chosen')}</small><ChevronDown class="cv" size={18} aria-hidden="true" /></summary>
+      <summary><b id="ed-counts">{t('Also counts')}</b><small>{a.counts.length ? [a.counts.includes('commute') ? t('Commute') : '', a.counts.includes('trip') ? t('Bike trip') : '', ...others.filter((o) => a.counts.includes(o.id)).map((o) => actName(o))].filter(Boolean).join(', ') : t('nothing chosen')}</small><ChevronDown class="cv" size={20} aria-hidden="true" /></summary>
       <div class="chips">
         <button type="button" class="chip" aria-pressed={a.counts.includes('commute')} onclick={() => toggleCount('commute')}>{#if a.counts.includes('commute')}<Check size={16} aria-hidden="true" />{/if}{t('Commute')}</button>
         <button type="button" class="chip" aria-pressed={a.counts.includes('trip')} onclick={() => toggleCount('trip')}>{#if a.counts.includes('trip')}<Check size={16} aria-hidden="true" />{/if}{t('Bike trip')}</button>
@@ -320,7 +320,7 @@
 
     {#if !isNew}
       <details class="card acc">
-        <summary><b>{t('Pause or delete')}</b><small>{t('Pause: rests without a goal · delete asks first')}</small><ChevronDown class="cv" size={18} aria-hidden="true" /></summary>
+        <summary><b>{t('Pause or delete')}</b><small>{t('Pause: rests without a goal · delete asks first')}</small><ChevronDown class="cv" size={20} aria-hidden="true" /></summary>
         <div class="more">
           <button type="button" class="btn" onclick={pause}>{orig.paused ? t('Resume') : t('Pause|activity')}</button>
           {#if acts.length > 1}<button type="button" class="btn" onclick={openMerge} data-act-merge><Merge size={16} aria-hidden="true" />{t('Merge with another sport')}</button>{/if}

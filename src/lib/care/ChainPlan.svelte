@@ -55,7 +55,7 @@
 
 {#if plan}
   <section class="wcard cp" aria-labelledby="cp-h" data-chain-plan={plan.steps.length ? plan.steps[0].tone : 'ok'}>
-    <h2 id="cp-h"><Link2 size={18} aria-hidden="true" />{t('Chain: what comes next')}</h2>
+    <h2 id="cp-h"><Link2 size={20} aria-hidden="true" />{t('Chain: what comes next')}</h2>
     {#if plan.steps.length}
       <ul class="steps">
         {#each plan.steps as s (s.kind)}

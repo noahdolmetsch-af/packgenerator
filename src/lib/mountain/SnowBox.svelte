@@ -84,7 +84,7 @@
       </ul>
       {#if shown.fresh != null}<p class="sn-fresh num" data-fresh>{t('Fresh snow in the {n} days before: {cm}', { n: shown.freshDays, cm: cm(shown.fresh) })}</p>{/if}
       <p class="hint">{t('Open-Meteo for {place}{height}, {age}. Numbers only: read the avalanche bulletin before every tour.', { place: shown.days.length ? (trip.snow.place?.name || trip.place?.name || '') : '', height: shown.elevation != null ? ` (${num(Math.round(shown.elevation))} m)` : '', age: ageText(shown.fetchedAt) })}
-        <button type="button" class="link" disabled={loading || !online} onclick={load}><RefreshCw size={13} aria-hidden="true" />{loading ? t('Loading…') : t('Update')}</button></p>
+        <button type="button" class="link" disabled={loading || !online} onclick={load}><RefreshCw size={14} aria-hidden="true" />{loading ? t('Loading…') : t('Update')}</button></p>
     {:else if !trip.place}
       <p class="hint">{t('Set the start place under «Forecast»: then the freezing level and the fresh snow show here.')}</p>
     {:else if !trip.startDate}

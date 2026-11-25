@@ -54,7 +54,7 @@
             {#if p.src}<small>{t('From the list «{name}»', { name: p.src })}</small>{/if}
           </span>
           {#if actions}<span class="sl-acts">{@render actions(p)}</span>{/if}
-          {#if p.phone}<a class="rc-icon" href="tel:{telOf(p.phone)}" aria-label={t('Call {name}', { name: nameOf(p) })}><Phone size={18} aria-hidden="true" /></a>{/if}
+          {#if p.phone}<a class="rc-icon" href="tel:{telOf(p.phone)}" aria-label={t('Call {name}', { name: nameOf(p) })}><Phone size={20} aria-hidden="true" /></a>{/if}
         </li>
       {/each}
     </ul>

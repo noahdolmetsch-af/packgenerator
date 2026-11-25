@@ -25,11 +25,11 @@
 
 <section class="ser surf" class:big class:party aria-labelledby="ser-h" data-series={s?.n ?? 0}>
   <a class="hd" href="#/flow/milestones">
-    <span class="fi"><Flame size={18} aria-hidden="true" /></span>
+    <span class="fi"><Flame size={20} aria-hidden="true" /></span>
     <h2 id="ser-h">{t('Series and milestones')}</h2>
   </a>
   {#if s}
-    <p class="n"><b class="num">{s.n}</b> <span>{tn(s.n, 'week in a row active', 'weeks in a row active')}</span>{#if party}<PartyPopper size={18} aria-hidden="true" />{/if}</p>
+    <p class="n"><b class="num">{s.n}</b> <span>{tn(s.n, 'week in a row active', 'weeks in a row active')}</span>{#if party}<PartyPopper size={20} aria-hidden="true" />{/if}</p>
     <ol class="wk" aria-label={t('The last {n} weeks', { n: s.weeks.length })}>
       {#each s.weeks as w (w.week)}
         <li class:on={w.on} class:rest={w.rest && !w.on} class:now={w.now} title={w.week}><span class="sr">{w.on ? t('active') : w.rest ? t('rest week') : t('nothing')}</span></li>

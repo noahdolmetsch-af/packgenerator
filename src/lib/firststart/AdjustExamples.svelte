@@ -63,7 +63,7 @@
       {#each INTERESTS as x (x.key)}
         {@const there = present.includes(x.key)}
         <button type="button" class="opt" aria-pressed={there || picked.includes(x.key)} disabled={there} onclick={() => flip(x.key)} data-interest={x.key}>
-          <span class="ic" aria-hidden="true">{#if there || picked.includes(x.key)}<Check size={18} />{:else}<Circle size={18} />{/if}</span>
+          <span class="ic" aria-hidden="true">{#if there || picked.includes(x.key)}<Check size={20} />{:else}<Circle size={20} />{/if}</span>
           <span class="tx"><b>{t(x.name)}</b><small>{there ? t('Already in') : t(x.sub)}</small></span>
         </button>
       {/each}

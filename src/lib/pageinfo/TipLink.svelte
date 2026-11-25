@@ -11,7 +11,7 @@
   const l = $derived(tipLink(tip, lang.v));
 </script>
 
-{#if l}<a class="tlk" href={l.href} target="_blank" rel="noopener noreferrer" data-tip-link={tip.id}>{t('More at {site}', { site: l.domain })}<ExternalLink size={13} aria-hidden="true" /><span class="sr">{t('(opens elsewhere)')}</span></a>{/if}
+{#if l}<a class="tlk" href={l.href} target="_blank" rel="noopener noreferrer" data-tip-link={tip.id}>{t('More at {site}', { site: l.domain })}<ExternalLink size={14} aria-hidden="true" /><span class="sr">{t('(opens elsewhere)')}</span></a>{/if}
 
 <style>
   /* its own line under the tip, a whole finger high (guard: 44 px targets on a phone) */

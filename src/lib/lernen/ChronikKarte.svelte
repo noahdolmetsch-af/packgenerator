@@ -69,7 +69,7 @@
     <p class="nt">{view.mode === 'day' ? t('Nothing on this day in earlier years.') : t('Nothing in this month in earlier years yet.')}</p>
   {/if}
   <!-- Gesamttest 20.10.2026 Design 4: on a page (Rückblick) the link is the app's «link ›», not an underlined word (the tile on Heute stays as it is, HN4) -->
-  {#if more}<a class="all" class:go={frame === 'section'} href="#/chronik">{t('Whole chronicle')}{#if frame === 'section'}<ChevronRight size={15} aria-hidden="true" />{/if}</a>{/if}
+  {#if more}<a class="all" class:go={frame === 'section'} href="#/chronik">{t('Whole chronicle')}{#if frame === 'section'}<ChevronRight size={16} aria-hidden="true" />{/if}</a>{/if}
 </section>
 
 <style>

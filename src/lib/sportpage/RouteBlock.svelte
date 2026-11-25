@@ -5,6 +5,7 @@
    * is kept, so it shows offline too; «Neu prüfen» fetches again.
    */
   import { Droplet, RefreshCw } from '@lucide/svelte';
+  import Empty from '../ui/Empty.svelte';
   import { putItem, patchItem } from '../sportsdb.js';
   import { overpassQuery, analyseRoute, longestDry, OVERPASS_URL } from '../sportshelp.js';
   import { t, tn, num, locale } from '../i18n.svelte.js';
@@ -46,7 +47,7 @@
 </script>
 
 {#if !withRoute.length}
-  <p class="none">{t('No trip with a GPX route yet. Add a route to a trip in Pack, then check it here.')}</p>
+  <Empty size="klein" text={t('No trip with a GPX route yet. Add a route to a trip in Pack, then check it here.')} action={{ label: t('Open Pack'), href: '#/pack' }} />
 {:else}
   {#if withRoute.length > 1}
     <label class="small">{t('Trip')}<select bind:value={pick}>{#each withRoute as tr (tr.id)}<option value={tr.id}>{tr.title || t('Trip')} · {fmt(tr.startDate)}</option>{/each}</select></label>

@@ -25,7 +25,7 @@
   <header class="dp-head">
     <h2 class="dp-name">{name}</h2>
     {#if onedit}
-      <button type="button" class="dp-edit" onclick={() => onedit(page.id)} aria-label={t('Edit data pages')} data-dp-edit><Pencil size={18} aria-hidden="true" /></button>
+      <button type="button" class="dp-edit" onclick={() => onedit(page.id)} aria-label={t('Edit data pages')} data-dp-edit><Pencil size={20} aria-hidden="true" /></button>
     {/if}
   </header>
 

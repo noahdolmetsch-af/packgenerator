@@ -67,7 +67,7 @@
 {#if win}
   <dialog class="sheet vdlg from-below hw" bind:this={dialog} use:backClose={closed} onclose={closed} aria-labelledby="hw-h" data-window={win.id}>
     <div class="vd-head">
-      <span class="ib" aria-hidden="true">{#if win.id === 'eve'}<Backpack size={18} />{:else}<Plane size={18} />{/if}</span>
+      <span class="ib" aria-hidden="true">{#if win.id === 'eve'}<Backpack size={20} />{:else}<Plane size={20} />{/if}</span>
       <div class="vd-t">
         {#if win.id === 'eve'}
           <h2 id="hw-h">{t('Ready for tomorrow?')}</h2>

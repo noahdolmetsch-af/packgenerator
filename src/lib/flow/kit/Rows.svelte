@@ -20,9 +20,9 @@
         {#if r.value != null && r.value !== ''}<span class="v num">{r.value}</span>{/if}
       {/snippet}
       {#if r.href}
-        <a class="rw" href={r.href}>{@render body()}<ChevronRight class="cv" size={18} aria-hidden="true" /></a>
+        <a class="rw" href={r.href}>{@render body()}<ChevronRight class="cv" size={20} aria-hidden="true" /></a>
       {:else if r.onclick}
-        <button type="button" class="rw" aria-expanded={r.expanded ?? undefined} onclick={r.onclick}>{@render body()}{#if r.expanded != null}<ChevronDown class="cv {r.expanded ? 'up' : ''}" size={18} aria-hidden="true" />{:else}<ChevronRight class="cv" size={18} aria-hidden="true" />{/if}</button>
+        <button type="button" class="rw" aria-expanded={r.expanded ?? undefined} onclick={r.onclick}>{@render body()}{#if r.expanded != null}<ChevronDown class="cv {r.expanded ? 'up' : ''}" size={20} aria-hidden="true" />{:else}<ChevronRight class="cv" size={20} aria-hidden="true" />{/if}</button>
       {:else}
         <div class="rw">{@render body()}</div>
       {/if}

@@ -116,7 +116,7 @@
       <div class="col">
         {#if hint}
           <div class="note" data-rest-hint>
-            <Lightbulb size={18} aria-hidden="true" />
+            <Lightbulb size={20} aria-hidden="true" />
             <span>
               <b>{t('{n} active days in a row', { n: hint.n })}</b>{#if hint.acts.length}{' '}({names(hint.acts)}){/if}. {t('A suggestion for today:')}
               <span class="chips">

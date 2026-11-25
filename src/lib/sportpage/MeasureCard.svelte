@@ -121,10 +121,10 @@
   {#if !measure.auto}
     <form class="add" onsubmit={save} data-quick={name}>
       <div class="pm">
-        <button type="button" class="ibtn" aria-label={t('Less')} onclick={() => bump(-1)}><Minus size={18} aria-hidden="true" /></button>
+        <button type="button" class="ibtn" aria-label={t('Less')} onclick={() => bump(-1)}><Minus size={20} aria-hidden="true" /></button>
         <label class="vh" for="mv-{measure.id}">{t('Value of {name}', { name })}</label>
         <input id="mv-{measure.id}" bind:value={v} inputmode={measure.unit === 'pace' || measure.unit === 'grade' ? 'text' : 'decimal'} placeholder={measure.unit === 'pace' ? '5:30' : measure.unit === 'grade' ? '6a+' : ''} />
-        <button type="button" class="ibtn" aria-label={t('More')} onclick={() => bump(1)}><Plus size={18} aria-hidden="true" /></button>
+        <button type="button" class="ibtn" aria-label={t('More')} onclick={() => bump(1)}><Plus size={20} aria-hidden="true" /></button>
         <span class="small">{UNITS[measure.unit]?.short ? t(UNITS[measure.unit].short) : ''}</span>
       </div>
       {#if kg}

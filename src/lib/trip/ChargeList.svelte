@@ -60,7 +60,7 @@
           <button type="button" class="it" aria-pressed={on} onclick={() => tick(r.itemId)}>
             <span class="box" aria-hidden="true">{#if on}<Check size={16} strokeWidth={2.5} />{/if}</span>
             <span class="nm">{r.name}{#if r.qty > 1}<span class="q num">{' '}× {r.qty}</span>{/if}{#if place}<small>{place}</small>{/if}</span>
-            <Zap class="zap" size={18} aria-hidden="true" />
+            <Zap class="zap" size={20} aria-hidden="true" />
           </button>
         </li>
       {/each}

@@ -46,7 +46,7 @@
 {#if cur}
   <div class="sg" data-snowline>
     <p class="sg-main">
-      <Snowflake size={18} aria-hidden="true" />
+      <Snowflake size={20} aria-hidden="true" />
       <span><b data-snowline-now>{t('Snow line {m} m above sea level', { m: num(cur.m) })}</b>{#if range && range.min !== range.max}<small> · {t('today between {a} and {b} m', { a: num(range.min), b: num(range.max) })}</small>{/if}</span>
     </p>
     {#if hint}

@@ -32,7 +32,7 @@
 </script>
 
 <section class="rc-box" aria-labelledby="bc-h" data-race-countdown>
-  <h2 id="bc-h" class="rc-h2"><Bike size={18} aria-hidden="true" /> {t('Bike countdown')}</h2>
+  <h2 id="bc-h" class="rc-h2"><Bike size={20} aria-hidden="true" /> {t('Bike countdown')}</h2>
   <p class="rc-note">{t('What to do with the bike in the weeks before the race. Change the weeks and the steps as they fit you.')}</p>
   {#if !race}
     <p class="rc-warn" data-countdown-nodate>{t('The race has no date yet, so the steps have no day. Set the date under Route, strategy and race mode.')}</p>
@@ -41,7 +41,7 @@
       <div class="bc-top">
         {#if toStart != null && toStart >= 0}<div class="bc-days"><b class="num">{toStart}</b><small>{tn(toStart, 'day to the start', 'days to the start')}</small></div>{/if}
         {#if toStop != null}
-          <span class="bc-stop" class:over={toStop < 0} data-countdown-stop><Lock size={13} aria-hidden="true" />{toStop > 0 ? tn(toStop, 'Stop in {n} day', 'Stop in {n} days') : toStop === 0 ? t('Stop today') : t('Nothing changes any more')}</span>
+          <span class="bc-stop" class:over={toStop < 0} data-countdown-stop><Lock size={14} aria-hidden="true" />{toStop > 0 ? tn(toStop, 'Stop in {n} day', 'Stop in {n} days') : toStop === 0 ? t('Stop today') : t('Nothing changes any more')}</span>
         {/if}
       </div>
       {#if stopPct != null}

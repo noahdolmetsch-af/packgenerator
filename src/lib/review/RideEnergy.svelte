@@ -26,7 +26,7 @@
 {#if e.hours >= 0.25}
   <section class="re" aria-label={t('Energy')} data-ride-energy>
     <p class="re-line">
-      <Flame size={18} aria-hidden="true" />
+      <Flame size={20} aria-hidden="true" />
       <span>{measured ? t('Used: {kcal} kcal (measured); the app guessed {guess} kcal.', { kcal: num(measured), guess: num(e.burn) }) : t('Used: about {kcal} kcal (a guess from your weight, time, km and climbing).', { kcal: num(e.burn) })}</span>
     </p>
     {#if drunk != null}<p class="re-line" data-ride-drunk>{t('The app reckons about {a} L for the ride; you entered {b} L for the whole day (Body values).', { a: num(e.waterL), b: num(drunk) })}</p>{/if}

@@ -31,7 +31,7 @@
 
 <article class="card goal" data-goal={goal.id} class:gdone={goal.done}>
   <header>
-    <span class="gi"><Target size={18} aria-hidden="true" /></span>
+    <span class="gi"><Target size={20} aria-hidden="true" /></span>
     <div class="gt">
       <input class="inp gtitle" type="text" value={goal.title} maxlength="80" aria-label={t('Goal')} onchange={(e) => e.currentTarget.value.trim() && put({ ...goal, title: e.currentTarget.value.trim() })} />
       <small>{goal.due ? t('by {day}', { day: dayText(goal.due) }) : t('no day yet')} · {t('{done} of {total} steps', p)}{p.late ? ` · ${tn(p.late, '{n} step overdue', '{n} steps overdue')}` : ''}</small>

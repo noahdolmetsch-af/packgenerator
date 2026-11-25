@@ -19,9 +19,9 @@
 {#if !hits || groups.length}
   <section class="tricks" data-tricks-block aria-labelledby="tricks-h">
     <button type="button" class="thead" aria-expanded={shown} aria-controls="tricks-body" onclick={() => (open = !open)} disabled={!!hits}>
-      <span class="tic" aria-hidden="true"><Hand size={18} /></span>
+      <span class="tic" aria-hidden="true"><Hand size={20} /></span>
       <span class="tm"><b id="tricks-h">{t('Gestures and tricks')}</b><small>{t('Gestures, keys, search commands and «⋯» actions, each in one line.')} · {total}</small></span>
-      {#if shown}<ChevronDown size={18} aria-hidden="true" />{:else}<ChevronRight size={18} aria-hidden="true" />{/if}
+      {#if shown}<ChevronDown size={20} aria-hidden="true" />{:else}<ChevronRight size={20} aria-hidden="true" />{/if}
     </button>
     {#if shown}
       <div id="tricks-body" class="tbody">

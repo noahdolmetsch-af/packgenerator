@@ -15,7 +15,7 @@
     {#if Icon}<Icon class="fri" size={18} aria-hidden="true" />{/if}
     <span class="frl">{label}</span>
     {#if summary}<span class="frs">{summary}</span>{/if}
-    <ChevronRight class="frc" size={18} aria-hidden="true" />
+    <ChevronRight class="frc" size={20} aria-hidden="true" />
   </summary>
   {#if open}<div class="frin">{@render children()}</div>{/if}
 </details>

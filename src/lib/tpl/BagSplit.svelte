@@ -48,7 +48,7 @@
         <li>
           <button type="button" class="zone" aria-expanded={openZone === z.key} onclick={() => (openZone = openZone === z.key ? null : z.key)}>
             <span class="t">{z.name}{#if z.bag}<small>{z.place}{#if z.volumeL}{' · '}{z.volumeL} L{/if}</small>{/if}</span>
-            <span class="n num">{z.n}</span><span class="w num">{weight(z)}</span><ChevronRight class="chev" size={18} aria-hidden="true" />
+            <span class="n num">{z.n}</span><span class="w num">{weight(z)}</span><ChevronRight class="chev" size={20} aria-hidden="true" />
           </button>
           {#if openZone === z.key}
             <ul class="moves">

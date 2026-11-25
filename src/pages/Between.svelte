@@ -208,19 +208,19 @@
       <ul class="card rows">
         {#if until != null && until >= 0}
           <!-- v0.111.0 mockup V1 (Noah «v1-v4 ok»): the evening-before check, its sheet on a tap -->
-          <li><button type="button" class="row" aria-haspopup="dialog" data-row="check" onclick={() => (sheet = 'check')}><span class="ic" aria-hidden="true"><TypeIcon size={18} /></span><span class="bt"><b>{t('Evening-before check {area}', { area })}</b><small class="num">{checkLine}</small></span><span class="mini" aria-hidden="true"><i style:width="{checkN.total ? (checkN.done / checkN.total) * 100 : 0}%"></i></span><ChevronRight size={18} aria-hidden="true" /></button></li>
+          <li><button type="button" class="row" aria-haspopup="dialog" data-row="check" onclick={() => (sheet = 'check')}><span class="ic" aria-hidden="true"><TypeIcon size={18} /></span><span class="bt"><b>{t('Evening-before check {area}', { area })}</b><small class="num">{checkLine}</small></span><span class="mini" aria-hidden="true"><i style:width="{checkN.total ? (checkN.done / checkN.total) * 100 : 0}%"></i></span><ChevronRight size={20} aria-hidden="true" /></button></li>
         {/if}
         <!-- Paket M «Quiz am Vorabend»: only the evening before, when the quiz is on (lernen/QuizEveRow.svelte) -->
         <QuizEveRow {trip} {today} />
         <ProbeRow {trip} kind="probe" {items} {debrief} />
         {#if charge.length}
-          <li><a class="row" href="#/pack?charge" onclick={pick}><span class="ic" aria-hidden="true"><Zap size={18} /></span><span class="bt"><b>{t('Charge the evening before')}</b><small class="num">{t('{done} of {n} charged', { done: charged.done, n: charged.total })}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li>
+          <li><a class="row" href="#/pack?charge" onclick={pick}><span class="ic" aria-hidden="true"><Zap size={20} /></span><span class="bt"><b>{t('Charge the evening before')}</b><small class="num">{t('{done} of {n} charged', { done: charged.done, n: charged.total })}</small></span><ChevronRight size={20} aria-hidden="true" /></a></li>
         {/if}
         {#if until > 0}
           <!-- U21a: the reminder the evening before, as a switch (on by default; Today shows it from 18:00) -->
-          <li><label class="row"><span class="ic" aria-hidden="true"><Bell size={18} /></span><span class="bt"><b>{t('Reminder the evening before')}</b><small>{t('{day}, from 18:00 at the top of Today', { day: longDay(eveDay) })}</small></span><input type="checkbox" role="switch" checked={trip.remindEve !== false} onchange={(e) => setRemind(e.currentTarget.checked)} /></label></li>
+          <li><label class="row"><span class="ic" aria-hidden="true"><Bell size={20} /></span><span class="bt"><b>{t('Reminder the evening before')}</b><small>{t('{day}, from 18:00 at the top of Today', { day: longDay(eveDay) })}</small></span><input type="checkbox" role="switch" checked={trip.remindEve !== false} onchange={(e) => setRemind(e.currentTarget.checked)} /></label></li>
         {/if}
-        <li><a class="row" href="#/pack?day" onclick={pick}><span class="ic" aria-hidden="true"><Briefcase size={18} /></span><span class="bt"><b>{t('See the packing list')}</b>{#if stats}<small class="num">{tn(bags.length, '{n} bag', '{n} bags')} · {tn(stats.count, '{n} item', '{n} items')}</small>{/if}</span><ChevronRight size={18} aria-hidden="true" /></a></li>
+        <li><a class="row" href="#/pack?day" onclick={pick}><span class="ic" aria-hidden="true"><Briefcase size={20} /></span><span class="bt"><b>{t('See the packing list')}</b>{#if stats}<small class="num">{tn(bags.length, '{n} bag', '{n} bags')} · {tn(stats.count, '{n} item', '{n} items')}</small>{/if}</span><ChevronRight size={20} aria-hidden="true" /></a></li>
       </ul>
       <!-- Idee A2: the offer to move the evening reminder to your usual time -->
       {#if until != null && until >= 0}<EveOffer />{/if}
@@ -253,12 +253,12 @@
       <h2 id="unpack-h" class="sh">{t('Before you unpack')}</h2>
       <p class="ssub">{t('At home, before everything goes into the cupboard')}</p>
       <ul class="card rows">
-        <li><button type="button" class="row" aria-haspopup="dialog" data-row="check" onclick={() => (sheet = 'check')}><span class="ic" aria-hidden="true"><TypeIcon size={18} /></span><span class="bt"><b>{t('After-trip check {area}', { area })}</b><small class="num">{checkLine}</small></span><span class="mini" aria-hidden="true"><i style:width="{checkN.total ? (checkN.done / checkN.total) * 100 : 0}%"></i></span><ChevronRight size={18} aria-hidden="true" /></button></li>
+        <li><button type="button" class="row" aria-haspopup="dialog" data-row="check" onclick={() => (sheet = 'check')}><span class="ic" aria-hidden="true"><TypeIcon size={18} /></span><span class="bt"><b>{t('After-trip check {area}', { area })}</b><small class="num">{checkLine}</small></span><span class="mini" aria-hidden="true"><i style:width="{checkN.total ? (checkN.done / checkN.total) * 100 : 0}%"></i></span><ChevronRight size={20} aria-hidden="true" /></button></li>
         <ProbeRow {trip} kind="heim" {items} {debrief} />
         <!-- Paket Q #77: the way goes on to the bike after the trip -->
-        {#if hasBike(trip)}<li><a class="row" href={careHref} data-row="care"><span class="ic" aria-hidden="true"><Wrench size={18} /></span><span class="bt"><b>{t('Bike care')}</b><small>{bike?.name ?? t('Clean, oil, what is due')}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li>{/if}
+        {#if hasBike(trip)}<li><a class="row" href={careHref} data-row="care"><span class="ic" aria-hidden="true"><Wrench size={20} /></span><span class="bt"><b>{t('Bike care')}</b><small>{bike?.name ?? t('Clean, oil, what is due')}</small></span><ChevronRight size={20} aria-hidden="true" /></a></li>{/if}
         {#if notes.length}
-          <li><a class="row" href={debriefHref} onclick={pick} data-row="noted"><span class="ic" aria-hidden="true"><NotebookPen size={18} /></span><span class="bt"><b>{t('Noted on the way')}</b><small>{[tn(notes.length, '{n} note', '{n} notes'), notes.slice(0, 2).map((n) => `«${n.text}»`).join(', ')].join(' · ')}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li>
+          <li><a class="row" href={debriefHref} onclick={pick} data-row="noted"><span class="ic" aria-hidden="true"><NotebookPen size={20} /></span><span class="bt"><b>{t('Noted on the way')}</b><small>{[tn(notes.length, '{n} note', '{n} notes'), notes.slice(0, 2).map((n) => `«${n.text}»`).join(', ')].join(' · ')}</small></span><ChevronRight size={20} aria-hidden="true" /></a></li>
         {/if}
       </ul>
     </section>
@@ -270,7 +270,7 @@
     </div>
   </article>
   {#if undo}
-    <div class="toast" role="status"><Check size={18} aria-hidden="true" /><span>{t('{trip} ended.', { trip: trip.title })}</span><button type="button" class="undo" onclick={undoEnd}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button></div>
+    <div class="toast" role="status"><Check size={20} aria-hidden="true" /><span>{t('{trip} ended.', { trip: trip.title })}</span><button type="button" class="undo" onclick={undoEnd}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button></div>
   {/if}
 {:else}
   <Interstitial {trip} {tabs} {status} {current} {context} onpick={pick}
@@ -287,17 +287,17 @@
     <section class="until" aria-labelledby="next-h" data-als-naechstes>
       <h2 id="next-h" class="sh">{t('Next')}</h2>
       <ul class="card rows">
-        <li><a class="row" href="#/me/frei/naechstes" data-row="naechstes"><span class="ic" aria-hidden="true"><ListChecks size={18} /></span><span class="bt"><b>{t('For next time')}</b><small>{t('Collect what proved itself and what was missing')}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li>
-        <li><a class="row" href="#/me/tools/costs" data-row="costs"><span class="ic" aria-hidden="true"><Wallet size={18} /></span><span class="bt"><b>{t('Trip costs')}</b><small>{t('Who paid what, who owes whom')}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li>
+        <li><a class="row" href="#/me/frei/naechstes" data-row="naechstes"><span class="ic" aria-hidden="true"><ListChecks size={20} /></span><span class="bt"><b>{t('For next time')}</b><small>{t('Collect what proved itself and what was missing')}</small></span><ChevronRight size={20} aria-hidden="true" /></a></li>
+        <li><a class="row" href="#/me/tools/costs" data-row="costs"><span class="ic" aria-hidden="true"><Wallet size={20} /></span><span class="bt"><b>{t('Trip costs')}</b><small>{t('Who paid what, who owes whom')}</small></span><ChevronRight size={20} aria-hidden="true" /></a></li>
       </ul>
     </section>
     <!-- Paket Q #77/#78: back home, the next small steps (bike, backup, logbook) -->
     <section class="until" aria-labelledby="home-h" data-section="back-home">
       <h2 id="home-h" class="sh">{t('Back home')}</h2>
       <ul class="card rows">
-        {#if hasBike(trip)}<li><a class="row" href={careHref} data-row="care"><span class="ic" aria-hidden="true"><Wrench size={18} /></span><span class="bt"><b>{t('Bike care')}</b><small>{bike?.name ?? t('Clean, oil, what is due')}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li>{/if}
-        <li><a class="row" href="#/me/data" data-row="backup"><span class="ic" aria-hidden="true"><Save size={18} /></span><span class="bt"><b>{t('Make a backup')}</b><small>{t('So the trip is safe on your other device too')}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li>
-        <li><a class="row" href="#/debrief/logbook" data-row="logbook"><span class="ic" aria-hidden="true"><BookOpen size={18} /></span><span class="bt"><b>{t('Logbook')}</b><small>{t('All your trips in one list')}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li>
+        {#if hasBike(trip)}<li><a class="row" href={careHref} data-row="care"><span class="ic" aria-hidden="true"><Wrench size={20} /></span><span class="bt"><b>{t('Bike care')}</b><small>{bike?.name ?? t('Clean, oil, what is due')}</small></span><ChevronRight size={20} aria-hidden="true" /></a></li>{/if}
+        <li><a class="row" href="#/me/data" data-row="backup"><span class="ic" aria-hidden="true"><Save size={20} /></span><span class="bt"><b>{t('Make a backup')}</b><small>{t('So the trip is safe on your other device too')}</small></span><ChevronRight size={20} aria-hidden="true" /></a></li>
+        <li><a class="row" href="#/debrief/logbook" data-row="logbook"><span class="ic" aria-hidden="true"><BookOpen size={20} /></span><span class="bt"><b>{t('Logbook')}</b><small>{t('All your trips in one list')}</small></span><ChevronRight size={20} aria-hidden="true" /></a></li>
       </ul>
     </section>
     {#snippet foot()}<a class="tp-link" href={debriefHref} onclick={pick}>{t('See the debrief')}</a>{/snippet}

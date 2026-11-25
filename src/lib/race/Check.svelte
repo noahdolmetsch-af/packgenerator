@@ -256,7 +256,7 @@
 
     {#key cur.id}
       <details class="ck-after" open={isPast || afterCount(check, cur.id) > 0} data-check-after>
-        <summary><ClipboardCheck size={18} aria-hidden="true" />{t('After the race|sheet')}{#if afterCount(check, cur.id)}<small class="ck-n">{afterCount(check, cur.id)}</small>{/if}</summary>
+        <summary><ClipboardCheck size={20} aria-hidden="true" />{t('After the race|sheet')}{#if afterCount(check, cur.id)}<small class="ck-n">{afterCount(check, cur.id)}</small>{/if}</summary>
         <p class="rc-note">{t('Answer after the race. Your answers show on top of this sheet in your next races.')}</p>
         {#each AFTER as q (q.k)}{@render area(`${cur.id}.after.${q.k}`, t(q.label))}{/each}
       </details>
@@ -277,7 +277,7 @@
     </div>
     {#if others.length}
       <div class="ck-copy" data-check-copy-card>
-        <span class="ck-copy-ic" aria-hidden="true"><Copy size={18} /></span>
+        <span class="ck-copy-ic" aria-hidden="true"><Copy size={20} /></span>
         <div class="ck-copy-txt">
           <strong>{t('From another race')}</strong>
           <small>{t('Takes the answers of another race into the fields that are still empty here. Name, date and test ride stay yours.')}</small>

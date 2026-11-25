@@ -62,7 +62,7 @@
   }
 </script>
 
-<button type="button" class="hic" aria-label={t('Help for this page')} aria-haspopup="dialog" onclick={show} bind:this={btn} data-help-open><CircleQuestionMark size={22} aria-hidden="true" /></button>
+<button type="button" class="hic" aria-label={t('Help for this page')} aria-haspopup="dialog" onclick={show} bind:this={btn} data-help-open><CircleQuestionMark size={24} aria-hidden="true" /></button>
 
 <dialog class="sheet from-below hsheet" bind:this={dlg} use:backClose onclose={() => (open = false)} aria-labelledby="help-h" data-help>
   <div class="hhead">
@@ -85,7 +85,7 @@
     {/if}
     {#if !helpHere.hint && !rows.length && !here.length && !isHome}<p class="none">{t('This page has no own help yet. Everything else is in «Help and functions».')}</p>{/if}
     <div class="more">
-      <a class="go" href="#/features" onclick={close} data-help-all><b>{t('Help and functions')}</b><small>{t('Everything the app can do, the handbook and how it decides')}</small><ChevronRight size={18} aria-hidden="true" /></a>
+      <a class="go" href="#/features" onclick={close} data-help-all><b>{t('Help and functions')}</b><small>{t('Everything the app can do, the handbook and how it decides')}</small><ChevronRight size={20} aria-hidden="true" /></a>
       <div class="lks">
         <a href="#/me/handbook" onclick={close}><BookOpen size={16} aria-hidden="true" />{t('Handbook')}</a>
         <button type="button" onclick={search}><SearchIcon size={16} aria-hidden="true" />{t('Search|page')}</button>

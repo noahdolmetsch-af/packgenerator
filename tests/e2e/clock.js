@@ -162,6 +162,17 @@ export const test = base.extend({
         };
       }
     }
+    // A window that was just closed gives its history entry back one task later (src/lib/ui/backclose.js, history.back()).
+    // A goto or reload that starts in between is cut off (net::ERR_ABORTED) or ends on the old page. So before each of them
+    // the test waits, on the state and not on time, until no closed window's entry is left; a window that is open on purpose
+    // does not count, and a page that never clears it goes on after 3 s (the test then fails as it would have).
+    for (const m of ['goto', 'reload']) {
+      const own = page[m].bind(page);
+      page[m] = async (...a) => {
+        await page.waitForFunction(() => !history.state?.pgDialog || !!document.querySelector('dialog[open]'), null, { polling: 25, timeout: 3000 }).catch(() => {});
+        return own(...a);
+      };
+    }
     await use(page);
     // Back to the test day, not to 0: the next spec file in this worker builds its dates at the top of the file
     // (day(1) …) while it loads, after this test, and must see the same day as the page it opens.

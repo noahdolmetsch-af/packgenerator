@@ -58,7 +58,7 @@
     </div>
     <h3 class="lb">{t('Path')}</h3>
     <p class="path" data-info-path>
-      {#each steps as s, n (n)}<a href={s.href} onclick={close}>{s.label}</a><ChevronRight class="sep" size={12} aria-hidden="true" />{/each}<span>{last || name}</span>
+      {#each steps as s, n (n)}<a href={s.href} onclick={close}>{s.label}</a><ChevronRight class="sep" size={14} aria-hidden="true" />{/each}<span>{last || name}</span>
     </p>
     {#if text}<p class="tx">{text}</p>{/if}
     {#if info.from?.length}

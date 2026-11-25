@@ -577,7 +577,7 @@
      delete. -->
 <div class="rides rv-page">
   {#if rideId}
-    <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief/ride">{t('Rides|page')}</a>{#if ride}<ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{day(ride.date)}</span>{/if}</nav>
+    <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={14} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={14} aria-hidden="true" /><a href="#/debrief/ride">{t('Rides|page')}</a>{#if ride}<ChevronRight size={14} aria-hidden="true" /><span aria-current="page">{day(ride.date)}</span>{/if}</nav>
     {#if !$ridesQ}
       <Skeleton rows={3} />
     {:else if !ride}
@@ -594,7 +594,7 @@
       {#if justSaved}
         <!-- GPX-Weg 1a: what just happened, and one next step -->
         <section class="rv-box pad saved" aria-labelledby="saved-card-h" data-saved-card>
-          <button type="button" class="x" onclick={closeCard} aria-label={t('Close')}><X size={18} aria-hidden="true" /></button>
+          <button type="button" class="x" onclick={closeCard} aria-label={t('Close')}><X size={20} aria-hidden="true" /></button>
           <p class="sk"><CircleCheck size={16} aria-hidden="true" />{t('Ride saved')}</p>
           <h2 id="saved-card-h" class="sh">{note.first ? t('Your first ride is here.') : t('The ride is saved.')}</h2>
           <ul class="sl">
@@ -720,7 +720,7 @@
             <div class="rv-h"><div><h2 id="tr-h">{t('Saved with')}</h2></div></div>
             <div class="rv-box box">
               {#if trip}
-                <a class="rv-row" href={trip.fromRide ? '#/pack/past' : `#/debrief/${encodeURIComponent(trip.id)}`}><span class="rv-ic" aria-hidden="true"><Route size={18} /></span><span class="rv-m"><span class="rv-t">{trip.title}</span><span class="rv-s">{trip.fromRide ? t('Past trip made from this ride') : t('Open its debrief')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a>
+                <a class="rv-row" href={trip.fromRide ? '#/pack/past' : `#/debrief/${encodeURIComponent(trip.id)}`}><span class="rv-ic" aria-hidden="true"><Route size={20} /></span><span class="rv-m"><span class="rv-t">{trip.title}</span><span class="rv-s">{trip.fromRide ? t('Past trip made from this ride') : t('Open its debrief')}</span></span><ChevronRight class="rv-chev" size={20} aria-hidden="true" /></a>
               {:else}
                 <div class="attach">
                   <p class="foot">{attachMatches.length ? t('A trip on this day:') : t('No trip on this day. Make it a past trip?')}</p>
@@ -728,7 +728,7 @@
                   <p><button type="button" class="btn" onclick={attach}>{attachChoice === 'new' ? t('Make a past trip') : t('Attach to the trip')}</button></p>
                 </div>
               {/if}
-              <label class="rv-row chk"><span class="rv-ic" aria-hidden="true"><Gauge size={18} /></span><span class="rv-m"><span class="rv-t">{t('Counts for your pace')}</span><span class="rv-s">{pace.mine ? t('Your pace now: {kmh} km/h', { kmh: num(pace.kmh) }) : t('Rides of 20 km or more count.')}</span></span><input type="checkbox" checked={ride.pace !== false} onchange={(e) => togglePace(e.currentTarget.checked)} /></label>
+              <label class="rv-row chk"><span class="rv-ic" aria-hidden="true"><Gauge size={20} /></span><span class="rv-m"><span class="rv-t">{t('Counts for your pace')}</span><span class="rv-s">{pace.mine ? t('Your pace now: {kmh} km/h', { kmh: num(pace.kmh) }) : t('Rides of 20 km or more count.')}</span></span><input type="checkbox" checked={ride.pace !== false} onchange={(e) => togglePace(e.currentTarget.checked)} /></label>
             </div>
           </section>
           <p class="del"><button type="button" class="link" onclick={remove}>{t('Delete ride')}</button></p>
@@ -736,7 +736,7 @@
       </div>
     {/if}
   {:else}
-    <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{t('Rides|page')}</span></nav>
+    <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={14} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={14} aria-hidden="true" /><span aria-current="page">{t('Rides|page')}</span></nav>
     <!-- Impeccable Runde 2 (Fahrten 1): the page is the list of rides; uploading is the button in the card -->
     <h1 class="title">{t('Rides|page')}</h1>
     <p class="page-sub">{idleRides ? t('Your rides as files, compared with the plan. Read on this device.') : t('A recorded ride as GPX, TCX or FIT: pauses, planned vs real, learnings. A CSV list from Strava or Garmin: the km of your trips. Read on this device.')}</p>
@@ -747,10 +747,10 @@
         <section class="up" aria-label={t('Upload ride')}>
           <div class="drop" class:slim={idleRides}>
             {#if !idleRides}
-              <span class="rv-ic" aria-hidden="true"><Plus size={18} /></span>
+              <span class="rv-ic" aria-hidden="true"><Plus size={20} /></span>
               <span class="rv-m"><span class="rv-t">{t('Choose a ride file')}</span>{#if !draft}<span class="rv-s">{t('GPX, TCX, FIT or CSV. Garmin, Wahoo, Strava or Komoot: a ride → Export GPX or the original FIT file. On Android you can also share the file to Pack Generator.')}</span>{/if}</span>
             {/if}
-            <label class="btn pickbtn" class:hi={!draft}><Upload size={18} aria-hidden="true" />{busy && !draft ? t('Reading …') : idleRides ? t('Upload ride') : draft ? t('Choose another file') : t('Choose file')}<input type="file" multiple accept=".gpx,.tcx,.fit,.csv,application/gpx+xml,application/vnd.garmin.tcx+xml,application/xml,text/xml,text/csv" onchange={pick} disabled={busy} /></label>
+            <label class="btn pickbtn" class:hi={!draft}><Upload size={20} aria-hidden="true" />{busy && !draft ? t('Reading …') : idleRides ? t('Upload ride') : draft ? t('Choose another file') : t('Choose file')}<input type="file" multiple accept=".gpx,.tcx,.fit,.csv,application/gpx+xml,application/vnd.garmin.tcx+xml,application/xml,text/xml,text/csv" onchange={pick} disabled={busy} /></label>
           </div>
           {#if !draft && !route && !batch && !list && !rides.length}
             <!-- GPX-Weg 3a/5a: before the first ride, what a ride file does here -->
@@ -851,9 +851,9 @@
                 {@const due = $tripsQ !== undefined && rideOpen(r, tripOf(r))}
                 <li class="rl" data-ride={r.id} data-open={due ? '' : null}>
                   <a class="rv-row" href={`#/debrief/ride/${encodeURIComponent(r.id)}`}>
-                    <span class="rv-ic" aria-hidden="true"><Route size={18} /></span>
+                    <span class="rv-ic" aria-hidden="true"><Route size={20} /></span>
                     <span class="rv-m"><span class="rv-t">{r.name}{#if r.id === firstNew}<span class="rv-tag nw">{t('New|ride')}</span>{/if}</span><span class="rv-s num">{[day(r.date), `${num(r.km)} km`, tripOf(r)?.title, tn(r.pauses.length, '{n} pause', '{n} pauses')].filter(Boolean).join(' · ')}</span>{#if due || open}<span class="tags">{#if due}<span class="rv-tag warn lt">{t('Debrief open')}</span>{/if}{#if open}<span class="rv-tag warn lt">{tn(open, '{n} learning', '{n} learnings')}</span>{/if}</span>{/if}</span>
-                    <ChevronRight class="rv-chev" size={18} aria-hidden="true" />
+                    <ChevronRight class="rv-chev" size={20} aria-hidden="true" />
                   </a>
                   {#if due}<button type="button" class="link okbtn" onclick={() => allGood(r)} aria-label="{t('Short: all good')}: {r.name}">{t('Short: all good')}</button>{/if}
                 </li>
@@ -877,9 +877,9 @@
         <section class="rv-sec" aria-labelledby="rmore-h">
           <div class="rv-h"><div><h2 id="rmore-h">{t('More')}</h2></div></div>
           <ul class="rv-box">
-            <li><a class="rv-row" href="#/debrief/pace"><span class="rv-ic" aria-hidden="true"><Gauge size={18} /></span><span class="rv-m"><span class="rv-t">{t('Your pace')}</span>{#if pace.mine}<span class="rv-s num">{t('Your pace now: {kmh} km/h', { kmh: num(pace.kmh) })}</span>{/if}</span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
-            <li><a class="rv-row" href="#/debrief/logbook"><span class="rv-ic" aria-hidden="true"><BookOpen size={18} /></span><span class="rv-m"><span class="rv-t">{t('Logbook')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
-            {#if firstBike}<li><a class="rv-row" href={bikesHash({ tab: 'care', bike: firstBike.id, view: 'import' })}><span class="rv-ic" aria-hidden="true"><Plus size={18} /></span><span class="rv-m"><span class="rv-t">{t('Import rides')}</span><span class="rv-s">{t('Strava export or Garmin files · the file stays on this device')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>{/if}
+            <li><a class="rv-row" href="#/debrief/pace"><span class="rv-ic" aria-hidden="true"><Gauge size={20} /></span><span class="rv-m"><span class="rv-t">{t('Your pace')}</span>{#if pace.mine}<span class="rv-s num">{t('Your pace now: {kmh} km/h', { kmh: num(pace.kmh) })}</span>{/if}</span><ChevronRight class="rv-chev" size={20} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/debrief/logbook"><span class="rv-ic" aria-hidden="true"><BookOpen size={20} /></span><span class="rv-m"><span class="rv-t">{t('Logbook')}</span></span><ChevronRight class="rv-chev" size={20} aria-hidden="true" /></a></li>
+            {#if firstBike}<li><a class="rv-row" href={bikesHash({ tab: 'care', bike: firstBike.id, view: 'import' })}><span class="rv-ic" aria-hidden="true"><Plus size={20} /></span><span class="rv-m"><span class="rv-t">{t('Import rides')}</span><span class="rv-s">{t('Strava export or Garmin files · the file stays on this device')}</span></span><ChevronRight class="rv-chev" size={20} aria-hidden="true" /></a></li>{/if}
           </ul>
         </section>
       </div>

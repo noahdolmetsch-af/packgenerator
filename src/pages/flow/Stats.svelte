@@ -438,7 +438,7 @@
         <li class="card" data-body-day={d.key}>
           <span class="m"><b>{day(d.key)}</b><small>{date(d.key)}{#if sg?.start}{` · ${sg.start}–${sg.end}`}{/if}</small></span>
           <span class="v num">{bkey === 'bp' ? `${ctx.bp.get(d.key).sys}/${ctx.bp.get(d.key).dia}` : bv(d.v)}{bu ? ` ${(B.own ? bu : t(bu))}` : ''}{#if sg && sg.deep != null}<small>{t('deep {d} · REM {r}', { d: hm(sg.deep), r: hm(sg.rem) })}</small>{/if}{#if bkey === 'felt'}<small>{t('sleep {s} · mood {m}', { s: ctx.checks?.get(d.key)?.sleep ?? '–', m: ctx.checks?.get(d.key)?.mood ?? '–' })}</small>{/if}</span>
-          {#if bkey === 'bp' || bkey === 'water'}<button type="button" class="nav del" aria-label={t('Delete')} data-entry-del={d.key} onclick={() => removeDay(d.key)}><Trash2 size={18} aria-hidden="true" /></button>{/if}
+          {#if bkey === 'bp' || bkey === 'water'}<button type="button" class="nav del" aria-label={t('Delete')} data-entry-del={d.key} onclick={() => removeDay(d.key)}><Trash2 size={20} aria-hidden="true" /></button>{/if}
         </li>
       {/each}
     </ul>

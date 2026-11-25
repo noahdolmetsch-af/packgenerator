@@ -34,7 +34,7 @@
         <span class="main">
           <button type="button" class="tx" onclick={() => onopen?.(r.todo)}>
             <b>{r.todo.text}</b>
-            <small><Hourglass size={13} aria-hidden="true" />{[t('Waits on: {what}', { what: onName(r.wait.on) }), r.wait.note].filter(Boolean).join(' · ')}</small>
+            <small><Hourglass size={14} aria-hidden="true" />{[t('Waits on: {what}', { what: onName(r.wait.on) }), r.wait.note].filter(Boolean).join(' · ')}</small>
           </button>
           <span class="acts">
             <button type="button" class="lk" onclick={() => again(r)}>{t('Still waiting')}</button>

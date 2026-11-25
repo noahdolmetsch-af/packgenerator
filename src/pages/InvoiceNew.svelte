@@ -230,9 +230,9 @@
     <div class="inv-two">
       <div class="card inv-card">
         <div class="inv-acc">
-          <Landmark size={18} aria-hidden="true" />
+          <Landmark size={20} aria-hidden="true" />
           <span>{t('Your account')}: <b>{account.iban.slice(0, 9)} …{cleanIban(account.iban).slice(-4)}</b> · {t('only stored on this device')}</span>
-          {#if !saved}<button class="btn btn-link inv-edit" type="button" onclick={() => (editAcc = true)} aria-label={t('Change account')}><Pencil size={15} aria-hidden="true" /></button>{/if}
+          {#if !saved}<button class="btn btn-link inv-edit" type="button" onclick={() => (editAcc = true)} aria-label={t('Change account')}><Pencil size={16} aria-hidden="true" /></button>{/if}
         </div>
         {#if saved}
           <dl class="inv-dl">
@@ -270,9 +270,9 @@
         {/if}
         {#if !saved && tried && Object.keys(formErrors).length}<p class="inv-err" role="alert">{tn(Object.keys(formErrors).length, '{n} entry is missing or wrong. It is marked in red.', '{n} entries are missing or wrong. They are marked in red.')}</p>{/if}
         <div class="inv-btns">
-          <button class="btn hi" type="button" onclick={sendMail} disabled={busy}><Mail size={18} aria-hidden="true" />{t('Send by e-mail')}</button>
-          <button class="btn" type="button" onclick={sharePdf} disabled={busy}><Share2 size={18} aria-hidden="true" />{t('Share PDF')}</button>
-          <button class="btn" type="button" onclick={copyLink} disabled={busy}><Link size={18} aria-hidden="true" />{t('Copy pay link')}</button>
+          <button class="btn hi" type="button" onclick={sendMail} disabled={busy}><Mail size={20} aria-hidden="true" />{t('Send by e-mail')}</button>
+          <button class="btn" type="button" onclick={sharePdf} disabled={busy}><Share2 size={20} aria-hidden="true" />{t('Share PDF')}</button>
+          <button class="btn" type="button" onclick={copyLink} disabled={busy}><Link size={20} aria-hidden="true" />{t('Copy pay link')}</button>
         </div>
         {#if note}<p class="ich-fine" role="status">{note}</p>{/if}
         <p class="ich-fine">{t('Free, nobody in between. TWINT is free between private people; whoever sells regularly needs a TWINT business account, which costs fees.')}</p>

@@ -15,7 +15,7 @@
   <ul>
     {#each items as x (x.id)}
       <li class:open={!x.done}>
-        <span class="b" aria-hidden="true"><Star size={18} /></span>
+        <span class="b" aria-hidden="true"><Star size={20} /></span>
         <b>{x.name}</b>
         <small>{x.when}</small>
       </li>

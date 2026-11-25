@@ -158,21 +158,21 @@
         <ul class="card ich-list">
           <li>
             <a class="ich-row" href="#/calendar">
-              <span class="ich-ib"><Bell size={18} aria-hidden="true" /></span>
+              <span class="ich-ib"><Bell size={20} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Calendar › Remember')}</b><small>{t('Always')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+              <ChevronRight class="ich-chev" size={20} aria-hidden="true" />
             </a>
           </li>
           <li>
             <!-- Paket B «Erinnerungen aufs Handy» (Web-Push): the messages on the phone have their own page -->
             <a class="ich-row" href="#/me/push" data-push-link>
-              <span class="ich-ib"><BellRing size={18} aria-hidden="true" /></span>
+              <span class="ich-ib"><BellRing size={20} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Reminders on the phone')}</b><small>{t('Birthdays, plants, the evening before, the weather')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+              <ChevronRight class="ich-chev" size={20} aria-hidden="true" />
             </a>
           </li>
           <li class="ich-row">
-            <span class="ich-ib"><CalendarPlus size={18} aria-hidden="true" /></span>
+            <span class="ich-ib"><CalendarPlus size={20} aria-hidden="true" /></span>
             <span class="ich-m"><b>{t('Google Calendar with alarm')}</b><small>{t('As a file, free')}</small></span>
             <button type="button" class="switch" role="switch" aria-checked={d.ics} aria-label={t('Google Calendar with alarm')} onclick={() => setIcs(!d.ics)}><span class="knob"></span></button>
           </li>

@@ -59,8 +59,8 @@
       </span>
     </div>
     <div class="prep-btns">
-      <button class="btn hi" type="button" onclick={() => yes(x)}><Check size={18} aria-hidden="true" />{t('Right, paid')}</button>
-      {#if x.inv.email}<button class="btn" type="button" onclick={() => yes(x, true)}><Mail size={18} aria-hidden="true" />{t('Right + mail')}</button>{/if}
+      <button class="btn hi" type="button" onclick={() => yes(x)}><Check size={20} aria-hidden="true" />{t('Right, paid')}</button>
+      {#if x.inv.email}<button class="btn" type="button" onclick={() => yes(x, true)}><Mail size={20} aria-hidden="true" />{t('Right + mail')}</button>{/if}
       <button class="btn" type="button" onclick={() => notYet(x)}>{t('Not there yet')}</button>
     </div>
     <p class="ich-fine">{x.report.way === 'twint' ? t('Take a quick look in your TWINT app, then one tap.') : t('Take a quick look in your e-banking, then one tap.')}</p>

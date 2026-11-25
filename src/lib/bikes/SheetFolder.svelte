@@ -91,7 +91,7 @@
                 {#if state[s.key]}<span class="st {state[s.key].tone}">{state[s.key].text}</span>{:else}<span class="sb">{t(s.sub)}</span>{/if}
               </span>
               {#if s.key === firstNew}<span class="new">{t('new|sheet')}</span>{/if}
-              <ChevronRight class="chev" size={18} aria-hidden="true" />
+              <ChevronRight class="chev" size={20} aria-hidden="true" />
             </a>
           </li>
         {/each}

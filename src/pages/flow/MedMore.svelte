@@ -269,7 +269,7 @@
           <ul class="tpls card">
             {#each tpls as x (x.id)}
               <li data-tpl={x.id}>
-                <button type="button" class="play" aria-label={t('Start {name}', { name: tplName(x) })} onclick={() => start(tplStart(x))}><Zap size={18} aria-hidden="true" /></button>
+                <button type="button" class="play" aria-label={t('Start {name}', { name: tplName(x) })} onclick={() => start(tplStart(x))}><Zap size={20} aria-hidden="true" /></button>
                 <a class="tn" href="{base}/timer?tpl={encodeURIComponent(x.id)}">
                   <b>{tplName(x)}</b>
                   <small class="num">{t('{n} min', { n: x.minutes })} · {modeLine(x.bowl)}{#if x.art && artOf(x.art)}{' · '}{artName(artOf(x.art))}{/if}</small>

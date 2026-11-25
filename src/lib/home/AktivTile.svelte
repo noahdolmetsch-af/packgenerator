@@ -50,7 +50,7 @@
     <span class="ico" aria-hidden="true"><Activity size={16} /></span>
     <h2 id={compact ? 'ak-hc' : 'ak-h'}>{t('Active|place')}</h2>
     <span class="sd">{t('today · observation only')}</span>
-    <a class="go" href="#/flow" aria-hidden="true" tabindex="-1" title={t('Open')}><ChevronRight size={16} strokeWidth={2.4} /></a>
+    <a class="go" href="#/flow" aria-hidden="true" tabindex="-1" title={t('Open')}><ChevronRight size={16} strokeWidth={2.5} /></a>
   </div>
   <ul class="vals">
     <li data-val="sleep">
@@ -79,7 +79,7 @@
   {/if}
   <div class="ft">
     {#if !compact}<span class="obs">{t('Observation only, no judgement')}</span>{/if}
-    <a class="op" href="#/flow">{t('Open Aktiv')}<ChevronRight size={14} strokeWidth={2.6} aria-hidden="true" /></a>
+    <a class="op" href="#/flow">{t('Open Aktiv')}<ChevronRight size={14} strokeWidth={2.5} aria-hidden="true" /></a>
   </div>
 </section>
 

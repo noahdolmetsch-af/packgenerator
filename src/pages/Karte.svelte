@@ -77,7 +77,7 @@
               <a href={w.href} target={outside(w.href) ? '_blank' : undefined} rel={outside(w.href) ? 'noopener noreferrer' : undefined} data-card-way={w.f}>
                 <span class="kc-ico"><Icon size={18} aria-hidden="true" /></span>
                 <span class="kc-tx"><b>{t(w.label)}</b><small>{card[w.f]}</small></span>
-                <ChevronRight size={18} aria-hidden="true" />
+                <ChevronRight size={20} aria-hidden="true" />
               </a>
             </li>
           {/each}

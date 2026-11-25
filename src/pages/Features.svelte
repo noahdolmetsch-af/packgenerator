@@ -163,7 +163,7 @@
   <!-- Design-Refresh P9 (I7): the path back to Ich. SN6: «Ich › Funktionen», one line with «tap to go there». -->
   <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} here={t('Help and functions')} title={t('Help and functions')} sub={all ? `${t('{total} functions · you use {n}', { total: all.total, n: all.used })} · ${t('tap to go there')}` : ''} />
   <ul class="fhelp" data-block="help" aria-label={t('Help|me')}>
-    <li><a href="#/me/handbook" data-help-row="handbook"><BookOpen size={18} aria-hidden="true" /><span><b>{t('Handbook')}</b><small>{t('How to switch on every function, with an example')}</small></span><ChevronRight size={16} aria-hidden="true" /></a></li>
+    <li><a href="#/me/handbook" data-help-row="handbook"><BookOpen size={20} aria-hidden="true" /><span><b>{t('Handbook')}</b><small>{t('How to switch on every function, with an example')}</small></span><ChevronRight size={16} aria-hidden="true" /></a></li>
     <li><a href="#/me/regeln" data-help-row="rules"><RuleIcon size={18} aria-hidden="true" /><span><b>{t('How the app decides')}</b><small>{t('Every rule, where to change it')}</small></span><ChevronRight size={16} aria-hidden="true" /></a></li>
     <li><button type="button" onclick={keysHelp} aria-haspopup="dialog" data-help-row="keys"><Keyboard size={18} aria-hidden="true" /><span><b>{t('Help and keyboard shortcuts')}</b><small>{t('Every page has a «?» at the top: its own help')}</small></span><ChevronRight size={16} aria-hidden="true" /></button></li>
     <li><button type="button" onclick={introAgain} data-intro-again><Hand size={18} aria-hidden="true" /><span><b>{t('Show the start page intro again')}</b></span><ChevronRight size={16} aria-hidden="true" /></button></li>
@@ -219,7 +219,7 @@
   {/if}
   <div class="ftop" data-block="search">
     <label class="ffind">
-      <Search size={18} aria-hidden="true" />
+      <Search size={20} aria-hidden="true" />
       <input type="search" bind:value={q} placeholder={t('What do you want to do? e.g. «warranty»')} aria-label={t('Find a function')} autocomplete="off" />
     </label>
     <!-- Noah «1 a und b beides umstellbar»: by situation or by the page a function lives on -->
@@ -235,9 +235,9 @@
           {#each fresh.rows as x (x.id)}
             <li data-new={x.id}>
               <button type="button" class="fline" onclick={() => goFeature(FEATURE[x.id], { bikeId })}>
-                <span class="tic new" aria-hidden="true"><Sparkles size={18} /></span>
+                <span class="tic new" aria-hidden="true"><Sparkles size={20} /></span>
                 <span class="fm"><span class="ft">{t(x.title)}</span><span class="fs">{t('new in {v}', { v: shortVersion(x.since) })} · {t(x.text)}</span></span>
-                <ChevronRight size={18} aria-hidden="true" />
+                <ChevronRight size={20} aria-hidden="true" />
               </button>
             </li>
           {/each}

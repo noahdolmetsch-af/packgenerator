@@ -103,13 +103,13 @@
 
   {#if count > 1}
     <nav class="dps-bar" class:dps-top={barTop} aria-label={t('Map and data pages')}>
-      <button type="button" class="dps-ar" onclick={() => go(index - 1)} disabled={index === 0} aria-label={t('Previous page')} data-dp-prev><ChevronLeft size={22} aria-hidden="true" /></button>
+      <button type="button" class="dps-ar" onclick={() => go(index - 1)} disabled={index === 0} aria-label={t('Previous page')} data-dp-prev><ChevronLeft size={24} aria-hidden="true" /></button>
       <span class="dps-dots">
         {#each Array.from({ length: count }, (_, i) => i) as i (i)}
           <button type="button" class="dps-dot" aria-current={index === i ? 'page' : undefined} aria-label={t('Page {n}: {name}', { n: i + 1, name: nameOf(i) })} onclick={() => go(i)} data-dp-dot={i}><span></span></button>
         {/each}
       </span>
-      <button type="button" class="dps-ar" onclick={() => go(index + 1)} disabled={index >= count - 1} aria-label={t('Next page')} data-dp-next><ChevronRight size={22} aria-hidden="true" /></button>
+      <button type="button" class="dps-ar" onclick={() => go(index + 1)} disabled={index >= count - 1} aria-label={t('Next page')} data-dp-next><ChevronRight size={24} aria-hidden="true" /></button>
     </nav>
   {/if}
 </div>

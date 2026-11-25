@@ -190,7 +190,7 @@
   {/if}
 
   <div class="row">
-    <button type="button" class="btn hi" disabled={busy} onclick={toDebrief} data-after-debrief><ClipboardCheck size={18} aria-hidden="true" />{t('Debrief')}</button>
+    <button type="button" class="btn hi" disabled={busy} onclick={toDebrief} data-after-debrief><ClipboardCheck size={20} aria-hidden="true" />{t('Debrief')}</button>
     <span class="tp-small tp-muted">{trip ? t('Opens the look back of this trip with the km and pauses filled in.') : t('Opens the saved ride with its km and pauses.')}</span>
   </div>
 
@@ -201,7 +201,7 @@
     <label class="chk"><input type="checkbox" bind:checked={withLine} data-after-share-line /> {t('With the shape of the ride')}</label>
     <p class="tp-small tp-muted">{withLine ? t('The shape shows where you rode. Leave it out when you start at home.') : t('Only the name, the date and the numbers.')}</p>
     <div class="row">
-      <button type="button" class="btn" disabled={busy || !sum.km} onclick={shareImage} data-after-share-btn><Share2 size={18} aria-hidden="true" />{t('Share picture')}</button>
+      <button type="button" class="btn" disabled={busy || !sum.km} onclick={shareImage} data-after-share-btn><Share2 size={20} aria-hidden="true" />{t('Share picture')}</button>
       {#if shareMsg}<span class="tp-small tp-muted" role="status" data-after-share-done>{shareMsg}</span>{/if}
     </div>
   </div>

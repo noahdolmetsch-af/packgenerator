@@ -123,7 +123,7 @@
     <h2 id="h-qs" class="h2">{t('Your four questions')}</h2>
     <ul class="grid">
       {#each QUESTIONS as qu (qu.key)}
-        <li><a class="card q" href={qu.href} data-question={qu.key}><b>{t(qu.title)}</b><span>{t(qu.text)}</span><ChevronRight size={18} aria-hidden="true" /></a></li>
+        <li><a class="card q" href={qu.href} data-question={qu.key}><b>{t(qu.title)}</b><span>{t(qu.text)}</span><ChevronRight size={20} aria-hidden="true" /></a></li>
       {/each}
     </ul>
     <p class="old"><a href="#/auswerten/uebersicht" data-heute-old>{t('The old overview')} ›</a><a href="#/auswerten/sportjahr" data-sportjahr-link>{t('Sports year')} ›</a><a href="#/flow" data-aktiv-link>{t('Tick off today')} ›</a></p>

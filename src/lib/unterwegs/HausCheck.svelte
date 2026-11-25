@@ -21,7 +21,7 @@
 </script>
 
 <section class="card" aria-labelledby="house-h" data-house>
-  <h2 id="house-h" class="sh"><House size={18} aria-hidden="true" /> {t('House check')} <small class="tp-muted">{t('{done} of {all}', { done: count.done, all: count.all })}</small></h2>
+  <h2 id="house-h" class="sh"><House size={20} aria-hidden="true" /> {t('House check')} <small class="tp-muted">{t('{done} of {all}', { done: count.done, all: count.all })}</small></h2>
   <p class="tp-small tp-muted">{t('Before you lock the door: tick what is done. The ticks belong to this trip; your list stays for the next one.')}</p>
   <LinesEdit
     name="house"

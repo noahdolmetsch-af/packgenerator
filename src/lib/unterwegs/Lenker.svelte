@@ -79,7 +79,7 @@
 
 <div class="lenker" bind:this={box} role="dialog" aria-modal="true" aria-label={t('Handlebar view')} data-lenker>
   <div class="bar">
-    <button type="button" class="lb" aria-label={t('Close')} onclick={close}><X size={28} aria-hidden="true" /></button>
+    <button type="button" class="lb" aria-label={t('Close')} onclick={close}><X size={24} aria-hidden="true" /></button>
     <button type="button" class="lb" aria-pressed={!!track} onclick={() => gps(!track)} data-lenker-gps><LocateFixed size={24} aria-hidden="true" /><span>{track ? t('GPS on') : t('Measure with GPS')}</span></button>
     <button type="button" class="lb" aria-expanded={choose} onclick={() => (choose = !choose)} data-lenker-choose><SlidersHorizontal size={24} aria-hidden="true" /><span>{t('Choose numbers')}</span></button>
   </div>
@@ -89,7 +89,7 @@
       <p class="hint">{t('Up to {n} numbers. Tap to show or hide; order them with the arrows or by dragging.', { n: MAX_TILES })}</p>
       <div class="pick">
         {#each TILES as x (x.key)}
-          <button type="button" class="pk" aria-pressed={tiles.includes(x.key)} disabled={!tiles.includes(x.key) && tiles.length >= MAX_TILES} onclick={() => save(toggleTile(tiles, x.key))}>{#if tiles.includes(x.key)}<Check size={18} aria-hidden="true" />{/if}{t(x.label)}</button>
+          <button type="button" class="pk" aria-pressed={tiles.includes(x.key)} disabled={!tiles.includes(x.key) && tiles.length >= MAX_TILES} onclick={() => save(toggleTile(tiles, x.key))}>{#if tiles.includes(x.key)}<Check size={20} aria-hidden="true" />{/if}{t(x.label)}</button>
         {/each}
       </div>
       <ol class="order" use:sortable={{ onmove: (from, to) => save(moveTile(tiles, from, to)) }}>

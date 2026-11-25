@@ -87,7 +87,7 @@
           <b id="rmc-h">{o.kind === 'trip' ? t('Shall I remind you before the trip?') : o.kind === 'care' ? t('Remind you again when it is due?') : t('Shall I remind you in future?')}</b>
           <small>{o.kind === 'activity' ? why(o.rhythm, o.act.name) : o.kind === 'trip' ? t('Pack, charge, check the weather.') : t('Lube the chain: every 300 km or after a ride in the rain.')}</small>
         </span>
-        <button type="button" class="x" onclick={closeOffer} aria-label={t('Close')}><X size={18} aria-hidden="true" /></button>
+        <button type="button" class="x" onclick={closeOffer} aria-label={t('Close')}><X size={20} aria-hidden="true" /></button>
       </div>
 
       <div class="chips">

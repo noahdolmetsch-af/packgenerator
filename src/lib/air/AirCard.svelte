@@ -69,9 +69,9 @@
 <section class="air card" class:bare aria-labelledby={hid} data-section="air">
   <div class="ai-head">
     {#if bare}<span class="ai-title" id={hid}></span>{:else}
-    <span class="ai-ib" aria-hidden="true"><Flower2 size={18} /></span>
+    <span class="ai-ib" aria-hidden="true"><Flower2 size={20} /></span>
     <svelte:element this={headingLevel === 3 ? 'h3' : 'h2'} id={hid} class="ai-title">{t('Ozone and pollen')}</svelte:element>{/if}
-    {#if home}<button type="button" class="ai-re" onclick={() => refresh()} disabled={busy} aria-label={t('Load again')}><RefreshCw size={18} class={busy ? 'spin' : ''} aria-hidden="true" /></button>{/if}
+    {#if home}<button type="button" class="ai-re" onclick={() => refresh()} disabled={busy} aria-label={t('Load again')}><RefreshCw size={20} class={busy ? 'spin' : ''} aria-hidden="true" /></button>{/if}
   </div>
   {#if !home}
     <p class="ai-quiet">{t('Set your home place under Me › Home place; then the card shows ozone and pollen there.')}</p>
