@@ -10,13 +10,14 @@ Die alten 33 Regeln R1–R33 und alle überholten Fassungen stehen wörtlich in 
 
 ## Block 1 · Massstab
 
-(Noah 23.11.2026 18:09 UTC und 22:27 Leitfaden; Noah «1-5a» 24.11.2026 16:45 und 16:50.)
+(Noah 23.11.2026 18:09 UTC und 22:27 Leitfaden; Noah «1-5a» 24.11.2026 16:45 und 16:50; Noah «a und b» 24.11.2026 23:38.)
 Die App soll Noah im Alltag unterstützen. Jede Änderung dient **Klarheit** (man sieht sofort, wo man ist und was man hier tun kann: eine Hauptsache pro Bildschirm, sinnvolle Absprünge, nie stecken bleiben),
 **Auffindbarkeit** (Wichtiges oben und mit wenigen Tipps erreichbar, Häufiges vorne, die Suche findet Verstecktes) und dem Leitfaden `docs/leitfaden.md` (bleibt ganz). Andere Ziele sind kein Massstab mehr.
 Passt etwas nirgends, fragt der Thread Noah. Der Kurs-Check kommt einmal pro Woche im Sonntags-Brief.
 So fühlt sich die App für Nutzer an, auf jeder Seite:
 - **Inhalt zuerst:** Hilfe steht nie vor dem Inhalt, nur als geschlossene Zeile und am Seitenende.
 - **Alles ist ein Vorschlag** und alles ist selbst änderbar, mit Rückgängig. **Nichts fällt ersatzlos weg**; alte Daten und Adressen bleiben gültig. Die Lösch-Regel steht in `CLAUDE.md`.
+- **Nie abgeschnitten** (Noah «a und b» 24.11.2026 23:38, nach einem Fenster, dessen Knopf unten abgeschnitten war): Jedes Fenster und jedes Popup passt in den Bildschirm. **Kopf und Fuss bleiben fest**, im Fuss steht der Hauptknopf («Fertig»); nur die Mitte scrollt, und ein weicher Schatten am unteren Rand zeigt, dass es weitergeht. Kein Knopf ist am Rand angeschnitten. Ein Wächter-Test (Block 7) prüft jedes Fenster bei Handy 390, Laptop 1440×800 und Computer 1440×900: Hauptknopf ganz sichtbar, kein Knopf angeschnitten. Der Code dazu steht in `CLAUDE.md`.
 - Keine Längen-Vorgaben für Seiten; Erklärtexte dort, wo man sich verlieren könnte; einfaches Deutsch, ein Wort pro Sache (`docs/namen.md`).
 
 ## Block 2 · Wie ich mit Noah schreibe
@@ -38,22 +39,26 @@ So fühlt sich die App für Nutzer an, auf jeder Seite:
 
 ## Block 4 · PRs und Stau
 
-(Noah 23.11.2026 18:58; Noah 24.11.2026 07:29 «1 2 3 4 5», 10:27, 16:38, 16:58 «a», 17:19.)
+(Noah 23.11.2026 18:58; Noah 24.11.2026 07:29 «1 2 3 4 5», 10:27, 16:38, 16:58 «a», 17:19, 23:18, «a-c alle» 23:19.)
 - **Ein PR pro Seite**, kleine Änderungen derselben Seite gebündelt. Einzeln bleiben Datenänderungen (Dexie, Backup, Sync, `api/`) und Test-Fixes.
-- **Grenzen** (Noah «a» 24.11.2026 16:58, ersetzt «höchstens 6 offen» von 16:38): **höchstens 5–6 PRs gleichzeitig in der Prüfung auf GitHub, bis 8 offen insgesamt; 6–10 Threads arbeiten gleichzeitig.** Ein neuer PR wird erst geöffnet, wenn in der Prüfung weniger als 5–6 sind und insgesamt weniger als 8 offen; sonst wartende PRs abbauen helfen.
+- **Grenzen** (Noah «a» 24.11.2026 16:58, ersetzt «höchstens 6 offen» von 16:38; die Zahl in der Prüfung geändert von Noah 24.11.2026 23:18): **höchstens 4 PRs gleichzeitig in der Prüfung auf GitHub** (vorher 5–6; Noah: «ich möchte weniger rote tests haben»), **bis 8 offen insgesamt; 6–10 Threads arbeiten gleichzeitig.** Die 4 gelten, sobald main wieder grün ist. Ein neuer PR wird erst geöffnet, wenn in der Prüfung weniger als 4 sind und insgesamt weniger als 8 offen; sonst wartende PRs abbauen helfen.
+- **Reihenfolge der Wichtigkeit** (Noah 24.11.2026 23:18): Wenn mehrere Pakete auf einen Platz warten oder etwas als Nächstes gebaut wird, kommt zuerst **1. Auswerten, 2. App schöner, 3. Suche, 4. Rennen, 5. Versteckte Inhalte, 6. weitere Bereiche, 7. alle anderen**. Der Bündler vergibt Plätze in dieser Reihenfolge; Reparaturen von rotem main gehen immer vor.
 - **Was darüber hinaus fertig wird** (Wellen der impeccable-Prüfung), wird **lokal gebaut und getestet, ohne PR und ohne Push**, bis der Bündler «Platz» meldet (Platz heisst: unter den Grenzen oben). Wartet ein PR auf CI oder auf Platz, geht der Thread am nächsten Schritt weiter, lokal vorbereitet (Noah 27.10.2026). **Wartende Threads bauen die nächsten Schritte wenn immer möglich schon vor und zeigen Noah dazu Bilder** (Noah 24.11.2026 17:19), damit er sie freigeben kann, sobald Platz ist.
 - **Main rot:** bis zu 1 Stunde nichts anderes mergen, bis repariert.
-- **Ein Test, der 2× zufällig fällt,** kommt auf die Liste und wird noch am selben Tag stabil gemacht (Wackel-Thread).
+- **Nie zwei PRs gleichzeitig mergen** (Noah «a-c alle» 24.11.2026 22:19, Vorschlag a): Jeder PR wird zuerst auf das neueste main gebracht, dann geprüft und erst dann gemergt; der Bündler mergt einen PR nach dem anderen. Grund: ein Zusammenstoss zweier PRs hat am 24.11.2026 main rot gemacht.
+- **Wackel-Wächter** (Noah «a-c alle», Vorschlag b): Ein Test, der **einmal** zufällig rot war, kommt auf die Liste der Wackler und wird **noch am selben Tag stabil gemacht, bevor neue PRs dazukommen** (Wackel-Thread; früher «2×»).
 - Ziel der CI: etwa 15 Minuten statt 25–70, mit Tests nur der geänderten Seite (Thread «Tests schneller machen»).
 
 ## Block 5 · Freigabe und Merge
 
-(Noah 24.11.2026 17:19 «ich möchte für jeden PR vor merge bilder sehen», 19:34 «freigabe ab sofort immer mit buttons», 18:07 und 18:08 «bilder immer im app design … das gilt immer überall», ersetzt die Freigabe «alles frei» vom 23.11.2026, `docs/decisions/alles-freigegeben.md` ist jetzt Verlauf; Noah «1-5a» 24.11.2026 16:50; Bilder Noah 24.11.2026 16:53 und 16:54 «1a».)
+(Noah 24.11.2026 17:19 «ich möchte für jeden PR vor merge bilder sehen», 19:34 «freigabe ab sofort immer mit buttons», 18:07 und 18:08 «bilder immer im app design … das gilt immer überall», ersetzt die Freigabe «alles frei» vom 23.11.2026, `docs/decisions/alles-freigegeben.md` ist jetzt Verlauf; Noah «1-5a» 24.11.2026 16:50; Bilder Noah 24.11.2026 16:53 und 16:54 «1a»; Grössen und Fenster Noah «ja» 24.11.2026 23:40.)
 - **Sichtbare Änderung: Noah sieht die Bilder vor dem Merge und gibt sie frei** (Noah 17:19: «aktuell kommen die Bilder erst nachdem PR online geht. das ist oftmals zu spät»). Die Bilder kommen **nach dem Bauen** vom fertigen PR, **wenn möglich mit Noahs aktuellen Daten**
   (diese Bilder nur privat im Thread, nie in Repo, PR oder öffentlich; Block 8). Bei Grossem (Block 2) kann vorher ein Entwurf kommen; er ersetzt die Bilder der gebauten App nicht. Noah gibt die Bilder frei, die Freigabe geht an den Bündler, und **wenn die Prüfung grün ist und Platz ist, geht es online**.
 - **Bilder immer im App-Design** (Noah 24.11.2026 18:07 und 18:08: «ich habe das gefühl, dass das oft nicht der fall ist und die von dir gezeigten bilder deutlich von dem abweicht, wie es online nachher aussieht … das gilt immer überall»):
   - Bilder kommen **nur aus der echten, gebauten App mit dem neuen Stand** (derselbe Build wie online). Keine gezeichneten Skizzen, keine Bilder vom Entwicklungs-Server, die anders aussehen als online.
   - **Jedes Bild zeigt genau einen Bildschirm** mit Kopf und Leiste unten, keine ganze lange Seite.
+  - **Auch in der echten Laptop-Höhe** (Noah «ja» 24.11.2026 23:40): Noahs Mac zeigt mit Lesezeichenleiste eher 1440×800 als 1440×900. Die Bilder entstehen darum bei Handy 390, Laptop 1440×800 und Computer 1440×900, nicht nur in der Breite.
+  - **Fenster und Popups gehören dazu:** Hat der PR ein Fenster, wird es geöffnet und bis unten gescrollt gezeigt, auch eines, das nur zu bestimmten Zeiten erscheint (Block 7).
   - Daneben steht **immer dasselbe Bild der heutigen Online-Version** (vorher und nachher).
   - **Vor dem Senden prüft der Thread die Bilder selbst mit impeccable** gegen das App-Design (Farben, Schrift, Ecken, Abstände, Kopf und Leiste); weichen sie ab, wird zuerst die Aufnahme oder die App korrigiert.
 - **Freigaben immer mit Knöpfen** (Noah 24.11.2026 19:34: «freigabe ab sofort immer mit buttons»): Jede Frage an Noah, die eine Freigabe verlangt, geht als **Entscheid-Karte mit Knöpfen** an ihn, nicht als Frage im Text. Bei den Bildern heissen sie «Freigeben» und «Ändern»; **ein Druck auf «Freigeben» gilt als Merge-Freigabe** und geht an den Bündler. Das gilt für jede Freigabe-Frage, auch für Schliessen und Force-Push: der Knopf trägt dann den genauen Wortlaut («schliessen NNN», «Ja force push NNN»). Eine Frage mit a/b (Block 2) bleibt eine Frage; die Karte ist für Freigaben.
@@ -69,14 +74,19 @@ So fühlt sich die App für Nutzer an, auf jeder Seite:
 (Noah 23.11.2026 13:17, 20:46; Noah 24.11.2026 01:24, 02:24, 16:53, 17:19 und 18:07.)
 - **Live-Test im Browser** auf der echten Seite (Handy 390, Computer 1440), Prüfschritte durchgehen, Konsole lesen. Bei Fehler zuerst beheben.
 - **«Online» erst nach grünem Deploy** (GitHub Pages; bei `api/` auch Vercel «packgen» bereit und neu deployen). Die Meldung ist **eine Zeile** mit Thread-Link, Link zur Seite, Testanleitung, und die PR-Nummer in Worten.
-- **Bilder** (die Bilder vor dem Merge aus Block 5, mit ihren Regeln zum App-Design, und die Live-Bilder nach dem Merge): Handy und Computer, **App und Browser auf Deutsch**, die Bilder **zeigen die Änderung selbst**, nötigenfalls mit erfundenen Beispieldaten. Eine leere App zählt nicht. Wo möglich mit Noahs aktuellen Daten, dann nur privat im Thread (Block 8). Ablage `/mnt/project-files/online-bilder/<PR>/`; der Koordinator hängt sie an.
+- **Bilder** (die Bilder vor dem Merge aus Block 5, mit ihren Regeln zum App-Design, und die Live-Bilder nach dem Merge): Handy, Laptop-Höhe 1440×800 und Computer, **App und Browser auf Deutsch**, die Bilder **zeigen die Änderung selbst**, nötigenfalls mit erfundenen Beispieldaten. Eine leere App zählt nicht. Wo möglich mit Noahs aktuellen Daten, dann nur privat im Thread (Block 8). Ablage `/mnt/project-files/online-bilder/<PR>/`; der Koordinator hängt sie an.
 
 ## Block 7 · Tests
 
-(Noah 11.10.2026; 26.10.2026; Noah «a» 24.11.2026 15:18; Noah «2a» 24.11.2026 10:27, live seit 24.11.2026 mit PR 1679; Lessons 23./24.11.2026.)
+(Noah 11.10.2026; 26.10.2026; Noah «ja» 24.11.2026 23:40; Noah «a und b» 24.11.2026 23:38; Noah «a-c alle» 24.11.2026 22:19; Noah «a» 24.11.2026 15:18; Noah «2a» 24.11.2026 10:27, live seit 24.11.2026 mit PR 1679; Lessons 23./24.11.2026.)
 - **Lokal:** die eigenen Tests und die Tests der geänderten Seite. **Wer eine Seite umbaut, sucht vor dem PR auch alle fremden Tests, die diese Seite antippen** (Adresse, Überschrift, Beschriftung in `tests/`), und lässt sie lokal laufen. Der Gesamttest läuft auf GitHub.
 - **Nie lockern:** Kein Test wird übersprungen, abgeschaltet oder gelockert, um Grün zu bekommen. Ursache beheben, oder den Test mit Absicht anpassen, wenn sich die Oberfläche mit Absicht geändert hat.
 - **Volle Prüfung** nur einmal pro schwerem PR, am Schluss: **live seit 24.11.2026** (Thread «Tests schneller machen», PR 1679). Schwer = Daten, Backup, Sync, Speicher, `api/`, Build- und Workflow-Dateien und alles Unklare (Definition in `scripts/ci-scope.mjs`). Bis zum Label «voll» läuft nur die schnelle Stufe.
+- **Nachtlauf** (Noah «a-c alle» 24.11.2026 22:19, Vorschlag c): Jede Nacht laufen alle Tests einmal auf main (`volle-pruefung.yml`). Am Morgen, im Rundgang um 08:00 (Block 2), steht eine kurze Meldung an Noah, ob alles grün ist; ein roter Test kommt auf die Wackel-Liste (Block 4).
+- **Grössen** (Noah «ja» 24.11.2026 23:40): Tests und Bilder laufen zusätzlich in der Laptop-Höhe **1440×800** (Noahs Mac mit Lesezeichenleiste), nicht nur bei 390 und 1440×900.
+- **Fenster und Popups** (Noah «ja» 24.11.2026 23:40; Noah «a und b» 23:38): Der Gesamttest öffnet **jedes Fenster und Popup einmal und scrollt bis unten**, auch die, die nur zu bestimmten Zeiten erscheinen (zum Beispiel das Abend-Fenster). Dazu der Wächter «Nie abgeschnitten» (Block 1): Hauptknopf ganz sichtbar, kein Knopf am Rand angeschnitten, bei 390, 1440×800 und 1440×900.
+- **Zeitabhängiges** (Noah «ja» 24.11.2026 23:40): Was von der Uhrzeit abhängt, wird für **Morgen, Mittag, Abend und Nacht** nachgespielt und muss zur Uhrzeit passen (eine Traumfrage um 23:00 fällt nur so auf).
+- **Text-Durchsicht** (Noah «ja» 24.11.2026 23:40): Neue und geänderte Texte werden nach `docs/namen.md` und einer kleinen Schreib-Checkliste durchgesehen: **Grossschreibung**, **Einheiten wie «5 Std.»** statt «5h», und **jede Frage ist ohne Kontext verständlich**.
 - Befehle, Phone-Test-Mechanik (Label `ok`) und Lessons zu Wackel-Tests: `CLAUDE.md`.
 
 ## Block 8 · Privat und gratis
