@@ -78,7 +78,7 @@
     {/snippet}
     {#snippet row(r)}
       <label class="rc-icon"><input type="checkbox" checked={!!r.done} aria-label={t('Done: {name}', { name: r.text })} onchange={(e) => setPaper(r.id, { done: e.currentTarget.checked })} data-race-paper-done /></label>
-      <button type="button" class="rc-icon" aria-label={t('To my reminders: {name}', { name: r.text })} title={t('To my reminders')} onclick={() => remind(r)} data-race-paper-remind><BellPlus size={18} aria-hidden="true" /></button>
+      <button type="button" class="rc-icon" aria-label={t('To my reminders: {name}', { name: r.text })} title={t('To my reminders')} onclick={() => remind(r)} data-race-paper-remind><BellPlus size={20} aria-hidden="true" /></button>
     {/snippet}
     {#snippet fields(edit)}
       <label class="rc-lab">{t('Due on')}<input class="inp" type="date" value={paperDue(edit, start)} onchange={(e) => (edit.due = e.currentTarget.value)} /></label>

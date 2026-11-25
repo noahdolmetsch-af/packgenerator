@@ -86,16 +86,16 @@
 
   {#if !ready}
     <p class="card shop-need" role="note">
-      <Store size={18} aria-hidden="true" />
+      <Store size={20} aria-hidden="true" />
       <span>{t('The shop takes money by TWINT or QR bill to your account. Enter your account once under «New QR invoice».')} <a href="#/me/pay/invoices/new">{t('Enter account')}</a></span>
     </p>
   {/if}
 
   <div class="shop-bar">
-    <button class="btn hi" type="button" onclick={() => ((form = blank()), (formError = ''), (done = ''))}><Plus size={18} aria-hidden="true" />{t('New product')}</button>
+    <button class="btn hi" type="button" onclick={() => ((form = blank()), (formError = ''), (done = ''))}><Plus size={20} aria-hidden="true" />{t('New product')}</button>
     {#if products.length && ready}
-      <button class="btn" type="button" onclick={copyLink}><Link size={18} aria-hidden="true" />{t('Copy shop link')}</button>
-      <button class="btn" type="button" onclick={preview}><Eye size={18} aria-hidden="true" />{t('View as buyer')}</button>
+      <button class="btn" type="button" onclick={copyLink}><Link size={20} aria-hidden="true" />{t('Copy shop link')}</button>
+      <button class="btn" type="button" onclick={preview}><Eye size={20} aria-hidden="true" />{t('View as buyer')}</button>
     {/if}
   </div>
   {#if done}<p class="shop-done" role="status">{done}</p>{/if}
@@ -119,7 +119,7 @@
       <div class="shop-btns">
         <button class="btn hi" type="button" onclick={save}>{t('Save')}</button>
         <button class="btn" type="button" onclick={() => ((form = null), (formError = ''))}>{t('Cancel')}</button>
-        {#if form.id}<button class="btn btn-link sm" type="button" onclick={remove}><Trash2 size={15} aria-hidden="true" />{t('Remove')}</button>{/if}
+        {#if form.id}<button class="btn btn-link sm" type="button" onclick={remove}><Trash2 size={16} aria-hidden="true" />{t('Remove')}</button>{/if}
       </div>
     </section>
   {/if}
@@ -128,7 +128,7 @@
     <div class="shop-grid">
       {#each products as p (p.id)}
         <ProductCard {p}>
-          <button class="btn sm shop-edit" type="button" onclick={() => edit(p)} aria-label={t('Edit {name}', { name: p.name })}><Pencil size={15} aria-hidden="true" />{t('Edit')}</button>
+          <button class="btn sm shop-edit" type="button" onclick={() => edit(p)} aria-label={t('Edit {name}', { name: p.name })}><Pencil size={16} aria-hidden="true" />{t('Edit')}</button>
         </ProductCard>
       {/each}
     </div>

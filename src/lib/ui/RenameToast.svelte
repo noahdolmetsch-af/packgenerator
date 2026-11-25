@@ -49,7 +49,7 @@
         onfocusin={() => pauseToast(x.id)}
         onfocusout={() => resumeToast(x.id)}
       >
-        <Check size={18} aria-hidden="true" />
+        <Check size={20} aria-hidden="true" />
         <span>{x.text}</span>
         {#if x.undo}<button type="button" class={last ? 'undo' : 'undo-old'} onclick={() => undoToast(x.id)}><Undo2 size={16} aria-hidden="true" />{last ? t('Undo') : t('Take back|older note')}</button>{/if}
         {#if x.action}<button type="button" class="undo" onclick={() => actToast(x.id)} data-toast-action>{x.action}</button>{/if}
@@ -179,6 +179,24 @@
   @media (max-width: 719px) {
     .rstack {
       bottom: calc(84px + env(safe-area-inset-bottom));
+    }
+  }
+  /* a note with two buttons («Rückgängig» and «Ansehen») on a phone: the text keeps the whole line, the buttons wrap below it */
+  @media (max-width: 480px) {
+    .rtoast,
+    .rtoast-old {
+      flex-wrap: wrap;
+      gap: 0 8px;
+      padding-bottom: 0;
+    }
+    .rtoast span,
+    .rtoast-old span {
+      flex: 1 1 calc(100% - 100px);
+      padding: 8px 0;
+    }
+    .rtoast .close,
+    .rtoast-old .close {
+      margin-left: auto;
     }
   }
 </style>

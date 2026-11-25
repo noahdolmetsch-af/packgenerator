@@ -9,6 +9,7 @@
 import { test, expect } from './clock.js';
 import { openHome, homeFixture, day } from './home0460-fixture.js';
 import { QUESTIONS, ON_AT_START } from '../../src/lib/abfragen.js';
+import { saveRound, openRound } from './runde-fixture.js';
 
 const noSideways = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
 
@@ -22,9 +23,11 @@ function data(keep) {
 test.describe('Check-Fragen selbst bearbeiten', () => {
   test('CF1: skip one question in the Morgen-Check window', async ({ page, context }, info) => {
     const T = await openHome(page, context, info, { data: data(['erholung.akku', 'spass.emoji', 'erholung.schlaf', 'sport.beine']) });
-    const card = page.locator('[data-section="abfragen"]');
+    const card = await openRound(page);
     await expect(card).toHaveJSProperty('open', true);
-    await expect(card.locator('.dq')).toHaveCount(3);
+    // one question per screen (Noah 24.11.2026): the first of three
+    await expect(card.locator('.dq')).toHaveCount(1);
+    await expect(card.locator('[data-ab-step]')).toContainText(T('Question {n} of {m}', { n: 1, m: 3 }));
     // Noah 21.10.2026 «immer das datum und die uhrzeit der befragung»: the window names the day and the time
     await expect(card.locator('[data-ab-when]')).toHaveText(/^Fr\., 9\. Okt\. · 0?9:0\d$/);
     const firstQ = await card.locator('.dq').first().getAttribute('data-q');
@@ -37,7 +40,8 @@ test.describe('Check-Fragen selbst bearbeiten', () => {
     await card.screenshot({ path: '/tmp/claude-0/-home-user-packgenerator/5925335f-4f29-5d9a-ab44-6982c7e2bd10/scratchpad/skip-' + info.project.name + '.png' });
     await skip.click();
     await expect(card.locator(`[data-q="${firstQ}"]`)).toHaveCount(0);
-    await expect(card.locator('.dq')).toHaveCount(3); // the fourth one moved up
+    await expect(card.locator('.dq')).toHaveCount(1); // the next one moved up
+    await expect(card.locator('[data-ab-step]')).toContainText(T('Question {n} of {m}', { n: 1, m: 3 })); // still three: the fourth one moved up
     await noSideways(page);
   });
 
@@ -61,7 +65,7 @@ test.describe('Check-Fragen selbst bearbeiten', () => {
   test('CF3: edit, delete and add questions and groups', async ({ page, context }, info) => {
     const T = await openHome(page, context, info, { data: data([...ON_AT_START]) });
     await page.goto('./#/me/abfragen');
-    await expect(page.getByText('10 Bereiche · 105 Fragen · 30 an')).toBeVisible();
+    await expect(page.getByText('10 Bereiche · 106 Fragen · 31 an')).toBeVisible();
     await page.locator('[data-ab-edit]').click();
     await expect(page.locator('[data-area-row]')).toHaveCount(11);
     await page.screenshot({ path: '/tmp/claude-0/-home-user-packgenerator/5925335f-4f29-5d9a-ab44-6982c7e2bd10/scratchpad/edit-' + info.project.name + '.png', fullPage: false });
@@ -76,7 +80,7 @@ test.describe('Check-Fragen selbst bearbeiten', () => {
     await erholung.locator('[data-q="erholung.akku"] [data-q-delete]').click();
     await page.getByTestId('ask-delete').getByRole('button', { name: T('Delete'), exact: true }).click();
     await expect(erholung.locator('[data-q="erholung.akku"]')).toHaveCount(0);
-    await expect(page.getByText('10 Bereiche · 104 Fragen')).toBeVisible();
+    await expect(page.getByText('10 Bereiche · 105 Fragen')).toBeVisible();
     await page.locator('[data-ab-gone] summary').click();
     await page.locator('[data-q-restore="erholung.akku"]').click();
     await expect(erholung.locator('[data-q="erholung.akku"]')).toHaveCount(1);
@@ -103,7 +107,7 @@ test.describe('Check-Fragen selbst bearbeiten', () => {
     await del.getByRole('button', { name: T('Delete') }).click();
     await expect(page.locator('[data-area="spass"]')).toHaveCount(0);
     await expect(page.locator('[data-area="eigene"] [data-q]')).toHaveCount(10);
-    await expect(page.getByText(/· 106 Fragen ·/)).toBeVisible();
+    await expect(page.getByText(/· 107 Fragen ·/)).toBeVisible();
     await page.locator('[data-area="eigene"]').screenshot({ path: '/tmp/claude-0/-home-user-packgenerator/5925335f-4f29-5d9a-ab44-6982c7e2bd10/scratchpad/eigene-' + info.project.name + '.png' });
     await noSideways(page);
     await page.reload();
@@ -117,23 +121,31 @@ test.describe('Check-Fragen selbst bearbeiten', () => {
       { date: day(0), restingHr: 52.4, sleep: { asleepMin: 432 }, steps: 13100, hrvMs: 48, azm: 41, src: 'google' },
     ];
     const T = await openHome(page, context, info, { data: d, hour: 21 }); // the evening round: the window asks only about today
-    const card = page.locator('[data-section="abfragen"]');
+    const card = await openRound(page);
     await expect(card).toHaveJSProperty('open', true);
     // no «Fitbit · später» any more
     await expect(card.getByText(T('Fitbit · later'))).toHaveCount(0);
-    const rhr = card.locator('[data-q="koerper.ruhepuls"]');
-    await expect(rhr.getByRole('textbox')).toHaveValue('52');
-    await expect(rhr.locator('[data-fitbit="rhr"]')).toContainText(T('Fitbit: resting pulse {v}', { v: 52 }));
+    // Noah 24.11.2026: in the evening the morning question (resting pulse, 07:00) stays away; the movement of the day is asked
+    await expect(card.locator('[data-q="koerper.ruhepuls"]')).toHaveCount(0);
     // today's movement: 41 active zone minutes → mountain goat, chosen and changeable
     const move = card.locator('[data-q="sport.bewegung"]');
     await expect(move.getByRole('button', { name: T('Mountain goat'), exact: true })).toHaveAttribute('aria-pressed', 'true');
-    await card.locator('[data-ab-save]').click();
-    await expect(card.locator('[data-q="koerper.ruhepuls"]')).toHaveCount(0);
+    await saveRound(card);
     // the morning check page: the night from Fitbit
     await page.goto('./#/check/morning');
     const night = page.locator('[data-night]');
     await expect(night.locator('[data-num="sleep"]')).toContainText('7 h 12 min');
     await expect(night.locator('[data-num="rhr"]')).toContainText('52');
     await expect(night.locator('[data-num="hrv"]')).toContainText('48 ms');
+  });
+
+  test('CF4b: in the morning window Fitbit fills in the resting pulse', async ({ page, context }, info) => {
+    const d = data(['koerper.ruhepuls']);
+    d.tables.healthDays = [{ date: day(0), restingHr: 52.4, sleep: { asleepMin: 432 }, steps: 3100, azm: 4, src: 'google' }];
+    const T = await openHome(page, context, info, { data: d });
+    const card = await openRound(page);
+    const rhr = card.locator('[data-q="koerper.ruhepuls"]');
+    await expect(rhr.getByRole('textbox')).toHaveValue('52');
+    await expect(rhr.locator('[data-fitbit="rhr"]')).toContainText(T('Fitbit: resting pulse {v}', { v: 52 }));
   });
 });

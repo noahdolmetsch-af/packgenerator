@@ -138,22 +138,22 @@
         {#if won.length || cmp?.isBest}
           <section class="surf pad">
             {#each won as w (`${w.r.id}:${w.star}`)}
-              <p class="starc"><span class="si" aria-hidden="true"><Star size={22} /><b class="num">{w.star}</b></span><span><b>{t('Reached here: {name}, star {k}', { name: msName(w.r.m), k: w.star })}</b><small>{stageName(w.star)}</small></span></p>
+              <p class="starc"><span class="si" aria-hidden="true"><Star size={24} /><b class="num">{w.star}</b></span><span><b>{t('Reached here: {name}, star {k}', { name: msName(w.r.m), k: w.star })}</b><small>{stageName(w.star)}</small></span></p>
             {/each}
-            {#if cmp?.isBest && !won.length}<p class="starc"><span class="si" aria-hidden="true"><Star size={22} /></span><span><b>{t('New best time')}</b><small>{t('{n} min', { n: cmp.min })}</small></span></p>{/if}
+            {#if cmp?.isBest && !won.length}<p class="starc"><span class="si" aria-hidden="true"><Star size={24} /></span><span><b>{t('New best time')}</b><small>{t('{n} min', { n: cmp.min })}</small></span></p>{/if}
           </section>
         {/if}
         <section class="surf pad acts">
-          <button type="button" class="btn hi big" onclick={again} data-again><Play size={18} aria-hidden="true" />{running ? t('Open the running session') : t('Start like this again')}</button>
+          <button type="button" class="btn hi big" onclick={again} data-again><Play size={20} aria-hidden="true" />{running ? t('Open the running session') : t('Start like this again')}</button>
           {#if naming}
             <form class="addrow" onsubmit={saveTpl}>
               <label class="grow"><span class="sr">{t('Name of the template')}</span><input class="inp" bind:value={name} maxlength="40" data-tpl-name /></label>
               <button type="submit" class="btn">{t('Save')}</button>
             </form>
           {:else}
-            <button type="button" class="btn big" onclick={openName} data-as-tpl data-explain={t('Save as a template')}><Copy size={18} aria-hidden="true" />{t('As template|save')}</button>
+            <button type="button" class="btn big" onclick={openName} data-as-tpl data-explain={t('Save as a template')}><Copy size={20} aria-hidden="true" />{t('As template|save')}</button>
           {/if}
-          <a class="btn big" href="{base}/done/{encodeURIComponent(id)}?edit=1"><Pencil size={18} aria-hidden="true" />{t('Edit')}</a>
+          <a class="btn big" href="{base}/done/{encodeURIComponent(id)}?edit=1"><Pencil size={20} aria-hidden="true" />{t('Edit')}</a>
           <button type="button" class="lnk del" onclick={remove} data-delete>{t('Delete')}</button>
         </section>
       </div>
@@ -271,8 +271,6 @@
     margin: 0 0 8px;
     color: var(--warn);
     font: 700 var(--fs-tiny)/1.3 var(--font-body);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
   }
   .nt {
     margin: 0 0 12px;

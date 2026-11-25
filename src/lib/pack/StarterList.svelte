@@ -46,7 +46,7 @@
 {#if startersFor(domain).length}
   <button type="button" class="tp-fold st-row" onclick={() => (open = true)}>
     <ListChecks size={20} aria-hidden="true" /><span>{t('Suggestion list {sport}', { sport: kindText(trip, t) })}</span>
-    <span class="r"><i class="tp-badge num">{done}/{rows.length}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span>
+    <span class="r"><i class="tp-badge num">{done}/{rows.length}</i><ChevronRight class="chev" size={20} aria-hidden="true" /></span>
   </button>
 {/if}
 

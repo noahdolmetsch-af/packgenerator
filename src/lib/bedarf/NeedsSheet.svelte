@@ -215,6 +215,7 @@
     margin: 0;
     padding: 0;
     max-height: 40vh;
+    max-height: 40dvh;
     overflow-y: auto;
   }
   .nd-list li {

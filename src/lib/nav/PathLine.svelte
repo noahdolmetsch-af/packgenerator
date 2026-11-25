@@ -49,22 +49,31 @@
   // the «i» of the tab (Schritt 2): where it comes from, what belongs to it
   const tabInfo = $derived(infoOfTab(place, tabOf(place, hash)));
   // Etappe 2, 2a: not a step again when the title is the name of the place or of the tab
-  const last = $derived(pathLast(steps, title));
-  const showPath = $derived(!own && steps.length > 0 && (steps.length > 1 || !!last));
+  // the chips of the tab name pages too: a title that is the name of the chip you are on (Mein Tag) says nothing new
+  const chipSteps = $derived((PLACE_TABS[place] ?? []).find((x) => x.key === tabOf(place, hash))?.subs?.map((x) => ({ label: tabLabel(place, x) })) ?? []);
+  const last = $derived(pathLast([...steps, ...chipSteps], title));
+  // «Navigation schlank» (Noah 24.11.2026 «was ja»): the bar or sidebar names the place, the tabs name the tab and the chips name the page. The path says
+  // that a fourth time, so it stays away where those three show it; it comes when the page has a title of its own that goes deeper (a tour, a bike).
+  const tabs = $derived(PLACE_TABS[place] ?? []);
+  const said = $derived(tabs.length > 1);
+  const showPath = $derived(!own && steps.length > 0 && (steps.length > 1 || !!last) && (!said || !!last));
+  // the «i» of the tab stands at the end of the chips when there are chips (PlaceTabs.svelte); here only when there is no row of chips
+  const curTab = $derived(tabs.find((x) => x.key === tabOf(place, hash)));
+  const chipsShown = $derived((curTab?.subs?.length ?? 0) > 1 && curTab?.chips !== false);
 </script>
 
-{#if showPath || tabInfo}
+{#if showPath || (tabInfo && !chipsShown)}
   <div class="pathrow" data-pathrow>
     {#if showPath}
       <nav class="pathline" aria-label={t('Where you are')} data-pathline>
         {#each steps as s, n (n)}
-          {#if n > 0}<ChevronRight class="sep" size={12} aria-hidden="true" />{/if}
+          {#if n > 0}<ChevronRight class="sep" size={14} aria-hidden="true" />{/if}
           {#if n === steps.length - 1 && !last}<span aria-current="page">{s.label}</span>{:else}<a href={s.href}>{s.label}</a>{/if}
         {/each}
-        {#if last}<ChevronRight class="sep" size={12} aria-hidden="true" /><span aria-current="page">{last}</span>{/if}
+        {#if last}<ChevronRight class="sep" size={14} aria-hidden="true" /><span aria-current="page">{last}</span>{/if}
       </nav>
     {/if}
-    {#if tabInfo}<span class="pi"><InfoDot info={tabInfo} id={`tab.${place}`} /></span>{/if}
+    {#if tabInfo && !chipsShown}<span class="pi"><InfoDot info={tabInfo} id={`tab.${place}`} /></span>{/if}
   </div>
 {/if}
 

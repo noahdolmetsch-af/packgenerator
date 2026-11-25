@@ -32,10 +32,10 @@
   <div class="ic-top">
     <span class="ic-badge" data-type={link.type}>{t(TYPE[link.type]?.name ?? 'Guide|insp')}</span>
     <span class="ic-site">{site}</span>
-    <button type="button" class="ic-star" aria-pressed={!!link.star} aria-label={link.star ? t('Unstar {name}', { name: link.title }) : t('Star {name}', { name: link.title })} onclick={onstar}><Star size={18} aria-hidden="true" /></button>
+    <button type="button" class="ic-star" aria-pressed={!!link.star} aria-label={link.star ? t('Unstar {name}', { name: link.title }) : t('Star {name}', { name: link.title })} onclick={onstar}><Star size={20} aria-hidden="true" /></button>
   </div>
   {#if link.type === 'video'}
-    <div class="ic-art ic-video" aria-hidden="true"><span class="ic-play"><Play size={18} /></span></div>
+    <div class="ic-art ic-video" aria-hidden="true"><span class="ic-play"><Play size={20} /></span></div>
   {:else if link.type === 'route'}
     <svg class="ic-art" viewBox="0 0 320 76" preserveAspectRatio="none" aria-hidden="true">
       <path class="ic-hill" d="M0 58 C40 40 70 52 110 38 C150 24 190 42 230 30 C270 20 300 34 320 26 L320 76 L0 76 Z" />
@@ -108,8 +108,6 @@
     background: var(--hi-soft);
     color: var(--ink-2);
     font: 600 var(--fs-tiny) / 1.5 var(--font-body);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
   }
   .ic-badge[data-type='video'],
   .ic-badge[data-type='podcast'] {

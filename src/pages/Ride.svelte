@@ -602,7 +602,7 @@
   {#if $tripsQ?.length}<Empty icon={RouteIcon} title={t('No trip on the way today')} text={t('On the way shows a trip on its days. Plan or start one under Trips.')} action={{ label: t('To the trips'), href: '#/trips' }} />
   {:else if $tripsQ}<Empty icon={RouteIcon} title={t('No trips yet')} text={t('A trip is the packing list for one ride or journey.')} action={{ label: t('Create a trip'), onclick: () => newTrip('standard') }} action2={{ label: t('To the trips'), href: '#/trips' }} />{:else}<Skeleton rows={3} />{/if}
   <!-- Paket W 1119: «Wo steht mein Velo?» also without a trip (in town, at the station) -->
-  {#if $tripsQ}<p class="parked-solo"><button type="button" class="btn" onclick={() => (parkedOpen = true)} data-uw-parked><Bike size={18} aria-hidden="true" />{t('Bike parked')}</button></p>{/if}
+  {#if $tripsQ}<p class="parked-solo"><button type="button" class="btn" onclick={() => (parkedOpen = true)} data-uw-parked><Bike size={20} aria-hidden="true" />{t('Bike parked')}</button></p>{/if}
 {:else}
 <div class="ride trip-page">
   <TripBand {trip} tab="ride" {kicker} compact action={main.kind ? go : noteMain ? noteBtn : null} aside={main.kind ? pen : noteMain ? dayAside : null} extra={endLink} stateMore={running ? dayOf : ''} stepText={noteMain ? dayOf : ''} hint={main.kind === 'start' && openRide ? t('A recording of this trip is running since {time}. The blocks and the arrival count from then.', { time: nowStart }) : main.kind === 'start' ? t('Tap when you set off: the blocks and the arrival then count from now.') : main.kind === 'last' ? t('End the trip when you are back home.') : noteMain ? nextLine : ''} />
@@ -712,15 +712,15 @@
         <p class="ssub">{t('Live map, home, handlebar view, the sheet for the start')}</p>
         <div class="uw-helpers">
           <!-- Paket U3 «Live-Karte» (Noah 19.10.2026 «5a»): start the ride with the live map of this trip -->
-          <a class="btn uw-bigbtn" href={`#/live/${encodeURIComponent(trip.id)}`} data-live-start><Navigation size={22} aria-hidden="true" /><span>{t('Live map')}{#key trip.id}<NextShop tripId={trip.id} km={hereKm} />{/key}</span></a>
-          <button type="button" class="btn uw-bigbtn" onclick={() => (homeOpen = true)} data-uw-home><House size={22} aria-hidden="true" /><span>{t('Home|way')}<small>{t('trains and Maps')}</small></span></button>
-          <button type="button" class="btn uw-bigbtn" onclick={() => (lenkerOpen = true)} data-uw-lenker><Gauge size={22} aria-hidden="true" /><span>{t('Handlebar view')}<small>{t('big numbers, sideways')}</small></span></button>
-          {#if morning}<button type="button" class="btn uw-bigbtn uw-morning" onclick={() => ((sheetKind = 'morning'), (arrivedOpen = true))} data-uw-morning><Sunrise size={22} aria-hidden="true" /><span>{t('Riding on? Tell them')}<small>{t('you sent «Good night» yesterday')}</small></span></button>{/if}
-          <button type="button" class="btn uw-bigbtn" onclick={() => ((sheetKind = 'arrived'), (arrivedOpen = true))} data-uw-arrived><HeartHandshake size={22} aria-hidden="true" /><span>{t('Arrived safely')}<small>{t('a short message, ready to share')}</small></span></button>
+          <a class="btn uw-bigbtn" href={`#/live/${encodeURIComponent(trip.id)}`} data-live-start><Navigation size={24} aria-hidden="true" /><span>{t('Live map')}{#key trip.id}<NextShop tripId={trip.id} km={hereKm} />{/key}</span></a>
+          <button type="button" class="btn uw-bigbtn" onclick={() => (homeOpen = true)} data-uw-home><House size={24} aria-hidden="true" /><span>{t('Home|way')}<small>{t('trains and Maps')}</small></span></button>
+          <button type="button" class="btn uw-bigbtn" onclick={() => (lenkerOpen = true)} data-uw-lenker><Gauge size={24} aria-hidden="true" /><span>{t('Handlebar view')}<small>{t('big numbers, sideways')}</small></span></button>
+          {#if morning}<button type="button" class="btn uw-bigbtn uw-morning" onclick={() => ((sheetKind = 'morning'), (arrivedOpen = true))} data-uw-morning><Sunrise size={24} aria-hidden="true" /><span>{t('Riding on? Tell them')}<small>{t('you sent «Good night» yesterday')}</small></span></button>{/if}
+          <button type="button" class="btn uw-bigbtn" onclick={() => ((sheetKind = 'arrived'), (arrivedOpen = true))} data-uw-arrived><HeartHandshake size={24} aria-hidden="true" /><span>{t('Arrived safely')}<small>{t('a short message, ready to share')}</small></span></button>
           {#if days > 1}<button type="button" class="btn uw-bigbtn" onclick={() => ((sheetKind = 'night'), (arrivedOpen = true))} data-uw-night><Moon size={22} aria-hidden="true" /><span>{t('Good night')}<small>{t('where you sleep, whom to call in the morning')}</small></span></button>{/if}
-          <button type="button" class="btn uw-bigbtn" onclick={() => (parkedOpen = true)} data-uw-parked><Bike size={22} aria-hidden="true" /><span>{t('Bike parked')}<small>{t('photo, place, lock')}</small></span></button>
-          <a class="btn uw-bigbtn" href="#/ride/abfahrt" data-uw-sheet><FileText size={22} aria-hidden="true" /><span>{t('Before you leave|sheet')}<small>{t('offline and as PDF')}</small></span></a>
-          <div class="uw-glove"><span class="gl"><Hand size={18} aria-hidden="true" /> {t('Glove mode')}{#if glove.mode === 'auto' && glove.auto.on}<small> · {glove.auto.why === 'ski' ? t('on: ski tour') : t('on: below 5 °C')}</small>{/if}</span><Seg full={false} label={t('Glove mode')} options={GLOVE_MODES.map((g) => ({ key: g.key, name: t(g.name) }))} value={glove.mode} onchange={setGlove} /></div>
+          <button type="button" class="btn uw-bigbtn" onclick={() => (parkedOpen = true)} data-uw-parked><Bike size={24} aria-hidden="true" /><span>{t('Bike parked')}<small>{t('photo, place, lock')}</small></span></button>
+          <a class="btn uw-bigbtn" href="#/ride/abfahrt" data-uw-sheet><FileText size={24} aria-hidden="true" /><span>{t('Before you leave|sheet')}<small>{t('offline and as PDF')}</small></span></a>
+          <div class="uw-glove"><span class="gl"><Hand size={20} aria-hidden="true" /> {t('Glove mode')}{#if glove.mode === 'auto' && glove.auto.on}<small> · {glove.auto.why === 'ski' ? t('on: ski tour') : t('on: below 5 °C')}</small>{/if}</span><Seg full={false} label={t('Glove mode')} options={GLOVE_MODES.map((g) => ({ key: g.key, name: t(g.name) }))} value={glove.mode} onchange={setGlove} /></div>
         </div>
         <PasstHier place="ride" />
       </section>
@@ -894,22 +894,22 @@
           <!-- «Abendblick» (Noah 23.11.2026 «G2»): the evening before the last day: what was not used so far, what was missing; the marks of the debrief -->
           {#if abendShows(eve, trip)}
             <details class="tp-fold" data-fold="abend">
-              <summary><span class="ib" aria-hidden="true"><ListChecks size={18} /></span><span class="tw"><b>{t('Evening look')}</b><small>{t('what you did not use so far, what was missing')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+              <summary><span class="ib" aria-hidden="true"><ListChecks size={20} /></span><span class="tw"><b>{t('Evening look')}</b><small>{t('what you did not use so far, what was missing')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
               <div class="in">{#await import('../lib/unterwegs/Abendblick.svelte') then m}<m.default {trip} {items} />{/await}</div>
             </details>
           {/if}
         {/if}
         <!-- Paket K #322 «Wasser- und Essen-Rechner», #99 «Sonne, Mond und Orte», #312 «Umwandeln» -->
         <details class="tp-fold" data-fold="water">
-          <summary><span class="ib" aria-hidden="true"><Droplets size={18} /></span><span class="tw"><b>{t('Water and food')}</b><small>{t('for each day and the whole tour')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+          <summary><span class="ib" aria-hidden="true"><Droplets size={20} /></span><span class="tw"><b>{t('Water and food')}</b><small>{t('for each day and the whole tour')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
           <div class="in">{#await import('../lib/unterwegs/Wasser.svelte') then m}<m.default days={waterDays} bottles={bottlesL} food={foodList} />{/await}</div>
         </details>
         <details class="tp-fold" data-fold="sky">
-          <summary><span class="ib" aria-hidden="true"><Sparkles size={18} /></span><span class="tw"><b>{t('Sun, moon and places')}</b><small>{t('light, dark, and short texts about places on the way')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+          <summary><span class="ib" aria-hidden="true"><Sparkles size={20} /></span><span class="tw"><b>{t('Sun, moon and places')}</b><small>{t('light, dark, and short texts about places on the way')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
           <div class="in">{#await import('../lib/unterwegs/Himmel.svelte') then m}<m.default {trip} date={st?.date ?? today} place={sunPlace} />{/await}</div>
         </details>
         <details class="tp-fold" data-fold="convert">
-          <summary><span class="ib" aria-hidden="true"><FileCog size={18} /></span><span class="tw"><b>{t('Route for other devices')}</b><small>{t('GPX to FIT (Garmin) or KML')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+          <summary><span class="ib" aria-hidden="true"><FileCog size={20} /></span><span class="tw"><b>{t('Route for other devices')}</b><small>{t('GPX to FIT (Garmin) or KML')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
           <div class="in">{#await import('../lib/unterwegs/Umwandeln.svelte') then m}<m.default route={trip.route ?? null} />{/await}</div>
         </details>
         <!-- Paket K #1052: this trip's tour in komoot, one tap -->
@@ -957,7 +957,7 @@
   .wait h2 { margin: 0 0 4px; font: 600 var(--fs-sub) / 1.3 var(--font-body); }
   .wait p { margin: 0; }
   .dbox { display: grid; place-items: center; flex: none; width: 56px; height: 60px; border-radius: var(--r-ctl); background: var(--paper-2); color: var(--ink); }
-  .dbox small { font-size: var(--fs-tiny); text-transform: uppercase; color: var(--ink-3); }
+  .dbox small { font-size: var(--fs-tiny); color: var(--ink-3); }
   .dbox b { font: 700 var(--fs-section)/1 var(--font-body); }
   .parked-solo { display: flex; justify-content: center; margin: 12px 0; }
   .parked-solo .btn { display: inline-flex; align-items: center; gap: 6px; }

@@ -39,6 +39,10 @@ const KIND_WORDS = {
   touren: 'trip', trips: 'trip',
   material: 'gear', sachen: 'gear', gear: 'gear',
   velos: 'bike', bikes: 'bike',
+  fahrten: 'ride', rides: 'ride',
+  orte: 'place', places: 'place',
+  aufgaben: 'task', tasks: 'task',
+  erkenntnisse: 'learning',
   notizen: 'note', notes: 'note',
   tagebuch: 'diary', diary: 'diary',
   lernpunkte: 'log', logbuch: 'log', logbook: 'log',
@@ -134,19 +138,25 @@ export function closest(word, vocab) {
 }
 
 /** Groups of searchAll merged (first wins, the order kept), cut again to each kind's maximum. */
-function merge(lists) {
+function merge(lists, full = null) {
   const by = new Map();
-  for (const groups of lists)
-    for (const g of groups) {
+  lists.forEach((groups, n) =>
+    // a row only a similar word found (not the typed one) is a weak hit: shown last, and it never hides your own gear (Klügere Suche)
+    groups.forEach((g) => {
       const cur = by.get(g.kind) ?? { kind: g.kind, name: g.name, all: [], seen: new Set(), extra: 0 };
-      for (const r of g.rows) if (!cur.seen.has(r.id)) cur.seen.add(r.id), cur.all.push(r);
+      for (const r of g.rows) if (!cur.seen.has(r.id)) cur.seen.add(r.id), cur.all.push(n && !r.weak ? { ...r, weak: true } : r);
       cur.extra = Math.max(cur.extra, g.more ?? 0);
       by.set(g.kind, cur);
-    }
+    }),
+  );
   const order = Object.keys(KIND);
   return [...by.values()]
     .sort((a, b) => order.indexOf(a.kind) - order.indexOf(b.kind))
-    .map((g) => ({ kind: g.kind, name: g.name, rows: g.all.slice(0, KIND[g.kind].max), more: Math.max(0, g.all.length - KIND[g.kind].max) + g.extra }));
+    .map((g) => {
+      const uncut = full === g.kind || (Array.isArray(full) && full.includes(g.kind)); // one kind, or the kinds of one button (Klügere Suche)
+      const cap = uncut ? g.all.length : KIND[g.kind].max;
+      return { kind: g.kind, name: g.name, rows: g.all.slice(0, cap), more: Math.max(0, g.all.length - cap) + (uncut ? 0 : g.extra) };
+    });
 }
 
 /** A gear row as searchAll shows it (for a filter without words, «material unter 100 g»). */
@@ -180,7 +190,7 @@ export function smartSearch(q, data = {}) {
       if (r.some((g) => g.kind !== 'page' && g.kind !== 'action')) also.push(s), lists.push(r);
     }
   });
-  let groups = keep(merge(lists));
+  let groups = keep(merge(lists, data.full ?? null));
   let fixed = null;
   if (!groups.length) {
     const vocab = vocabulary(d);

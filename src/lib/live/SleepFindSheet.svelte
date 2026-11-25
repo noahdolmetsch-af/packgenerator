@@ -92,7 +92,7 @@
     {/each}
   </div>
   <div class="sf-acts">
-    <button type="button" class="btn hi" onclick={search} disabled={busy || !here} data-live-sleep-search><Search size={18} aria-hidden="true" />{busy ? t('Searching…') : loaded ? t('Search again') : t('Search around me')}</button>
+    <button type="button" class="btn hi" onclick={search} disabled={busy || !here} data-live-sleep-search><Search size={20} aria-hidden="true" />{busy ? t('Searching…') : loaded ? t('Search again') : t('Search around me')}</button>
   </div>
   {#if err}<p class="rc-warn" role="alert" data-live-sleep-error>{err}</p>{/if}
 
@@ -100,7 +100,7 @@
     <ul class="rc-list" data-live-sleep-list>
       {#each spots as s (s.id)}
         <li class="sf-row" data-live-sleep-spot={s.source}>
-          <Tent size={18} aria-hidden="true" />
+          <Tent size={20} aria-hidden="true" />
           <span class="sf-main">
             {#if editId === s.id}
               <form
@@ -184,9 +184,9 @@
     cursor: pointer;
   }
   .sf-chip[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   .sf-row {
     display: flex;

@@ -403,7 +403,7 @@
   <Missed {missed} {targets} name={planName} {hours} dayLabel={(d) => fmt(d, { weekday: 'long' })} onmove={moveMissed} onskip={skipMissed} />
   <TodayFits {plan} {today} level={$formQ?.ready?.level ?? null} name={planName} onlighter={lighterToday} />
   <section class="card goal" aria-labelledby="goal-h" data-section="goal">
-    <span class="gi" aria-hidden="true"><Target size={22} /></span>
+    <span class="gi" aria-hidden="true"><Target size={24} /></span>
     {#if goalForm}
       <form class="gf" onsubmit={keepGoal}>
         <h2 id="goal-h" class="gh">{t('Your training goal')}</h2>
@@ -447,9 +447,9 @@
       <div class="card plan" data-section="week-plan">
         <div class="nav">
           <span class="rg num" data-week-range>{weekAll.goalMins ? t('{range} · planned {a} of {b} h', { range, a: hours(weekAll.mins), b: hours(weekAll.goalMins) }) : t('{range} · planned {a} h', { range, a: hours(weekAll.mins) })}</span>
-          <button type="button" class="ib" aria-label={t('Week before')} onclick={() => ((monday = shiftDay(monday, -7)), (form = null))}><ChevronLeft size={18} aria-hidden="true" /></button>
+          <button type="button" class="ib" aria-label={t('Week before')} onclick={() => ((monday = shiftDay(monday, -7)), (form = null))}><ChevronLeft size={20} aria-hidden="true" /></button>
           {#if monday !== mondayOf(today)}<button type="button" class="btn btn-link sm" onclick={() => ((monday = mondayOf(today)), (form = null))}>{t('This week|plan')}</button>{/if}
-          <button type="button" class="ib" aria-label={t('Week after')} onclick={() => ((monday = shiftDay(monday, 7)), (form = null))}><ChevronRight size={18} aria-hidden="true" /></button>
+          <button type="button" class="ib" aria-label={t('Week after')} onclick={() => ((monday = shiftDay(monday, 7)), (form = null))}><ChevronRight size={20} aria-hidden="true" /></button>
         </div>
         <ul class="days">
           {#each days as d (d)}
@@ -734,6 +734,7 @@
   .cn {
     min-width: 0;
     overflow-wrap: break-word;
+    hyphens: auto; /* Gesamttest Runde 2, C6: a long word in a narrow chip breaks at a syllable with «-», not letter by letter */
     text-align: left;
   }
   .ch.done,

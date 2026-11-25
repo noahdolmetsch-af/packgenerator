@@ -15,7 +15,7 @@
 
 {#if phone}
   <label class={icon ? 'tb camb' : 'btn sm hi camb'} aria-label={icon ? t(label) : undefined} data-camera>
-    <Camera size={18} aria-hidden="true" />{#if !icon}{t(label)}{/if}<input type="file" accept="image/*" capture="environment" {onchange} {disabled} hidden />
+    <Camera size={20} aria-hidden="true" />{#if !icon}{t(label)}{/if}<input type="file" accept="image/*" capture="environment" {onchange} {disabled} hidden />
   </label>
 {/if}
 

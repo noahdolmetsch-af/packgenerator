@@ -90,15 +90,18 @@
       facts.hours != null ? [num(facts.hours), 'h'] : null,
       [String(facts.days), facts.days === 1 ? t('day') : t('days')],
     ].filter(Boolean);
-    stats.forEach(([v, u], i) => {
-      const x = 64 + i * 165;
+    // each figure gets the room it needs (a long number like 29'317 must not run into the next one)
+    let x = 64;
+    for (const [v, u] of stats) {
       g.fillStyle = ink;
       g.font = font(700, 54);
       g.fillText(v, x, TOP + 300);
+      const wv = g.measureText(v).width;
       g.fillStyle = ink2;
       g.font = font(400, 30);
       g.fillText(u, x, TOP + 344);
-    });
+      x += Math.max(wv, g.measureText(u).width) + 56;
+    }
     if (photo) line(g, fitLine(trip.route?.line ?? [], W - 300, TOP + 50, 240, 240), brand, 6);
     g.fillStyle = brand;
     g.fillRect(0, H - 24, W, 24);

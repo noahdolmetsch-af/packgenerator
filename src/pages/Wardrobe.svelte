@@ -19,7 +19,7 @@
   import { db } from '../lib/db.js';
   import { wardrobe, USES, LAYERS, ZONES, tempRange, tempKey, tempKits, CLOTHING_OFFSET, WEAR_RULE, wearRule, wardrobeGaps, gapWish, offsetLine, resetOffset, kitFromOutfit, rangeAround, barStyle } from '../lib/wardrobe.js';
   import { SETS_KEY, allSets } from '../lib/sets.js';
-  import { tick } from 'svelte';
+  import { tick, untrack } from 'svelte';
   import { slide } from 'svelte/transition';
   import { flip as flipMove } from '../lib/ui/flip.js';
   import { HOME_PLACE, HOME_FORECAST } from '../lib/know.js';
@@ -200,23 +200,23 @@
   let tidyOpen = $state(false);
   let tidyMore = $state({ range: false, everyday: false, twice: false });
   const KEEP = 'wardrobe.everydayKeep';
-  let kept = $state(
-    (() => {
+  // Noah 23.11.2026 («Abgleich sichern»): the choice «stays for cycling» is data, it lives in the settings so it reaches the other device
+  // (the list of ids; two devices that add different pieces keep both, sync/merge.js). The old copy in this browser is taken over once.
+  const keepQ = liveQuery(() => db.settings.get(KEEP));
+  const kept = $derived(Array.isArray($keepQ?.value) ? $keepQ.value : []);
+  const saveKept = (list) => db.settings.put({ key: KEEP, value: [...new Set(list)] });
+  $effect(() => {
+    if ($keepQ !== undefined) return; // the setting exists: nothing to take over
+    untrack(async () => {
       try {
-        const v = JSON.parse(localStorage.getItem(KEEP) ?? '[]');
-        return Array.isArray(v) ? v : [];
+        const old = JSON.parse(localStorage.getItem(KEEP) ?? 'null');
+        if (Array.isArray(old) && old.length && !(await db.settings.get(KEEP))) await saveKept(old);
+        localStorage.removeItem(KEEP);
       } catch {
-        return [];
+        /* private mode: nothing to take over */
       }
-    })(),
-  );
-  const saveKept = () => {
-    try {
-      localStorage.setItem(KEEP, JSON.stringify(kept));
-    } catch {
-      /* private mode: only this visit */
-    }
-  };
+    });
+  });
   const inView = $derived(new Set(w.all.map((i) => i.id)));
   const rangeList = $derived(use === 'everyday' ? [] : noRange(items).filter((r) => inView.has(r.item.id)));
   const everydayList = $derived(use === 'everyday' ? [] : everydayGuess(items, kept).filter((i) => inView.has(i.id)));
@@ -237,12 +237,9 @@
     if (res.n) offer(t('{name} → {where}', { name: nameOf(item), where: t('Everyday|use') }), res.snap);
   }
   function keepForBike(item) {
-    kept = [...kept, item.id];
-    saveKept();
-    offer(t('{name} stays for cycling.', { name: nameOf(item) }), null, () => {
-      kept = kept.filter((id) => id !== item.id);
-      saveKept();
-    });
+    const before = [...kept];
+    saveKept([...before, item.id]);
+    offer(t('{name} stays for cycling.', { name: nameOf(item) }), null, () => saveKept(before));
   }
   async function mergeTwice(g) {
     const [target, old] = g.items;
@@ -388,12 +385,12 @@
       <div class="wshare"><ShareBar label={t('Weight by layer')} parts={layerParts} fmt={kg} /></div>
       <!-- v0.45.0 (Noah, decision 8): what the debriefs taught, in words; hidden at 0. v0.47.0: a quiet chip. -->
       {#if offLine}
-        <p class="offset"><Thermometer size={15} aria-hidden="true" /><span class="num">{t(offLine.text, { n: offLine.n })}</span><button type="button" class="linkbtn" onclick={resetOff}>{t('Reset|offset')}</button></p>
+        <p class="offset"><Thermometer size={16} aria-hidden="true" /><span class="num">{t(offLine.text, { n: offLine.n })}</span><button type="button" class="linkbtn" onclick={resetOff}>{t('Reset|offset')}</button></p>
       {/if}
     </div>
     {#if suggestion.state !== 'none'}
       <!-- v0.47.0: the one main action of the page -->
-      <button type="button" class="btn hi wear-btn" aria-controls="w-today" onclick={showToday}><Sparkles size={18} aria-hidden="true" />{suggestion.win?.tomorrow ? t('What do I wear tomorrow?') : t('What do I wear today?')}{#if suggestion.state === 'ok'}<span class="num"> · {suggestion.outfit.c}°</span>{/if}</button>
+      <button type="button" class="btn hi wear-btn" aria-controls="w-today" onclick={showToday}><Sparkles size={20} aria-hidden="true" />{suggestion.win?.tomorrow ? t('What do I wear tomorrow?') : t('What do I wear today?')}{#if suggestion.state === 'ok'}<span class="num"> · {suggestion.outfit.c}°</span>{/if}</button>
     {/if}
   </header>
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the card, the tip of the day, at the end the example «Was trage ich bei wie viel Grad?».
@@ -493,7 +490,7 @@
       {#if w.unsorted.length}
         <section class="surf sort" aria-labelledby="sort-h">
           <button type="button" class="sort-h" aria-expanded={sortOpen} aria-controls="sort-list" onclick={() => (sortOpen = !sortOpen)}>
-            <span id="sort-h">{t('To sort')}</span><span class="pill act"><span class="r num">{w.unsorted.length}</span></span><span class="sp"></span><ChevronDown class={sortOpen ? 'chev up' : 'chev'} size={18} aria-hidden="true" />
+            <span id="sort-h">{t('To sort')}</span><span class="pill act"><span class="r num">{w.unsorted.length}</span></span><span class="sp"></span><ChevronDown class={sortOpen ? 'chev up' : 'chev'} size={20} aria-hidden="true" />
           </button>
           {#if sortOpen}
             <div id="sort-list">
@@ -530,7 +527,7 @@
       {#if tidyCount}
         <section class="surf tidy" aria-labelledby="tidy-h" data-tidy>
           <button type="button" class="sort-h" aria-expanded={tidyOpen} aria-controls="tidy-list" onclick={() => (tidyOpen = !tidyOpen)}>
-            <span id="tidy-h">{t('Tidy up')}</span><span class="pill act"><span class="r num">{tidyCount}</span></span><span class="sp"></span><ChevronDown class={tidyOpen ? 'chev up' : 'chev'} size={18} aria-hidden="true" />
+            <span id="tidy-h">{t('Tidy up')}</span><span class="pill act"><span class="r num">{tidyCount}</span></span><span class="sp"></span><ChevronDown class={tidyOpen ? 'chev up' : 'chev'} size={20} aria-hidden="true" />
           </button>
           {#if tidyOpen}
             <div id="tidy-list">
@@ -586,7 +583,7 @@
 
       {#if !w.unsorted.length && sortedHere}
         <!-- v0.47.0: the emptied to-do list says so once, calmly, with the next step -->
-        <p class="surf sortdone" id="sort-done" tabindex="-1" role="status"><Check size={18} aria-hidden="true" /><span>{t('Everything sorted.')}</span><button type="button" class="linkbtn" onclick={() => document.querySelector('.cols')?.scrollIntoView({ behavior: 'smooth' })}>{t('To the layers')}</button></p>
+        <p class="surf sortdone" id="sort-done" tabindex="-1" role="status"><Check size={20} aria-hidden="true" /><span>{t('Everything sorted.')}</span><button type="button" class="linkbtn" onclick={() => document.querySelector('.cols')?.scrollIntoView({ behavior: 'smooth' })}>{t('To the layers')}</button></p>
       {/if}
 
       <div class="bar">
@@ -607,7 +604,7 @@
       {#if fLayer || fZone}
         <p class="filt" role="status">
           <span>{t('Only {what}', { what: [fLayer ? layerName(fLayer) : null, fZone ? zoneName(fZone) : null].filter(Boolean).join(' · ') })}</span>
-          <button type="button" class="linkbtn" onclick={() => ((fLayer = null), (fZone = null))}><X size={15} aria-hidden="true" />{t('Show all|filter')}</button>
+          <button type="button" class="linkbtn" onclick={() => ((fLayer = null), (fZone = null))}><X size={16} aria-hidden="true" />{t('Show all|filter')}</button>
         </p>
       {/if}
 
@@ -636,7 +633,7 @@
                 <button type="button" class="ltog" aria-expanded={!shut} onclick={() => toggleLayer(l.key)}>
                   <span class="lt2"><b>{layerName(l.key)}</b> <small>{layerSub(l.key)}</small></span>
                   <span class="ln2 num">{l.n} · {formatWeight(l.g)}</span>
-                  <ChevronRight class={shut ? 'lchev' : 'lchev down'} size={18} aria-hidden="true" />
+                  <ChevronRight class={shut ? 'lchev' : 'lchev down'} size={20} aria-hidden="true" />
                 </button>
               </h2>
             {:else}
@@ -683,7 +680,7 @@
                   <Thermometer size={16} aria-hidden="true" />
                   <span class="gt num">{gapText(z.gap)}</span>
                   {#if z.gap.wished}<span class="gw"><Check size={14} aria-hidden="true" />{t('On the wishlist: {name}', { name: nameOf(z.gap.wished) })}</span>
-                  {:else}<button type="button" class="btn sm" onclick={() => addWish(z.gap)} data-explain={t('Add to wishlist')}><Heart size={15} aria-hidden="true" />{t('Wishlist|put')}</button>{/if}
+                  {:else}<button type="button" class="btn sm" onclick={() => addWish(z.gap)} data-explain={t('Add to wishlist')}><Heart size={16} aria-hidden="true" />{t('Wishlist|put')}</button>{/if}
                 </p>
               {/if}
             {/each}
@@ -1019,9 +1016,9 @@
     border-color: var(--warn);
   }
   .pin[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   .pin[aria-pressed='true'] .n,
   .pin[aria-pressed='true'] .gp {
@@ -1804,8 +1801,6 @@
     margin: 0;
     color: var(--hi);
     font: 600 var(--fs-label)/1.3 var(--font-body);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
   /* Etappe 6 (E6-006): in the dark theme the band is the light card of the page; the orange kicker was 1.9 : 1 on it */
   :global(:root[data-theme='dark']) .tband .tk {

@@ -65,7 +65,7 @@
   </section>
 {:else if tally}
   <section class="abr card abr-end" aria-labelledby="abr-end-h" data-sort-end>
-    <Check size={28} aria-hidden="true" />
+    <Check size={24} aria-hidden="true" />
     <h2 id="abr-end-h" class="abr-h" tabindex="-1" bind:this={headEl}>{tally.left ? t('Round done') : t('Inbox empty')}</h2>
     <p class="abr-sum num" data-abr-sum>
       {tn(tally.filed, '{n} filed', '{n} filed')} · {tn(tally.kept, '{n} kept', '{n} kept')} · {tn(tally.deleted, '{n} deleted', '{n} deleted')}{#if tally.skipped}{' · '}{tn(tally.skipped, '{n} skipped|round', '{n} skipped|round')}{/if}
@@ -153,8 +153,6 @@
     margin: 0;
     font-size: var(--fs-tiny);
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
     color: var(--ink-3);
   }
   .abr-what {

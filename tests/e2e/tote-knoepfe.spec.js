@@ -43,6 +43,8 @@ test('empty fields and no internet: every button answers', async ({ page, contex
   await expect(page.locator('[data-compass-empty]')).toHaveText(T('Write something first, then tap «+».'));
   // Hinweise: «Aktualisieren» offline
   await page.goto('./#/me/hinweise');
+  // the page is a lazy chunk: go offline only once it is on screen, or the missing chunk makes the app reload into the browser's offline page
+  await expect(page.locator('[data-news-refresh]')).toBeVisible();
   await context.setOffline(true);
   await page.locator('[data-news-refresh]').click();
   await expect(page.locator('[data-news-offline]')).toBeVisible();

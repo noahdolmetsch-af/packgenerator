@@ -39,7 +39,7 @@
 
 {#if over.length || msg}
   <section class="tp-card ro" aria-labelledby="ro-h" data-rules-over>
-    <h2 id="ro-h"><CalendarClock size={18} aria-hidden="true" /> {t('Should the rule stay?')}</h2>
+    <h2 id="ro-h"><CalendarClock size={20} aria-hidden="true" /> {t('Should the rule stay?')}</h2>
     <ul class="ro-list">
       {#each over as r (r.key)}
         <li data-rule-over={r.key}>
@@ -54,7 +54,7 @@
     {#if msg}<p class="ro-msg tp-small" role="status">{msg}</p>{/if}
   </section>
 {:else if hint}
-  <p class="tp-small tp-muted ro-hint" data-rule-until-hint><CalendarClock size={15} aria-hidden="true" /> <b>{t('Rule with an end')}</b>: {t('a rule can hold only for one tour or until a day. Tap a rule and choose under «Holds».')}</p>
+  <p class="tp-small tp-muted ro-hint" data-rule-until-hint><CalendarClock size={16} aria-hidden="true" /> <b>{t('Rule with an end')}</b>: {t('a rule can hold only for one tour or until a day. Tap a rule and choose under «Holds».')}</p>
 {/if}
 
 <style>

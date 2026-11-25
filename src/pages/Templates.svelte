@@ -243,7 +243,7 @@
               {#each sources as s, i (s.trip.id)}
                 {#if s.state === 'plan' && i > 0 && sources[i - 1].state !== 'plan'}<li class="subh" data-src-planned>{t('Still planned')}</li>{/if}
                 <li class="srow" data-src={s.trip.id}>
-                  <span class="sib {s.state}" aria-hidden="true">{#if s.state === 'plan'}<Pencil size={18} />{:else if s.state === 'rated'}<Star size={18} />{:else}<Mountain size={18} />{/if}</span>
+                  <span class="sib {s.state}" aria-hidden="true">{#if s.state === 'plan'}<Pencil size={20} />{:else if s.state === 'rated'}<Star size={20} />{:else}<Mountain size={20} />{/if}</span>
                   <span class="sm">
                     <b>{s.trip.title}</b>
                     <small>{s.state === 'done' ? t('possible after the debrief') : [tn(s.trip.entries?.length ?? 0, '{n} item', '{n} items'), s.state === 'plan' ? t('as planned') : t('as ridden')].join(' · ')}</small>
@@ -263,7 +263,7 @@
             <ul class="card slist">
               {#each archived as tp (tp.id)}
                 <li class="srow row arch">
-                  <span class="sib" aria-hidden="true"><Archive size={18} /></span>
+                  <span class="sib" aria-hidden="true"><Archive size={20} /></span>
                   <a class="sm main" href="#/pack/templates/{encodeURIComponent(tp.id)}"><b>{tp.name}</b><small>{lineOf(tp, setsValue)}</small></a>
                   <span class="rowacts">
                     <Btn kind="quiet" label={t('Bring back')} onclick={() => restore(tp)} />
@@ -320,9 +320,9 @@
     cursor: pointer;
   }
   .chip[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .chip small {
     font-weight: 400;

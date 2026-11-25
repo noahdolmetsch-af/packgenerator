@@ -142,7 +142,7 @@
     <section class="wcard" aria-labelledby="piece-h" data-setup-card>
       <p class="cap">{t('Piece {n}', { n: done + 1 })}</p>
       <div class="top">
-        {#if cur.item.photo}<img class="ph" src={cur.item.photo} alt="" />{:else}<span class="ph blank" aria-hidden="true"><Shirt size={26} /></span>{/if}
+        {#if cur.item.photo}<img class="ph" src={cur.item.photo} alt="" />{:else}<span class="ph blank" aria-hidden="true"><Shirt size={24} /></span>{/if}
         <div>
           <h2 id="piece-h">{nameOf(cur.item)}</h2>
           <p class="note num">{[weight(cur.item), cur.used ? tn(cur.used, 'taken on {n} trip', 'taken on {n} trips') : t('not on a trip yet')].filter(Boolean).join(' · ')}</p>
@@ -209,7 +209,7 @@
   .pbar { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
   .pbar i { display: block; height: 100%; background: var(--accent); border-radius: 4px; transition: width 0.25s var(--ease-out, ease-out); }
   .wcard { background: var(--paper); border: 1px solid var(--card-line, var(--line)); border-radius: var(--radius-card, 12px); padding: var(--sp-5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-3); }
-  .cap { margin: 0; font-size: var(--fs-tiny); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; }
+  .cap { margin: 0; font-size: var(--fs-tiny); color: var(--ink-3); font-weight: 600; }
   .top { display: flex; gap: var(--sp-4); align-items: center; }
   .top > div { min-width: 0; }
   h2 { margin: 0; font-size: var(--fs-sub); overflow-wrap: break-word; }

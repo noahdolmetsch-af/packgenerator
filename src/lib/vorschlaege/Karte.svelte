@@ -6,12 +6,12 @@
    */
   import K from './data/kantone.js';
   import { REGIONS } from './regeln.js';
-  import { pathOf, toXY, ZURICH, countBy, sizes, tipPos } from './karte.js';
+  import { pathOf, toXY, ZURICH, countBy, sizes, tipPos, viewOf } from './karte.js';
   import { hoursOf, splitHours } from './regeln.js';
   import { t, num } from '../i18n.svelte.js';
 
   /** pace: your own pace (for the time on the hover card). */
-  let { tours = [], grey = [], regions = [], onregion = () => {}, region = (key) => key, pace = null } = $props();
+  let { tours = [], grey = [], regions = [], onregion = () => {}, region = (key) => key, pace = null, light = {}, lightText = {}, lightDay = '' } = $props();
   let cw = $state(0);
   // The hover card (Noah 23.11.2026 «mouseover soll gleich wichtigste daten zeigen»): the mouse over a dot, or the focus on it; on a touch screen
   // the first tap shows the card and the line, the second tap (or the link in the card) opens the tour. The line of that tour is thick, the others pale.
@@ -19,8 +19,11 @@
   let figH = $state(0);
   const byId = $derived(new Map(tours.map((x) => [x.id, x])));
   const tipTour = $derived(tip ? byId.get(tip) ?? null : null);
-  const scale = $derived(cw ? cw / K.w : 1);
-  const tipAt = $derived(tipTour ? tipPos([toXY(tipTour.line[0])[0] * scale, toXY(tipTour.line[0])[1] * scale], [cw, figH || cw * (K.h / K.w)]) : null);
+  // chosen cantons: the map zooms to them (Noah 25.11.2026), dots and text stay the same size on the screen
+  const view = $derived(viewOf(K.paths, regions));
+  const zoomed = $derived(view.w < K.w);
+  const scale = $derived(cw ? cw / view.w : 1);
+  const tipAt = $derived(tipTour ? tipPos([(toXY(tipTour.line[0])[0] - view.x) * scale, (toXY(tipTour.line[0])[1] - view.y) * scale], [cw, figH || cw * (view.h / view.w)]) : null);
   const timeText = (h) => {
     const { h: hh, min } = splitHours(h);
     return min ? t('{h} h {min}', { h: hh, min }) : t('{h} h|tour', { h: hh });
@@ -36,16 +39,21 @@
       tip = id;
     }
   };
-  const z = $derived(sizes(cw ? cw / K.w : 1));
+  const z = $derived(sizes(scale));
   const greySet = $derived(new Set(grey));
   const count = $derived(countBy(tours));
-  const drawn = $derived(tours.map((x) => ({ id: x.id, title: x.title, hard: x.cond === 'difficult', grey: greySet.has(x.id), d: pathOf(x.line), start: toXY(x.line[0]) })));
+  // very many starts on the whole map (Noah 25.11.2026): smaller dots and no weather rings, the rings come back as soon as a canton is chosen
+  const crowd = $derived(!zoomed && tours.filter((x) => !x.days).length > 200);
+  const dotR = $derived(z.dot * (crowd ? 0.8 : 1));
+  const lit = $derived(Object.keys(light).length > 0 && !crowd);
+  // day tours start where their first stage starts: the map draws the stages only (the numbers per canton count both)
+  const drawn = $derived(tours.filter((x) => !x.days).map((x) => ({ id: x.id, title: x.title, light: light[x.id] ?? null, hard: x.cond === 'difficult', grey: greySet.has(x.id), d: pathOf(x.line), start: toXY(x.line[0]) })));
 </script>
 
 <figure class="karte" bind:clientWidth={cw} data-vs-karte>
   <div class="frame" bind:clientHeight={figH}>
   <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
-  <svg viewBox="0 0 {K.w} {K.h}" role="group" aria-label={t('Map of Switzerland with the tours of the list')} onclick={(e) => e.target.closest?.('a') || (tip = null)}>
+  <svg viewBox="{view.x} {view.y} {view.w} {view.h}" role="group" aria-label={t('Map of Switzerland with the tours of the list')} onclick={(e) => e.target.closest?.('a') || (tip = null)}>
     {#each REGIONS as r (r.key)}
       {#if K.paths[r.key]}
         <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
@@ -57,8 +65,9 @@
     {/each}
     {#each drawn as x (x.id)}
       <a href={`#/trips/vorschlaege/${x.id}`} aria-label={x.title} data-explain="off" data-vs-dot={x.id} onpointerenter={(e) => onEnter(x.id, e)} onpointerleave={onLeave} onfocus={() => touch() || (tip = x.id)} onblur={() => (tip = null)} onclick={(e) => onTap(x.id, e)}>
-        <circle cx={x.start[0]} cy={x.start[1]} r={z.dot * 1.4} class="hit" />
-        <circle cx={x.start[0]} cy={x.start[1]} r={z.dot} class="dot" class:hard={x.hard} class:grey={x.grey} stroke-width={z.dot * 0.3} />
+        <circle cx={x.start[0]} cy={x.start[1]} r={z.hit} class="hit" />
+        {#if x.light && !crowd}<circle cx={x.start[0]} cy={x.start[1]} r={dotR * 1.9} class="ring {x.light}" stroke-width={dotR * 0.4} data-vs-ring={x.light} />{/if}
+        <circle cx={x.start[0]} cy={x.start[1]} r={dotR} class="dot" class:hard={x.hard} class:grey={x.grey} stroke-width={dotR * 0.3} />
       </a>
     {/each}
     {#each REGIONS as r (r.key)}
@@ -72,6 +81,7 @@
     <circle cx={ZURICH[0]} cy={ZURICH[1]} r={z.dot * 1.6} class="zh" />
     <text x={ZURICH[0] - z.dot * 2.4} y={ZURICH[1] + z.font * 0.35} font-size={z.font * 1.05} class="zt" text-anchor="end">{t('Zurich|tour')}</text>
   </svg>
+  {#if zoomed}<button type="button" class="all" data-vs-karte-all onclick={() => regions.forEach((k) => onregion(k))}>{t('Whole Switzerland')}</button>{/if}
   {#if tipTour && tipAt}
     <div class="tip" role="status" style:left="{tipAt.left}px" style:top="{tipAt.top}px" style:width="{tipAt.width}px" data-vs-tip={tipTour.id}>
       <b>{tipTour.title}</b>
@@ -80,6 +90,7 @@
         {#if tipTour.cond}<i class="tp" data-lv={tipTour.cond}>{t('Fitness|tour')}: {t(LEVEL_NAME[tipTour.cond])}</i>{/if}
         {#if tipTour.tech}<i class="tp" data-lv={tipTour.tech}>{t('Skill|tour')}: {t(LEVEL_NAME[tipTour.tech])}</i>{/if}
       </span>
+      {#if lightText[tipTour.id]}<span class="twx" data-vs-tip-wx>{lightText[tipTour.id]}</span>{/if}
       <a class="topen" href={`#/trips/vorschlaege/${tipTour.id}`}>{t('Open the tour')}</a>
     </div>
   {/if}
@@ -88,6 +99,7 @@
     <span class="key"><i class="kswatch hard"></i>{t('Fitness|tour')}: {t('Difficult|level')}</span>
     <span class="key"><i class="kswatch"></i>{t('Fitness|tour')}: {t('Medium|level')}</span>
     {#if grey.length}<span class="key"><i class="kswatch grey"></i>{t('Snow likely')}</span>{/if}
+    {#if lit}<span class="key" data-vs-ring-key>{t('Ring = weather {day}', { day: lightDay })}: <i class="kring good"></i>{t('Fits|wx')} <i class="kring fair"></i>{t('With care|wx')} <i class="kring bad"></i>{t('Better not|wx')}</span>{/if}
     <span class="note">{t('Dot = start, line = tour. The number is how many tours the canton has in the list. Point at a dot to see the numbers, click it to open the tour; on a phone tap once for the numbers and again to open. Tap a canton to show only its tours.')} {t('Map: © swisstopo, SchweizMobil (ASTRA).')}</span>
   </figcaption>
 </figure>
@@ -103,6 +115,9 @@
     --k-mid: #2563eb;
     --k-hard: #c2410c;
     --k-grey: #9ca3af;
+    --k-good: #15803d;
+    --k-fair: #ca8a04;
+    --k-bad: #b91c1c;
     --k-zh: #111827;
     --k-text: #374151;
     --k-shadow: #0000002e;
@@ -117,6 +132,7 @@
   .ln.hot { opacity: 1; }
   .ln.dim { opacity: 0.18; }
   .frame { position: relative; }
+  .all { position: absolute; top: 8px; left: 8px; z-index: 1; min-height: 32px; padding: 0 12px; border: 1px solid var(--k-border); border-radius: var(--r-pill); background: var(--k-paper); color: var(--k-text); font: inherit; font-size: var(--fs-small); font-weight: 600; cursor: pointer; }
   .tip { position: absolute; z-index: 2; display: grid; gap: 4px; padding: 8px 10px; background: var(--k-paper); color: var(--k-text); border: 1px solid var(--k-border); border-radius: 10px; box-shadow: 0 4px 14px var(--k-shadow); font-size: var(--fs-small); }
   .tip b { overflow-wrap: break-word; }
   .tnums { display: flex; flex-wrap: wrap; gap: 2px 12px; }
@@ -128,6 +144,14 @@
   .dot.hard { fill: var(--k-hard); }
   .dot.grey { fill: var(--k-grey); }
   .hit { fill: transparent; }
+  .ring { fill: none; pointer-events: none; }
+  .ring.good { stroke: var(--k-good); }
+  .ring.fair { stroke: var(--k-fair); }
+  .ring.bad { stroke: var(--k-bad); stroke-dasharray: 3 2; }
+  .kring { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 3px solid var(--k-good); vertical-align: -2px; margin-inline: 2px 0; }
+  .kring.fair { border-color: var(--k-fair); }
+  .kring.bad { border-color: var(--k-bad); border-style: dashed; }
+  .twx { font-weight: 600; }
   a { cursor: pointer; }
   .zh { fill: var(--k-zh); }
   .zt { font-weight: 700; fill: var(--k-zh); }

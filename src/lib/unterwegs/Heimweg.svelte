@@ -76,7 +76,7 @@
     <p class="uw-p">{t('The app needs your home place to find the way home. It stays on this device.')}</p>
     <div class="vd-foot"><button type="button" class="btn hi" onclick={() => (setHome = true)}><MapPin size={16} aria-hidden="true" />{t('Set home place')}</button></div>
   {:else}
-    <h3 class="uw-h3"><Train size={18} aria-hidden="true" /> {t('Next trains home')}</h3>
+    <h3 class="uw-h3"><Train size={20} aria-hidden="true" /> {t('Next trains home')}</h3>
     {#if busy}
       <p class="uw-p tp-muted" role="status">{t('Looking for your location and the trains …')}</p>
     {:else if res?.list?.length}

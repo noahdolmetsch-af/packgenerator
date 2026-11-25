@@ -69,7 +69,7 @@
 </script>
 
 <section class="vig" aria-labelledby="vig-h-{bike.id}" data-velo-card>
-  <h3 id="vig-h-{bike.id}"><Wrench size={18} aria-hidden="true" />{t('Bike service')}</h3>
+  <h3 id="vig-h-{bike.id}"><Wrench size={20} aria-hidden="true" />{t('Bike service')}</h3>
   <p class="lead">{t('The service of the whole bike: by km, riding hours or days, whichever comes first.')}</p>
 
   <div class="row hours" data-velo-hours>

@@ -74,12 +74,19 @@ test('Woche: the days with their kinds, chips hide a kind, a to-do is ticked, a 
   await expect(page.locator('[data-sugg="todo:test_data_gtp_t2"]')).toHaveCount(0);
   await page.getByRole('button', { name: T('Undo') }).first().click();
   await expect(page.locator('[data-sugg="todo:test_data_gtp_t2"]')).toBeVisible();
-  // «Never suggest» (Noah 2.11.2026 «b»): away for good, back with «Show again»
-  await page.locator('[data-sugg="todo:test_data_gtp_t2"] [data-sg-never]').click();
-  await expect(page.locator('[data-sugg="todo:test_data_gtp_t2"]')).toHaveCount(0);
-  await page.locator('[data-sg-never-list] > summary').click();
-  await page.locator('[data-sg-again="todo:test_data_gtp_t2"]').click();
-  await expect(page.locator('[data-sugg="todo:test_data_gtp_t2"]')).toBeVisible();
+  // Warteliste F3: an own to-do without a day is no app idea: it says so and has «Remove» instead of «Never suggest»
+  const own = page.locator('[data-sugg="todo:test_data_gtp_t2"]');
+  await expect(own.locator('small')).toContainText(T('Your to-do, no day yet · fits {day}', { day: '' }).split(' · ')[0]);
+  await expect(own.locator('[data-sg-never]')).toHaveCount(0);
+  // Warteliste F4: removing asks first; «Cancel» keeps it, «Delete» removes it with Undo
+  await own.locator('[data-sg-remove]').click();
+  await page.getByTestId('ask-delete').getByRole('button', { name: T('Cancel'), exact: true }).click();
+  await expect(own).toBeVisible();
+  await own.locator('[data-sg-remove]').click();
+  await page.getByTestId('ask-delete').getByRole('button', { name: T('Delete'), exact: true }).click();
+  await expect(own).toHaveCount(0);
+  await page.getByRole('button', { name: T('Undo') }).first().click();
+  await expect(own).toBeVisible();
   // «Change season ideas» (Noah 2.11.2026 «c»): add an own idea for October; it shows as a suggestion; delete asks and has Undo
   await page.locator('[data-sg-ideas] > summary').click();
   await page.locator('[data-season-add]').click();
@@ -94,6 +101,13 @@ test('Woche: the days with their kinds, chips hide a kind, a to-do is ticked, a 
     return page.locator('[data-sugg^="season:own"]').count();
   }).toBe(1);
   await expect(page.locator('[data-sugg^="season:own"]')).toContainText('test_data_gtp_ Zelt prüfen');
+  // «Never suggest» (Noah 2.11.2026 «b»): away for good, back with «Show again» (an app idea, not an own to-do)
+  const ref = await page.locator('[data-sugg^="season:own"]').getAttribute('data-sugg');
+  await page.locator(`[data-sugg="${ref}"] [data-sg-never]`).click();
+  await expect(page.locator(`[data-sugg="${ref}"]`)).toHaveCount(0);
+  await page.locator('[data-sg-never-list] > summary').click();
+  await page.locator(`[data-sg-again="${ref}"]`).click();
+  await expect(page.locator(`[data-sugg="${ref}"]`)).toBeVisible();
   await page.locator('[data-season-row^="own"] [data-season-del]').click();
   await page.getByTestId('ask-delete').getByRole('button', { name: T('Delete'), exact: true }).click();
   await expect(page.locator('[data-sugg^="season:own"]')).toHaveCount(0);
@@ -198,6 +212,29 @@ test('Ferien: entered once, the training plan pauses and the packing list comes 
   // the packing list as a to-do today (the day before)
   await expect(page.locator(`[data-day="${day(0)}"] [data-kind="todo"]`).filter({ hasText: 'test_data_gtp_ Jura' })).toHaveCount(1);
   await expect(page.locator(`[data-day="${day(1)}"] [data-kind="away"]`).filter({ hasText: 'test_data_gtp_ Jura' })).toHaveCount(1);
+});
+
+test('Ferien: deleting a stay waits in Recently deleted and comes back with Back', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info, { data: weekFixture() });
+  await page.goto('./#/week/away');
+  await page.locator('[data-add-away]').click();
+  const form = page.locator('[data-away-form]');
+  await form.getByLabel(T('From|away')).fill(day(1));
+  await form.getByLabel(T('To|away')).fill(day(2));
+  await form.getByLabel(T('Name')).fill('test_data_gtp_ Jura');
+  await form.getByRole('button', { name: T('Save') }).click();
+  const row = page.locator('[data-away]', { hasText: 'test_data_gtp_ Jura' });
+  await expect(row).toHaveCount(1);
+  await row.click();
+  await page.locator('[data-away-form]').getByRole('button', { name: T('Delete'), exact: true }).click();
+  await expect(row).toHaveCount(0);
+  await page.goto('./#/me/trash');
+  const rows = page.locator('[data-trash-row]');
+  await expect(rows).toHaveCount(1);
+  await expect(rows.first()).toContainText('test_data_gtp_ Jura');
+  await rows.first().locator('[data-trash-back]').click();
+  await page.goto('./#/week/away');
+  await expect(page.locator('[data-away]', { hasText: 'test_data_gtp_ Jura' })).toHaveCount(1);
 });
 
 test('Content: weather per day, the rainy long ride moves, last week, load hints and trip to-dos', async ({ page, context }, info) => {

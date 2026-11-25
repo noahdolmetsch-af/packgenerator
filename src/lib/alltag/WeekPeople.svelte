@@ -19,7 +19,7 @@
 
 {#if due.length}
   <a class="wp" href="{ALLTAG_HASH}/menschen" data-week-people>
-    <Users size={18} aria-hidden="true" />
+    <Users size={20} aria-hidden="true" />
     <span><b>{t('Not seen for a while')}</b><small>{due.map((p) => p.name).join(', ')}</small></span>
     <ChevronRight size={16} aria-hidden="true" />
   </a>

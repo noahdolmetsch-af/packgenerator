@@ -11,11 +11,14 @@
    * «Neuer Schwung» Laden und leer (block B11, Noah 27.10.2026 «1a 2a 3a», «alle anderen Vorschläge umsetzen»):
    * with an icon the block shows a small drawn picture (a soft card with two lines, the icon in a bubble on its
    * corner) that rises in gently when the view opens; still with «Bewegung reduzieren».
+   * «Leere Zustände» (Noah 24.11.2026 «3a»): `size="klein"` is for a part INSIDE a page that has nothing yet (a block, a list under a
+   * heading): no picture, no card, one calm sentence that says why it is empty, and one quiet text button that says what to do now
+   * (`action`: { label, href?, onclick? }). A whole empty page keeps the big scene. `icon`, `title`, `scene` and `action2` are ignored.
    */
   import Murmeltier from '../murmeltier/Murmeltier.svelte'; // «Ein Murmeltier als Begleiter» (Idee 28)
   import { ops } from '../bedienung.svelte.js';
   import { SCENES, sceneFor } from './emptyscene.js';
-  let { text, title = '', level = 0, headId = undefined, action = null, action2 = null, icon = null, children = null, scene = '' } = $props();
+  let { text, title = '', level = 0, headId = undefined, action = null, action2 = null, icon = null, children = null, scene = '', size = 'gross' } = $props();
   // «Leere Seiten mit Velo-Szenen» (Noah 03.11.2026 «b», Paket D, Idee 19): the drawing is a small scene of the bike world
   // (a bike on the wall, a tent under stars, an empty bike rack); the page's area picks it, `scene` forces one.
   const which = $derived(SCENES.includes(scene) ? scene : sceneFor(globalThis.location?.hash));
@@ -26,6 +29,16 @@
   {:else}<button type="button" class="btn" class:hi={main} onclick={a.onclick} data-explain={a.explain}>{a.label}</button>{/if}
 {/snippet}
 
+{#if size === 'klein'}
+  <div class="empty-k" data-empty data-empty-small>
+    <p>{text}</p>
+    {#if action}
+      {#if action.href}<a class="act" href={action.href} onclick={action.onclick} data-explain={action.explain}>{action.label}</a>
+      {:else}<button type="button" class="act" onclick={action.onclick} data-explain={action.explain}>{action.label}</button>{/if}
+    {/if}
+    {#if children}<div class="more">{@render children()}</div>{/if}
+  </div>
+{:else}
 <div class="empty" data-empty>
   {#if icon}{@const Icon = icon}
     <span class="pic" aria-hidden="true" data-empty-pic>
@@ -58,6 +71,7 @@
   {/if}
   {#if children}<div class="more">{@render children()}</div>{/if}
 </div>
+{/if}
 
 <style>
   .empty {
@@ -164,6 +178,37 @@
     flex-wrap: wrap;
     justify-content: center;
     gap: var(--sp-2);
+  }
+  /* the small kind: a part of a page that has nothing yet */
+  .empty-k {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 var(--sp-3);
+    padding: var(--sp-2) 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .empty-k p {
+    max-width: 36em;
+    font-size: var(--fs-small);
+  }
+  .act {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 var(--sp-1);
+    border: 0;
+    background: none;
+    color: var(--hi);
+    font: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .empty-k .more {
+    flex-basis: 100%;
   }
   .more {
     max-width: 30em;

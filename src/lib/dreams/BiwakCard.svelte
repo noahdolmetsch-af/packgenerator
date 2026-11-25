@@ -89,7 +89,7 @@
   </div>
   <div class="card ich-body bw">
     <p class="bw-when" data-bw-when>
-      <span class="ich-ib"><Tent size={18} aria-hidden="true" /></span>
+      <span class="ich-ib"><Tent size={20} aria-hidden="true" /></span>
       <span><b>{t('{day} {start} off', { day: dayName(ev.day), start: cfg.start })}</b>{' · '}{t('{day} {back} back', { day: wdName(ev.next), back: cfg.back })}</span>
     </p>
     {#if wxText}<p class="bw-wx" data-bw-wx><CloudMoon size={16} aria-hidden="true" />{wxText}</p>{/if}
@@ -104,7 +104,7 @@
             <li class="bw-row" data-bw-spot={p.id}>
               <span class="bw-m">
                 <b>{p.name || t('Place to sleep')}</b>
-                <small>{t('{km} km · about {min} min', { km: num(p.km), min: rideMin(p.km) })}{#if p.stars}{' · '}<span class="bw-stars" aria-label={t('{n} of 5 stars', { n: p.stars })}><Star size={12} aria-hidden="true" />{p.stars}</span>{/if}</small>
+                <small>{t('{km} km · about {min} min', { km: num(p.km), min: rideMin(p.km) })}{#if p.stars}{' · '}<span class="bw-stars" aria-label={t('{n} of 5 stars', { n: p.stars })}><Star size={14} aria-hidden="true" />{p.stars}</span>{/if}</small>
               </span>
               <button type="button" class="btn sm" onclick={() => onplan?.({ name: t('After-work bivouac: {name}', { name: p.name || t('Place to sleep') }), day: ev.day, spot: p, cfg })} data-bw-plan><Backpack size={16} aria-hidden="true" />{t('Plan it')}</button>
             </li>

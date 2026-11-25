@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../../lib/actlite.js';
   /**
    * «Training» TR2 (Noah 13.10.2026 «1-5a», «tr1-4 ok»): Aktiv › Training, every activity from Strava
    * (rides, runs, hikes …, 2a; only rides count for the bikes) with date, time, km, Hm, Ø heart rate
@@ -42,7 +43,7 @@
   // the analyses over the weeks, the heart rate zones and the FTP (they stood under the week before). ?zones=1 shows the zones.
   const view = $derived(params.get('zones') === '1' || params.get('view') === 'ana' ? 'ana' : params.get('view') === 'list' ? 'list' : 'week');
   const setView = (v) => (location.hash = v === 'list' ? '#/flow/training?view=list' : v === 'ana' ? '#/flow/training?view=ana' : '#/flow/training');
-  const actsQ = liveQuery(async () => (await db.activities.toArray()).sort(byNewest));
+  const actsQ = liveQuery(async () => (await readLite(db, (T) => T.toArray())).sort(byNewest));
   const acts = $derived($actsQ ?? []);
   let kind = $state('all');
   let month = $state('');
@@ -152,13 +153,13 @@
               <span class="r num hr" data-label={t('Ø heart rate')}>{a.hrAvg ?? '–'}</span>
               <span class="pv num">{[rideTimeS(a.movingS), a.km ? `${num(a.km)} km` : '', a.hm != null ? `${num(a.hm)} ${t('Hm|short')}` : '', a.hrAvg != null ? `Ø ${a.hrAvg}` : ''].filter(Boolean).join(' · ')}</span>
               <span class="zb"><ZoneBar secs={zoneSecs(a.hist, zones.bounds)} /></span>
-              <span class="go" aria-hidden="true"><ChevronRight size={18} /></span>
+              <span class="go" aria-hidden="true"><ChevronRight size={20} /></span>
             </a>
           </li>
         {/each}
       </ul>
       {#if list.length > shown}<button type="button" class="btn more" onclick={() => (shown += PAGE)}>{t('Show more')} <span class="num">({list.length - shown})</span></button>{/if}
-      {#if !list.length}<p class="none">{t('No activity for this choice.')}</p>{/if}
+      {#if !list.length}<Empty size="klein" text={t('No activity for this choice.')} action={{ label: t('Show all'), onclick: () => ((kind = 'all'), (indoor = false), (month = ''), (shown = PAGE)) }} />{/if}
       <div class="lg"><ZoneBar bar={false} legend /></div>
       <p class="hint">{t('The bar fills in once the heart rate of the activity is fetched (the newest by themselves, any other when you open it).')}</p>
       <PasstHier place="training" />
@@ -258,8 +259,6 @@
     padding: 8px 0;
     color: var(--ink-2);
     font: 600 var(--fs-tiny) / 1.2 var(--font-body);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
   }
   a.row:hover {
     background: var(--paper-2);
@@ -301,7 +300,6 @@
   .more {
     margin-top: 12px;
   }
-  .none,
   .hint {
     margin: 10px 0 0;
     color: var(--ink-2);

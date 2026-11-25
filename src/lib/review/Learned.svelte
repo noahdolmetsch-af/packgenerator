@@ -14,6 +14,7 @@
   import { t, tn, num } from '../i18n.svelte.js';
   import { Lightbulb, Search, Pencil, Trash2, Plus } from '@lucide/svelte';
   import LearningSheet from './LearningSheet.svelte';
+  import { topicName } from './topicname.js'; // v0.30.2 (test R6.12): the same shown name here and in the search
   import RenameSheet from '../ui/RenameSheet.svelte';
   import GroupDeleteSheet from '../ui/GroupDeleteSheet.svelte';
   import UndoToast from './UndoToast.svelte';
@@ -26,12 +27,6 @@
   // 0.161.0 (Bugfixes 0.132.2 B3): an archived learning («Clean up test data») is gone from the list
   const learnings = $derived(($learnQ ?? []).filter((l) => !l.archivedAt));
   let lq = $state('');
-  // v0.30.2 (test R6.12): topics typed in small letters ("gear") are shown like the others.
-  const topicName = (topic) => {
-    const s = String(topic ?? '');
-    if (!s) return t('No topic');
-    return t(s) !== s ? t(s) : t(s.charAt(0).toUpperCase() + s.slice(1));
-  };
   const topics = $derived.by(() => {
     const q = lq.trim().toLowerCase();
     const list = learnings.filter((l) => !q || `${l.topic} ${topicName(l.topic)} ${l.rule} ${l.action ?? ''} ${l.source ?? ''}`.toLowerCase().includes(q));
@@ -85,7 +80,7 @@
     <p class="count num">{t('{n} learnings in {k} topics', { n: num(learnings.length), k: num(topics.length) })}</p>
     <button type="button" class="btn" onclick={() => (editing = { learning: null })}><Plus size={16} aria-hidden="true" />{t('Learning')}</button>
   </div>
-  <label class="rv-search"><Search size={18} aria-hidden="true" /><input type="search" placeholder={t('Search learnings')} bind:value={lq} aria-label={t('Search learnings')} /></label>
+  <label class="rv-search"><Search size={20} aria-hidden="true" /><input type="search" placeholder={t('Search learnings')} bind:value={lq} aria-label={t('Search learnings')} /></label>
   {#each shownTopics as g (g.topic)}
     <section class="topic rv-sec" aria-label={topicName(g.topic)}>
       <div class="rv-h">
@@ -101,7 +96,7 @@
         {#each lq.trim() || openTopics[g.topic] ? g.ls : g.ls.slice(0, PER_TOPIC) as l (l.id)}
           <li class="rv-row lrn-row">
             <button type="button" class="ltap" aria-label={t('Edit learning: {name}', { name: l.rule })} onclick={() => (editing = { learning: l })}></button>
-            <span class="rv-ic" aria-hidden="true"><Lightbulb size={18} /></span>
+            <span class="rv-ic" aria-hidden="true"><Lightbulb size={20} /></span>
             <span class="rv-m"><span class="rv-t rule">{l.rule}</span>{#if l.action}<span class="rv-s do">→ {l.action}</span>{/if}{#if meta(l)}<span class="rv-s">{meta(l)}</span>{/if}</span>
             {#if l.priority === 'high' || l.confirmed}<span class="rv-v tags">{#if l.priority === 'high'}<span class="rv-tag">{t('high')}</span>{/if}{#if l.confirmed}<span>{t('confirmed {n}×', { n: l.confirmed })}</span>{/if}</span>{/if}
           </li>

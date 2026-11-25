@@ -16,11 +16,13 @@
   import { switchTips } from '../pageinfo/switchtips.js';
   import { countUse } from '../home/usage.js';
   import { phone } from '../media.svelte.js';
-  import { t } from '../i18n.svelte.js';
+  import { t, tn } from '../i18n.svelte.js';
   import SearchFree from '../kisuche/SearchFree.svelte';
   import AskAnswer from '../assistent/AskAnswer.svelte';
   import { smartSearch } from '../kisuche/smart.js';
-  import { meaningsOf } from '../suche/meanings.js'; // Einzelidee 40: two meanings, the search asks
+  import { parts, markWords } from '../suche/mark.js'; // «Treffer lesbarer»: the words found are marked
+  import { arrange, FILTERS, TOPICS, gearContext, saysGear } from '../suche/ordnung.js';
+  import { readLearn, writeLearn, noteOpen, prefersGear, forgetWord } from '../suche/lernen.js'; // «Die Suche lernt von dir» (Noah 24.11.2026 «1-4a»): only on this device // «Klügere Suche» (Noah 24.11.2026 «1-5a»): pages first, gear only where it makes sense
   import { findFeatures, FEATURE, FEATURES, featureHref } from '../features.js';
   import { wegText } from './seiten.js';
   import { goFeature } from '../know/featureRun.js';
@@ -68,16 +70,30 @@
     diarySub = liveQuery(() => db.frei.where('kind').equals(DIARY_KIND).toArray()).subscribe({ next: (rows) => (diaryRows = rows.map(lightEntry)), error: () => {} });
   });
   onDestroy(() => diarySub?.unsubscribe());
-  const data = $derived($all ? { ...$all, diary: diarySearchable($all.journal, gate.open) ? diaryRows : [] } : null);
+  // «Suche findet mehr» (Warteliste 1): rides, places, learnings, bike care, training, tasks are read only once something is typed
+  let moreData = $state(null);
+  let moreSub = null;
+  let moreLoading = false;
+  $effect(() => {
+    if (moreSub || moreLoading || q.trim().length < 2) return;
+    moreLoading = true;
+    import('../suche/mehrload.js').then(({ loadMore }) => {
+      moreSub = liveQuery(() => loadMore(db)).subscribe({ next: (v) => (moreData = v), error: () => {} });
+    }).catch(() => {});
+  });
+  onDestroy(() => moreSub?.unsubscribe());
+  // «Klügere Suche»: the buttons under the field (All | Pages | …); a button other than «All» shows every hit of its kinds (V4 «Alle zeigen»)
+  let filter = $state('all');
+  const full = $derived(FILTERS.find((f) => f.key === filter)?.kinds ?? null);
+  const data = $derived($all ? { ...$all, diary: diarySearchable($all.journal, gate.open) ? diaryRows : [], more: moreData, full } : null);
   // «Kluge Suche» (14.10.2026): similar words, small typos and short filters on top of searchAll.
   const smart = $derived(q.trim().length >= 2 && data ? smartSearch(q, data) : { groups: [], also: [], fixed: null });
   const groups = $derived(smart.groups);
-  const meanings = $derived(meaningsOf(q, groups));
-  const count = $derived(groups.reduce((n, g) => n + g.rows.length, 0));
+  const words = $derived(markWords(q));
   // v0.46.0 (Noah 14a): "What do you want to do?": actions by keyword above the results.
   const cmds = $derived($all ? commandActions(q, { bikes: sortBikes($all.bikes), more: ops.search }) : []);
   // v0.96.0 «F1 Alles finden» (mockup B): the functions of the app are found too («garantie»).
-  const feats = $derived(q.trim().length >= 2 && !isQuestion(q) ? findFeatures(q, t).filter((f) => !groups.some((g) => g.kind === 'page' && g.rows.some((r) => r.title === f.title))).slice(0, 3).map((f) => ({ ...f, sub: wegText(featureHref(FEATURE[f.featureId]), t, f.sub) })) : []);
+  const feats = $derived(q.trim().length >= 2 && !isQuestion(q) ? findFeatures(q, t).filter((f) => !groups.some((g) => (g.kind === 'page' || g.kind === 'setting') && g.rows.some((r) => r.title === f.title))).slice(0, 3).map((f) => ({ ...f, sub: wegText(featureHref(FEATURE[f.featureId]), t, f.sub) })) : []);
   // Paket Q Zusatz 2 (Noah «1-3 alle a»): a whole question («Wo stelle ich das Backup-Passwort ein?») that no
   // function fits word for word finds the functions that answer it, with their first step (instead of «Functions»).
   const help = $derived(isQuestion(q) ? helpAnswers(q, t) : []);
@@ -103,6 +119,19 @@
     focused = false;
   }
   let focused = $state(false); // the field has the focus: an empty field shows the commands to try
+  // «Ein Eingang» (Noah 24.11.2026 «4a»): «Help for this page» as the first row of the empty window; it opens the «?» window (event pg:help). No «?» in the bar (guest, mini apps): no row.
+  const hasHelp = $derived(open || focused ? !!document.querySelector('button[data-help-open]') : false);
+  function openHelp() {
+    leave();
+    queueMicrotask(() => window.dispatchEvent(new Event('pg:help')));
+  }
+  // «Ein Eingang» (Noah 24.11.2026 «2a»): only under a question, a row leads on to the assistant with the question filled in
+  function openAssistant() {
+    remember(q);
+    const text = q.trim();
+    leave();
+    location.hash = `#/assistent?q=${encodeURIComponent(text)}`;
+  }
   // v0.96.0 (mockup B): an empty search shows 3 commands to try, the last searches and all functions.
   const firstBike = $derived($all ? (sortBikes($all.bikes)[0] ?? null) : null);
   const bikeWord = $derived(firstBike ? String(firstBike.name ?? '').trim().split(/\s+/)[0].toLowerCase() : '');
@@ -113,6 +142,7 @@
   ]);
   // «Suche als Entdecker» (Noah 23.11.2026 «1-5a», V4): an empty search first shows the six things most people look for; a tap searches for it
   const wishes = $derived(['Tick off|goal', 'Packing list', 'Tour suggestions', 'Milestones', 'Bike care', 'Weather'].map((k) => t(k)));
+  let topic = $state(null); // the tile of «Topics» that is open
   const RECENT = 'search.recent';
   let recent = $state(readRecent());
   function readRecent() {
@@ -141,6 +171,7 @@
   }
   function goFeat(f) {
     remember(q);
+    learnOpen('page');
     q = '';
     open = false;
     focused = false;
@@ -180,6 +211,37 @@
     return one && one.kind !== 'cmd' ? [one] : null;
   });
   const listSay = $derived(says?.[0]?.kind === 'list'); // a list sentence is a command: no «answer», no «add as new item» beside it
+  // «Klügere Suche»: the order, the folded gear line and the buttons under the field. The choice of a button counts for this search only.
+  let gearOpen = $state(false);
+  $effect(() => {
+    if (q.trim().length < 2) filter = 'all';
+    gearOpen = false;
+  });
+  const here = $derived(open || focused || q ? location.hash : '');
+  let learn = $state(readLearn()); // what you opened for which word (this device only)
+  const learned = $derived(suche.learn && prefersGear(learn, q));
+  const gearCtx = $derived(gearContext(here));
+  const view = $derived(arrange(groups, { filter, context: gearCtx, learned, q, other: feats.length + cmds.length + help.length + (says ? 1 : 0) + (appHas ? 1 : 0) }));
+  // the line says why the gear stands first, only when the memory is the reason
+  const learnedShown = $derived(learned && !gearCtx && !saysGear(q) && view.groups[0]?.kind === 'gear');
+  /** Remember what was opened for this word: gear or anything else. */
+  function learnOpen(kind) {
+    if (!suche.learn || q.trim().length < 2) return;
+    learn = noteOpen(learn, q, kind);
+    writeLearn(learn);
+  }
+  function forgetLearned() {
+    learn = forgetWord(learn, q);
+    writeLearn(learn);
+  }
+  // the buttons under the field show how many hits each has; one without hits is left out (the chosen one stays so it can be left)
+  const chips = $derived(FILTERS.filter((f) => f.key === 'all' || filter === f.key || (view.counts[f.key] ?? 0) + (f.key === 'pages' ? feats.length : 0) > 0).map((f) => ({ ...f, n: f.key === 'all' ? 0 : (view.counts[f.key] ?? 0) + (f.key === 'pages' ? feats.length : 0) })));
+  const inAll = $derived(filter === 'all');
+  const gearStrong = $derived.by(() => {
+    const g = groups.find((x) => x.kind === 'gear');
+    return g ? { ...g, rows: g.rows.filter((r) => !r.weak) } : null;
+  });
+  const rowCount = $derived(view.groups.reduce((n, g) => n + g.rows.length, 0));
   const saysTitle = $derived(says ? (says.length > 1 ? t('Enter all {n}: {list}', { n: says.length, list: says.map((a) => actionLabel(a, localDay())).join(' · ') }) : actionLabel(says[0], localDay())) : '');
   /** Does it: a plan opens «Help me plan» with what was said; everything else is written with one Undo. */
   async function doSays(acts = says) {
@@ -276,6 +338,7 @@
   const RUN = { trip: () => openNew('list'), dayride: () => quickRide(), note: () => openNote(''), item: () => addItem(), km: () => openNew('km'), data: openData };
   function go(row) {
     remember(q);
+    learnOpen(row.kind);
     if (row.tripId) openTrip(row.tripId);
     q = '';
     open = false;
@@ -329,7 +392,7 @@
     }
     if (e.key === 'Enter' && says) doSays();
     else if (e.key === 'Enter' && cmds.length) run(cmds[0]);
-    else if (e.key === 'Enter' && count) go(groups[0].rows[0]);
+    else if (e.key === 'Enter' && rowCount) go(view.groups[0].rows[0]);
   };
 </script>
 
@@ -341,7 +404,8 @@
       {#if open}
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
       {:else}
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg>
+        <!-- «Ein Eingang» (Noah 24.11.2026 «1a»): the magnifier with a small spark replaces the bubble and the magnifier; one tap opens the one window -->
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="10.5" cy="12.5" r="6.5" /><path d="M20 22l-4.8-4.8" /><path d="M20.5 1.8l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z" fill="currentColor" stroke="none" /></svg>
       {/if}
     </button>
     {#if open}
@@ -359,8 +423,35 @@
   {/if}
 </div>
 
+{#snippet group(g)}
+  <p class="gh">{t(g.name)}{#if g.more}{' · '}<button type="button" class="showall" data-show-all={g.kind} onclick={() => (filter = FILTERS.find((f) => f.kinds?.includes(g.kind))?.key ?? 'all')}>{t('Show all {n}', { n: g.rows.length + g.more })}</button>{/if}</p>
+  <ul>
+    {#each g.rows as r (r.id)}
+      <li><button type="button" onclick={() => go({ ...r, kind: g.kind })}><span class="m"><b>{#each parts(r.title, words) as p}{#if p.m}<mark>{p.s}</mark>{:else}{p.s}{/if}{/each}</b>{#if r.sub}<small>{r.sub}</small>{/if}</span>{#if r.v}<span class="v num">{r.v}</span>{/if}</button></li>
+    {/each}
+  </ul>
+{/snippet}
+
 {#snippet empty()}
   <div class="try" role="region" aria-label={t('Try a command')}>
+    <!-- «Ein Eingang» (Noah 24.11.2026 «4a»): the help of the page you are on is the first row; the «?» stays in the bar -->
+    {#if hasHelp}
+      <ul class="cmds" data-search-help-row>
+        <li><button type="button" data-search-help onclick={openHelp}><span class="m"><b>{t('Help for this page')}</b><small>{t('What you can do here')}</small></span><span class="go" aria-hidden="true">›</span></button></li>
+      </ul>
+    {/if}
+    <!-- «Klügere Suche» (Noah 24.11.2026 «1-5a»): six topics; a tap searches the word, the results are pages and functions first -->
+    <p class="gh">{t('Topics')}</p>
+    <div class="tiles" data-search-topics>
+      {#each TOPICS as x (x.key)}<button type="button" class="tile" class:on={topic === x.key} aria-pressed={topic === x.key} data-topic={x.key} onclick={() => (topic = topic === x.key ? null : x.key)}><b>{t(x.label)}</b><small>{t(x.sub)}</small></button>{/each}
+    </div>
+    {#if topic}
+      <ul class="cmds places" data-search-topic-rows>
+        {#each TOPICS.find((x) => x.key === topic).rows() as r (r.href)}
+          <li><a href={r.href} onclick={leave}><span class="m"><b>{t(r.title)}</b></span><span class="go" aria-hidden="true">›</span></a></li>
+        {/each}
+      </ul>
+    {/if}
     <p class="gh">{t('Many look for')}</p>
     <div class="recent" data-search-wishes>
       {#each wishes as w (w)}<button type="button" class="rchip" onclick={() => fill(w)} data-wish={w}>{w}</button>{/each}
@@ -413,8 +504,12 @@
   {#if q.trim().length >= 2}
     <div class="res" role="region" aria-label={t('Search results')} aria-live="polite">
       <!-- «Frag die App» (Noah 15.10.2026 «3 a und b»): the free answer from your own data, on top -->
-      {#if suche.app && !listSay}<AskAnswer {q} autoread={spoken && suche.read === 'auto'} onresult={(has) => (appHas = has)} onlink={() => { q = ''; open = false; }} />{/if}
-      {#if cmds.length || says}
+      <div class="filters" role="group" aria-label={t('Show')} data-search-filters>
+        {#each chips as f (f.key)}<button type="button" class="rchip" class:on={filter === f.key} aria-pressed={filter === f.key} data-search-filter={f.key} onclick={() => (filter = f.key)}>{t(f.label)}{#if f.n}<b class="cnt">{f.n}</b>{/if}</button>{/each}
+      </div>
+      {#if learnedShown}<p class="learnnote" data-search-learned>{t('Gear first, because you opened gear for this word before.')} <button type="button" class="btn btn-link" onclick={forgetLearned}>{t('Forget')}</button></p>{/if}
+      {#if inAll && suche.app && !listSay}<AskAnswer {q} autoread={spoken && suche.read === 'auto'} onresult={(has) => (appHas = has)} onlink={() => { q = ''; open = false; }} />{/if}
+      {#if inAll && (cmds.length || says)}
         <p class="gh">{t('Do it now')}</p>
         <ul class="cmds">
           {#if says}
@@ -428,26 +523,21 @@
       <!-- «Kluge Suche»: the hint to similar words / a typo and «Ask Claude» sit under the actions (FE17: actions on top, Enter runs the first) -->
       <!-- «Suche mit Sprache» (3a + b): «Ask further at» opens Claude, ChatGPT … -->
       <!-- one block «Weiter fragen» (Noah 22.10.2026 «3a»): the Chrome AI and the AI on this device inside it -->
-      {#if asking && suche.links}<AskElsewhere {q} links={suche.links}>
-          {#snippet children()}<SearchFree {q} data={$all} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} local={suche.local} inside={suche.links} />{/snippet}
-        </AskElsewhere>
-      {:else}<SearchFree {q} data={$all} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} local={suche.local} />{/if}
-      {#if meanings.length === 2}
-        <p class="mean" data-search-meanings><span>{t('Do you mean')}</span>
-          {#each meanings as m, i (m.kind)}{#if i}<span>{t('or|choice')}</span>{/if}<button type="button" class="btn sm" onclick={() => ((q = m.q), input?.focus())} data-meaning={m.kind}>{t(m.name)} · {m.n}</button>{/each}<span>?</span>
-        </p>
-      {/if}
-      {#each groups as g (g.kind)}
-        <p class="gh">{t(g.name)}{g.more ? ` · ${t('{n} more', { n: g.more })}` : ''}</p>
-        <ul>
-          {#each g.rows as r (r.id)}
-            <li><button type="button" onclick={() => go(r)}><span class="m"><b>{r.title}</b>{#if r.sub}<small>{r.sub}</small>{/if}</span>{#if r.v}<span class="v num">{r.v}</span>{/if}</button></li>
-          {/each}
+      {#if asking && suche.links}
+        <!-- «Ein Eingang» (Noah 24.11.2026): «Ask further at» is a closed line under a question, the app's own answer stays first -->
+        <details class="askfold" data-search-ask-fold>
+          <summary><span>{t('Ask further at')} …</span><span class="chev" aria-hidden="true">›</span></summary>
+          <AskElsewhere {q} links={suche.links}>
+            {#snippet children()}<SearchFree {q} data={$all} onpick={(w) => ((q = w), input?.focus())} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} local={suche.local} inside={suche.links} />{/snippet}
+          </AskElsewhere>
+        </details>
+      {:else}<SearchFree {q} data={$all} onpick={(w) => ((q = w), input?.focus())} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} local={suche.local} />{/if}
+      {#if asking}
+        <ul class="cmds" data-search-assistant-row>
+          <li><button type="button" data-search-assistant onclick={openAssistant}><span class="m"><b>{t('Open the assistant')}</b><small>{t('Ask on, or let the app plan a trip')}</small></span><span class="go" aria-hidden="true">›</span></button></li>
         </ul>
-      {:else}
-        {#if !cmds.length && !feats.length && !help.length && !listSay}<p class="none">{t('Nothing found for "{q}".', { q: q.trim() })}</p>{/if}
-      {/each}
-      {#if help.length}
+      {/if}
+      {#if inAll && help.length && !appHas}
         <p class="gh">{t('Fits your question')}</p>
         <ul>
           {#each help as f (f.id)}
@@ -455,7 +545,10 @@
           {/each}
         </ul>
       {/if}
-      {#if feats.length}
+      {#each view.groups.filter((g) => g.kind === 'page' || g.kind === 'action') as g (g.kind)}
+        {@render group(g)}
+      {/each}
+      {#if feats.length && (inAll || filter === 'pages')}
         <p class="gh">{t('Functions')}</p>
         <ul>
           {#each feats as f (f.id)}
@@ -463,7 +556,23 @@
           {/each}
         </ul>
       {/if}
-      {#if !listSay && !groups.some((g) => g.kind === 'gear' && g.rows.some((r) => r.title.replace(/^★ /, '').toLowerCase() === q.trim().toLowerCase()))}
+      {#each view.groups.filter((g) => g.kind !== 'page' && g.kind !== 'action') as g (g.kind)}
+        {@render group(g)}
+      {/each}
+      {#if view.gear}
+        <button type="button" class="gearfold" data-search-gear-fold onclick={() => (gearOpen = true)}><b>{t('Gear')}: {tn(view.gear.n, '{n} item', '{n} items')} ›</b><small>{view.gear.names.join(', ')}{view.gear.n > view.gear.names.length ? ' …' : ''}</small></button>
+        {#if gearOpen}{@render group(gearStrong)}{/if}
+      {/if}
+      {#if view.weak && inAll}
+        <p class="gh" data-search-weak>{t('Mentioned further down')}</p>
+        <ul class="weak">
+          {#each view.weak as r (r.id)}
+            <li><button type="button" onclick={() => go({ ...r, kind: r.fromKind })}><span class="m"><b>{r.title}</b><small>{t(r.from)}{r.sub ? ` · ${r.sub}` : ''}</small></span></button></li>
+          {/each}
+        </ul>
+      {/if}
+      {#if !rowCount && !view.gear && !view.weak && !cmds.length && !feats.length && !help.length && !listSay}<p class="none">{t('Nothing found for "{q}".', { q: q.trim() })}</p>{/if}
+      {#if inAll && !listSay && !asking && !isQuestion(q) && !groups.some((g) => g.kind === 'gear' && g.rows.some((r) => r.title.replace(/^★ /, '').toLowerCase() === q.trim().toLowerCase()))}
         <button type="button" class="add" onclick={addNew}>+ {t('Add "{q}" as a new item', { q: q.trim() })}</button>
       {/if}
       <!-- V4: a result that is no gear says where to go on when it is not the right one -->
@@ -475,6 +584,121 @@
 {/snippet}
 
 <style>
+  /* «Klügere Suche»: the buttons under the field and the folded gear line */
+  .filters {
+    display: flex;
+    gap: 6px;
+    margin: 0 0 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .filters .rchip {
+    flex: none;
+  }
+  .filters .rchip.on {
+    border-color: var(--hi);
+    background: color-mix(in srgb, var(--hi) 12%, var(--paper));
+    font-weight: 600;
+  }
+  .tiles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 4px 6px 8px;
+  }
+  .tile {
+    display: grid;
+    gap: 2px;
+    min-height: 56px;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-ctl);
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .tile small {
+    color: var(--ink-3);
+  }
+  .tile.on {
+    border-color: var(--hi);
+    background: color-mix(in srgb, var(--hi) 10%, var(--paper));
+  }
+  .gearfold {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    margin: 8px 0 0;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--ink-2);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .gearfold b {
+    display: block;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .gearfold small {
+    display: block;
+    margin-top: 2px;
+    color: var(--ink-3);
+  }
+  .cnt {
+    color: var(--hi);
+    font-weight: 600;
+    margin-inline-start: 4px;
+  }
+  .learnnote {
+    margin: 0 10px 8px;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .weak {
+    opacity: 0.85;
+  }
+  .gearfold:hover {
+    background: var(--ground);
+  }
+  /* «Ein Eingang»: «Ask further at» as a closed line */
+  .askfold {
+    margin: 8px 0 0;
+  }
+  .askfold > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 44px;
+    padding: 0 10px;
+    border-radius: var(--r-2);
+    color: var(--ink-2);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .askfold > summary:hover {
+    background: var(--ground);
+  }
+  .askfold > summary::-webkit-details-marker {
+    display: none;
+  }
+  .askfold .chev {
+    transition: transform 0.15s;
+  }
+  .askfold[open] .chev {
+    transform: rotate(90deg);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .askfold .chev {
+      transition: none;
+    }
+  }
+
   .search {
     position: relative;
     display: flex;
@@ -487,7 +711,7 @@
     width: min(460px, calc(32vw / var(--ui-zoom, 1)));
     height: 40px;
     padding: 0 12px;
-    border-radius: 10px;
+    border-radius: var(--r-ctl);
     background: var(--ground);
     color: var(--ink-3);
     box-sizing: border-box;
@@ -607,12 +831,38 @@
     color: var(--ink-2);
     font-size: var(--fs-small);
   }
+  .kinds {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 8px 2px;
+  }
+  .kinds .btn.on {
+    background: var(--brand);
+    color: var(--brand-ink);
+    border-color: var(--brand);
+  }
+  .showall {
+    border: 0;
+    background: none;
+    padding: 0;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: none;
+    color: var(--ink);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  mark {
+    background: var(--warn-soft);
+    color: inherit;
+    border-radius: 2px;
+    padding: 0 1px;
+  }
   .gh {
     margin: 10px 8px 4px;
     font: 600 var(--fs-tiny) var(--font-body);
     color: var(--ink-2);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
   ul {
     list-style: none;

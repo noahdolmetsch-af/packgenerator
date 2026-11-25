@@ -33,7 +33,7 @@
 <RaceBox {id} {title} {what} {why} {from} {soft}>
   {#snippet actions()}
     <button type="button" class="rc-icon" aria-expanded={!folded} aria-label={folded ? t('Open {name}', { name: title }) : t('Fold {name}', { name: title })} onclick={toggle} data-race-fold={id}>
-      {#if folded}<ChevronDown size={18} aria-hidden="true" />{:else}<ChevronUp size={18} aria-hidden="true" />{/if}
+      {#if folded}<ChevronDown size={20} aria-hidden="true" />{:else}<ChevronUp size={20} aria-hidden="true" />{/if}
     </button>
   {/snippet}
   {#if !folded}{@render children?.()}{/if}

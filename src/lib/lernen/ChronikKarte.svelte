@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../actlite.js';
   /**
    * Paket M «Aus Touren lernen», #1027 «Chronik-Karte statt Vor einem Jahr» (Noah «1b»): «Früher um diese
    * Zeit»: on this day in earlier years (the exact day first), else in this month, the trips (title, year,
@@ -20,7 +21,7 @@
   let { trips = [], debriefs = [], today, isnew = false, rides = null, activities = null, size = 'w', frame = 'tile', max = null, more = true } = $props();
   // the rides and Strava activities, read here when the page does not pass them (Heute passes trips and debriefs only)
   const ridesQ = liveQuery(() => db.rides.toArray());
-  const actsQ = liveQuery(() => db.activities.toArray());
+  const actsQ = liveQuery(() => readLite(db, (T) => T.toArray()));
   const c = $derived(chronik({ trips, debriefs, rides: rides ?? $ridesQ ?? [], activities: activities ?? $actsQ ?? [], today }));
   let mode = $state(null); // null: the day when it has something, else the month
   const view = $derived(chronikView(c, mode));
@@ -69,7 +70,7 @@
     <p class="nt">{view.mode === 'day' ? t('Nothing on this day in earlier years.') : t('Nothing in this month in earlier years yet.')}</p>
   {/if}
   <!-- Gesamttest 20.10.2026 Design 4: on a page (Rückblick) the link is the app's «link ›», not an underlined word (the tile on Heute stays as it is, HN4) -->
-  {#if more}<a class="all" class:go={frame === 'section'} href="#/chronik">{t('Whole chronicle')}{#if frame === 'section'}<ChevronRight size={15} aria-hidden="true" />{/if}</a>{/if}
+  {#if more}<a class="all" class:go={frame === 'section'} href="#/chronik">{t('Whole chronicle')}{#if frame === 'section'}<ChevronRight size={16} aria-hidden="true" />{/if}</a>{/if}
 </section>
 
 <style>

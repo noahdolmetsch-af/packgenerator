@@ -207,7 +207,7 @@
       <small class="tb-meta">
         {#if e.time}<span>{e.time}</span>{/if}
         {#if e.mood}<span title={moodName(e.mood, t)} data-tb-card-mood={e.mood}>{moodOf(e.mood).emoji}</span>{/if}
-        {#if e.place?.name}<span><MapPin size={12} aria-hidden="true" />{e.place.name}</span>{/if}
+        {#if e.place?.name}<span><MapPin size={14} aria-hidden="true" />{e.place.name}</span>{/if}
         {#if e.weather}{@const W = WX[weatherKind(e.weather.code)]}<span><W size={12} aria-hidden="true" />{e.weather.temp} °C</span>{/if}
         {#each e.tags ?? [] as x (x)}<span class="tb-tagmini">#{x}</span>{/each}
       </small>
@@ -231,7 +231,7 @@
       {@const h = headOf(reading)}
       <article class="tb-article" data-tb-reading={reading.id}>
         <p class="tb-kick">{long(reading.day)}{#if reading.time}{` · ${reading.time}`}{/if}{#if reading.mood}{` · ${moodOf(reading.mood).emoji} ${moodName(reading.mood, t)}`}{/if}</p>
-        <h1 class="tb-h1" tabindex="-1" data-page-title>{reading.title?.trim() || h.title || t('Untitled')}{#if reading.star}<Star class="tb-starbig" size={22} fill="currentColor" aria-label={t('Favourite')} />{/if}</h1>
+        <h1 class="tb-h1" tabindex="-1" data-page-title>{reading.title?.trim() || h.title || t('Untitled')}{#if reading.star}<Star class="tb-starbig" size={24} fill="currentColor" aria-label={t('Favourite')} />{/if}</h1>
         {#if questionText(reading.q, t)}<p class="tb-askq">{questionText(reading.q, t)}</p>{/if}
         {#if reading.place?.name || reading.weather}
           <p class="tb-metabig">
@@ -283,9 +283,9 @@
 
     <div class="tb-write card">
       <div class="tb-acts">
-        <button type="button" class="btn hi" onclick={() => write()} data-tb-new><Plus size={18} aria-hidden="true" />{t('New entry')}</button>
-        <button type="button" class="btn" onclick={() => write({}, true)} data-tb-dictate><Mic size={18} aria-hidden="true" />{t('Dictate an entry')}</button>
-        <button type="button" class="btn" onclick={() => write({}, false, 'voice')} data-tb-voice><AudioLines size={18} aria-hidden="true" />{t('Voice note')}</button>
+        <button type="button" class="btn hi" onclick={() => write()} data-tb-new><Plus size={20} aria-hidden="true" />{t('New entry')}</button>
+        <button type="button" class="btn" onclick={() => write({}, true)} data-tb-dictate><Mic size={20} aria-hidden="true" />{t('Dictate an entry')}</button>
+        <button type="button" class="btn" onclick={() => write({}, false, 'voice')} data-tb-voice><AudioLines size={20} aria-hidden="true" />{t('Voice note')}</button>
       </div>
       {#if tpls.length}
         <div class="tb-tpl" data-tb-templates>
@@ -299,7 +299,7 @@
       <section class="tb-q" aria-labelledby="tb-q-h" data-tb-question={qi}>
         <div class="tb-q-top">
           <h2 id="tb-q-h" class="tb-q-kick"><Feather size={16} aria-hidden="true" />{t('Question of the day')}</h2>
-          <button type="button" class="tb-ic sm" aria-label={t('Not today')} title={t('Not today')} onclick={hideQuestion} data-tb-question-hide><X size={18} aria-hidden="true" /></button>
+          <button type="button" class="tb-ic sm" aria-label={t('Not today')} title={t('Not today')} onclick={hideQuestion} data-tb-question-hide><X size={20} aria-hidden="true" /></button>
         </div>
         <p class="tb-q-text">{questionText(qi, t)}</p>
         <div class="tb-acts">
@@ -326,7 +326,7 @@
       </div>
       {#if view === 'list' || view === 'photos'}
         <div class="tb-filter">
-          <label class="tb-search"><Search size={18} aria-hidden="true" /><input class="inp" type="search" bind:value={q} placeholder={t('Search the diary')} aria-label={t('Search the diary')} data-tb-search /></label>
+          <label class="tb-search"><Search size={20} aria-hidden="true" /><input class="inp" type="search" bind:value={q} placeholder={t('Search the diary')} aria-label={t('Search the diary')} data-tb-search /></label>
           <div class="tb-chips" role="group" aria-label={t('Filter')}>
             <button type="button" class="tb-chip" aria-pressed={starOnly} onclick={() => (starOnly = !starOnly)} data-tb-staronly><Star size={14} aria-hidden="true" fill={starOnly ? 'currentColor' : 'none'} />{t('Favourites')}</button>
             {#each tags.slice(0, phone.matches ? 6 : 12) as x (x.name)}
@@ -339,7 +339,7 @@
 
     {#if !all.length}
       <div class="tb-first" data-tb-empty>
-        <span class="tb-first-ic" aria-hidden="true"><BookOpen size={28} /></span>
+        <span class="tb-first-ic" aria-hidden="true"><BookOpen size={24} /></span>
         <p>{t('Your diary is still empty. One sentence is enough for a start.')}</p>
       </div>
     {:else if view === 'cal'}
@@ -561,8 +561,6 @@
     margin: 0;
     font-size: var(--fs-small);
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
     color: var(--accent);
   }
   .tb-q-text {
@@ -675,7 +673,6 @@
   .tb-date small {
     margin-top: 4px;
     font-size: var(--fs-tiny);
-    text-transform: uppercase;
     color: var(--ink-3);
   }
   .tb-main {
@@ -782,7 +779,6 @@
     font-size: var(--fs-tiny);
     font-weight: 600;
     color: var(--ink-3);
-    text-transform: uppercase;
   }
   .tb-grid td {
     padding: 0;

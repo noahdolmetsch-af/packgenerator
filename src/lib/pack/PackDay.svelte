@@ -40,6 +40,7 @@
   import PackBike from './PackBike.svelte';
   import BagRoll from './BagRoll.svelte';
   import '../trip/trip.css';
+  import { tickPop } from '../ui/rowout.js'; // «Bewegung» 4a: the tick of an item that was just packed pops once
 
   let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, wxd = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], reminders = [], oncharge = null, pressure = '', stats = null, charge = null, top = null, fixed = false, onread = null, onmove = null, spare = [] } = $props();
   // TZ-2 «Fest nach der Fahrt» (mockup TZ2, Noah 5a): a completed or rated trip (fixed) shows its bags as
@@ -146,6 +147,7 @@
     if (busy.has(e.itemId)) return;
     busy.add(e.itemId);
     const willFill = !e.packed && step.done + 1 === step.entries.length;
+    const box = !e.packed ? ev?.currentTarget?.querySelector?.('.box') : null;
     if (!e.packed) buzz(); // FE7 (Noah 13.10.2026): a short buzz when an item goes in, where the phone can
     try {
       remember();
@@ -153,6 +155,7 @@
     } finally {
       busy.delete(e.itemId);
     }
+    if (box) requestAnimationFrame(() => tickPop(box));
     if (willFill) advance(step.key, JUMP_MS, at);
     else if (timer) cancelJump();
     sortLater();
@@ -395,7 +398,7 @@
 {:else if main.kind === 'end'}<button type="button" class="btn hi go" onclick={onend}><span class="golbl wrap">{t(main.label)}</span><ArrowRight size={20} aria-hidden="true" /></button>
 {:else if main.kind === 'go'}<a class="btn hi go" href={main.href}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></a>{/if}{/snippet}
 <!-- Paket H «4a und b»: «Read aloud» next to the ring, at the thumb on a phone; the window explains the rest -->
-{#snippet aside()}{@render ring(52)}{#if onread}<button type="button" class="tp-icon-btn pd-read" aria-label={t('Read aloud')} title={t('Read aloud')} onclick={onread}><Volume2 size={22} aria-hidden="true" /></button>{/if}{/snippet}
+{#snippet aside()}{@render ring(52)}{#if onread}<button type="button" class="tp-icon-btn pd-read" aria-label={t('Read aloud')} title={t('Read aloud')} onclick={onread}><Volume2 size={24} aria-hidden="true" /></button>{/if}{/snippet}
 
 <!-- v0.105.0 P5 (T6): one bag in the list «Taschen»: icon, name, «6 Teile · 3.4 kg», a small bar, the count -->
 {#snippet bagRing(n, of, done)}
@@ -403,7 +406,7 @@
        as you pack; n of the total in the middle, a ✓ when the bag is full. The ring draws itself when the page opens. -->
   <span class="bring" class:full={done} data-bag-ring role="img" aria-label={done ? t('all in') : t('{n} of {total} packed', { n, total: of })}>
     <svg viewBox="0 0 48 48" aria-hidden="true"><circle class="bg" cx="24" cy="24" r="20" /><circle class="fg" cx="24" cy="24" r="20" pathLength="100" style:stroke-dashoffset={100 - (of ? (n / of) * 100 : 0)} /></svg>
-    <span class="rn num" aria-hidden="true">{#if done}<Check size={18} strokeWidth={2.5} />{:else}{n}/{of}{/if}</span>
+    <span class="rn num" aria-hidden="true">{#if done}<Check size={20} strokeWidth={2.5} />{:else}{n}/{of}{/if}</span>
   </span>
 {/snippet}
 
@@ -446,9 +449,9 @@
       <h2 id="more-h" class="sh">{t('More')}</h2>
       <ul class="card mlist">
         <li><button type="button" class="mrow" onclick={oncharge}>
-          <span class="bic" aria-hidden="true"><BatteryCharging size={18} /></span>
+          <span class="bic" aria-hidden="true"><BatteryCharging size={20} /></span>
           <span class="bt"><b>{t('Charge the evening before')}</b>{#if charge?.names?.length}<small>{charge.names.slice(0, 3).join(', ')}{charge.names.length > 3 ? ' …' : ''}</small>{/if}</span>
-          <span class="r">{#if charge}<span class="num">{charge.done}/{charge.total}</span>{/if}<ChevronRight size={18} aria-hidden="true" /></span>
+          <span class="r">{#if charge}<span class="num">{charge.done}/{charge.total}</span>{/if}<ChevronRight size={20} aria-hidden="true" /></span>
         </button></li>
       </ul>
     </section>
@@ -486,7 +489,7 @@
   {#if finished && !fixed}
     <!-- v0.30.1 (Noah B10): the end of packing is a card of its own at the top, with the next step. -->
     <section class="alldone" bind:this={doneEl} role="status" aria-labelledby="alldone-h" tabindex="-1">
-      <span class="okbig" aria-hidden="true"><Check size={28} strokeWidth={2.5} /></span>
+      <span class="okbig" aria-hidden="true"><Check size={24} strokeWidth={2.5} /></span>
       <div class="adtext">
         <h2 id="alldone-h">{doneText}</h2>
         <p>{tn(total, '{n} item packed', '{n} items packed')}{#if ready.length}{' · '}{t('Ready check done')}{/if}</p>
@@ -532,7 +535,7 @@
         {/if}
         {#if ready.length}
           <section class="card bcol" class:done={readyAll} aria-labelledby="bc-ready" data-board-bag="ready">
-            <div class="bchead"><span class="bic" aria-hidden="true"><ListChecks size={18} /></span><span class="bt"><b id="bc-ready">{t('Ready check')}</b></span><span class="r"><span class="num">{readyN}/{ready.length}</span></span></div>
+            <div class="bchead"><span class="bic" aria-hidden="true"><ListChecks size={20} /></span><span class="bt"><b id="bc-ready">{t('Ready check')}</b></span><span class="r"><span class="num">{readyN}/{ready.length}</span></span></div>
             <ul class="items">
               {#each ready as r (r.id)}
                 {@const ok = readyDone(r, trip)}

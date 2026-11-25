@@ -54,8 +54,6 @@
     margin: 0;
     font-size: var(--fs-small);
     font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
     color: var(--ink-3);
   }
   h2 {
@@ -79,6 +77,7 @@
   .lwc-img {
     width: 100%;
     max-height: 50vh;
+    max-height: 50dvh;
     object-fit: contain;
     border-radius: 8px;
     background: var(--paper-2);

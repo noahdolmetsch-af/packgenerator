@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../../lib/actlite.js';
   /**
    * «Wochenplan» (Noah 09.11.2026, Thread «Prüfen: Trainingsplan Woche packbar», Auftrag «bau los»), part 2: the page.
    *   #/flow/wochenplan   the hours per week, the units with plus and minus, the week with times, what does not fit.
@@ -27,6 +28,7 @@
   import { SP_KEY, prefsOf as spPrefsOf, teamSessions } from '../../lib/spielerplus.js';
   import { WEEKPLAN_KEY, GOAL_TYPES, FIXABLE, MAX_COUNT, MIN_HOURS, MAX_HOURS, LIGHT_SHARE, HARD_SHARE, TYPES, planOf, isSummer, defaultsFor, setHours, stepCount, toggleFix, setFixTime, modeCfg, followsHours, planWeek, plannedMins, countsMins } from '../../lib/training/wochenplan.js';
   import { startUnitDone } from '../../lib/flow/ui.svelte.js';
+  import { timedrag } from '../../lib/ui/timedrag.js';
   import { needsSheet as needsUnitSheet, removeUnitEntries } from '../../lib/flow/unitdone.js';
   import { WEEKLOG_KEY, QUIET, logOf, weekLog, withSnapshot, syncTpDone, tpTicks, tpSnapUnits, setDone, dismiss, setPins, movePin, clearPin, setMode, setReleased, streakNow, progress, suggest, pastWeeks } from '../../lib/training/wochenlog.js';
   import { UNIT_NAME, UNIT_HINT, LOAD_WORD, NOTE_TEXT, WARN_TEXT, whyOf, timeChoices, lengthOf, hoursOf, reachedPct, EXAMPLE_MONDAY } from '../../lib/training/wochenplan-text.js';
@@ -48,7 +50,7 @@
   // part 3: the ticks and the frozen weeks (undefined while read), and this week's Strava activities
   const logQ = liveQuery(async () => (await db.settings.get(WEEKLOG_KEY))?.value ?? null);
   const log = $derived($logQ === undefined ? null : logOf($logQ));
-  const actsQ = liveQuery(() => db.activities.where('day').between(realMonday, shiftDay(realMonday, 6), true, true).toArray().catch(() => []));
+  const actsQ = liveQuery(() => readLite(db, (T) => T.where('day').between(realMonday, shiftDay(realMonday, 6), true, true).toArray()).catch(() => []));
 
   let seasonPick = $state(isSummer(today) ? 'summer' : 'winter');
   let weekPick = $state(0); // 0 this week, 1 next week (only in the season of today)
@@ -236,6 +238,11 @@
     return queue;
   };
   const unmoveUnit = (u) => changePins((cur) => clearPin(cur, monday, u.id, today), t('{what} is back on the suggestion.', { what: nameOf(u.type) }));
+  // «Termine ziehen» (Noah 24.11.2026): a unit pulled onto another day does the same as «Move» (day; the time stays), with the same Undo.
+  // Units from TrainingPeaks and the match plan are fixed and do not move. A finger: press and hold, then pull.
+  let pulled = $state(null); // { id, dy, over } while a unit is dragged
+  const pullPreview = (u) => (d) => (pulled = d ? { id: u.id, dy: d.dy, over: d.over } : null);
+  const pullDone = (u) => (g) => g.over != null && Number(g.over) !== u.d && moveUnit(u, Number(g.over), null);
   const whyText = (u) => {
     const w = whyOf(u.why);
     return t(w.text, { day: dayName(u.d), a: w.a ? t(w.a) : '', b: w.b ? t(w.b) : '' });
@@ -378,9 +385,9 @@
         <section class="card pc hrs" aria-labelledby="wp-hours" data-wp-hours>
           <h2 id="wp-hours">{t('Goal per week')}</h2>
           <div class="stepper">
-            <button type="button" class="btn sm" onclick={() => hoursStep(-1)} disabled={cfg.hours <= MIN_HOURS} aria-label={t('One hour less')} data-wp-hdec><Minus size={18} aria-hidden="true" /></button>
+            <button type="button" class="btn sm" onclick={() => hoursStep(-1)} disabled={cfg.hours <= MIN_HOURS} aria-label={t('One hour less')} data-wp-hdec><Minus size={20} aria-hidden="true" /></button>
             <output class="big num" data-wp-hvalue>{t('{n} h|plan', { n: cfg.hours })}</output>
-            <button type="button" class="btn sm" onclick={() => hoursStep(1)} disabled={cfg.hours >= MAX_HOURS} aria-label={t('One hour more')} data-wp-hinc><Plus size={18} aria-hidden="true" /></button>
+            <button type="button" class="btn sm" onclick={() => hoursStep(1)} disabled={cfg.hours >= MAX_HOURS} aria-label={t('One hour more')} data-wp-hinc><Plus size={20} aria-hidden="true" /></button>
           </div>
           <p class="sub">{t('with meditation and stretching, without the rest block')}</p>
           <p class="plan num"><b data-wp-plan>{t('Plan: {a} h of {b} h', { a: hoursText(allMins), b: goalNow })}</b></p>
@@ -437,7 +444,7 @@
             <span class="bar" role="img" aria-label={t('{a} of {b} units', { a: prog.done, b: prog.total })}><i style="width:{Math.round((prog.done / prog.total) * 100)}%"></i></span>
             <p class="sub" data-wp-quiet>{t('Meditation and stretching: {a} of {b}.', { a: prog.quietDone, b: prog.quietTotal })}</p>
             {#if star}
-              <p class="starline" data-wp-star><Star size={18} aria-hidden="true" /> <b>{t('Week star reached.')}</b> {t('Every unit of this week is ticked off.')}</p>
+              <p class="starline" data-wp-star><Star size={20} aria-hidden="true" /> <b>{t('Week star reached.')}</b> {t('Every unit of this week is ticked off.')}</p>
               <p class="hint">{t('It counts under Milestones › Stars.')} <a class="link" href="#/flow/milestones" data-wp-to-milestones>{t('Open the milestones')}</a></p>
             {:else}
               <p class="hint" data-wp-left>{tn(prog.total - prog.done, 'Still {n} unit until the week star.', 'Still {n} units until the week star.', {})} {t('Tick a unit when you did it. Only you tick: Strava only suggests.')}</p>
@@ -520,14 +527,14 @@
             <h2 id="wp-days" class="vh">{t('The days of the week')}</h2>
             {#each [0, 1, 2, 3, 4, 5, 6] as d (d)}
               {@const list = rows(d)}
-              <div class="day" data-day={d}>
+              <div class="day" class:drop={pulled && pulled.over === String(d)} data-day={d}>
                 <div class="dn">
                   <b>{dayName(d, 'short')}{#if isNow}{' '}{new Date(`${shiftDay(monday, d)}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', day: 'numeric' })}.{/if}</b>
                   <span class="lpill {list.length ? week.dayLoad[d] : 'F'}">{t(LOAD_WORD[list.length ? week.dayLoad[d] : 'F'])}</span>
                 </div>
                 <div class="evs">
                   {#each list as u (u.id)}
-                    <div class="u k-{TYPES[u.type].kind}" class:quiet={quiet(u)} class:withtick={live} class:ticked={live && done[u.id]} class:let-go={live && released.includes(u.id)} data-unit={u.id}>
+                    <div class="u k-{TYPES[u.type].kind}" class:quiet={quiet(u)} class:withtick={live} class:ticked={live && done[u.id]} class:let-go={live && released.includes(u.id)} class:td-lift={pulled?.id === u.id} style:transform={pulled?.id === u.id ? `translateY(${pulled.dy}px)` : undefined} data-unit={u.id} use:timedrag={{ day: String(d), enabled: isNow && !quiet(u), whole: true, onpreview: pullPreview(u), oncommit: pullDone(u) }}>
                       {#if live}<label class="tk"><input type="checkbox" class="tick" checked={!!done[u.id]} disabled={released.includes(u.id)} onchange={(e) => tick(u, e.currentTarget.checked, e.currentTarget)} aria-label={t('Done: {what} on {day}', { what: nameOf(u.type), day: dayName(d) })} data-wp-tick={u.id} /></label>{/if}
                       <time>{u.t}</time>
                       <span class="t">{nameOf(u.type)}</span>
@@ -840,11 +847,27 @@
     min-width: 0;
   }
   .u {
+    -webkit-touch-callout: none;
     display: grid;
     grid-template-columns: 3.4em minmax(0, 1fr) auto;
     gap: var(--sp-2);
     margin: 0;
     align-items: baseline;
+  }
+  .u time,
+  .u .t,
+  .u .m {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .u.td-lift {
+    background: var(--paper);
+    border-radius: var(--r-card, 12px);
+  }
+  .day.drop {
+    outline: 2px dashed var(--accent);
+    outline-offset: -2px;
+    border-radius: var(--r-card, 12px);
   }
   .u .t {
     min-width: 0;
@@ -908,9 +931,9 @@
     cursor: pointer;
   }
   .chip[aria-pressed='true'] {
-    background: var(--ink);
-    color: var(--paper);
-    border-color: var(--ink);
+    background: var(--hi);
+    color: var(--hi-ink);
+    border-color: var(--hi);
   }
   .chip:disabled {
     opacity: 0.4;

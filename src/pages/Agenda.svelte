@@ -11,13 +11,16 @@
   import DateInput from '../lib/ui/DateInput.svelte';
   import { agenda, connect, fetchNow, checkAllowed, saveTask, deleteTask, saveEvent, deleteEvent, chooseCals, hide } from '../lib/agenda/client.svelte.js';
   import WeekGrid from '../lib/agenda/WeekGrid.svelte';
+  import MoveSheet from '../lib/ui/MoveSheet.svelte';
+  import { offerDone } from '../lib/ui/rename.svelte.js';
+  import { shiftClock, daysBetween, addDaysTo, minutesOfClock, clockOf } from '../lib/ui/timedrag.js';
   import { mondayOf, isoWeek } from '../lib/training.js';
   import { byDay, taskGroups, timeOf, addDays, clockIn, ZONES, UNITS, remindRow, remindMinutes, SHOW_DAYS, EVENT_COLORS, COLOR_NAMES, REPEATS, emptyRepeat, repeatRule } from '../lib/agenda.js';
   import { readKey, STRAVA_HASH } from '../lib/strava/client.svelte.js';
   import { localDay } from '../lib/localday.js';
   import { mail, loadPrefs as loadMailPrefs } from '../lib/mail/client.svelte.js';
   import { eventQuery, MAIL_HASH } from '../lib/mail.js';
-  import { CalendarDays, ListChecks, Link, Lock, RefreshCw, Plus, Check, Circle, CircleCheck, Pencil, Trash2, ExternalLink, MapPin, Clock, EyeOff, Mail, Copy, CopyPlus, X, ChevronLeft, ChevronRight } from '@lucide/svelte';
+  import { CalendarDays, ListChecks, Link, Lock, RefreshCw, Plus, Check, Circle, CircleCheck, Pencil, Trash2, ExternalLink, MapPin, Clock, EyeOff, Mail, Copy, CopyPlus, Move, X, ChevronLeft, ChevronRight } from '@lucide/svelte';
   import '../lib/ich/ich.css';
   import ConnStatus from '../lib/ui/ConnStatus.svelte';
   import { lastOkFetchLine } from '../lib/ui/connstatus.js';
@@ -166,21 +169,71 @@
   const canCopyTo = (e) => writable.some((c) => c.id !== e.cal);
   const addRemind = () => (ev.remind = [...ev.remind, { n: 30, unit: 'minutes', method: 'popup' }]);
   const dropRemind = (i) => (ev.remind = ev.remind.filter((_, j) => j !== i));
+  // the form → what the server takes (the description is sent only when it was changed: Google keeps its formatting otherwise)
+  function payload(f) {
+    const { noteWas, copy, repeat, rep, remind, ...v } = f;
+    if (v.gid && v.note === noteWas) delete v.note;
+    return { ...v, title: f.title.trim(), lastDay: f.allDay && f.lastDay ? f.lastDay : undefined, remind: remind === null ? null : remind.slice(0, 5).map(remindMinutes), tz: f.allDay ? undefined : f.tz, color: f.color || (f.gid ? '' : undefined), repeat: repeat ? undefined : repeatRule(rep) ?? undefined };
+  }
   async function keepEvent(e) {
     e.preventDefault();
     if (!ev.title.trim() || !ev.day) return;
-    const { noteWas, copy, repeat, rep, remind, ...v } = ev;
-    // the description is sent only when it was changed (Google keeps its formatting otherwise)
-    if (v.gid && v.note === noteWas) delete v.note;
-    const res = await saveEvent({ ...v, title: ev.title.trim(), lastDay: ev.allDay && ev.lastDay ? ev.lastDay : undefined, remind: remind === null ? null : remind.slice(0, 5).map(remindMinutes), tz: ev.allDay ? undefined : ev.tz, color: ev.color || (ev.gid ? '' : undefined), repeat: repeat ? undefined : repeatRule(rep) ?? undefined });
+    const res = await saveEvent(payload(ev));
     if (res) {
       msg = ev.gid ? t('Changed in your Google calendar.') : t('«{name}» is in your Google calendar.', { name: ev.title.trim() });
       ev = null;
     }
   }
+
+  // «Termine ziehen» (Noah 24.11.2026 «1a 3a 4a»): moving an appointment is a change in Google too (same step as the form),
+  // with Undo that writes it back. Calendars you may not write to, the app's own calendar and appointments over several days stay put, with the reason.
+  const OWN_CAL = 'Packgenerator'; // the calendar the app makes itself (api/_lib/googleplan.js OWN_CAL_NAME): its entries are written from the app on every sync
+  const canWrite = (e) => writable.some((c) => c.id === e.cal) || e.cal === 'primary';
+  function lockOf(e) {
+    if (!canWrite(e)) return t('This calendar is read-only, so the appointment cannot be moved here.');
+    if (calName(e.cal) === OWN_CAL) return t('This appointment comes from the app. Move it where you planned it.');
+    if (!e.allDay && e.lastDay > e.day) return t('This appointment lasts several days. Change it with «Change».');
+    return '';
+  }
+  let moving = $state(null); // { e } while the «Move …» window is open
+  async function applyMove(e, before, after) {
+    msg = t('Saving in your Google calendar …');
+    const res = await saveEvent(payload(after));
+    msg = '';
+    if (!res) return false;
+    const when = after.allDay ? short(after.day) : `${short(after.day)}, ${after.from}`;
+    offerDone(t('«{name}» moved to {when}. Also changed in your Google calendar.', { name: e.title, when }), async () => {
+      if (await saveEvent(payload(before))) offerDone(t('«{name}» is back.', { name: e.title }));
+    });
+    return true;
+  }
+  // dragged in the week grid: { mode, day, fromDay, start, end, fromStart, fromEnd } in minutes of Zurich
+  function dragged(e, m) {
+    const f = formOf(e);
+    const dDays = daysBetween(m.fromDay, m.day);
+    const a = m.mode === 'size' ? { day: f.day, time: f.from } : shiftClock({ day: f.day, time: f.from }, dDays, m.start - m.fromStart);
+    let to = shiftClock({ day: a.day, time: f.to }, 0, m.mode === 'size' ? m.end - m.fromEnd : m.start - m.fromStart);
+    if (to.day !== a.day || minutesOfClock(to.time) <= minutesOfClock(a.time)) to = { day: a.day, time: m.mode === 'size' ? clockOf(Math.min(1439, minutesOfClock(a.time) + 15)) : '23:59' };
+    return applyMove(e, f, { ...f, day: a.day, from: a.time, to: to.time });
+  }
+  // «Move …» in the details: day and time, the length stays
+  function movedBy(e, day, time) {
+    const f = formOf(e);
+    if (e.allDay) return applyMove(e, f, { ...f, day, lastDay: f.lastDay ? addDaysTo(f.lastDay, daysBetween(f.day, day)) : '' });
+    const len = minutesOfClock(f.to) - minutesOfClock(f.from);
+    const end = shiftClock({ day, time }, 0, len > 0 ? len : 60);
+    return applyMove(e, f, { ...f, day, from: time, to: end.day === day ? end.time : '23:59' });
+  }
   async function dropEvent(e) {
     if ((await askDelete({ title: t('Delete «{name}» in your Google calendar too?', { name: e.title }) })) !== 'delete') return;
-    if (await deleteEvent(e)) openEv = pickedEv = null;
+    const before = formOf(e);
+    if (await deleteEvent(e)) {
+      openEv = pickedEv = null;
+      // Undo makes it again in Google (a new entry with the same words; an appointment that repeated comes back as a single one)
+      offerDone(t('«{name}» deleted in your Google calendar.', { name: e.title }), async () => {
+        if (await saveEvent(payload({ ...before, gid: undefined, repeat: false, rep: emptyRepeat() }))) offerDone(t('«{name}» is back.', { name: e.title }));
+      });
+    }
   }
 
   function toggleCal(id, yes) {
@@ -210,16 +263,18 @@
   <div class="more">
     <p class="ich-help"><Clock size={14} aria-hidden="true" /> {span(e)}{#if e.where}{' · '}<MapPin size={14} aria-hidden="true" /> {e.where}{/if}</p>
     {#if e.note}<p class="note-t">{e.note}</p>{/if}
+    {#if lockOf(e)}<p class="ich-help" data-ev-lock><Lock size={14} aria-hidden="true" /> {lockOf(e)}</p>{/if}
     <div class="btns">
-      {#if e.link}<a class="btn sm" href={e.link} target="_blank" rel="noopener"><ExternalLink size={15} aria-hidden="true" />{t('Open in Google')}</a>{/if}
-      {#if mail.prefs.allowed && eventQuery(e)}<a class="btn sm" href={`${MAIL_HASH}?${new URLSearchParams({ q: eventQuery(e), for: e.title })}`}><Mail size={15} aria-hidden="true" />{t('Mails to it')}</a>{/if}
+      {#if e.link}<a class="btn sm" href={e.link} target="_blank" rel="noopener"><ExternalLink size={16} aria-hidden="true" />{t('Open in Google')}</a>{/if}
+      {#if mail.prefs.allowed && eventQuery(e)}<a class="btn sm" href={`${MAIL_HASH}?${new URLSearchParams({ q: eventQuery(e), for: e.title })}`}><Mail size={16} aria-hidden="true" />{t('Mails to it')}</a>{/if}
       {#if writable.length}
-        <button type="button" class="btn sm" data-ev-dup onclick={() => copyEvent(e)}><Copy size={15} aria-hidden="true" />{t('Duplicate')}</button>
-        {#if canCopyTo(e)}<button type="button" class="btn sm" onclick={() => copyEvent(e, true)}><CopyPlus size={15} aria-hidden="true" />{t('Copy to another calendar')}</button>{/if}
+        <button type="button" class="btn sm" data-ev-dup onclick={() => copyEvent(e)}><Copy size={16} aria-hidden="true" />{t('Duplicate')}</button>
+        {#if canCopyTo(e)}<button type="button" class="btn sm" onclick={() => copyEvent(e, true)}><CopyPlus size={16} aria-hidden="true" />{t('Copy to another calendar')}</button>{/if}
       {/if}
       {#if writable.some((c) => c.id === e.cal) || e.cal === 'primary'}
-        <button type="button" class="btn sm" onclick={() => changeEvent(e)}><Pencil size={15} aria-hidden="true" />{t('Change')}</button>
-        <button type="button" class="btn sm danger" onclick={() => dropEvent(e)}><Trash2 size={15} aria-hidden="true" />{t('Delete')}</button>
+        <button type="button" class="btn sm" onclick={() => changeEvent(e)}><Pencil size={16} aria-hidden="true" />{t('Change')}</button>
+        {#if !lockOf(e)}<button type="button" class="btn sm" data-ev-move onclick={() => (moving = { e })}><Move size={16} aria-hidden="true" />{t('Move …')}</button>{/if}
+        <button type="button" class="btn sm danger" onclick={() => dropEvent(e)}><Trash2 size={16} aria-hidden="true" />{t('Delete')}</button>
       {/if}
     </div>
   </div>
@@ -239,8 +294,8 @@
           <div class="card ich-body">
             {#if hasKey}
               <ul class="ich-list pick">
-                <li><label class="ich-row"><input type="checkbox" bind:checked={want.calendar} /><span class="ich-ib"><CalendarDays size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Google Calendar')}</b><small>{t('see your appointments, enter new ones')}</small></span></label></li>
-                <li><label class="ich-row"><input type="checkbox" bind:checked={want.tasks} /><span class="ich-ib"><ListChecks size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Google Tasks')}</b><small>{t('see, tick, add and change tasks')}</small></span></label></li>
+                <li><label class="ich-row"><input type="checkbox" bind:checked={want.calendar} /><span class="ich-ib"><CalendarDays size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('Google Calendar')}</b><small>{t('see your appointments, enter new ones')}</small></span></label></li>
+                <li><label class="ich-row"><input type="checkbox" bind:checked={want.tasks} /><span class="ich-ib"><ListChecks size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('Google Tasks')}</b><small>{t('see, tick, add and change tasks')}</small></span></label></li>
               </ul>
               <button type="button" class="btn hi big wide" disabled={!services.length} onclick={() => connect(services)}><Link size={16} aria-hidden="true" />{t('Connect with Google')}</button>
             {:else}
@@ -261,7 +316,7 @@
                 <button type="button" class="chip" aria-pressed={view === 'list'} data-view="list" onclick={() => setView('list')}>{t('List|view')}</button>
                 <button type="button" class="chip" aria-pressed={view === 'week'} data-view="week" onclick={() => setView('week')}>{t('Week|view')}</button>
               </div>
-              {#if !ev}<button type="button" class="btn sm" onclick={newEvent}><Plus size={15} aria-hidden="true" />{t('New appointment')}</button>{/if}
+              {#if !ev}<button type="button" class="btn sm" onclick={newEvent}><Plus size={16} aria-hidden="true" />{t('New appointment')}</button>{/if}
             </div>
           </div>
           {#if ev}
@@ -330,7 +385,7 @@
                   {:else}
                     <p class="ich-help">{t('No reminder.')}</p>
                   {/each}
-                  {#if ev.remind.length < 5}<button type="button" class="btn sm" onclick={addRemind}><Plus size={15} aria-hidden="true" />{t('Add reminder')}</button>{/if}
+                  {#if ev.remind.length < 5}<button type="button" class="btn sm" onclick={addRemind}><Plus size={16} aria-hidden="true" />{t('Add reminder')}</button>{/if}
                 {/if}
               </fieldset>
               {#if writable.length > 1 && !ev.gid}
@@ -355,7 +410,7 @@
               <button type="button" class="btn sm" aria-label={t('Next days|week')} onclick={() => step(1)}><ChevronRight size={16} aria-hidden="true" /></button>
               <span class="rng">{range}</span>
             </div>
-            <WeekGrid events={agenda.events} days={weekDays} {today} {colors} picked={pickedEv} onpick={(e) => (pickedEv = pickedEv === e.id ? null : e.id)} onnew={newAt} />
+            <WeekGrid events={agenda.events} days={weekDays} {today} {colors} picked={pickedEv} onpick={(e) => (pickedEv = pickedEv === e.id ? null : e.id)} onnew={newAt} {lockOf} onmove={dragged} />
             {#if picked}
               <div class="card ich-body pk">
                 <h3>{picked.title}</h3>
@@ -432,7 +487,7 @@
         <section class="ich-sec" aria-labelledby="st-h">
           <div class="ich-h"><div><h2 id="st-h">{t('From Google')}</h2><p class="ich-hs">{p.lastSync ? t('fetched {when}', { when: ago(p.lastSync) }) : t('not fetched yet')}</p></div></div>
           <div class="card ich-body">
-            <button type="button" class="btn wide" disabled={agenda.busy} onclick={fetchButton}><RefreshCw size={15} aria-hidden="true" />{agenda.busy ? t('Fetching…') : t('Fetch now')}</button>
+            <button type="button" class="btn wide" disabled={agenda.busy} onclick={fetchButton}><RefreshCw size={16} aria-hidden="true" />{agenda.busy ? t('Fetching…') : t('Fetch now')}</button>
             <ConnStatus name="Google" busy={agenda.busy} since={agenda.since} />
             <p class="ich-help">{t('By itself when the app opens, at most every 15 minutes.')}</p>
           </div>
@@ -455,9 +510,9 @@
                 <span class="ich-ib"><Icon size={18} aria-hidden="true" /></span>
                 <span class="ich-m"><b>{t(name)}</b><small>{p[k] ? t('on') : t('off')}</small></span>
                 {#if p[k]}
-                  <button type="button" class="btn sm" onclick={() => hide(k)}><EyeOff size={15} aria-hidden="true" />{t('Hide')}</button>
+                  <button type="button" class="btn sm" onclick={() => hide(k)}><EyeOff size={16} aria-hidden="true" />{t('Hide')}</button>
                 {:else}
-                  <button type="button" class="btn sm" onclick={() => connect([k])}><Link size={15} aria-hidden="true" />{t('Connect')}</button>
+                  <button type="button" class="btn sm" onclick={() => connect([k])}><Link size={16} aria-hidden="true" />{t('Connect')}</button>
                 {/if}
               </li>
             {/each}
@@ -476,7 +531,7 @@
       <label>{t('Due (optional)')}<DateInput bind:value={editTask.due} /></label>
       <label>{t('Note')}<textarea bind:value={editTask.notes} rows="3" maxlength="2000"></textarea></label>
       <div class="go">
-        <button type="button" class="btn sm danger" onclick={() => dropTask(x)}><Trash2 size={15} aria-hidden="true" />{t('Delete')}</button>
+        <button type="button" class="btn sm danger" onclick={() => dropTask(x)}><Trash2 size={16} aria-hidden="true" />{t('Delete')}</button>
         <span class="fill"></span>
         <button type="button" class="btn sm" onclick={() => (editTask = null)}>{t('Cancel')}</button>
         <button type="submit" class="btn sm hi">{t('Save')}</button>
@@ -485,7 +540,7 @@
   {:else}
     <div class="ich-row trow" class:done={x.done}>
       <button type="button" class="tick" aria-pressed={x.done} aria-label={x.done ? t('Not done: {name}', { name: x.title }) : t('Done: {name}', { name: x.title })} onclick={() => tick(x)}>
-        {#if x.done}<CircleCheck size={22} aria-hidden="true" />{:else}<Circle size={22} aria-hidden="true" />{/if}
+        {#if x.done}<CircleCheck size={24} aria-hidden="true" />{:else}<Circle size={24} aria-hidden="true" />{/if}
       </button>
       <span class="ich-m"><b>{x.title}</b>{#if x.due || x.notes}<small>{[x.due ? short(x.due) : '', x.notes ? x.notes.split('\n')[0].slice(0, 80) : ''].filter(Boolean).join(' · ')}</small>{/if}</span>
       <button type="button" class="ib" aria-label={t('Change «{name}»', { name: x.title })} onclick={() => (editTask = { ...x, due: x.due ?? '' })}><Pencil size={16} aria-hidden="true" /></button>
@@ -496,6 +551,18 @@
 {#snippet task(x)}
   <li>{@render taskRow(x)}</li>
 {/snippet}
+
+{#if moving}
+  <MoveSheet
+    title={moving.e.title}
+    day={moving.e.allDay ? moving.e.day : clockIn(moving.e.start, moving.e.tz || ZONES[0]).day}
+    time={moving.e.allDay ? '' : clockIn(moving.e.start, moving.e.tz || ZONES[0]).time}
+    timeless={moving.e.allDay}
+    sync={t('The change is written to your Google calendar too. «Undo» writes it back.')}
+    onsave={({ day, time }) => movedBy(moving.e, day, time)}
+    onclose={() => (moving = null)}
+  />
+{/if}
 
 <style>
   .agendapage {
@@ -617,9 +684,9 @@
     cursor: pointer;
   }
   .chip[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   .danger {
     color: var(--bad);

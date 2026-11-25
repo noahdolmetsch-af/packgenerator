@@ -31,7 +31,7 @@
   <div class="rc-head">
     <h2 id="rcb-{id}" class="rc-h2">{title}</h2>
     {@render actions?.()}
-    <button type="button" class="rc-icon" aria-expanded={open} aria-label={t('What is «{name}»?', { name: title })} onclick={() => (open = !open)} data-race-info={id}><Info size={18} aria-hidden="true" /></button>
+    <button type="button" class="rc-icon" aria-expanded={open} aria-label={t('What is «{name}»?', { name: title })} onclick={() => (open = !open)} data-race-info={id}><Info size={20} aria-hidden="true" /></button>
   </div>
   {#if open}
     <div class="rc-info" data-race-explain={id}>

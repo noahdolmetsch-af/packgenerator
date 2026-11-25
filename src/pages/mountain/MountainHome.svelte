@@ -23,7 +23,7 @@
 <div class="sk">
   <p class="sk-back"><a href="#/ski"><ChevronLeft size={16} aria-hidden="true" />{t('Ski tours')}</a></p>
   <header class="sk-head">
-    <span class="sk-badge" aria-hidden="true"><MountainSnow size={26} /></span>
+    <span class="sk-badge" aria-hidden="true"><MountainSnow size={24} /></span>
     <div>
       <h1 class="sk-h1" tabindex="-1" data-page-title>{t('Mountain and emergency')}</h1>
       <p class="sk-sub">{t('For ski tours and hikes: help in an emergency, the map with steep slopes, the grades.')}</p>
@@ -34,10 +34,10 @@
     <div>
       <section class="surf sk-pad sos" aria-labelledby="mh-sos">
         <h2 class="sk-kicker" id="mh-sos">{t('Emergency')}</h2>
-        <a class="btn hi sk-go big" href="#/mountain/sos" data-to="sos"><Siren size={22} aria-hidden="true" />{t('Emergency: show my position')}</a>
+        <a class="btn hi sk-go big" href="#/mountain/sos" data-to="sos"><Siren size={24} aria-hidden="true" />{t('Emergency: show my position')}</a>
         <div class="calls">
           {#each CALLS as c (c.key)}
-            <a class="btn call" href={telOf(c.number)} data-call={c.number}><Phone size={18} aria-hidden="true" />{t(c.label)}</a>
+            <a class="btn call" href={telOf(c.number)} data-call={c.number}><Phone size={20} aria-hidden="true" />{t(c.label)}</a>
           {/each}
         </div>
         <p class="sk-quiet">{t('The numbers work offline. On the next page your position is shown big, to read out on the phone.')}</p>
@@ -48,28 +48,28 @@
           <a class="sk-row" href="#/mountain/map" data-row="map">
             <span class="sk-ri" aria-hidden="true"><MapIcon size={20} /></span>
             <span class="sk-rt"><b>{t('Map with steep slopes')}</b><small>{t('swisstopo: slopes over 30°, ski touring routes, hiking trails')}</small></span>
-            <ChevronRight size={18} aria-hidden="true" />
+            <ChevronRight size={20} aria-hidden="true" />
           </a>
         </li>
         <li>
           <a class="sk-row" href="#/mountain/qr" data-row="qr">
             <span class="sk-ri" aria-hidden="true"><QrCode size={20} /></span>
             <span class="sk-rt"><b>{t('Emergency QR for the lock screen')}</b><small>{$cardQ && hasCard($cardQ.value) ? t('Your emergency card is filled in') : t('Contact, allergies, medicines: helpers scan it')}</small></span>
-            <ChevronRight size={18} aria-hidden="true" />
+            <ChevronRight size={20} aria-hidden="true" />
           </a>
         </li>
         <li>
           <a class="sk-row" href="#/mountain/scales" data-row="scales">
             <span class="sk-ri" aria-hidden="true"><Signpost size={20} /></span>
             <span class="sk-rt"><b>{t('Signposts and grades')}</b><small>{t('Yellow, white-red-white, white-blue-white; SAC T1–T6 and L–EX')}</small></span>
-            <ChevronRight size={18} aria-hidden="true" />
+            <ChevronRight size={20} aria-hidden="true" />
           </a>
         </li>
         <li>
           <a class="sk-row" href="#/me/tools/compass" data-row="compass">
             <span class="sk-ri" aria-hidden="true"><Compass size={20} /></span>
             <span class="sk-rt"><b>{t('Compass')}</b><small>{t('In the toolbox, works without the internet')}</small></span>
-            <ChevronRight size={18} aria-hidden="true" />
+            <ChevronRight size={20} aria-hidden="true" />
           </a>
         </li>
       </ul>

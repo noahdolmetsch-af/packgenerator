@@ -135,7 +135,7 @@
 </script>
 
 <section class="lr" aria-labelledby="lr-h" data-live-route>
-  <h3 id="lr-h"><MapPinned size={18} aria-hidden="true" />{t('Ride along a GPX route')}</h3>
+  <h3 id="lr-h"><MapPinned size={20} aria-hidden="true" />{t('Ride along a GPX route')}</h3>
   {#if route}
     <div class="lr-row">
       <RouteIcon size={20} aria-hidden="true" />
@@ -168,7 +168,7 @@
       </div>
     {/if}
     <label class="btn lr-file">
-      <Upload size={17} aria-hidden="true" />{busy ? t('Reading…') : t('Open GPX file')}
+      <Upload size={16} aria-hidden="true" />{busy ? t('Reading…') : t('Open GPX file')}
       <input type="file" accept=".gpx,application/gpx+xml" onchange={pick} disabled={busy} class="sr" data-live-route-file />
     </label>
     <RwgpsLink onload={fromLink} />

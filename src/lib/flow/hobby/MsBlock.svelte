@@ -41,7 +41,7 @@
   {#if recent.length}
     <ul class="recent">
       {#each recent as x (x.star.id)}
-        <li><span class="rs" aria-hidden="true"><Star size={22} /></span><span><b>{msName(x.r.m)}{#if label(x.r)}<span class="ra"> · {label(x.r)}</span>{/if}</b><small>{starLine(x.star.star)} · {dayWord(x.star.day, today)}</small></span></li>
+        <li><span class="rs" aria-hidden="true"><Star size={24} /></span><span><b>{msName(x.r.m)}{#if label(x.r)}<span class="ra"> · {label(x.r)}</span>{/if}</b><small>{starLine(x.star.star)} · {dayWord(x.star.day, today)}</small></span></li>
       {/each}
     </ul>
   {:else}

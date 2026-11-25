@@ -143,7 +143,8 @@ test('Fahrten: the page is «Fahrten»; a ride without a trip shows «Rückblick
   await page.reload();
   await expect(page.getByRole('heading', { level: 1, name: T('Rides|page') })).toBeVisible();
   await expect(page.getByRole('navigation', { name: T('Path') })).toContainText(T('Rides|page'));
-  await expect(page.locator('.drop .pickbtn')).toContainText(T('Choose file'));
+  // with saved rides the list comes first and the upload is one small button «Fahrt hochladen» (Noah 24.11.2026 «1-5a», 4a)
+  await expect(page.locator('.drop .pickbtn')).toContainText(T('Upload ride'));
   const open = page.locator('li[data-ride][data-open]');
   await expect(open.first()).toBeVisible();
   const n = await open.count();

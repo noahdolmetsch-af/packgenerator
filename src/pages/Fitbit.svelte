@@ -77,7 +77,7 @@
       <section class="ich-sec" aria-labelledby="more-h">
         <div class="ich-h"><div><h2 id="more-h">{t('More|fitbit')}</h2></div></div>
         <ul class="card ich-list">
-          <li><a class="ich-row" href={DATA_HASH}><span class="ich-ib"><FileText size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('The past from your Fitbit file')}</b><small>{health.first?.src === 'file' ? t('imported: from {year}', { year: health.first.date.slice(0, 4) }) : t('once: Data and backup › Import backup › Merge')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>
+          <li><a class="ich-row" href={DATA_HASH}><span class="ich-ib"><FileText size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('The past from your Fitbit file')}</b><small>{health.first?.src === 'file' ? t('imported: from {year}', { year: health.first.date.slice(0, 4) }) : t('once: Data and backup › Import backup › Merge')}</small></span><ChevronRight class="ich-chev" size={20} aria-hidden="true" /></a></li>
         </ul>
       </section>
     </div>

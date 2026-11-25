@@ -60,7 +60,7 @@
 </script>
 
 <section class="ov" aria-labelledby="ov-h" data-ov-nearby>
-  <h3 id="ov-h"><TrainFront size={18} aria-hidden="true" />{t('Public transport nearby')}</h3>
+  <h3 id="ov-h"><TrainFront size={20} aria-hidden="true" />{t('Public transport nearby')}</h3>
   {#if !stop}
     {#if !stops}
       <p class="hint">{t('Stops near the map position and their next departures, from the Swiss timetable.')}</p>

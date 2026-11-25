@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../actlite.js';
   /**
    * «Aktivität anlegen?» (Noah 21.11.2026 «4a», Thread «Sportjahr», S7): in «Meine Sportarten», when Strava has
    * sports (hiking, swimming …) for which there is no activity yet. One tap makes the activity (movement, no goal,
@@ -16,7 +17,7 @@
   import { t, tn } from '../i18n.svelte.js';
 
   const q = liveQuery(async () => {
-    const [activities, acts, ticks] = await Promise.all([db.activities.toArray(), db.flowActs.toArray(), db.settings.get(TICKS_KEY)]);
+    const [activities, acts, ticks] = await Promise.all([readLite(db, (T) => T.toArray()), db.flowActs.toArray(), db.settings.get(TICKS_KEY)]);
     return { activities, acts, map: prefsOf(ticks?.value).map };
   });
   const d = $derived($q);

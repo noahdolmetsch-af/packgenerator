@@ -25,8 +25,14 @@
   import { mondayOf, shiftDay } from '../lib/training.js';
   import { actName } from '../lib/flow/ui.svelte.js';
   import { localDay } from '../lib/localday.js';
-  import { t } from '../lib/i18n.svelte.js';
-  import { layoutDay, fmtMin, nowMin, weekOf } from '../lib/tag/timeline.js';
+  import { t, tn } from '../lib/i18n.svelte.js';
+  import { layoutDay, hourRows, isOver, fmtMin, nowMin, weekOf } from '../lib/tag/timeline.js';
+  import { foldSimilar } from '../lib/tag/similar.js';
+  import { HOME_PLACE } from '../lib/know.js';
+  import { loadCore, atLocal } from '../lib/wetter/kern.js';
+  import { OUTDOOR_KEY, outdoorOf, dayOf as outdoorDay } from '../lib/outdoor.js';
+  import { outdoorWindow, needOf, planRef } from '../lib/tag/draussen.js';
+  import { eveningRows, laterDay } from '../lib/tag/abend.js';
 
   let { sub = '' } = $props();
   const today = localDay();
@@ -71,13 +77,59 @@
   const actOf = $derived(new Map((src?.flowActs ?? []).map((a) => [a.id, a])));
   const week = $derived(src ? buildWeek({ ...src, forecast, monday, today, goalHours: src.goal?.hours ?? null, actName: (id) => actName(actOf.get(id)) || id }) : null);
   const d = $derived(week?.days.find((x) => x.day === day) ?? null);
-  const lay = $derived(layoutDay(d?.entries ?? [], { now: nowMin(day, today) }));
-  const sumOf = (x) => week?.days.find((w) => w.day === x)?.entries.filter((e) => e.kind !== 'away').length ?? 0;
+  // a suggestion of the app that only looks like a session of your imported plan is folded into one closed line (Noah 24.11.2026)
+  const split = $derived(foldSimilar(d?.entries ?? []));
+  const lay = $derived(layoutDay(split.entries, { now: nowMin(day, today) }));
+  const bandIds = $derived(new Set(lay.bands.map((e) => e.id)));
+  const untimed = $derived(lay.untimed.filter((e) => !bandIds.has(e.id)));
+  // the dot under a day says «something is on»: a date, a to-do, an own entry or a ticked session, not the plain training plan that every day has
+  const busyOf = (x) => week?.days.find((w) => w.day === x)?.entries.filter((e) => e.kind !== 'away' && !(e.id.startsWith('tr:') && !e.done)).length ?? 0;
 
-  const HH = 72; // pixels per hour
-  const hours = $derived(Array.from({ length: (lay.to - lay.from) / 60 + 1 }, (_, i) => lay.from + i * 60));
-  const top = (m) => ((m - lay.from) / 60) * HH;
   const now = $derived(nowMin(day, today));
+
+  // «When do I get my 90 minutes?» (Noah 25.11.2026 «1-3»): the free, dry window for the daily goal of the challenge «Outdoors», as a dashed block in the timeline
+  const homeQ = liveQuery(() => db.settings.get(HOME_PLACE));
+  const recQ = liveQuery(() => db.settings.get(OUTDOOR_KEY));
+  const place = $derived($homeQ?.value && Number.isFinite(Number($homeQ.value.lat)) ? $homeQ.value : null);
+  let core = $state(null);
+  $effect(() => {
+    const pl = place;
+    if (!pl) {
+      core = null;
+      return;
+    }
+    loadCore(db, pl)
+      .then((c) => (core = c))
+      .catch(() => (core = null));
+  });
+  const rec = $derived(outdoorOf($recQ?.value));
+  const outName = $derived(!rec?.name || rec.name === 'Outdoors' ? t('Outdoors') : rec.name);
+  const outdoor = $derived.by(() => {
+    if (!core || !rec?.from || rec.stopped || rec.closed || day < today || day < rec.from || day > rec.until) return null;
+    if (items().some((x) => x.ref === planRef(day) && !x.done)) return null;
+    const need = needOf(rec.goalMin, outdoorDay(rec, src?.acts ?? [], today).total, day, today);
+    if (need < 15) return null;
+    const base = atLocal(day, 0, core.offset ?? 0);
+    const busy = lay.blocks.map((b) => [base + b.start * 6e4, base + b.end * 6e4]);
+    const events = src?.google?.prefs?.calendar === true ? (src.google.events ?? []) : [];
+    const w = outdoorWindow(core, { events, busy, need, day, now: Date.now() });
+    if (!w) return null;
+    const mins = (ms) => Math.round((ms - base) / 6e4);
+    return w.start != null ? { need, win: { s: mins(w.start), e: mins(w.end), mins: w.mins, temp: w.temp } } : { need, short: w.short ? { s: mins(w.short.start), e: mins(w.short.end) } : null };
+  });
+  async function planOutdoor() {
+    const w = outdoor?.win;
+    if (!w) return;
+    const before = items();
+    const item = cleanItem({ kind: 'date', title: outName, day, time: fmtMin(w.s), mins: w.mins, ref: planRef(day) });
+    await saveItems([...before, item]);
+    offerDone(t('«{name}» set for {time}.', { name: outName, time: fmtMin(w.s) }), () => saveItems(before));
+  }
+
+  // empty hours are half as tall (Noah 24.11.2026); the rows come from the saved entries, so the layout holds still while dragging
+  const grid = $derived(hourRows([...lay.blocks, ...(outdoor?.win ? [{ start: outdoor.win.s, end: outdoor.win.e }] : [])], { from: lay.from, to: lay.to, now }));
+  const top = (m) => grid.pos(m);
+  const hourLabels = $derived([...grid.rows.map((r) => r.from), lay.to]);
 
   const dayLong = (x) => dayName(x, true);
   const rel = $derived(day === today ? t('Today|day') : day === shiftDay(today, 1) ? t('Tomorrow|day') : day === shiftDay(today, -1) ? t('Yesterday|day') : '');
@@ -109,8 +161,9 @@
     return { start, end: start + len };
   }
   // over another day's chip the time stays as it is: only the day changes
-  const byOf = (g) => (g.over ? 0 : (g.dy / HH) * 60);
-  const shown = (b) => (drag?.id === b.e.id ? shape(b, drag.mode, byOf(drag)) : { start: b.start, end: b.end });
+  // pixels to minutes through the rows (an empty hour is half as tall as one with an entry)
+  const byOf = (g, b) => (g.over ? 0 : g.mode === 'size' ? grid.at(grid.pos(b.end) + g.dy) - b.end : grid.at(grid.pos(b.start) + g.dy) - b.start);
+  const shown = (b) => (drag?.id === b.e.id ? shape(b, drag.mode, byOf(drag, b)) : { start: b.start, end: b.end });
   // with pointer capture the click after a drag lands on the grip: it must not open the entry
   const stopClick = (ev) => (ev.preventDefault(), ev.stopPropagation());
   function dragStart(ev, b, mode) {
@@ -134,7 +187,7 @@
     if (!g || (Math.abs(g.dy) < 4 && !g.over)) return;
     const item = items().find((x) => x.id === g.id);
     if (!item) return;
-    const to = shape(b, g.mode, byOf(g));
+    const to = shape(b, g.mode, byOf(g, b));
     await change(item, g.mode === 'size' ? { mins: to.end - to.start } : { time: fmtMin(to.start), ...(g.over ? { day: g.over } : {}) });
   }
   async function change(item, patch) {
@@ -184,8 +237,8 @@
     if (fields.mins == null) delete next.mins;
     await saveItems(old ? items().map((x) => (x.id === old.id ? next : x)) : [...items(), next]);
   }
-  function deleteEntry() {
-    const gone = editing.item;
+  const deleteEntry = () => removeItem(editing.item);
+  function removeItem(gone) {
     return deleteWithUndo({
       run: () => saveItems(items().filter((x) => x.id !== gone.id)),
       undo: () => saveItems([...items().filter((x) => x.id !== gone.id), gone]),
@@ -193,6 +246,17 @@
       name: gone.title,
       item: { store: ITEMS_KEY, row: gone, kind: 'plan' },
     });
+  }
+  // «Evening review» (Noah 25.11.2026 «1-3», idea 2): from 18:00 on today and on earlier days, a closed line counts what is still open
+  const later = $derived(laterDay(day, today, shiftDay));
+  const open = $derived(tab === 'day' ? eveningRows(split.entries, { day, today, now: now ?? 0, isOwn }) : []);
+  const openOwn = $derived(open.filter((r) => r.own));
+  const itemOf = (e) => items().find((x) => x.id === e.id);
+  async function moveAll() {
+    const before = items();
+    const ids = new Set(openOwn.map((r) => r.e.id));
+    await saveItems(before.map((x) => (ids.has(x.id) ? cleanItem({ ...x, day: later }) : x)));
+    offerDone(t('{n} entries moved to {day}.', { n: ids.size, day: dayName(later) }), () => saveItems(before));
   }
 </script>
 
@@ -206,24 +270,24 @@
   <Abhaken {today} />
 {:else}
 <nav class="wk" aria-label={t('Choose a day')}>
-  <a class="step" href="#/day/{shiftDay(day, -1)}" aria-label={t('Day before')}><ChevronLeft size={18} aria-hidden="true" /></a>
+  <a class="step" href="#/day/{shiftDay(day, -1)}" aria-label={t('Day before')}><ChevronLeft size={20} aria-hidden="true" /></a>
   <div class="chips">
     {#each days as x (x)}
       <a class="chip" data-day={x} class:dropon={drag?.over === x} class:on={x === day} class:today={x === today} href="#/day/{x}" aria-current={x === day ? 'date' : undefined}>
         <span class="wd">{dayName(x).split(' ')[0]}</span>
         <b class="num">{Number(x.slice(8))}</b>
-        {#if sumOf(x)}<span class="dot" aria-label={t('{n} entries', { n: sumOf(x) })}></span>{/if}
+        {#if busyOf(x)}<span class="dot" aria-label={t('{n} entries', { n: busyOf(x) })}></span>{/if}
       </a>
     {/each}
   </div>
-  <a class="step" href="#/day/{shiftDay(day, 1)}" aria-label={t('Day after')}><ChevronRight size={18} aria-hidden="true" /></a>
+  <a class="step" href="#/day/{shiftDay(day, 1)}" aria-label={t('Day after')}><ChevronRight size={20} aria-hidden="true" /></a>
 </nav>
 
 <p class="line">
   <span>{dayLong(day)}</span>
   {#if rel}<span class="tag">{rel}</span>{/if}
   {#if d?.holiday}<span class="tag">{holidayName(d.holiday)}</span>{/if}
-  {#if wetNow}<span class="wx">{#if wetNow.wet}<CloudRain size={15} aria-hidden="true" />{:else if wetNow.dry}<Sun size={15} aria-hidden="true" />{:else}<CloudSun size={15} aria-hidden="true" />{/if}{wxWords(wetNow)}</span>{/if}
+  {#if wetNow}<span class="wx">{#if wetNow.wet}<CloudRain size={16} aria-hidden="true" />{:else if wetNow.dry}<Sun size={16} aria-hidden="true" />{:else}<CloudSun size={16} aria-hidden="true" />{/if}{wxWords(wetNow)}</span>{/if}
   {#if day !== today}<a class="today-link" href="#/day/{today}">{t('Back to today')}</a>{/if}
 </p>
 <p class="addrow">
@@ -238,11 +302,16 @@
     <p class="away"><Palmtree size={16} aria-hidden="true" /> <span>{titleOf(e) || t('Holidays|away')}</span>{#if subOf(e)}<small>{subOf(e)}</small>{/if}</p>
   {/each}
 
-  {#if lay.untimed.length}
+  <!-- dates of the outside calendar that last all day (also for several days) stand as a band across the top (Noah 24.11.2026) -->
+  {#each lay.bands as e (e.id)}
+    <a class="band" href={href(e)} data-band={e.id}><b>{titleOf(e)}</b><small>{subOf(e) || t('All day|band')}</small></a>
+  {/each}
+
+  {#if untimed.length}
     <section class="untimed" aria-label={t('Without a time')}>
       <h2>{t('Without a time')}</h2>
       <ul>
-        {#each lay.untimed as e (e.id)}
+        {#each untimed as e (e.id)}
           <li class="k-{e.kind}" class:done={e.done}>
             <a href={href(e)} data-entry={e.id} onclick={(ev) => openEntry(e, ev)}><b>{titleOf(e)}</b><small>{subOf(e) || t(KIND_NAMES[e.kind] ?? 'Other|kind')}</small></a>
           </li>
@@ -251,10 +320,52 @@
     </section>
   {/if}
 
+  <!-- the evening review: what is still open, one line, closed (Noah 25.11.2026) -->
+  {#if open.length}
+    <details class="evening" data-evening>
+      <summary>{tn(open.length, '{n} thing is still open|evening', '{n} things are still open|evening')}</summary>
+      <ul>
+        {#each open as r (r.e.id)}
+          <li>
+            <a class="what" href={href(r.e)} data-evening-entry={r.e.id} onclick={(ev) => openEntry(r.e, ev)}><b>{titleOf(r.e)}</b><small>{subOf(r.e) || t(KIND_NAMES[r.e.kind] ?? 'Other|kind')}</small></a>
+            {#if r.own}
+              <span class="acts">
+                <button type="button" data-evening-done onclick={() => tickItem(itemOf(r.e))}>{t('Done|evening')}</button>
+                <button type="button" data-evening-later onclick={() => change(itemOf(r.e), { day: later })}>{day < today ? t('To today|evening') : t('To tomorrow|evening')}</button>
+                <button type="button" data-evening-drop onclick={() => removeItem(itemOf(r.e))}>{t('Drop|evening')}</button>
+              </span>
+            {:else}
+              <a class="acts tick" href="#/day/abhaken">{t('Tick off ›|evening')}</a>
+            {/if}
+          </li>
+        {/each}
+      </ul>
+      {#if openOwn.length > 1}
+        <button type="button" class="all" data-evening-all onclick={moveAll}>{day < today ? t('All to today|evening') : t('All to tomorrow|evening')}</button>
+      {/if}
+    </details>
+  {/if}
+
+  <!-- a suggestion of the app that only looks like a session of your imported plan: one closed line, nothing is deleted (Noah 24.11.2026) -->
+  {#if split.folded.length}
+    <details class="similar" data-similar>
+      <summary>{tn(split.folded.length, '{n} suggestion looks like your plan|similar', '{n} suggestions look like your plan|similar')}</summary>
+      <ul>
+        {#each split.folded as f (f.e.id)}
+          <li><a href={href(f.e)} data-entry={f.e.id}><b>{titleOf(f.e)}</b><small>{subOf(f.e) || t(KIND_NAMES[f.e.kind] ?? 'Other|kind')} · {t('like «{name}»', { name: titleOf(f.like) })}</small></a></li>
+        {/each}
+      </ul>
+    </details>
+  {/if}
+
+  {#if outdoor && !outdoor.win}
+    <p class="outnote" data-draussen-none>{t('No free dry window of {n} min on this day.', { n: outdoor.need })}{#if outdoor.short}{' '}{t('Longest free and dry stretch: {from}–{to}.', { from: fmtMin(outdoor.short.s), to: fmtMin(outdoor.short.e) })}{/if}</p>
+  {/if}
+
   {#snippet timeline()}
-  <section class="tl" aria-label={t('Timeline')} style="--hh: {HH}px; height: {top(lay.to)}px">
-    {#each hours as h (h)}
-      <div class="hr" style="top: {top(h)}px"><span class="num">{fmtMin(h)}</span></div>
+  <section class="tl" aria-label={t('Timeline')} style="height: {grid.height}px">
+    {#each hourLabels as h, i (h)}
+      <div class="hr" class:empty={grid.rows[i]?.empty} style="top: {top(h)}px"><span class="num">{fmtMin(h)}</span></div>
     {/each}
     {#if now != null && now >= lay.from && now <= lay.to}
       <div class="now" style="top: {top(now)}px"><span>{t('now|clock')}</span></div>
@@ -263,12 +374,13 @@
       <a
         class="blk k-{b.e.kind}"
         class:done={b.e.done}
+        class:past={isOver(b, now) && !b.e.done}
         class:small={shown(b).end - shown(b).start <= 30}
         class:dragging={drag?.id === b.e.id}
         href={href(b.e)}
         data-entry={b.e.id}
         onclick={(ev) => openEntry(b.e, ev)}
-        style="top: {top(shown(b).start)}px; height: {Math.max(22, ((shown(b).end - shown(b).start) / 60) * HH - 2)}px; left: calc(52px + (100% - 56px) * {b.col / b.cols}); width: calc((100% - 56px) / {b.cols} - 3px)"
+        style="top: {top(shown(b).start)}px; height: {Math.max(22, top(shown(b).end) - top(shown(b).start) - 2)}px; left: calc(52px + (100% - 56px) * {b.col / b.cols}); width: calc((100% - 56px) / {b.cols} - 3px)"
       >
         <b>{titleOf(b.e)}</b>
         <small class="num">{fmtMin(shown(b).start)}{b.guessed && drag?.id !== b.e.id ? '' : `–${fmtMin(shown(b).end)}`}{subOf(b.e) ? ` · ${subOf(b.e)}` : ''}</small>
@@ -278,6 +390,13 @@
         {/if}
       </a>
     {/each}
+    {#if outdoor?.win}
+      {@const g = outdoor.win}
+      <div class="ghost" data-draussen style="top: {top(g.s)}px; height: {Math.max(52, top(g.e) - top(g.s) - 2)}px">
+        <span class="gt"><b>{outName}</b><small class="num">{fmtMin(g.s)}–{fmtMin(g.e)} · {g.temp != null ? t('Dry, {temp} °C', { temp: g.temp }) : t('Dry|weather')}</small></span>
+        <button type="button" class="plan" data-draussen-plan onclick={planOutdoor}>{t('Plan it')}</button>
+      </div>
+    {/if}
   </section>
   {/snippet}
 
@@ -444,6 +563,126 @@
     font-weight: 400;
     color: var(--ink-2);
   }
+  .band {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    min-height: 44px;
+    margin: 0 0 8px;
+    padding: 8px 12px;
+    box-sizing: border-box;
+    border-left: 3px solid var(--wk-date);
+    border-radius: var(--r-2);
+    background: color-mix(in srgb, var(--wk-date) 13%, var(--paper));
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .band b {
+    font-weight: 600;
+  }
+  .band small {
+    margin-left: auto;
+    color: var(--ink-2);
+    font-size: var(--fs-tiny);
+  }
+  .similar {
+    margin: 0 0 12px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .similar summary {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+  .similar ul {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 4px;
+  }
+  .similar li a {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 8px;
+    min-height: 44px;
+    padding: 6px 2px;
+    color: var(--ink-2);
+    text-decoration: none;
+  }
+  .similar li b {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .evening {
+    margin: 0 0 12px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-3);
+    background: var(--paper);
+    font-size: var(--fs-small);
+  }
+  .evening summary {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .evening ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .evening li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 10px;
+    padding: 6px 0;
+    border-top: 1px solid var(--line);
+  }
+  .evening .what {
+    flex: 1 1 140px;
+    display: grid;
+    min-height: 44px;
+    align-content: center;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .evening small {
+    color: var(--ink-2);
+  }
+  .evening .acts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .evening button,
+  .evening .tick {
+    min-height: 44px;
+    padding: 0 12px;
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--line);
+    border-radius: var(--r-pill);
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    font-size: var(--fs-small);
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .evening button[data-evening-done] {
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
+    font-weight: 600;
+  }
+  .evening .all {
+    margin: 4px 0 10px;
+  }
   .untimed {
     margin: 0 0 12px;
     padding: 10px 12px;
@@ -522,6 +761,63 @@
     left: 0;
     right: 0;
     border-top: 1px solid var(--line);
+  }
+  .hr.empty .num {
+    opacity: 0.7;
+  }
+  /* what is over today is quieter than what is still to come (Noah 24.11.2026) */
+  .blk.past {
+    opacity: 0.55;
+  }
+  .ghost {
+    position: absolute;
+    left: 52px;
+    right: 4px;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    box-sizing: border-box;
+    padding: 4px 6px 4px 10px;
+    border: 1.5px dashed var(--wk-sport);
+    border-radius: var(--r-2);
+    background: color-mix(in srgb, var(--wk-sport) 7%, var(--paper));
+  }
+  .ghost .gt {
+    display: grid;
+    min-width: 0;
+  }
+  .ghost b,
+  .ghost small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .ghost b {
+    font-size: var(--fs-small);
+  }
+  .ghost small {
+    font-size: var(--fs-tiny);
+    color: var(--ink-2);
+  }
+  .ghost .plan {
+    flex: none;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: var(--r-pill);
+    background: var(--hi);
+    color: var(--hi-ink);
+    font: inherit;
+    font-size: var(--fs-small);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .outnote {
+    margin: 0 0 8px;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
   }
   .hr .num {
     position: absolute;

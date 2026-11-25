@@ -996,7 +996,7 @@
           <span class="sub">{t('Bathing|trip')}</span>
           {#each BATHE as b (b)}<OptionButton pressed={(trip.bathe ?? []).includes(b)} icon={b === 'lake' ? Waves : b === 'sauna' ? Bath : Droplets} label={b === 'lake' ? t('Lake or river') : b === 'sauna' ? t('Sauna or bath') : t('Cold water|trip')} onclick={() => change((cur) => { const have = Array.isArray(cur.bathe) ? cur.bathe : []; const next = have.includes(b) ? have.filter((x) => x !== b) : [...have, b]; return { bathe: next.length ? next : null }; })} />{/each}
         </div>
-        <p class="hint byhand"><span class="hchip"><Hand size={13} aria-hidden="true" />{t('still by hand')}</span> {t('Lakes and rivers along the route are not known to the app yet. The water of Lake Zurich is in Aktiv.')}</p>
+        <p class="hint byhand"><span class="hchip"><Hand size={14} aria-hidden="true" />{t('still by hand')}</span> {t('Lakes and rivers along the route are not known to the app yet. The water of Lake Zurich is in Aktiv.')}</p>
         <p class="hint">{t('Brings suggestions in Pack: Pass & climbing, Abroad, Train, Quick swim, Sauna and bath, Cold water. Tap again to take it off.')}</p>
         {#if trip.country && trip.country !== HOME_COUNTRY}<AbroadCard country={trip.country} />{/if}
       </div>
@@ -1177,7 +1177,7 @@
         <details class="tp-fold calm-extra" bind:open={beforeOpen} bind:this={beforeEl}>
           <!-- v0.25.0 (Noah 10): a short ride has no bike care line; then the ready check says where it stands.
                v0.29.0 (Noah 1a): one row with badges; the sentences inside. -->
-          <summary><Wrench size={20} aria-hidden="true" /><span>{t('Before the trip')}</span><span class="r">{#if before.care}{@const w = bikeCareWords(before.care)}<i class="tp-badge" class:warn={w.tone === 'due' || w.tone === 'late'}>{t('Bike care {state}', { state: w.tag })}</i>{/if}{#if before.prep.total}<i class="tp-badge" class:warn={before.prep.open > 0}>{eventPrepLine(before.prep)}</i>{/if}{#if before.shortCare}<i class="tp-badge">{t('Bike care {state}', { state: bikeCareWords(before.shortCare).tag })}</i>{/if}{#if !before.care && !before.prep.total}<i class="tp-badge">{t('Ready check {done} / {n}', { done: readyCount, n: readyTotal })}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
+          <summary><Wrench size={20} aria-hidden="true" /><span>{t('Before the trip')}</span><span class="r">{#if before.care}{@const w = bikeCareWords(before.care)}<i class="tp-badge" class:warn={w.tone === 'due' || w.tone === 'late'}>{t('Bike care {state}', { state: w.tag })}</i>{/if}{#if before.prep.total}<i class="tp-badge" class:warn={before.prep.open > 0}>{eventPrepLine(before.prep)}</i>{/if}{#if before.shortCare}<i class="tp-badge">{t('Bike care {state}', { state: bikeCareWords(before.shortCare).tag })}</i>{/if}{#if !before.care && !before.prep.total}<i class="tp-badge">{t('Ready check {done} / {n}', { done: readyCount, n: readyTotal })}</i>{/if}<ChevronRight class="chev" size={20} aria-hidden="true" /></span></summary>
           <div class="in extra-inner">
             {#if before.shortCare}<p><a class="care-more" href={before.shortCare.href}>{bikeCareLine({ ...before.shortCare, soon: [] })}</a></p>{/if}
             {#if before.care}
@@ -1198,7 +1198,7 @@
       {/if}
       {#if charge.length && !over}
         <details class="tp-fold calm-extra charge-fold">
-          <summary><BatteryCharging size={20} aria-hidden="true" /><span>{t('Charge the evening before')}</span><span class="r"><i class="tp-badge num" class:ok={charged.done === charged.total}>{charged.done}/{charged.total}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
+          <summary><BatteryCharging size={20} aria-hidden="true" /><span>{t('Charge the evening before')}</span><span class="r"><i class="tp-badge num" class:ok={charged.done === charged.total}>{charged.done}/{charged.total}</i><ChevronRight class="chev" size={20} aria-hidden="true" /></span></summary>
           <div class="in extra-inner"><ChargeList {trip} {items} /></div>
         </details>
       {/if}
@@ -1206,7 +1206,7 @@
     <!-- v0.34.0 A (L3): the shopping list, a row in the folds and its sheet (#/pack?shop opens it). -->
     {#snippet shop()}<ShopList {trip} {itemsById} />{/snippet}
     {#snippet starters()}<StarterList {trip} {items} {fixed} onadd={(id) => addTo(zone?.key, id)} onremove={removeEntry} />{/snippet}
-    {#snippet ballastContent()}{#if extra?.rows.length}<details class="tp-fold calm-extra"><summary><Package size={20} aria-hidden="true" /><span>{t('Ballast')}</span><span class="r"><i class="tp-badge">{tn(extra.rows.length, '{n} not used the last times', '{n} not used the last times')}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary><div class="in extra-inner"><ul>{#each extra.rows as r}<li>{itemsById[r.itemId] ? nameOf(itemsById[r.itemId]) : r.name} · {t('{n}× not used', { n: r.n })} · {r.g == null ? t('not weighed') : formatWeight(r.g)} <button class="text-button" onclick={() => leave([r.itemId])}>{t('Leave at home')}</button> <button class="text-button" onclick={() => keep(r.itemId)}>{t('Keep')}</button></li>{/each}</ul></div></details>{/if}{/snippet}
+    {#snippet ballastContent()}{#if extra?.rows.length}<details class="tp-fold calm-extra"><summary><Package size={20} aria-hidden="true" /><span>{t('Ballast')}</span><span class="r"><i class="tp-badge">{tn(extra.rows.length, '{n} not used the last times', '{n} not used the last times')}</i><ChevronRight class="chev" size={20} aria-hidden="true" /></span></summary><div class="in extra-inner"><ul>{#each extra.rows as r}<li>{itemsById[r.itemId] ? nameOf(itemsById[r.itemId]) : r.name} · {t('{n}× not used', { n: r.n })} · {r.g == null ? t('not weighed') : formatWeight(r.g)} <button class="text-button" onclick={() => leave([r.itemId])}>{t('Leave at home')}</button> <button class="text-button" onclick={() => keep(r.itemId)}>{t('Keep')}</button></li>{/each}</ul></div></details>{/if}{/snippet}
   </CalmPack>
   {/if}
   <!-- Paket Q Zusatz 3: from 3 days before the trip, «Für unterwegs offline speichern».
@@ -1248,7 +1248,7 @@
 {#if endAsk && trip}<EndTripSheet {trip} day={Math.max(1, Math.min(trip.days || 1, Math.round((Date.parse(`${today}T12:00:00Z`) - Date.parse(`${trip.startDate}T12:00:00Z`)) / 864e5) + 1))} days={Math.max(1, Number(trip.days) || 1)} onclose={() => (endAsk = false)} />{/if}
 {#if slimOpen}<RepairSlim {items} onapply={slimApply} onclose={() => (slimOpen = false)} />{/if}
 {#if dialog}
-  <TripDialog trip={dialog.trip} {trips} {bikes} {items} {bags} {templates} startFrom={dialog.startFrom ?? 'standard'} domain={dialog.domain ?? null} defaultBikeId={trip?.bikeId} onchange={dialog.trip ? (fn) => change(fn, { ctx: true }) : null} onclose={() => (dialog = null)} oncreated={(id) => { dayMade = { id, before: chosen, day: false }; focusNew = id; choose(id); }} />
+  <TripDialog trip={dialog.trip} {trips} {bikes} {items} {bags} {templates} startFrom={dialog.startFrom ?? 'standard'} domain={dialog.domain ?? null} defaultBikeId={trip?.bikeId} onchange={dialog.trip ? (fn) => change(fn, { ctx: true }) : null} onclose={() => (dialog = null)} oncreated={(id, opts) => { dayMade = { id, before: chosen, day: false }; focusNew = id; choose(id); if (opts?.suggest) location.hash = '#/pack/vorschlag'; }} />
 {/if}
 {#if saveTpl && trip}
   <TemplateDialog {trip} {templates} onclose={() => (saveTpl = false)} onsaved={(name) => ((tplNote = t('Saved as template "{name}".', { name })), setTimeout(() => (tplNote = ''), 4000))} />
@@ -1288,7 +1288,7 @@
   /* v0.27.0 (AP21): the kind of ride, weather presets and overnight sets lost their look with the calm
      Pack (PR #32): browser-grey 22 px buttons and no visible "chosen". Again 40 px pills, the chosen one dark. */
   .toggle { min-height: 40px; padding: 5px 14px; border: 1.5px solid var(--ink-3); border-radius: 999px; background: var(--paper); color: var(--ink); font: 600 var(--fs-body) var(--font-body); cursor: pointer; }
-  .toggle[aria-pressed='true'] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  .toggle[aria-pressed='true'] { background: var(--hi); border-color: var(--hi); color: var(--hi-ink); }
   .toggle:disabled { opacity: 0.5; cursor: default; }
   .aidset { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin-top: 12px; }
   .aidset .hint { flex-basis: 100%; }

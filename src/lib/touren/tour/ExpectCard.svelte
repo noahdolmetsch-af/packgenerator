@@ -12,6 +12,7 @@
   import { t, num } from '../../i18n.svelte.js';
   import { loadActs } from '../../review/actdata.js';
   import { activitiesForTrip } from '../../training.js';
+  import Stat from '../../ui/Stat.svelte';
   import FeelPick from '../../training/plans/FeelPick.svelte';
   import { touched } from '../../trips.js';
   import { expectOf, feltOf, feltChange, compare, habit, unanswered, wordOf, MIN_TOURS } from '../../erwartung.js';
@@ -62,8 +63,8 @@
     {#if felt}
       <h2 id="exc-h">{sentence}</h2>
       <div class="two" aria-label={t('Guessed {a}, felt {b}', { a: num(guess), b: num(felt.value) })}>
-        <div class="box"><span class="v num">{num(guess)}</span><span class="l">{t('Guessed')}</span></div>
-        <div class="box"><span class="v num">{num(felt.value)}</span><span class="l">{t('Felt')}</span></div>
+        <div class="box"><Stat value={num(guess)} label={t('Guessed')} align="center" /></div>
+        <div class="box"><Stat value={num(felt.value)} label={t('Felt')} align="center" /></div>
       </div>
       <p class="s">{t('Felt {n} of 10: {word}', { n: num(felt.value), word: t(wordOf(Math.round(felt.value))) })}</p>
       {#if habitLine}<p class="s" data-expect-habit>{habitLine}</p>{/if}
@@ -87,8 +88,6 @@
   h2 { margin: 0; font: 600 var(--fs-sub) / 1.3 var(--font-body); }
   .two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .box { display: grid; gap: 2px; justify-items: center; padding: 10px; border-radius: var(--r-ctl); background: var(--paper); }
-  .v { font: 700 var(--fs-num) / 1.1 var(--font-body); }
-  .l { color: var(--ink-2); font-size: var(--fs-small); }
   .s { margin: 0; color: var(--ink-2); font-size: var(--fs-small); }
   .fp { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
   @container expectc (min-width: 540px) { .fp { grid-template-columns: repeat(10, minmax(0, 1fr)); } }

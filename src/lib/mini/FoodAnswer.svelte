@@ -80,9 +80,9 @@
   <div class="fa-fld">
     <span id="fa-n">{t('How many people eat with you, you included?')}</span>
     <div class="fa-n" role="group" aria-labelledby="fa-n">
-      <button type="button" class="fa-step" aria-label={t('One person less')} onclick={() => (n = Math.max(1, n - 1))} disabled={n <= 1}><Minus size={18} aria-hidden="true" /></button>
+      <button type="button" class="fa-step" aria-label={t('One person less')} onclick={() => (n = Math.max(1, n - 1))} disabled={n <= 1}><Minus size={20} aria-hidden="true" /></button>
       <b data-fa-count>{n}</b>
-      <button type="button" class="fa-step" aria-label={t('One person more')} onclick={() => (n = Math.min(PEOPLE_MAX, n + 1))} disabled={n >= PEOPLE_MAX} data-fa-more><Plus size={18} aria-hidden="true" /></button>
+      <button type="button" class="fa-step" aria-label={t('One person more')} onclick={() => (n = Math.min(PEOPLE_MAX, n + 1))} disabled={n >= PEOPLE_MAX} data-fa-more><Plus size={20} aria-hidden="true" /></button>
     </div>
   </div>
   <div class="fa-fld">
@@ -99,7 +99,7 @@
     </div>
   </div>
   {#if err}<p class="fa-err" role="alert" data-fa-err>{err}</p>{/if}
-  <button type="submit" class="btn hi" disabled={busy} data-fa-send><Send size={18} aria-hidden="true" />{mine ? t('Send the changed answer') : t('Send my answer')}</button>
+  <button type="submit" class="btn hi" disabled={busy} data-fa-send><Send size={20} aria-hidden="true" />{mine ? t('Send the changed answer') : t('Send my answer')}</button>
   {#if sent}<p class="fa-ok" role="status" data-fa-sent>{sent}</p>{/if}
 </form>
 <p class="fa-help"><Lock size={14} aria-hidden="true" /> {t('No app and no account needed. Only the person who asked can read your answer; the server cannot read it and deletes it by itself.')}</p>
@@ -109,8 +109,6 @@
     margin: 0;
     color: var(--ink-2);
     font-size: var(--fs-small);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
   }
   h1 {
     margin: 0;

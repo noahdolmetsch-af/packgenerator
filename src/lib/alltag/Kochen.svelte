@@ -159,9 +159,9 @@
             <h2 class="fz-h2" id="ko-ing-h">{t('Ingredients')}</h2>
             {#if !recipe.own}
               <div class="ko-step" role="group" aria-label={t('Portions')}>
-                <button type="button" class="fz-icon" aria-label={t('One portion less')} disabled={portions <= 1} onclick={() => (portions = Math.max(1, portions - 1))} data-ko-less><Minus size={18} aria-hidden="true" /></button>
+                <button type="button" class="fz-icon" aria-label={t('One portion less')} disabled={portions <= 1} onclick={() => (portions = Math.max(1, portions - 1))} data-ko-less><Minus size={20} aria-hidden="true" /></button>
                 <span data-ko-portions>{tn(portions, '{n} portion', '{n} portions')}</span>
-                <button type="button" class="fz-icon" aria-label={t('One portion more')} disabled={portions >= 8} onclick={() => (portions = Math.min(8, portions + 1))} data-ko-more><Plus size={18} aria-hidden="true" /></button>
+                <button type="button" class="fz-icon" aria-label={t('One portion more')} disabled={portions >= 8} onclick={() => (portions = Math.min(8, portions + 1))} data-ko-more><Plus size={20} aria-hidden="true" /></button>
               </div>
             {/if}
           </div>
@@ -250,7 +250,7 @@
             <a class="fz-row ko-row" href={recipeHref(x.id)} data-ko-recipe={x.id}>
               <span class="fz-icon" aria-hidden="true"><ChefHat size={20} /></span>
               <span class="fz-row-main"><b>{x.own ? x.title : t(x.title)}</b><small>{line(x)}</small></span>
-              <ChevronRight size={18} aria-hidden="true" />
+              <ChevronRight size={20} aria-hidden="true" />
             </a>
           </li>
         {/each}
@@ -277,8 +277,8 @@
               <SortGrip name={gname(g)} onstep={(dir) => stepGroup(g.id, dir)} />
               <span class="fz-row-main"><b>{gname(g)}</b><small>{tn(countIn(g), '{n} recipe', '{n} recipes')}</small></span>
               {#if !phone.matches}<SortArrows name={gname(g)} i={n} n={groups.length} onstep={(dir) => stepGroup(g.id, dir)} />{/if}
-              <button type="button" class="fz-icon" aria-label={t('Rename {name}', { name: gname(g) })} onclick={() => (renaming = g)} data-ko-grp-rename><Pencil size={18} aria-hidden="true" /></button>
-              <button type="button" class="fz-icon" aria-label={t('Delete {name}', { name: gname(g) })} onclick={() => (deleting = g)} data-ko-grp-delete><X size={18} aria-hidden="true" /></button>
+              <button type="button" class="fz-icon" aria-label={t('Rename {name}', { name: gname(g) })} onclick={() => (renaming = g)} data-ko-grp-rename><Pencil size={20} aria-hidden="true" /></button>
+              <button type="button" class="fz-icon" aria-label={t('Delete {name}', { name: gname(g) })} onclick={() => (deleting = g)} data-ko-grp-delete><X size={20} aria-hidden="true" /></button>
             </li>
           {/each}
         </ul>

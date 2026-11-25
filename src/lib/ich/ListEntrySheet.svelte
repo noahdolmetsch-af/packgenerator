@@ -157,9 +157,9 @@
     cursor: pointer;
   }
   .fchip[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
     font-weight: 600;
   }
   .hint {

@@ -29,7 +29,7 @@
 
 {#if hint && suggest.on.performance}
   <section class="rt" data-ruhetag aria-label={t('A gentle hint')}>
-    <Leaf size={18} aria-hidden="true" />
+    <Leaf size={20} aria-hidden="true" />
     <div class="tx">
       <b data-ruhetag-title>{title}</b>
       <span>{t('Only a hint from your activities. You decide, a hard day is fine too.')}</span>

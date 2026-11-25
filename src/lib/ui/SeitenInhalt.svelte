@@ -30,7 +30,7 @@
   }
 </script>
 
-<div class="si-host" data-seiteninhalt-host use:afterTitle>
+<div class="si-host" data-seiteninhalt-host use:afterTitle={{ behind: '[data-suchehier-host]' }}>
 {#if (rows.length || side) && $seenQ}
 <div class="si-row" class:two={!!side && rows.length > 0}>
   {#if rows.length}
@@ -116,6 +116,10 @@
   /* A phone held sideways has no room above the trip band: the line waits until the phone is upright again. */
   @media (orientation: landscape) and (max-height: 500px) {
     .si-line {
+      display: none;
+    }
+    /* its row would stay behind as an empty grid row of the trip band (+16 px, D6 in landscape.spec): a row with only this line goes too */
+    .si-row:has(> .si-line:only-child) {
       display: none;
     }
   }

@@ -739,7 +739,7 @@
 
   {#if mode}
     <!-- v0.102.0 Design-Refresh P3 (M6): a quiet way back above the mode -->
-    <p class="modeback"><button type="button" class="btn btn-link" onclick={() => setMode('')} data-explain={t('Back to all items')}><ChevronLeft size={18} aria-hidden="true" />{t('All items|back')}</button></p>
+    <p class="modeback"><button type="button" class="btn btn-link" onclick={() => setMode('')} data-explain={t('Back to all items')}><ChevronLeft size={20} aria-hidden="true" />{t('All items|back')}</button></p>
     {#if mode === 'weigh'}
       <WeighMode {items} extras onclose={() => setMode('')} />
     {:else}
@@ -752,24 +752,24 @@
         <!-- SL2/SL4 (answer 5a): the search stays on top with the category you are in -->
         <ListBar bind:active={activeCat} current={curCat && tab === 'inventory' && display === 'list' ? t(curCat.name) : ''} count={curCat && tab === 'inventory' && display === 'list' ? tn(curCat.items.length, '{n} item', '{n} items') : ''}>
         <div class="toolbar">
-          <label class="q"><span class="sr">{t('Search gear')}</span><Search class="qi" size={18} aria-hidden="true" /><input class="inp" type="search" placeholder={t('Name, brand, bag or ID')} value={qText} data-applied={filter.q} oninput={typed} onchange={flushQ} onkeydown={(e) => e.key === 'Enter' && flushQ()} bind:this={searchEl} /></label>
+          <label class="q"><span class="sr">{t('Search gear')}</span><Search class="qi" size={20} aria-hidden="true" /><input class="inp" type="search" placeholder={t('Name, brand, bag or ID')} value={qText} data-applied={filter.q} oninput={typed} onchange={flushQ} onkeydown={(e) => e.key === 'Enter' && flushQ()} bind:this={searchEl} /></label>
           <!-- Material aufräumen (Noah 23.11.2026): on top only search, «+ Part» and «View»; views, sort and filter live in «View», the tools in «…» -->
           <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
           <details class="gmore vmenu" bind:this={vmoreEl} data-gear-views onkeydown={(e) => e.key === 'Escape' && closeMenu(e, vmoreEl)}>
             <summary class="btn fbtn" aria-label={t('View: {name}', { name: mineView ? kindName(mineView, t) : t(VIEW_NAME[view === 'wish' ? 'all' : view]) })}>
-              <SlidersHorizontal size={18} aria-hidden="true" />{t('View|menu')}{#if (view !== 'all' && view !== 'wish') || mineView}<i class="badge num">1</i>{/if}{#if activeN}<i class="badge num">{activeN}</i>{/if}
+              <SlidersHorizontal size={20} aria-hidden="true" />{t('View|menu')}{#if (view !== 'all' && view !== 'wish') || mineView}<i class="badge num">1</i>{/if}{#if activeN}<i class="badge num">{activeN}</i>{/if}
             </summary>
             <div class="gmenu vpanel">
               {@render viewButtons('vrows')}
               {#if !selecting && !mode}<div class="vown"><OwnViews items={stats.inventory} mine={mineView ? mine : ''} onpick={(id) => { closeMenus(); pickMine(id); }} /></div>{/if}
-              <button type="button" class="vsort" onclick={() => { closeMenus(); sheet = true; }}><SlidersHorizontal size={18} aria-hidden="true" />{t('Sort and filter')}{#if activeN}<i class="badge num">{activeN}</i>{/if}</button>
+              <button type="button" class="vsort" onclick={() => { closeMenus(); sheet = true; }}><SlidersHorizontal size={20} aria-hidden="true" />{t('Sort and filter')}{#if activeN}<i class="badge num">{activeN}</i>{/if}</button>
             </div>
           </details>
           <!-- FE1: on a phone «+ Item» sits at the bottom (not while the selection bar is there) -->
-          <span class="daumen" class:off={selecting || !!undo}><button type="button" class="btn hi addb" aria-label={t('Add item')} onclick={() => addItem()}><Plus size={18} aria-hidden="true" />{t('Item|add')}</button></span>
+          <span class="daumen" class:off={selecting || !!undo}><button type="button" class="btn hi addb" aria-label={t('Add item')} onclick={() => addItem()}><Plus size={20} aria-hidden="true" />{t('Item|add')}</button></span>
           <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
           <details class="gmore" bind:this={gmoreEl} onkeydown={(e) => e.key === 'Escape' && closeMenu(e, gmoreEl)}>
-            <summary class="btn" aria-label={t('More for Gear')}><Ellipsis size={18} aria-hidden="true" /></summary>
+            <summary class="btn" aria-label={t('More for Gear')}><Ellipsis size={20} aria-hidden="true" /></summary>
             <div class="gmenu">
               <!-- v0.43.0 (Wiege-Modus): weigh one thing after the other -->
               <button type="button" onclick={() => { closeMenus(); startWeigh(); }} data-gear-quick-item="weigh">{t('Record weights')}{#if toWeigh}<i class="badge num">{toWeigh}</i>{/if}</button>
@@ -843,7 +843,7 @@
         </section>
         {/if}
         {#if view === 'never' && sorted.length}<p class="vs small">{t('"Leave at home" makes it optional: new trips no longer pack it on their own.')}</p>{/if}
-        {#if view === 'unweighed' && toWeigh}<p class="weighrow"><button type="button" class="btn" onclick={startWeigh} data-explain={t('Weigh one after the other')}><Scale size={18} aria-hidden="true" />{t('Weigh in turn')}</button></p>{/if}
+        {#if view === 'unweighed' && toWeigh}<p class="weighrow"><button type="button" class="btn" onclick={startWeigh} data-explain={t('Weigh one after the other')}><Scale size={20} aria-hidden="true" />{t('Weigh in turn')}</button></p>{/if}
 
         {#if shownAs === 'table' && sorted.length}
           <ListTable rows={sorted} cols={gearCols()} nameOf={(i) => nameOf(i)} onsave={(pairs) => saveItemRows(db, pairs)} ondelete={(rows) => deleteItems(db, rows.map((r) => r.id))} onrestore={(snap) => undoBulk(db, snap)} onopen={open} label={t('Gear|page')} search={false} />
@@ -881,7 +881,7 @@
                     <span class="title">{t(g.name)}</span>
                     <b class="num k">{formatWeight(catStats[g.key].g)}</b>
                     <span class="m">{tn(catStats[g.key].n, '{n} item', '{n} items')}{catStats[g.key].unweighed ? ` · ${t('{n} not weighed', { n: catStats[g.key].unweighed })}` : ''}{catStats[g.key].consumable ? ` · ${t('not in gear weight')}` : ''}</span>
-                    {#if !searching}<span class="chev" aria-hidden="true"><ChevronRight size={18} /></span>{/if}
+                    {#if !searching}<span class="chev" aria-hidden="true"><ChevronRight size={20} /></span>{/if}
                   </button>
                 </h2>
                 {#if selecting}
@@ -948,7 +948,7 @@
 
         {#if view === 'wish' && stats.gone.length}
           <details class="gone">
-            <summary><ChevronRight class="chev" size={18} aria-hidden="true" /><span>{t('Gone')} ({stats.gone.length}) <small>{t('kept for the record, not in any list or total')}</small></span></summary>
+            <summary><ChevronRight class="chev" size={20} aria-hidden="true" /><span>{t('Gone')} ({stats.gone.length}) <small>{t('kept for the record, not in any list or total')}</small></span></summary>
             <ul class="rows">
               {#each stats.gone as item (item.id)}
                 <li><button type="button" onclick={() => open(item)}><span class="nm">{nameOf(item)}</span><span class="bg">{item.note ?? ''}</span><span class="w num muted">–</span></button></li>
@@ -959,7 +959,7 @@
         {#if view === 'all'}
           <!-- v0.23.0 (AP08): the analyses come after the list, in one fold that starts closed. -->
           <details class="analysis" id="gear-analysis" bind:open={analysis}>
-            <summary><ChevronRight class="chev" size={18} aria-hidden="true" /><span class="title">{t('Analysis')}</span> <small>{t('Weight by category and the heaviest items')}</small></summary>
+            <summary><ChevronRight class="chev" size={20} aria-hidden="true" /><span class="title">{t('Analysis')}</span> <small>{t('Weight by category and the heaviest items')}</small></summary>
             {#if analysis}<WeightOverview {stats} category={filter.category} onpick={pickCategory} onopen={open} />{/if}
           </details>
         {/if}
@@ -1037,12 +1037,12 @@
       <button type="button" class="vbtn" data-view={v} aria-pressed={view === v && !mineView} aria-describedby="vsub-{v}" onclick={() => setView(v)}><span class="vic" aria-hidden="true"><I size={18} /></span><span class="vm"><span class="vn">{t(VIEW_NAME[v])}</span><span class="vsub" id="vsub-{v}" aria-hidden="true">{t(VIEW_SUB[v])}</span></span> <small class="num">{counts[v]}</small></button>
     {/each}
     <!-- Material aufräumen (Noah 23.11.2026): the other lists of Material are rows of «View», not a second row on the page -->
-    <a class="vbtn vlink" href="#/gear?tab=wishlist" data-gear-quick-item="wish" onclick={closeMenus}><span class="vic" aria-hidden="true"><Heart size={18} /></span><span class="vm"><span class="vn">{t('Wishlist')}</span><span class="vsub">{t('what you want to buy')}</span></span><ChevronRight size={18} aria-hidden="true" /></a>
-    <a class="vbtn vlink" href="#/gear/supplies" data-gear-quick-item="supplies" onclick={closeMenus}><span class="vic" aria-hidden="true"><Package size={18} /></span><span class="vm"><span class="vn">{t('Supplies')}</span><span class="vsub">{t('what is used up')}</span></span><ChevronRight size={18} aria-hidden="true" /></a>
-    <a class="vbtn vlink" href="#/gear/lend" data-gear-quick-item="lend" onclick={closeMenus}><span class="vic" aria-hidden="true"><Link2 size={18} /></span><span class="vm"><span class="vn">{t('Lending list')}</span><span class="vsub">{t('lent out and borrowed')}</span></span><ChevronRight size={18} aria-hidden="true" /></a>
+    <a class="vbtn vlink" href="#/gear?tab=wishlist" data-gear-quick-item="wish" onclick={closeMenus}><span class="vic" aria-hidden="true"><Heart size={20} /></span><span class="vm"><span class="vn">{t('Wishlist')}</span><span class="vsub">{t('what you want to buy')}</span></span><ChevronRight size={20} aria-hidden="true" /></a>
+    <a class="vbtn vlink" href="#/gear/supplies" data-gear-quick-item="supplies" onclick={closeMenus}><span class="vic" aria-hidden="true"><Package size={20} /></span><span class="vm"><span class="vn">{t('Supplies')}</span><span class="vsub">{t('what is used up')}</span></span><ChevronRight size={20} aria-hidden="true" /></a>
+    <a class="vbtn vlink" href="#/gear/lend" data-gear-quick-item="lend" onclick={closeMenus}><span class="vic" aria-hidden="true"><Link2 size={20} /></span><span class="vm"><span class="vn">{t('Lending list')}</span><span class="vsub">{t('lent out and borrowed')}</span></span><ChevronRight size={20} aria-hidden="true" /></a>
     {#if view === 'all'}
       <!-- v0.23.0 (AP08): the analyses below the list, one tap from here -->
-      <button type="button" class="vbtn" aria-expanded={analysis} aria-controls="gear-analysis" onclick={() => { closeMenus(); showAnalysis(); }}><span class="vic" aria-hidden="true"><Scale size={18} /></span><span class="vm"><span class="vn">{t('Weight by category')}</span><span class="vsub">{t('and the heaviest items')}</span></span><ChevronRight size={18} aria-hidden="true" /></button>
+      <button type="button" class="vbtn" aria-expanded={analysis} aria-controls="gear-analysis" onclick={() => { closeMenus(); showAnalysis(); }}><span class="vic" aria-hidden="true"><Scale size={20} /></span><span class="vm"><span class="vn">{t('Weight by category')}</span><span class="vsub">{t('and the heaviest items')}</span></span><ChevronRight size={20} aria-hidden="true" /></button>
     {/if}
   </div>
 {/snippet}
@@ -1058,7 +1058,7 @@
         <p>{t('This view fills after your first trip reviews. After every trip the app asks briefly what you used.')} <a class="tolink" href="#/debrief">{t('To the debrief ›')}</a></p>
       {:else}
         <div class="okhead">
-          <span class="okic" aria-hidden="true"><Check size={22} /></span>
+          <span class="okic" aria-hidden="true"><Check size={24} /></span>
           <div class="okt">
             <h3 class="okh">{t('Nothing right now that only rides along')}</h3>
             <p>{t('Here go the things you took along {n} times or more and never used.', { n: NEVER_AFTER })}{' '}{debriefN >= NEVER_AFTER ? t('So far you used everything that was along that often at least once.') : tn(debriefN, 'You have reviewed {n} trip so far.', 'You have reviewed {n} trips so far.')}</p>
@@ -1527,8 +1527,8 @@
     border-left: 1.5px solid var(--line-strong);
   }
   .seg button[aria-pressed='true'] {
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   @media (pointer: coarse) {
     .seg button {
@@ -2483,9 +2483,9 @@
     color: var(--ink-2);
   }
   .selbtn[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
     text-decoration: none;
   }
   .badge {
@@ -2502,8 +2502,6 @@
     margin: 14px 0 6px;
     color: var(--ink-2);
     font: 600 var(--fs-tiny) / 1.3 var(--font-body);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
   }
   /* every view says in one sentence what it shows: quiet, above the list */
   .vhead {

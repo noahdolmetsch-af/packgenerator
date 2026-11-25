@@ -170,7 +170,7 @@
       </ul>
       <label class="mm-fld"><span>{t('A note (optional)')}</span><input type="text" bind:value={note} maxlength="200" data-mm-note /></label>
       {#if sendErr}<p class="mm-err" role="alert" data-mm-err>{sendErr}</p>{/if}
-      <button type="submit" class="btn hi" disabled={sending} data-mm-send><Send size={18} aria-hidden="true" />{mine ? t('Send the changed answer') : t('Send my answer')}</button>
+      <button type="submit" class="btn hi" disabled={sending} data-mm-send><Send size={20} aria-hidden="true" />{mine ? t('Send the changed answer') : t('Send my answer')}</button>
       {#if sent}<p class="mm-ok" role="status" data-mm-sent>{sent}</p>{/if}
     </form>
     <p class="mm-help"><Lock size={14} aria-hidden="true" /> {t('No app and no account needed. Only the person who asked can read your answer; the server cannot read it and deletes it by itself.')}</p>
@@ -196,8 +196,6 @@
     margin: 0;
     color: var(--ink-2);
     font-size: var(--fs-small);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
   }
   h1 {
     margin: 0;

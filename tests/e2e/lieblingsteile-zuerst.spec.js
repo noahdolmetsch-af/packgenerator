@@ -67,7 +67,7 @@ test('Lieblingsteil zuerst: Zwiebel und Tauschen', async ({ page, context }, inf
   await cond.getByRole('button', { name: T('Onion: {n} gap', { n: 1 }) }).click();
   const legs = cond.locator('.orows li', { hasText: T('Legs') });
   await expect(legs).toContainText('Beinlinge Winter');
-  await expect(legs.locator('[data-onion-fav]')).toHaveText(`★ ${T('Your favourite')}`);
+  await expect(legs.locator('[data-onion-fav]')).toHaveText(T('Your favourite')); // a star icon stands before the words (Icons statt Zeichen, Noah 24.11.2026)
   if (SHOTS) {
     mkdirSync(SHOTS, { recursive: true });
     await page.evaluate(() => document.fonts.ready);

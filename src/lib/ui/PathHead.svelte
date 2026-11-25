@@ -11,16 +11,18 @@
   import { t } from '../i18n.svelte.js';
   import { helpHere } from '../pageinfo/here.svelte.js';
   import { fitSteps } from '../nav/wege.svelte.js'; // «Wege»: the path starts with the place and tab of the map of the app
+  import { backCrumbsOf } from '../nav/herkunft.svelte.js';
 
   let { crumbs = [], here = '', title, sub = '', heading = null, extra = null, children = null } = $props();
-  const steps = $derived(crumbs.length ? fitSteps(helpHere.route, crumbs) : []);
+  // Durchklick-Fund 3: a one-step path names where you came from (zurueck.js)
+  const steps = $derived(crumbs.length ? backCrumbsOf(fitSteps(helpHere.route, crumbs)) : []);
 </script>
 
 <header class="phead">
   {#if steps.length}
     <nav class="pcrumbs" aria-label={t('Path')}>
       {#each steps as c, n (n)}
-        <a href={c.href}>{#if n === 0}<ChevronLeft size={14} aria-hidden="true" />{/if}<span>{c.label}</span></a><ChevronRight class="psep" size={12} aria-hidden="true" />
+        <a href={c.href}>{#if n === 0}<ChevronLeft size={14} aria-hidden="true" />{/if}<span>{c.label}</span></a><ChevronRight class="psep" size={14} aria-hidden="true" />
       {/each}
       <span aria-current="page">{here || title}</span>
     </nav>

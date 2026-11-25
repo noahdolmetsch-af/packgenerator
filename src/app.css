@@ -81,6 +81,21 @@
   /* v0.99.0 Design-Refresh R3 (G2): buttons, fields and filter chips share one soft corner. */
   --r-ctl: 10px;
   --r-btn: 999px;
+  /* «Feinschliff» (Noah 24.11.2026 «2a»): the ladder of corners and the three shadow steps. New code uses these (the style lint's
+     rules `radius` and `shadow` hold the line); old pages move over when they are rebuilt. --r-ctl (fields) and --radius-card stay. */
+  --r-1: 4px; /* small bars, tags */
+  --r-2: 8px; /* chips with a square feel, rows, small cards */
+  --r-3: 12px; /* cards, sheets' inner blocks */
+  --r-4: 16px; /* big cards, sheets */
+  --r-pill: 999px; /* buttons, chips, badges */
+  --shadow-1: 0 1px 3px var(--shadow); /* a small lifted control */
+  --shadow-2: 0 6px 18px var(--shadow); /* floating: bars, menus, the + button */
+  --shadow-3: 0 12px 40px var(--shadow); /* windows: sheets and dialogs */
+  /* «Bewegung» (Noah 24.11.2026 «4a»): three durations for every move, always with --ease-out (or --ease-drawer for a window).
+     Whoever asks for less motion gets none (motion.css below, `prefers-reduced-motion`, «Bewegung reduzieren»). */
+  --t-fast: 120ms; /* press, hover, a tick */
+  --t-base: 200ms; /* choosing, folding, a row leaving */
+  --t-sheet: 320ms; /* windows and page changes */
   --gut: 16px;
   /* v0.46.0 (Noah 4b, 5a): tokens of the new start page, also set by every palette below. */
   --hi-hover: #a03605;
@@ -838,30 +853,35 @@ html {
    data-place on <html>; --pc is the place's colour (the chosen place in the bars, the + Neu), --pc-soft
    its pill and --tint the page ground, a breath of the colour (Noah 4b). The same in every colour world. */
 :root {
-  --pc-today: #0b6f6b;
-  --pc-trips: #c2441b;
-  --pc-gear: #8a5f12;
-  --pc-bikes: #2d6aa3;
-  --pc-active: #7a4fae;
-  --pc-week: #3b5f8f; /* «Woche planen» (WP1): its own place since Noah 15.10.2026 «1a» */
+  /* «Farbe pro Bereich» (Noah 24.11.2026 «1b»; before: «Salbei statt Farbe pro Ort», 20.10.2026): one muted tone per
+     area that fits the warm paper. White on each 5.4–6.7:1, the tone on paper 5.3–6.6:1. Heute, Ich and Quick Links keep the
+     action colour of the palette. Status colours, sport colours and the «done» green (--accent) never change with the area. */
+  --pc-today: #4a7360;
+  --pc-trips: #a64b2a;
+  --pc-gear: #2f6690;
+  --pc-bikes: #2f6690;
+  --pc-active: #6a4f93;
+  --pc-week: #7a5c14;
   --pc-me: #14232d;
   --pc-quick: #3f6b58; /* «Quick Links» (Noah 28.10.2026): sage green */
-  --pc-weather: #2b7a9b; /* «Wetter» (Noah 22.11.2026): sky blue */
+  --pc-weather: #2a6f8c;
+  --pc-analysis: #6a4f93;
   --pc-ink: #ffffff; /* an icon or a word on the place colour */
   /* the dark sidebar: a lighter row, a line between groups */
   --side-row: color-mix(in srgb, var(--brand-ink) 9%, var(--brand));
   --side-line: color-mix(in srgb, var(--brand-ink) 16%, var(--brand));
 }
 :root[data-theme='dark'] {
-  --pc-today: #4fc1b8;
-  --pc-trips: #ff8a5c;
-  --pc-gear: #dcae4f;
-  --pc-bikes: #79b0e6;
-  --pc-active: #b596e3;
-  --pc-week: #8fb2e0;
+  --pc-today: #9bb2a8;
+  --pc-trips: #f0946e;
+  --pc-gear: #86b4e0;
+  --pc-bikes: #86b4e0;
+  --pc-active: #b8a2e0;
+  --pc-week: #d9b45c;
   --pc-me: #c9d6dd;
   --pc-quick: #8fc4aa;
   --pc-weather: #7fc3df;
+  --pc-analysis: #b8a2e0;
   --pc-ink: #0e171d;
 }
 /* v0.125.0 TZ-1 «Zustand sichtbar» (Noah 13.10.2026 «1-5 a», spec tour-zustaende 5): the three trip states,
@@ -941,6 +961,101 @@ html {
   --pc-ink: var(--hi-ink);
   --pc-soft: var(--hi-soft);
   --tint: var(--ground);
+}
+
+/* «Farbe pro Bereich» (Noah 24.11.2026 «1b»): in Plan, Touren, Velos und Material, Auswerten and Wetter the action colour
+   (--hi: the + button, chosen chips, the main button, the line under the tab, focus) and the title line follow the area.
+   Switch: Ich › Darstellung › Bedienung › «Farbe pro Bereich» (bedienung.js `areacolor`, data-areacolor="off"). One block per area, light then dark;
+   the attribute [data-palette] lifts it above every colour world. */
+:root:not([data-areacolor='off'])[data-palette][data-place='week'] {
+  --hi: #7a5c14;
+  --hi-hover: #664d10;
+  --hi-soft: #f0e8d2;
+  --badge: #f0e8d2;
+  --badge-ink: #5c450e;
+  --head: #7a5c14;
+  --focus: #7a5c14;
+}
+:root:not([data-areacolor='off'])[data-palette][data-place='trips'] {
+  --hi: #a64b2a;
+  --hi-hover: #8f3f22;
+  --hi-soft: #f3e3da;
+  --badge: #f3e3da;
+  --badge-ink: #7e3920;
+  --head: #a64b2a;
+  --focus: #a64b2a;
+}
+:root:not([data-areacolor='off'])[data-palette][data-place='bikes'] {
+  --hi: #2f6690;
+  --hi-hover: #275678;
+  --hi-soft: #e0eaf2;
+  --badge: #e0eaf2;
+  --badge-ink: #234d6f;
+  --head: #2f6690;
+  --focus: #2f6690;
+}
+:root:not([data-areacolor='off'])[data-palette][data-place='analysis'] {
+  --hi: #6a4f93;
+  --hi-hover: #594279;
+  --hi-soft: #e9e3f1;
+  --badge: #e9e3f1;
+  --badge-ink: #503a73;
+  --head: #6a4f93;
+  --focus: #6a4f93;
+}
+:root:not([data-areacolor='off'])[data-palette][data-place='weather'] {
+  --hi: #2a6f8c;
+  --hi-hover: #235c74;
+  --hi-soft: #deebf1;
+  --badge: #deebf1;
+  --badge-ink: #1f5670;
+  --head: #2a6f8c;
+  --focus: #2a6f8c;
+}
+:root:not([data-areacolor='off'])[data-palette][data-theme='dark'][data-place='week'] {
+  --hi: #d9b45c;
+  --hi-hover: #e6c378;
+  --hi-soft: #3a3016;
+  --badge: #3a3016;
+  --badge-ink: #ecd08c;
+  --head: #d9b45c;
+  --focus: #e6c378;
+}
+:root:not([data-areacolor='off'])[data-palette][data-theme='dark'][data-place='trips'] {
+  --hi: #f0946e;
+  --hi-hover: #f5aa88;
+  --hi-soft: #3b241a;
+  --badge: #3b241a;
+  --badge-ink: #f7b99c;
+  --head: #f0946e;
+  --focus: #f5aa88;
+}
+:root:not([data-areacolor='off'])[data-palette][data-theme='dark'][data-place='bikes'] {
+  --hi: #86b4e0;
+  --hi-hover: #a0c5e9;
+  --hi-soft: #1d2d3b;
+  --badge: #1d2d3b;
+  --badge-ink: #b4d0ee;
+  --head: #86b4e0;
+  --focus: #a0c5e9;
+}
+:root:not([data-areacolor='off'])[data-palette][data-theme='dark'][data-place='analysis'] {
+  --hi: #b8a2e0;
+  --hi-hover: #c9b8ea;
+  --hi-soft: #2b2438;
+  --badge: #2b2438;
+  --badge-ink: #d3c6ee;
+  --head: #b8a2e0;
+  --focus: #c9b8ea;
+}
+:root:not([data-areacolor='off'])[data-palette][data-theme='dark'][data-place='weather'] {
+  --hi: #7fc3df;
+  --hi-hover: #9ad1e7;
+  --hi-soft: #1b3039;
+  --badge: #1b3039;
+  --badge-ink: #b0dcee;
+  --head: #7fc3df;
+  --focus: #9ad1e7;
 }
 
 * {
@@ -1309,6 +1424,7 @@ dialog.sheet {
   padding: 18px;
   width: min(520px, calc(100vw - 24px));
   max-height: calc(100vh - 24px);
+  max-height: calc(100dvh - 24px);
 }
 dialog.sheet::backdrop {
   background: var(--scrim);
@@ -1331,12 +1447,22 @@ dialog.sheet::backdrop {
   }
   .tap,
   .back a,
-  a.back {
+  a.back,
+  a.chip,
+  button.skip,
+  button.more,
+  button.idot {
     position: relative;
   }
+  /* Durchklick Fund 1 (Noah 22.11.2026 «1a»): small chips and quiet buttons get the same invisible 44 px area
+     (looks unchanged, touch only; two close neighbours share the space) */
   .tap::after,
   .back a::after,
-  a.back::after {
+  a.back::after,
+  a.chip::after,
+  button.skip::after,
+  button.more::after,
+  button.idot::after {
     content: '';
     position: absolute;
     left: -8px;
@@ -1574,8 +1700,6 @@ details[open] > summary.lrow .chev {
   margin: 14px 0 4px;
   color: var(--ink-3);
   font: 600 var(--fs-tiny)/1.3 var(--font-body);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 .zlabel::after {
   content: '';
@@ -1668,6 +1792,7 @@ details[open] > summary.lrow .chev {
     width: 100vw;
     max-width: 100vw;
     max-height: 94vh;
+    max-height: 94dvh; /* «Nie abgeschnitten»: dvh, so the window also fits under a phone's address bar */
     border-radius: 22px 22px 0 0;
     border-bottom: 0;
     padding-bottom: calc(18px + env(safe-area-inset-bottom));
@@ -1730,13 +1855,13 @@ html:root[data-contrast='high'][data-theme='dark'] {
 }
 @media (prefers-reduced-motion: no-preference) {
   dialog[open] {
-    animation: mv-pop 180ms var(--ease-out);
+    animation: mv-pop var(--t-base) var(--ease-out);
   }
   dialog[open]::backdrop {
-    animation: mv-fade 200ms ease-out;
+    animation: mv-fade var(--t-base) var(--ease-out);
   }
   details[open] > :not(summary) {
-    animation: mv-reveal 160ms var(--ease-out);
+    animation: mv-reveal var(--t-base) var(--ease-out);
   }
 }
 @media (max-width: 719px) and (prefers-reduced-motion: no-preference) {
@@ -1744,17 +1869,68 @@ html:root[data-contrast='high'][data-theme='dark'] {
   dialog.sheet:not(.centered)[open],
   dialog.calm-sheet:not(.centered)[open],
   dialog.fact-sheet:not(.centered)[open] {
-    animation: mv-up 280ms var(--ease-drawer);
+    animation: mv-up var(--t-sheet) var(--ease-drawer);
   }
 }
 @media (prefers-reduced-motion: reduce) {
   dialog[open],
   dialog[open]::backdrop {
-    animation: mv-fade 150ms ease-out;
+    animation: mv-fade var(--t-fast) var(--ease-out);
   }
   details[open] > :not(summary) {
-    animation: mv-fade 120ms ease-out;
+    animation: mv-fade var(--t-fast) var(--ease-out);
   }
+}
+/* «Bewegung» (Noah 24.11.2026 «4a»): the tick of something you just ticked grows a little and settles (src/lib/ui/rowout.js tickPop).
+   A row that is ticked off or deleted folds away (rowOut). Both are still with reduced motion and with «Bewegung: Aus». */
+@keyframes tick-pop {
+  from {
+    transform: scale(0.7);
+  }
+  60% {
+    transform: scale(1.14);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tick-pop {
+    animation: tick-pop var(--t-base) var(--ease-out);
+  }
+}
+/* «Rückmeldung beim Tippen» (Noah 25.11.2026 «2a»): a tile or row you tapped lights up once with a soft ring (rowout.js tickFlash), and
+   a tile, row or button that can be pressed shrinks a little while the finger is on it (.tap-fx, like .btn). Both are still with reduced
+   motion and with «Bewegung: Aus». */
+@keyframes tick-flash {
+  from {
+    box-shadow: 0 0 0 0px color-mix(in srgb, var(--ok) 55%, transparent);
+  }
+  to {
+    box-shadow: 0 0 0 10px transparent;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tick-flash {
+    animation: tick-flash var(--t-sheet) var(--ease-out);
+  }
+  .tap-fx {
+    transition: transform 120ms var(--ease-out);
+  }
+  .tap-fx:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+  html[data-motion='off'] .tap-fx:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* Icons (Noah 24.11.2026 «5a»): sizes 14 / 16 / 20 / 24, stroke 2. An icon that stands in a line of text (instead of a ✓ ★ ✕ glyph)
+   sits on the baseline like a letter and never shrinks. */
+.ic-in {
+  display: inline-block;
+  vertical-align: -0.15em;
+  flex: none;
 }
 
 /* «Richtung zeigen» (Noah 03.11.2026 «b», Paket A Seitenwechsel 1): a page that goes deeper glides in from the right,
@@ -1886,4 +2062,76 @@ html:root[data-contrast='high'][data-theme='dark'] {
 [data-anp-flex] {
   display: flex !important;
   flex-direction: column;
+}
+
+/* «Nie abgeschnitten» (Noah 24.11.2026 «a und b», docs/regeln.md Block 7): every window fits the screen. Head and foot with the
+   main button stay put, only the middle scrolls, and a soft edge shows that more follows. The guard is tests/fenster.test.js
+   (static) and tests/e2e/fenster.spec.js (390, 1440×800, 1440×900: the main button whole, no button cut at the edge).
+   --dlg-px / --dlg-pt / --dlg-pb are the window's own padding; head and foot reach into it, so they sit flush at the edge. */
+dialog.sheet,
+dialog.calm-sheet,
+dialog.fact-sheet {
+  --dlg-px: 18px;
+  --dlg-pt: 18px;
+  --dlg-pb: 18px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-padding-block: 72px 96px; /* a field you tab to stops clear of the fixed head and foot */
+}
+/* Every window that scrolls shows a soft shadow at the edge where more is hidden (no script: background-attachment). */
+dialog.sheet {
+  background:
+    linear-gradient(var(--paper) 30%, transparent) top / 100% 28px no-repeat local,
+    linear-gradient(transparent, var(--paper) 70%) bottom / 100% 28px no-repeat local,
+    radial-gradient(farthest-side at 50% 0, color-mix(in srgb, var(--shadow) 70%, transparent), transparent) top / 100% 10px no-repeat scroll,
+    radial-gradient(farthest-side at 50% 100%, color-mix(in srgb, var(--shadow) 70%, transparent), transparent) bottom / 100% 10px no-repeat scroll,
+    var(--paper);
+}
+dialog.sheet.vdlg {
+  --dlg-px: 20px;
+  --dlg-pt: 20px;
+  --dlg-pb: 18px;
+}
+@media (max-width: 719px) {
+  dialog.sheet.vdlg {
+    --dlg-px: 16px;
+    --dlg-pt: 18px;
+    --dlg-pb: 16px;
+  }
+}
+dialog.sheet.vdlg .vd-head {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  margin: calc(-1 * var(--dlg-pt)) calc(-1 * var(--dlg-px)) 0;
+  padding: var(--dlg-pt) var(--dlg-px) 14px;
+  background: var(--paper);
+}
+dialog.sheet.vdlg .vd-head::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 14px;
+  background: linear-gradient(var(--paper), transparent);
+  pointer-events: none;
+}
+dialog.sheet.vdlg .vd-foot {
+  position: sticky;
+  bottom: 0;
+  z-index: 3;
+  margin: 16px calc(-1 * var(--dlg-px)) calc(-1 * var(--dlg-pb));
+  padding: 12px var(--dlg-px) var(--dlg-pb);
+  background: var(--paper);
+}
+dialog.sheet.vdlg .vd-foot::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: 16px;
+  background: linear-gradient(transparent, var(--paper));
+  pointer-events: none;
 }

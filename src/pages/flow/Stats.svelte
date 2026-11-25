@@ -438,7 +438,7 @@
         <li class="card" data-body-day={d.key}>
           <span class="m"><b>{day(d.key)}</b><small>{date(d.key)}{#if sg?.start}{` · ${sg.start}–${sg.end}`}{/if}</small></span>
           <span class="v num">{bkey === 'bp' ? `${ctx.bp.get(d.key).sys}/${ctx.bp.get(d.key).dia}` : bv(d.v)}{bu ? ` ${(B.own ? bu : t(bu))}` : ''}{#if sg && sg.deep != null}<small>{t('deep {d} · REM {r}', { d: hm(sg.deep), r: hm(sg.rem) })}</small>{/if}{#if bkey === 'felt'}<small>{t('sleep {s} · mood {m}', { s: ctx.checks?.get(d.key)?.sleep ?? '–', m: ctx.checks?.get(d.key)?.mood ?? '–' })}</small>{/if}</span>
-          {#if bkey === 'bp' || bkey === 'water'}<button type="button" class="nav del" aria-label={t('Delete')} data-entry-del={d.key} onclick={() => removeDay(d.key)}><Trash2 size={18} aria-hidden="true" /></button>{/if}
+          {#if bkey === 'bp' || bkey === 'water'}<button type="button" class="nav del" aria-label={t('Delete')} data-entry-del={d.key} onclick={() => removeDay(d.key)}><Trash2 size={20} aria-hidden="true" /></button>{/if}
         </li>
       {/each}
     </ul>
@@ -604,14 +604,22 @@
     opacity: 0.35;
     cursor: default;
   }
+  /* Gesamttest Runde 2, C3 (Noah 25.11.2026): at 320 px «Höhenmeter» broke in the middle of the word in a column of 72 px;
+     every column is at least as wide as its longest word, and the row scrolls sideways only if even that is too wide */
   .tabs {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(max-content, 1fr));
+    overflow-x: auto;
+    scrollbar-width: none;
     border-bottom: 1px solid var(--line);
+  }
+  .tabs::-webkit-scrollbar {
+    display: none;
   }
   .tabs button {
     min-height: 44px;
     padding: 0 4px;
+    white-space: nowrap;
     border: 0;
     border-bottom: 3px solid transparent;
     background: none;
@@ -802,8 +810,6 @@
     margin: 0 2px 8px;
     color: var(--ink-2);
     font-size: var(--fs-small);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
   }
   .plot {
     display: grid;

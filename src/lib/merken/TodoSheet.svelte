@@ -311,9 +311,9 @@
   }
   .chip[aria-pressed='true'],
   .chip.on {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   .chip.date {
     padding: 0;

@@ -7,12 +7,17 @@
    * the button «Plan the week» and a small form to add a date or a to-do. On a phone the days fold to
    * one line each (Noah «2a»), today open. Rules: lib/woche.js; data: lib/woche/load.js.
    */
-  import { Plus, ChevronDown, ChevronUp, CalendarCheck, ChevronRight, Palmtree, Bike, Sun, CloudRain, CloudSun, Info, History } from '@lucide/svelte';
+  import { Plus, Move, ChevronDown, ChevronUp, CalendarCheck, ChevronRight, Palmtree, Bike, Sun, CloudRain, CloudSun, Info, History } from '@lucide/svelte';
   import PageHead from '../lib/ui/PageHead.svelte';
+  import Stat from '../lib/ui/Stat.svelte';
+  import { statParts } from '../lib/ui/stat.js';
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Einstieg» for the place «Woche» (key weekplan)
   import FreeSlotCard from '../lib/freiezeit/FreeSlotCard.svelte'; // Idee A3: free time plus good weather
   import Seg from '../lib/ui/Seg.svelte';
   import Entry from '../lib/woche/Entry.svelte';
+  import MoveSheet from '../lib/ui/MoveSheet.svelte';
+  import ShiftSheet from '../lib/ui/ShiftSheet.svelte';
+  import { timedrag } from '../lib/ui/timedrag.js';
   import WeekPeople from '../lib/alltag/WeekPeople.svelte'; // «Alles finden»: people to see again this week
   import WeekGoals from '../lib/flow/WeekGoals.svelte'; // «Woche» (Schritt V1): the goals of the week stand here, not only on Aktiv
   import { flowQuery } from '../lib/flow/data.svelte.js';
@@ -31,7 +36,8 @@
   import { PHONE_ROWS } from '../lib/touren/kurz.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
-  import { deleteWithUndo } from '../lib/ui/ask.js';
+  import { askDelete, deleteWithUndo } from '../lib/ui/ask.js';
+  import { trashItem, forgetItem } from '../lib/trash/trash.js'; // «Zuletzt gelöscht»
 
   const today = localDay();
   const q = weekQuery(today);
@@ -62,20 +68,67 @@
   }
   const items = () => src?.rawItems ?? [];
   const toggleDone = (e) => saveItems(items().map((x) => (x.id === e.id ? { ...x, done: !x.done } : x)));
-  // Delete rule: «Remove» on a date or to-do offers Undo (it was gone for good before)
-  const remove = (e) => {
+  // Delete rule: «Remove» on a date or to-do asks first (Warteliste F4), then offers Undo
+  const remove = async (e) => {
     const gone = items().find((x) => x.id === e.id);
+    const ok = await askDelete({ title: t('Delete «{name}»?', { name: titleOf(e) }), text: t('It leaves this week. Right after, you can undo it.') });
+    if (ok !== 'delete') return false;
     return deleteWithUndo({ run: () => saveItems(items().filter((x) => x.id !== e.id)), undo: () => saveItems([...items().filter((x) => x.id !== e.id), gone]), text: t('"{name}" deleted.', { name: titleOf(e) }), name: titleOf(e), item: gone ? { store: ITEMS_KEY, row: gone, kind: 'plan' } : null });
   };
+  // «Termine ziehen» (Noah 24.11.2026 «1a 2b 3a 4a»): an own date or to-do is pulled onto another day, or moved with «Move …» (day and time); Undo takes it back
+  let overDay = $state(null); // the day that lights up while something is pulled over it
+  let moving = $state(null); // { e } while the «Move …» window is open
+  // what can move: an own date, to-do or bike job, and a session of the training plan
+  const movable = (e) => !!(e.own || e.sid);
+  async function moveEntry(e, day, time) {
+    if (e.sid) {
+      const before = src.sessions;
+      if (before.find((x) => x.id === e.sid)?.day === day) return;
+      await putWeek(TRAIN_KEY, { sessions: prunePlan(before.map((x) => (x.id === e.sid ? { ...x, day } : x)), today) });
+      offerDone(t('«{name}» moved to {day}.', { name: titleOf(e), day: dayName(day) }), () => putWeek(TRAIN_KEY, { sessions: before }));
+      return;
+    }
+    const before = items();
+    const was = before.find((x) => x.id === e.id);
+    if (!was || (was.day === day && (time == null || (was.time ?? '') === time))) return;
+    await saveItems(before.map((x) => (x.id === e.id ? cleanItem({ ...x, day, ...(time == null ? {} : { time }) }) : x)));
+    offerDone(t('«{name}» moved to {day}.', { name: titleOf(e), day: dayName(day) }), () => saveItems(before));
+  }
+  // «Copy»: an own date or to-do is made again on another day; the first one stays
+  async function copyEntry(e, day, time) {
+    const was = items().find((x) => x.id === e.id);
+    if (!was) return;
+    const before = items();
+    const { id, done, ...rest } = was;
+    await saveItems([...before, cleanItem({ ...rest, day, time: time ?? was.time ?? '' })]);
+    offerDone(t('«{name}» copied to {day}.', { name: titleOf(e), day: dayName(day) }), () => saveItems(before));
+  }
+  // «Move all …»: everything that can move on one day goes to another day together, with one Undo
+  let shifting = $state(null); // { day } while the window is open
+  const shiftable = (day) => (week?.days.find((x) => x.day === day)?.entries ?? []).filter((e) => movable(e) && !e.done);
+  async function shiftAll(day, ids, to) {
+    const beforeItems = items();
+    const beforeSessions = src.sessions;
+    const list = shiftable(day).filter((e) => ids.includes(e.id));
+    const own = new Set(list.filter((e) => e.own).map((e) => e.id));
+    const sess = new Set(list.filter((e) => e.sid).map((e) => e.sid));
+    if (own.size) await saveItems(beforeItems.map((x) => (own.has(x.id) ? cleanItem({ ...x, day: to }) : x)));
+    if (sess.size) await putWeek(TRAIN_KEY, { sessions: prunePlan(beforeSessions.map((x) => (sess.has(x.id) ? { ...x, day: to } : x)), today) });
+    offerDone(tn(list.length, '{n} entry moved to {day}.', '{n} entries moved to {day}.', { day: dayName(to) }), async () => {
+      if (own.size) await saveItems(beforeItems);
+      if (sess.size) await putWeek(TRAIN_KEY, { sessions: beforeSessions });
+    });
+  }
+  const pullSuggestion = (s) => ({ day: '', whole: true, enabled: s.act !== 'drop' && (s.act === 'move' || !!s.day), onpreview: (d) => (overDay = d?.over ?? null), oncommit: (g) => g.over && g.over >= today && take(s, g.over) });
   const toggleKind = (k) => putWeek(HIDE_KEY, src.hide.includes(k) ? src.hide.filter((x) => x !== k) : [...src.hide, k]);
 
   // Impeccable P5: every suggestion button says what it did and offers Undo
-  async function take(s) {
+  async function take(s, day = s.day) {
     const before = { items: items(), sessions: src.sessions };
-    const ch = takeSuggestion(s, { items: items(), sessions: src.sessions }, s.day, titleOf(s));
+    const ch = takeSuggestion(s, { items: items(), sessions: src.sessions }, day, titleOf(s));
     if (ch.items) await saveItems(ch.items);
     if (ch.sessions) await putWeek(TRAIN_KEY, { sessions: prunePlan(ch.sessions, today) });
-    offerDone(t('«{name}» planned for {day}.', { name: titleOf(s), day: dayName(s.day) }), async () => {
+    offerDone(t('«{name}» planned for {day}.', { name: titleOf(s), day: dayName(day) }), async () => {
       if (ch.items) await saveItems(before.items);
       if (ch.sessions) await putWeek(TRAIN_KEY, { sessions: before.sessions });
     });
@@ -84,8 +137,14 @@
     // a session paused by holidays: «leave it out» takes it out of the training plan
     const id = s.ref.slice('drop:'.length);
     const before = src.sessions;
+    const gone = before.find((x) => x.id === id);
     await putWeek(TRAIN_KEY, { sessions: prunePlan(src.sessions.filter((x) => x.id !== id), today) });
-    offerDone(t('«{name}» left out of the training plan.', { name: titleOf(s) }), () => putWeek(TRAIN_KEY, { sessions: before }));
+    // «Zuletzt gelöscht»: the session waits 30 days
+    const trashId = gone ? await trashItem(db, titleOf(s), { store: TRAIN_KEY, path: 'sessions', row: gone, kind: 'week' }) : null;
+    offerDone(t('«{name}» left out of the training plan.', { name: titleOf(s) }), async () => {
+      await putWeek(TRAIN_KEY, { sessions: before });
+      await forgetItem(db, trashId);
+    });
   }
   async function skip(s) {
     const before = src.no;
@@ -117,6 +176,18 @@
   let wrapOpen = $state(false); // asked for by hand on any day
   let wrapLater = $state(false);
   const wrapShown = $derived(!!week && !next && !wrapLater && (wrapOpen || isSunday(today)));
+  // the sums under the title as one number style (Stat): the number big, the rest of the counted sentence small
+  const sumParts = $derived.by(() => {
+    const u = week?.sums;
+    if (!u) return { trips: ['', ''], units: ['', ''], dates: ['', ''], todos: ['', ''], bike: ['', ''] };
+    return {
+      trips: statParts(tn(u.trips, '{n} trip|week', '{n} trips|week')),
+      units: statParts(u.sessions ? tn(u.sessions, '{done} of {n} session done|week', '{done} of {n} sessions done|week', { done: u.sessionsDone }) : tn(0, '{n} session|week', '{n} sessions|week')),
+      dates: statParts(tn(u.dates, '{n} date', '{n} dates')),
+      todos: statParts(tn(u.todos, '{n} to-do', '{n} to-dos')),
+      bike: statParts(tn(u.bike, '{n} bike job open', '{n} bike jobs open')),
+    };
+  });
   const wrap = $derived(week ? weekClose(week.days, monday, today, week.sums.trips) : null);
   async function wrapMove(ids) {
     const before = items();
@@ -193,19 +264,19 @@
       </details>
     </div>
 
-    <p class="sum" data-week-sum>
-      {#if week.sums.trips}<span data-week-trips>{tn(week.sums.trips, '{n} trip|week', '{n} trips|week')}</span>{/if}
-      <span data-week-units>{week.sums.sessions ? tn(week.sums.sessions, '{done} of {n} session done|week', '{done} of {n} sessions done|week', { done: week.sums.sessionsDone }) : tn(0, '{n} session|week', '{n} sessions|week')}{#if week.sums.mins}{' · '}<b class="num">{hours(week.sums.mins)}</b>{/if}{#if week.sums.goalMins}{' '}{t('(plan: {h})', { h: hours(week.sums.goalMins) })}{/if}</span>
-      <span>{tn(week.sums.dates, '{n} date', '{n} dates')}</span>
-      <span>{tn(week.sums.todos, '{n} to-do', '{n} to-dos')}</span>
-      {#if week.sums.away.length}<span><Palmtree size={14} aria-hidden="true" /> {week.sums.away.length === 1 ? dayName(week.sums.away[0]) : `${dayName(week.sums.away[0])}–${dayName(week.sums.away.at(-1))}`}</span>{/if}
-      {#if week.sums.bike}<span>{tn(week.sums.bike, '{n} bike job open', '{n} bike jobs open')}</span>{/if}
+    <div class="sum" data-week-sum>
+      {#if week.sums.trips}<Stat size="s" value={sumParts.trips[0]} label={sumParts.trips[1]} data-week-trips />{/if}
+      <Stat size="s" value={sumParts.units[0]} label={sumParts.units[1] + (week.sums.mins ? ' · ' + hours(week.sums.mins) : '') + (week.sums.goalMins ? ' ' + t('(plan: {h})', { h: hours(week.sums.goalMins) }) : '')} data-week-units />
+      <Stat size="s" value={sumParts.dates[0]} label={sumParts.dates[1]} />
+      <Stat size="s" value={sumParts.todos[0]} label={sumParts.todos[1]} />
+      {#if week.sums.away.length}<span class="away"><Palmtree size={14} aria-hidden="true" /> {week.sums.away.length === 1 ? dayName(week.sums.away[0]) : `${dayName(week.sums.away[0])}–${dayName(week.sums.away.at(-1))}`}</span>{/if}
+      {#if week.sums.bike}<Stat size="s" value={sumParts.bike[0]} label={sumParts.bike[1]} />{/if}
       {#if !next && !wrapShown}<button type="button" class="btn sm" data-wrap-open-btn onclick={() => { wrapLater = false; wrapOpen = true; }}>{t('Show the week wrap-up')}</button>{/if}
-    </p>
+    </div>
     {#if reviewLine(week.review) || week.hints.length}
       <div class="notes">
-        {#if reviewLine(week.review)}<p class="why" data-review><History size={15} aria-hidden="true" /><span>{reviewLine(week.review)}</span></p>{/if}
-        {#each week.hints as h (h.key + (h.day ?? ''))}<p class="why" data-load-hint={h.key}><Info size={15} aria-hidden="true" /><span>{hintText(h)}</span></p>{/each}
+        {#if reviewLine(week.review)}<p class="why" data-review><History size={16} aria-hidden="true" /><span>{reviewLine(week.review)}</span></p>{/if}
+        {#each week.hints as h (h.key + (h.day ?? ''))}<p class="why" data-load-hint={h.key}><Info size={16} aria-hidden="true" /><span>{hintText(h)}</span></p>{/each}
       </div>
     {/if}
 
@@ -227,32 +298,34 @@
       </details>
     {/if}
     {#if emptyWeek}
-      <p class="emptytop" data-week-empty><a class="btn hi" href="#/week/plan" data-plan-week-top><CalendarCheck size={18} aria-hidden="true" />{due ? t('Plan the week (10 min)') : t('Plan the week again')}</a><span class="why">{t('Nothing planned yet. Plan the week or add a day yourself.')}</span></p>
+      <p class="emptytop" data-week-empty><a class="btn hi" href="#/week/plan" data-plan-week-top><CalendarCheck size={20} aria-hidden="true" />{due ? t('Plan the week (10 min)') : t('Plan the week again')}</a><span class="why">{t('Nothing planned yet. Plan the week or add a day yourself.')}</span></p>
     {/if}
     <div class="lay">
       <section class="days" class:slim={emptyWeek} aria-label={t('The days of the week')}>
         {#each week.days as d (d.day)}
           {#if phone.matches}
-            <details class="dr" class:today={d.today} open={d.today || undefined} data-day={d.day}>
+            <details class="dr" class:today={d.today} class:drop={overDay === d.day} open={d.today || undefined} data-day={d.day}>
               <summary>
                 <b>{dayName(d.day)}</b>
                 {#if d.wx}{@render wxMark(d.wx)}{/if}
                 {#if win?.date === d.day}{@render winMark(win)}{/if}
                 <span class="dots" aria-hidden="true">{#each dotsOf(d) as k (k)}<i class="k-{k}"></i>{/each}</span>
                 <span class="cnt">{d.holiday ? holidayName(d.holiday) : d.today ? t('today') : tn(d.entries.length, '{n} entry', '{n} entries')}</span>
-                <ChevronRight size={18} aria-hidden="true" />
+                <ChevronRight size={20} aria-hidden="true" />
               </summary>
               <div class="ens">
-                {#each d.entries as e (e.id)}<Entry {e} ondone={toggleDone} onremove={remove} />{:else}<p class="none">{t('Nothing planned')}</p>{/each}
+                {#each d.entries as e (e.id)}<Entry {e} day={d.day} ondone={toggleDone} onremove={remove} ondrop={moveEntry} onover={(x) => (overDay = x)} onmove={(x) => (moving = { e: x })} />{:else}<p class="none">{t('Nothing planned')}</p>{/each}
                 {#if !d.past}<button type="button" class="dayadd" onclick={() => planDay(d.day)} data-day-add={d.day}><Plus size={16} aria-hidden="true" />{t('Add to plan')}</button>{/if}
+                {#if !d.past && shiftable(d.day).length > 1}<button type="button" class="dayadd" onclick={() => (shifting = { day: d.day })} data-day-shift={d.day}><Move size={16} aria-hidden="true" />{t('Move all …')}</button>{/if}
               </div>
             </details>
           {:else}
-            <div class="dc" class:today={d.today} class:past={d.past} data-day={d.day}>
+            <div class="dc" class:today={d.today} class:past={d.past} class:drop={overDay === d.day} data-day={d.day}>
               <h3><span>{dayName(d.day).split(' ')[0]}</span> <b class="num">{dayName(d.day).split(' ').slice(1).join(' ')}</b></h3>
               {#if d.wx || d.holiday || win?.date === d.day}<p class="dm">{#if d.wx}{@render wxMark(d.wx)}{/if}{#if win?.date === d.day}{@render winMark(win)}{/if}{#if d.holiday}<span class="hol" data-holiday={d.holiday}>{holidayName(d.holiday)}</span>{/if}</p>{/if}
-              {#each d.entries as e (e.id)}<Entry {e} ondone={toggleDone} onremove={remove} />{/each}
+              {#each d.entries as e (e.id)}<Entry {e} day={d.day} ondone={toggleDone} onremove={remove} ondrop={moveEntry} onover={(x) => (overDay = x)} onmove={(x) => (moving = { e: x })} />{/each}
               {#if !d.past}<button type="button" class="dayadd" onclick={() => planDay(d.day)} data-day-add={d.day}><Plus size={16} aria-hidden="true" />{t('Add to plan')}</button>{/if}
+                {#if !d.past && shiftable(d.day).length > 1}<button type="button" class="dayadd" onclick={() => (shifting = { day: d.day })} data-day-shift={d.day}><Move size={16} aria-hidden="true" />{t('Move all …')}</button>{/if}
             </div>
           {/if}
         {/each}
@@ -263,7 +336,7 @@
         <section class="card wc sg" aria-labelledby="wk-sg">
           <h2 id="wk-sg"><button type="button" class="sgh" aria-expanded={sgOpen} aria-controls="wk-sg-body" data-sg-toggle onclick={toggleSg}>
             <span>{t('Still to plan')}<small>{tn(week.suggestions.length, '{n} suggestion', '{n} suggestions')}</small></span>
-            {#if sgOpen}<ChevronUp size={18} aria-hidden="true" />{:else}<ChevronDown size={18} aria-hidden="true" />{/if}
+            {#if sgOpen}<ChevronUp size={20} aria-hidden="true" />{:else}<ChevronDown size={20} aria-hidden="true" />{/if}
           </button></h2>
           {#if sgOpen}
           <div id="wk-sg-body">
@@ -283,15 +356,16 @@
           </details>
           <ul>
             {#each sgShown as s (s.ref)}
-              <li class="k-{s.kind}" data-sugg={s.ref}>
+              <li class="k-{s.kind}" data-sugg={s.ref} use:timedrag={pullSuggestion(s)}>
                 <span class="dot" aria-hidden="true"></span>
-                <span class="st"><b>{titleOf({ ...s, sessionKind: s.sessionKind })}</b><small>{[subOf(s), s.day && s.act === 'take' ? t('suggested: {day}', { day: dayName(s.day) }) : ''].filter(Boolean).join(' · ')}</small></span>
+                <span class="st"><b>{titleOf({ ...s, sessionKind: s.sessionKind })}</b><small>{[subOf(s), s.day && s.act === 'take' ? (s.source === 'todo' ? t('Your to-do, no day yet · fits {day}', { day: dayName(s.day) }) : t('suggested: {day}', { day: dayName(s.day) })) : ''].filter(Boolean).join(' · ')}</small></span>
                 <span class="sb">
                   {#if s.act === 'drop'}<button type="button" class="btn sm" onclick={() => drop(s)}>{t('Leave out')}</button>
                   {:else if s.act === 'move'}<button type="button" class="btn sm" onclick={() => take(s)}>{t('Move|week')}</button>
                   {:else if s.day}<button type="button" class="btn sm" onclick={() => take(s)}>{t('Take')}</button>{/if}
                   <button type="button" class="btn sm" onclick={() => skip(s)}>{t('Not this week')}</button>
-                  <button type="button" class="btn sm" data-sg-never onclick={() => never(s)}>{t('Never suggest')}</button>
+                  {#if s.source === 'todo'}<button type="button" class="btn sm" data-sg-remove onclick={() => remove(s)}>{t('Remove|to-do')}</button>
+                  {:else}<button type="button" class="btn sm" data-sg-never onclick={() => never(s)}>{t('Never suggest')}</button>{/if}
                 </span>
               </li>
             {:else}
@@ -314,7 +388,7 @@
           {/if}
           </div>
           {/if}
-          <a class="btn hi" href="#/week/plan" data-plan-week><CalendarCheck size={18} aria-hidden="true" />{due ? t('Plan the week (10 min)') : t('Plan the week again')}</a>
+          <a class="btn hi" href="#/week/plan" data-plan-week><CalendarCheck size={20} aria-hidden="true" />{due ? t('Plan the week (10 min)') : t('Plan the week again')}</a>
         </section>
 
         <WeekDreams {monday} {today} />
@@ -360,10 +434,32 @@
 
 {#snippet wxMark(wx)}
   <span class="wx" class:wet={wx.wet} data-wx={wx.wet ? 'wet' : wx.dry ? 'dry' : 'showers'}>
-    {#if wx.wet}<CloudRain size={15} aria-hidden="true" />{:else if wx.dry}<Sun size={15} aria-hidden="true" />{:else}<CloudSun size={15} aria-hidden="true" />{/if}
+    {#if wx.wet}<CloudRain size={16} aria-hidden="true" />{:else if wx.dry}<Sun size={16} aria-hidden="true" />{:else}<CloudSun size={16} aria-hidden="true" />{/if}
     <span class="sr">{wxWords(wx)}</span>{#if wx.max != null}<span class="num" aria-hidden="true">{Math.round(wx.max)}°</span>{/if}
   </span>
 {/snippet}
+
+{#if moving}
+  {@const it = items().find((x) => x.id === moving.e.id)}
+  <MoveSheet
+    title={titleOf(moving.e)}
+    day={it?.day ?? ''}
+    time={it?.time ?? ''}
+    timeless
+    onsave={({ day, time }) => moveEntry(moving.e, day, time)}
+    oncopy={moving.e.own ? ({ day, time }) => copyEntry(moving.e, day, time) : null}
+    onclose={() => (moving = null)}
+  />
+{/if}
+{#if shifting}
+  <ShiftSheet
+    day={shifting.day}
+    to={shiftDay(shifting.day, 1)}
+    entries={shiftable(shifting.day).map((e) => ({ id: e.id, title: titleOf(e), sub: e.time || '' }))}
+    onsave={({ ids, day }) => shiftAll(shifting.day, ids, day)}
+    onclose={() => (shifting = null)}
+  />
+{/if}
 
 <style>
   .wkp {
@@ -441,17 +537,15 @@
   .sum {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px 18px;
+    align-items: flex-end;
+    gap: 8px 22px;
     margin: 0 0 16px;
     color: var(--ink-2);
   }
-  .sum span {
+  .sum .away {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-  }
-  .sum b {
-    color: var(--ink);
   }
   /* the seven days take the full width; «Still to plan» and «Add» sit beneath them, beside only on very wide screens */
   .notes {
@@ -815,4 +909,19 @@
   .wc-row{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px solid var(--line);border-radius:10px;padding:10px;margin:6px 0}
   .wc-t{display:flex;flex-direction:column;font-weight:600}.wc-t small{font-weight:400;color:var(--muted)}
   .wc-b{display:flex;gap:6px;flex-wrap:wrap}
+  /* «Termine ziehen»: the day an entry is pulled over lights up; a suggestion pulled out of the list lifts */
+  .dc:has(:global(.td-lift)),
+  .dr:has(:global(.td-lift)) {
+    position: relative;
+    z-index: 7;
+    opacity: 1;
+  }
+  .dc.drop,
+  .dr.drop {
+    outline: 2px dashed var(--accent);
+    outline-offset: -2px;
+  }
+  .sg li {
+    -webkit-touch-callout: none;
+  }
 </style>

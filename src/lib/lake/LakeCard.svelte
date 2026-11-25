@@ -116,7 +116,7 @@
 
 <section class="card lake" aria-labelledby={hid} data-card="lake">
   <div class="lk-head">
-    <span class="lk-ib" aria-hidden="true"><Waves size={18} /></span>
+    <span class="lk-ib" aria-hidden="true"><Waves size={20} /></span>
     <svelte:element this={headingLevel === 3 ? 'h3' : 'h2'} id={hid} class="lk-title">{title || t(LAKE_NAME)}</svelte:element>
     <button class="lk-re" type="button" onclick={() => refresh(true)} disabled={busy || !online} aria-label={t('Load again')} title={t('Load again')}>
       <RefreshCw size={16} aria-hidden="true" class={busy ? 'spin' : ''} />

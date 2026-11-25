@@ -383,9 +383,9 @@
   <!-- «332 Use Cases» (Noah 26.10.2026: «aktivitätsmosaik, bikepark tage, jahresziele, sterne» sichtbar) -->
   <QuickLinks label={t('On this page')} links={[{ key: 'mosaic', jump: '[data-mosaic]', label: t('Activity mosaic') }, { key: 'year', jump: '#yg-h', label: t('Year goals') }, { key: 'park', href: `#/flow/sport/${encodeURIComponent('trip:downhill')}`, label: t('Bike park days') }, { key: 'stars', href: '#/flow/milestones', label: t('Stars from your data') }]} />
   <div class="tools">
-    <a class="btn hi" href="#/flow/new" data-new-sport><Plus size={18} aria-hidden="true" />{t('New sport')}</a>
+    <a class="btn hi" href="#/flow/new" data-new-sport><Plus size={20} aria-hidden="true" />{t('New sport')}</a>
     <!-- hobby pages 1 (suggestions, challenges, ideas and connections) stay one tap away -->
-    <a class="btn" href="#/flow/activity" data-to-activity><Lightbulb size={18} aria-hidden="true" />{t('Suggestions and ideas')}</a>
+    <a class="btn" href="#/flow/activity" data-to-activity><Lightbulb size={20} aria-hidden="true" />{t('Suggestions and ideas')}</a>
   </div>
 
   {#if data && !all.length}

@@ -192,7 +192,7 @@
 
       <div class="km-folds">
         <button type="button" class="km-fold" aria-expanded={linkOpen} aria-controls="km-link" onclick={() => (linkOpen = !linkOpen)}>
-          <LinkIcon size={18} aria-hidden="true" /><b>{t('komoot link')}</b><small>{goodLink ? t('stays in the trip') : t('none yet|link')}</small>{#if linkOpen}<ChevronDown size={18} aria-hidden="true" />{:else}<ChevronRight size={18} aria-hidden="true" />{/if}
+          <LinkIcon size={20} aria-hidden="true" /><b>{t('komoot link')}</b><small>{goodLink ? t('stays in the trip') : t('none yet|link')}</small>{#if linkOpen}<ChevronDown size={20} aria-hidden="true" />{:else}<ChevronRight size={20} aria-hidden="true" />{/if}
         </button>
         {#if linkOpen}
           <div class="km-in" id="km-link">
@@ -201,7 +201,7 @@
           </div>
         {/if}
         <button type="button" class="km-fold" aria-expanded={moreOpen} aria-controls="km-more" onclick={() => (moreOpen = !moreOpen)}>
-          <SlidersHorizontal size={18} aria-hidden="true" /><b>{t('More details')}</b><small>{t('Days, start time, packing list')}</small>{#if moreOpen}<ChevronDown size={18} aria-hidden="true" />{:else}<ChevronRight size={18} aria-hidden="true" />{/if}
+          <SlidersHorizontal size={20} aria-hidden="true" /><b>{t('More details')}</b><small>{t('Days, start time, packing list')}</small>{#if moreOpen}<ChevronDown size={20} aria-hidden="true" />{:else}<ChevronRight size={20} aria-hidden="true" />{/if}
         </button>
         {#if moreOpen}
           <div class="km-in km-more" id="km-more">
@@ -224,7 +224,7 @@
       {#if error}<p class="km-err" role="alert">{error}</p>{/if}
       <div class="km-foot daumen-foot">
         <button type="button" class="btn btn-link" onclick={cancel}>{t('Cancel')}</button>
-        <button type="submit" class="btn hi" disabled={busy}><Check size={18} aria-hidden="true" />{t('Create as planned trip')}</button>
+        <button type="submit" class="btn hi" disabled={busy}><Check size={20} aria-hidden="true" />{t('Create as planned trip')}</button>
       </div>
     {/if}
   </form>

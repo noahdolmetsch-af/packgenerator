@@ -102,10 +102,10 @@
               <SortGrip name={itemName(x)} onstep={(dir) => step(x.id, dir)} />
               <button type="button" class="rtp-open" aria-expanded={open === x.id} onclick={() => toggleOpen(x)}>
                 <span class="rtp-name">{itemName(x)}</span>
-                {#if sub(x)}<span class="rtp-sub">{#if x.link}<Link2 size={12} aria-hidden="true" />{:else if x.time}<Clock size={12} aria-hidden="true" />{/if}<span>{sub(x)}</span></span>{/if}
+                {#if sub(x)}<span class="rtp-sub">{#if x.link}<Link2 size={14} aria-hidden="true" />{:else if x.time}<Clock size={14} aria-hidden="true" />{/if}<span>{sub(x)}</span></span>{/if}
               </button>
               {#if !phone.matches}<SortArrows name={itemName(x)} {i} n={shown.length} onstep={(dir) => step(x.id, dir)} />{/if}
-              <button type="button" class="rtp-x" aria-label={t('Delete {name}', { name: itemName(x) })} onclick={() => del(x)} data-del><X size={18} aria-hidden="true" /></button>
+              <button type="button" class="rtp-x" aria-label={t('Delete {name}', { name: itemName(x) })} onclick={() => del(x)} data-del><X size={20} aria-hidden="true" /></button>
             </div>
             {#if open === x.id}
               <div class="rtp-edit" data-edit={x.id}>
@@ -156,7 +156,7 @@
       <p class="rtp-note">{t('tap · your own any time')}</p>
       <ul class="rtp-sugg">
         {#each offer as s (s.key)}
-          <li><button type="button" class="rtp-sbtn" onclick={() => addSuggestion(s)} data-add={s.key}><span>{t(s.name, { time: hm(s.time) })}</span><Plus size={18} aria-hidden="true" /></button></li>
+          <li><button type="button" class="rtp-sbtn" onclick={() => addSuggestion(s)} data-add={s.key}><span>{t(s.name, { time: hm(s.time) })}</span><Plus size={20} aria-hidden="true" /></button></li>
         {/each}
         <li>
           {#if ownOpen}
@@ -166,7 +166,7 @@
               <button type="submit" class="btn sm hi">{t('Add')}</button>
             </form>
           {:else}
-            <button type="button" class="rtp-sbtn" onclick={() => (ownOpen = true)} data-add="own"><span>{t('Your own item')}</span><Plus size={18} aria-hidden="true" /></button>
+            <button type="button" class="rtp-sbtn" onclick={() => (ownOpen = true)} data-add="own"><span>{t('Your own item')}</span><Plus size={20} aria-hidden="true" /></button>
           {/if}
         </li>
       </ul>
@@ -239,9 +239,9 @@
     cursor: pointer;
   }
   .rtp-day[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .rtp-plus {
     font-weight: 600;

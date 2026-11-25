@@ -118,6 +118,11 @@ const LISTED = {
     steps: ['Ask the app: type a question or tap an example; the answer comes from your data, with a link.', 'Help me plan: answer four short questions, check the plan, «Create the trip».'],
     example: 'Example: «What is due on my bikes?» → the parts that are due, and «Open bike care».',
   },
+  'f.askgemini': {
+    on: 'Assistant › «Ask Gemini» (the third tab).',
+    steps: ['Type a question, speak it with the microphone, or add a photo, then tap «Ask Gemini».', '«Read aloud» reads the answer; the switch «Read answers aloud at once» does it every time.', '«Do it for me»: write a sentence, check «I would do this», tap «Yes, do it» (with Undo).'],
+    example: 'Example: a photo of a worn brake pad and «Is this still good?» → a short answer you can have read to you.',
+  },
   'f.wardrobe': {
     on: null,
     steps: ['Open Gear › Clothes.', 'Add clothes by layer and body zone; gaps go to the wishlist.'],
@@ -518,6 +523,11 @@ const LISTED = {
     on: null,
     steps: ['In the debrief tap «Rate a place to sleep»: stars, note, the night.', 'Plan a trip nearby: Planen shows «Your places to sleep here».'],
     example: 'Example: a quiet campsite at the lake with 5 stars → it comes back on the next tour in the area.',
+  },
+  'f.later': {
+    on: 'Nothing to switch on; the answers belong to the trip and are in the backup.',
+    steps: ['Open the debrief of a trip that is over and scroll to «Later, three questions each».', 'Answer the stage that is due; the others say on which day their questions come.', 'Come back after a week: the next three questions wait. «Change» edits an answer.'],
+    example: 'Example: after 1 day «left knee», after 1 month «the second bag was too heavy»: both are on the trip for the next one.',
   },
   'f.postcard': {
     on: null,
@@ -1112,6 +1122,11 @@ const LISTED = {
     on: null,
     steps: ['Open Trips › «Plan races in detail» and tap a race.', 'Fill in the five sheets one by one; everything saves by itself.'],
     example: 'Example: sheet 2 «Target setup»: the frame bag holds the rain jacket and the head torch, 150 g empty.',
+  },
+  'f.raceatlas': {
+    on: null,
+    steps: ['Open Trips › Races › «Race atlas» and choose the file, once.', 'Filter the races, star the ones you want, open one and tap «Create race».'],
+    example: 'Example: 140 races in the file, the filter «Gravel, 3 to 6 days» shows 9; the star puts one on your year line.',
   },
   'f.racesample': {
     on: null,

@@ -219,18 +219,18 @@
         {#each list as s (s.id)}
           <li data-sug-row={s.id}>
             <b>{fmt(s.day)}</b>
-            <span>{label(s)}{#if rainy(s)}<small class="sugw-rain" data-sug-rain><CloudRain size={13} aria-hidden="true" />{t('Rain: indoors?')}</small>{/if}</span>
+            <span>{label(s)}{#if rainy(s)}<small class="sugw-rain" data-sug-rain><CloudRain size={14} aria-hidden="true" />{t('Rain: indoors?')}</small>{/if}</span>
             <span class="num">{hm(s.mins)}{#if s.zone}{' · '}Z{s.zone}{/if}</span>
             <span class="sugw-ic">
-              <button type="button" class="ib" aria-label={t('Change this session')} onclick={() => startEdit(s)} data-sug-edit><Pencil size={15} aria-hidden="true" /></button>
-              <button type="button" class="ib" aria-label={t('Remove this session')} onclick={() => dropOne(s.id)} data-sug-drop><X size={15} aria-hidden="true" /></button>
+              <button type="button" class="ib" aria-label={t('Change this session')} onclick={() => startEdit(s)} data-sug-edit><Pencil size={16} aria-hidden="true" /></button>
+              <button type="button" class="ib" aria-label={t('Remove this session')} onclick={() => dropOne(s.id)} data-sug-drop><X size={16} aria-hidden="true" /></button>
             </span>
           </li>
           {#if form?.id === s.id}{@render editor()}{/if}
         {/each}
       </ul>
       {#if form && form.id === null}{@render editor()}{:else}
-        <button type="button" class="btn btn-link sm sugw-add" onclick={() => startAdd()} data-sug-add><Plus size={15} aria-hidden="true" />{t('Add a session')}</button>
+        <button type="button" class="btn btn-link sm sugw-add" onclick={() => startAdd()} data-sug-add><Plus size={16} aria-hidden="true" />{t('Add a session')}</button>
       {/if}
       {#if !noHabits(habits)}
         <p class="sugw-note" data-sug-habits>{t('Your earlier changes are remembered for the next suggestions.')} <button type="button" class="btn btn-link sm" onclick={() => onhabits?.({ drop: {}, mins: {} })} data-sug-forget>{t('Forget them')}</button></p>

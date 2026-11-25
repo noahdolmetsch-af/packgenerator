@@ -200,7 +200,7 @@
   {#if filters.length}
     <section class="card pick" aria-label={t('Choose what you see')}>
       <button type="button" class="pk-sum" aria-expanded={filterOpen} aria-controls="an-pick-body" data-filter-toggle onclick={() => (filterOpen = !filterOpen)}>
-        <span>{filterLine}</span><ChevronDown size={18} aria-hidden="true" />
+        <span>{filterLine}</span><ChevronDown size={20} aria-hidden="true" />
       </button>
       <div class="pk-body" class:open={filterOpen} id="an-pick-body">
         {#if filters.includes('src')}
@@ -374,6 +374,16 @@
       text-align: center;
     }
   }
+  /* Gesamttest Runde 2, C3 (Noah 25.11.2026): at 320 px the three columns are about 96 px; «Vergleiche» broke into «Vergleich / e».
+     Smaller type and tighter sides keep the longest word whole; a long word never breaks inside. */
+  @media (max-width: 359px) {
+    .tab {
+      padding: 4px 3px;
+      font-size: var(--fs-small);
+      overflow-wrap: normal;
+      word-break: normal;
+    }
+  }
   .tab.on {
     border-color: var(--hi);
     background: var(--hi-soft);
@@ -393,8 +403,6 @@
   .pl {
     color: var(--ink-3);
     font-size: var(--fs-label);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
   }
   .chips {
     display: flex;

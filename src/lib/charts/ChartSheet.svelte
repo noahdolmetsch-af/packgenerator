@@ -44,8 +44,8 @@
   </div>
   {#if onprev || onnext}
     <div class="nav">
-      <button type="button" class="btn" disabled={!onprev} onclick={() => onprev?.()} data-sheet-prev><ChevronLeft size={18} aria-hidden="true" />{prevLabel}</button>
-      <button type="button" class="btn" disabled={!onnext} onclick={() => onnext?.()} data-sheet-next>{nextLabel}<ChevronRight size={18} aria-hidden="true" /></button>
+      <button type="button" class="btn" disabled={!onprev} onclick={() => onprev?.()} data-sheet-prev><ChevronLeft size={20} aria-hidden="true" />{prevLabel}</button>
+      <button type="button" class="btn" disabled={!onnext} onclick={() => onnext?.()} data-sheet-next>{nextLabel}<ChevronRight size={20} aria-hidden="true" /></button>
     </div>
   {/if}
 </dialog>

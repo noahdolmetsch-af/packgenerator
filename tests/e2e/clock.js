@@ -126,6 +126,8 @@ export async function shiftContext(context) {
 /** Etappe 2, 1a: on a phone the cards «Belongs to …» / «All here» start as one line; a spec that does not look at them finds them open. */
 function cardsOpen() {
   globalThis.__pgCardsOpen = true;
+  // Warteliste 4 «Packen in Schritten»: a list opens in Steps by default; a spec that looks at the bags finds them as before (test.use({ cardsOpen: false }) shows the app as it is)
+  globalThis.__pgPackView = 'bags';
   // Hilfen 3b: the tip line under the page titles is off in the app; a spec that looks at it finds it on (test.use({ cardsOpen: false }) shows the app as it is)
   globalThis.__pgTipLines = true;
 }
@@ -159,6 +161,17 @@ export const test = base.extend({
           return own(...a);
         };
       }
+    }
+    // A window that was just closed gives its history entry back one task later (src/lib/ui/backclose.js, history.back()).
+    // A goto or reload that starts in between is cut off (net::ERR_ABORTED) or ends on the old page. So before each of them
+    // the test waits, on the state and not on time, until no closed window's entry is left; a window that is open on purpose
+    // does not count, and a page that never clears it goes on after 3 s (the test then fails as it would have).
+    for (const m of ['goto', 'reload']) {
+      const own = page[m].bind(page);
+      page[m] = async (...a) => {
+        await page.waitForFunction(() => !history.state?.pgDialog || !!document.querySelector('dialog[open]'), null, { polling: 25, timeout: 3000 }).catch(() => {});
+        return own(...a);
+      };
     }
     await use(page);
     // Back to the test day, not to 0: the next spec file in this worker builds its dates at the top of the file

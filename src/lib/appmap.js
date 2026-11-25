@@ -5,7 +5,7 @@
  * Pure (no database, no screen), tested in tests/appmap.test.js. Titles are English keys for t().
  */
 import { FEATURES, pageOf, featureHref } from './features.js';
-import { PLACES, pageOf as pageOfHash, placeOf, sidePlaceOf } from './nav.js';
+import { PLACES, PLACE_TABS, pageOf as pageOfHash, placeOf, sidePlaceOf } from './nav.js';
 import { NEWS_INDEX_ALL } from './whatsnew.js';
 import { pathOf } from './quick/usage.js';
 
@@ -61,7 +61,7 @@ export function freshIds(today, days = 14, list = NEWS_INDEX_ALL) {
  * of the last two weeks, not opened yet) or 'never'. opened: { [path]: day } of this device (quick/usage.js), used: Set of ids.
  */
 export function markOf(point, { opened = {}, used = new Set(), fresh = new Set() } = {}) {
-  if (opened[point.path] || point.ids.some((id) => used.has(id))) return 'open';
+  if ([point.path, ...(point.alsoPaths ?? [])].some((x) => opened[x]) || point.ids.some((id) => used.has(id))) return 'open';
   return point.ids.some((id) => fresh.has(id)) ? 'new' : 'never';
 }
 
@@ -91,3 +91,58 @@ export const pathText = (item, tr = (s) => s) => item.path.map((p) => tr(p)).joi
 
 /** Number of functions on the map. */
 export const mapSize = (map) => map.reduce((n, g) => n + g.items.length, 0);
+
+/**
+ * «Karte der App» als Baum (Noah 24.11.2026 «a» on «ich bin total unzufrieden»): place › tab › page. The tabs are the ones of the place
+ * (PLACE_TABS in nav.js, never kept by hand) and the pages under a tab are the chips under it. «Ich» has no tabs: its groups are the ones of the
+ * page «Ich» (ICH_GROUPS, checked by tests/appmap.test.js against src/pages/Me.svelte). What fits no tab stands under «Further pages»,
+ * a function without an address (a window) under «Windows and actions». Nothing is left out: every point of the place is in exactly one page row.
+ */
+export const ICH_GROUPS = [
+  { key: 'data', label: 'Data', re: /^(#\/me\/(data|connections|fitbit|docs|trash)|#\/me|run:(backup|demo|f\.autobackup))$/ },
+  { key: 'reminders', label: 'Reminders', re: /^#\/me\/(reminders|push|hinweise)$/ },
+  { key: 'settings', label: 'Settings', re: /^(#\/me\/(look|werte|lists|suche|ruhig(\/.*)?|checks|regeln)|run:(lang|f\.search))$/ },
+  { key: 'help', label: 'Help|me', re: /^(#\/(features|assistent)|#\/me\/(karte|news|logbuch|privacy|handbook)|run:install)$/ },
+  { key: 'more', label: 'More', re: /^(#\/(kurse)|#\/me\/(apps|mini(\/.*)?|next|ki-projekte|album|freunde|pros|tennis(\/.*)?)|run:f\.playground)$/ },
+];
+
+/** One row of the tree for a point or a group of points (the chips of a tab that lead to the same page are one row). */
+function pageRow(p) {
+  return { path: p.path, alsoPaths: [], href: p.href, title: p.title, ids: [...p.ids] };
+}
+
+/** The tabs of a place with their pages: [{ key, label, href, pages: [{ path, href, title, ids, alsoPaths }] }], empty ones left out. */
+export function buildTree(g) {
+  const tabs = [];
+  const place = PLACE_TABS[g.key] ?? [];
+  const add = (key, label, href, rows) => rows.length && tabs.push({ key, label, href, pages: rows });
+  const rest = [];
+  if (g.key === 'me') {
+    const at = new Map(ICH_GROUPS.map((x) => [x.key, []]));
+    for (const p of g.points) {
+      const hit = ICH_GROUPS.find((x) => x.re.test(p.path));
+      if (hit) at.get(hit.key).push(pageRow(p));
+      else rest.push(pageRow(p));
+    }
+    for (const x of ICH_GROUPS) add(x.key, x.label, null, at.get(x.key));
+  } else if (place.length) {
+    const rows = new Map(place.map((t) => [t.key, new Map()]));
+    const windows = [];
+    for (const p of g.points) {
+      const h = p.href;
+      const tab = h ? place.find((t) => t.match(h)) : null;
+      if (!tab) { (h ? rest : windows).push(pageRow(p)); continue; }
+      const sub = tab.subs?.find((x) => x.match(h)) ?? null;
+      const k = sub?.key ?? p.path;
+      const m = rows.get(tab.key);
+      const row = m.get(k);
+      if (!row) m.set(k, { ...pageRow(p), title: sub?.label ?? p.title, href: sub?.href ?? p.href, rank: sub ? tab.subs.indexOf(sub) : 99 });
+      else { row.ids.push(...p.ids); row.alsoPaths.push(p.path); }
+    }
+    for (const t of place) add(t.key, t.label, t.href, [...rows.get(t.key).values()].sort((a, b) => a.rank - b.rank));
+    if (windows.length) rest.push(...windows);
+  } else rest.push(...g.points.map(pageRow));
+  add('rest', 'Further pages', null, rest.filter((r) => r.href));
+  add('windows', 'Windows and actions', null, rest.filter((r) => !r.href));
+  return tabs;
+}

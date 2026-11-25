@@ -157,20 +157,20 @@
     <h2 id="tn-ask-h">{t('{day} {time} booked · Played?', { day: dayLine(ask.day), time: ask.time })}</h2>
     <p class="small">{t('{min} min · {court}', { min: ask.min, court: courtName(ask.court) })}</p>
     <div class="tn-acts">
-      <button type="button" class="btn hi" onclick={() => openPlayed(ask)} data-ask-yes><Check size={18} aria-hidden="true" />{t('Yes, played')}</button>
+      <button type="button" class="btn hi" onclick={() => openPlayed(ask)} data-ask-yes><Check size={20} aria-hidden="true" />{t('Yes, played')}</button>
       <button type="button" class="btn" onclick={() => skipSlot(ask)} data-ask-no>{t('Not played')}</button>
     </div>
   </section>
 {/if}
 
 <section class="card" aria-labelledby="tn-today-h" data-tennis-today>
-  <div class="hl"><h2 id="tn-today-h">{t('Tick off today')}</h2>{#if playedToday}<span class="tn-done small"><Check size={15} aria-hidden="true" />{t('played today')}</span>{/if}</div>
+  <div class="hl"><h2 id="tn-today-h">{t('Tick off today')}</h2>{#if playedToday}<span class="tn-done small"><Check size={16} aria-hidden="true" />{t('played today')}</span>{/if}</div>
   <div class="tn-acts">
-    <button type="button" class="btn hi" onclick={() => openPlayed()} data-tennis-played><Plus size={18} aria-hidden="true" />{t('Played')}</button>
-    <button type="button" class="btn" onclick={openTaught} data-tennis-taught><GraduationCap size={18} aria-hidden="true" />{t('Lesson given')}</button>
+    <button type="button" class="btn hi" onclick={() => openPlayed()} data-tennis-played><Plus size={20} aria-hidden="true" />{t('Played')}</button>
+    <button type="button" class="btn" onclick={openTaught} data-tennis-taught><GraduationCap size={20} aria-hidden="true" />{t('Lesson given')}</button>
   </div>
   {#if last}
-    <button type="button" class="chip tn-like" onclick={likeLast} data-tennis-like><RotateCcw size={15} aria-hidden="true" />{t('Like last time: {line}', { line: lastLine })}</button>
+    <button type="button" class="chip tn-like" onclick={likeLast} data-tennis-like><RotateCcw size={16} aria-hidden="true" />{t('Like last time: {line}', { line: lastLine })}</button>
   {/if}
 </section>
 

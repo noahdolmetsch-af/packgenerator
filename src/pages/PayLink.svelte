@@ -45,14 +45,14 @@
       </div>
     {/if}
     {#if sent === 'twint' || sent === 'qr'}
-      <p class="plink-done" role="status"><Check size={18} aria-hidden="true" /> {t('Thank you! {name} now knows. You get a confirmation once the money has arrived.', { name: d.from })}</p>
+      <p class="plink-done" role="status"><Check size={20} aria-hidden="true" /> {t('Thank you! {name} now knows. You get a confirmation once the money has arrived.', { name: d.from })}</p>
     {:else}
       <div class="plink-btns">
         {#if d.twint && d.iban}
-          <button class="btn hi" type="button" disabled={sent === 'busy'} onclick={() => report('twint')}><Check size={18} aria-hidden="true" />{t('I have paid with TWINT')}</button>
-          <button class="btn" type="button" disabled={sent === 'busy'} onclick={() => report('qr')}><Check size={18} aria-hidden="true" />{t('I have paid by bank')}</button>
+          <button class="btn hi" type="button" disabled={sent === 'busy'} onclick={() => report('twint')}><Check size={20} aria-hidden="true" />{t('I have paid with TWINT')}</button>
+          <button class="btn" type="button" disabled={sent === 'busy'} onclick={() => report('qr')}><Check size={20} aria-hidden="true" />{t('I have paid by bank')}</button>
         {:else}
-          <button class="btn hi" type="button" disabled={sent === 'busy'} onclick={() => report(d.twint ? 'twint' : 'qr')}><Check size={18} aria-hidden="true" />{t('I have paid')}</button>
+          <button class="btn hi" type="button" disabled={sent === 'busy'} onclick={() => report(d.twint ? 'twint' : 'qr')}><Check size={20} aria-hidden="true" />{t('I have paid')}</button>
         {/if}
       </div>
       {#if sent === 'error'}<p class="plink-err" role="alert">{t('That did not work. Please tell {name} directly.', { name: d.from })}</p>{/if}

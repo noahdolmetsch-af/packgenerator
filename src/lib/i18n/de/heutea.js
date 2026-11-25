@@ -84,11 +84,11 @@ export default {
   'Chips under the greeting': 'Chips unter dem Gruss',
   'Switch a chip off or move it with the arrows or by dragging.': 'Schalte einen Chip aus oder verschiebe ihn mit den Pfeilen oder durch Ziehen.',
   // UI-Ziele #12: the quick check, 5 steps with words
-  'bad|step': 'schlecht',
-  'rather bad|step': 'eher schlecht',
-  'okay|step': 'okay',
-  'good|step': 'gut',
-  'very good|step': 'sehr gut',
+  'bad|step': 'Schlecht',
+  'rather bad|step': 'Eher schlecht',
+  'okay|step': 'Okay',
+  'good|step': 'Gut',
+  'very good|step': 'Sehr gut',
   'yesterday|step': 'gestern',
   // the diary tile (catalog)
   'Diary|tile': 'Tagebuch',

@@ -82,7 +82,7 @@
 {#each calls as c (helpKey(c))}
   {@const k = kindOf(HELP_KINDS, c.kind)}
   <div class="ev-alert" role="alert" data-event-help-alert>
-    <LifeBuoy size={22} aria-hidden="true" />
+    <LifeBuoy size={24} aria-hidden="true" />
     <span class="ev-txt">
       <b class="ev-bad-t">{t('{name} needs help', { name: c.name || t('Without a name') })}</b>
       <small>{k.icon} {t(k.label)}{c.text ? ` · «${c.text}»` : ''} · {where(c)}</small>
@@ -99,7 +99,7 @@
   {#if mine}
     {@const k = kindOf(HELP_KINDS, mine.kind)}
     <p class="ev-strong" role="status" data-event-help-mine>{t('The group sees your call: {what}', { what: `${k.icon} ${t(k.label)}${mine.text ? ` · «${mine.text}»` : ''}` })} · {ago(mine.at)}</p>
-    <div><button type="button" class="btn" onclick={sorted} disabled={busy} data-event-help-done><Check size={18} aria-hidden="true" />{t('It is sorted')}</button></div>
+    <div><button type="button" class="btn" onclick={sorted} disabled={busy} data-event-help-done><Check size={20} aria-hidden="true" />{t('It is sorted')}</button></div>
   {:else if open}
     <p class="ev-muted">{t('The whole group sees your location and your message at once, with a sound.')}</p>
     <div class="ev-chips" role="group" aria-label={t('What is wrong?')}>
@@ -109,13 +109,13 @@
     </div>
     <label class="ev-fld"><span>{t('Short message (optional)')}</span><input type="text" bind:value={text} maxlength={TEXT_MAX} data-event-help-text /></label>
     <div class="ev-acts">
-      <button type="button" class="btn ev-bad" onclick={send} disabled={busy || !canSend} data-event-help-send><LifeBuoy size={18} aria-hidden="true" />{t('Send to the group')}</button>
+      <button type="button" class="btn ev-bad" onclick={send} disabled={busy || !canSend} data-event-help-send><LifeBuoy size={20} aria-hidden="true" />{t('Send to the group')}</button>
       <button type="button" class="btn" onclick={() => (open = false)}>{t('Cancel')}</button>
     </div>
     <p class="ev-muted">{t('In an emergency call 112 or the Rega 1414 first: the «SOS» button on the live map.')}</p>
   {:else}
     <p class="ev-muted">{t('A flat without a tube, a broken part, a fall: the others see where you are and who has what you need.')}</p>
-    <div><button type="button" class="btn" onclick={() => (open = true)} disabled={!canSend} data-event-help-open><LifeBuoy size={18} aria-hidden="true" />{t('I need help')}</button></div>
+    <div><button type="button" class="btn" onclick={() => (open = true)} disabled={!canSend} data-event-help-open><LifeBuoy size={20} aria-hidden="true" />{t('I need help')}</button></div>
     {#if !canSend}<p class="ev-muted">{t('Write your name and share first, so the others know who needs help.')}</p>{/if}
   {/if}
 </section>

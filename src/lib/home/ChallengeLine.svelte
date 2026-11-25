@@ -20,6 +20,9 @@
   import { beginMed, tplStart, medTemplates, lastStart, isMedAct } from '../flow/hobby/medstart.js';
   import { daysGrid, streaks } from '../flowmed.js';
   import { t, tn } from '../i18n.svelte.js';
+  import { readLite } from '../actlite.js';
+  import { buzz, doneBuzz } from '../bedienung.svelte.js';
+  import { tickFlash } from '../ui/rowout.js';
 
   let { today } = $props();
 
@@ -28,7 +31,7 @@
     liveQuery(async () => {
       const [set, push] = await Promise.all([db.settings.get(OUTDOOR_KEY), db.settings.get(PUSH_KEY)]);
       const rec = outdoorOf(set?.value);
-      const acts = rec?.from ? await db.activities.where('day').between(rec.from, rec.until, true, true).toArray() : [];
+      const acts = rec?.from ? await readLite(db, (T) => T.where('day').between(rec.from, rec.until, true, true).toArray()) : [];
       return { rec, acts, remind: outdoorRemindOn(push?.value) };
     }),
   );
@@ -37,9 +40,13 @@
   const st = $derived(live ? standing(live, od.acts, today) : null);
   const running = $derived(st?.phase === 'running' ? st : null);
   const oname = $derived(!live ? '' : live.name === 'Outdoors' ? t('Outdoors') : live.name);
-  async function add(n) {
+  async function add(n, ev) {
     const next = addMin(live, today, n);
     if (next === live) return;
+    // «Rückmeldung beim Tippen» (Noah 25.11.2026 «3a», «4a»): a short buzz and a soft ring; the double buzz when this tap reaches the goal of the day
+    if (standing(next, od.acts, today)?.today.done && !running?.today.done) doneBuzz();
+    else buzz();
+    tickFlash(ev?.currentTarget?.closest?.('.row'));
     const save = async (v) => {
       await putSetting(db, OUTDOOR_KEY, v);
       if (od.remind) resyncPhone();
@@ -73,20 +80,20 @@
   <div class="cl" data-challenge-line>
     {#if running}
       <div class="row" data-cl-outdoor>
-        <span class="ic" aria-hidden="true"><TreePine size={18} /></span>
+        <span class="ic" aria-hidden="true"><TreePine size={20} /></span>
         <span class="tx">
           <b>{oname}</b>
           <small>
-            {#if running.today.done}<Check size={14} strokeWidth={3} aria-hidden="true" /> {t('Done today: {min} of {goal} min', { min: running.today.total, goal: live.goalMin })}
+            {#if running.today.done}<Check size={14} strokeWidth={2.5} aria-hidden="true" /> {t('Done today: {min} of {goal} min', { min: running.today.total, goal: live.goalMin })}
             {:else}{t('{min} of {goal} min today', { min: running.today.total, goal: live.goalMin })}{/if}
           </small>
         </span>
-        {#if !running.today.done}<button type="button" class="btn sm go" onclick={() => add(30)} data-cl-add="30">{t('+{n} min', { n: 30 })}</button>{/if}
+        {#if !running.today.done}<button type="button" class="btn sm go" onclick={(ev) => add(30, ev)} data-cl-add="30">{t('+{n} min', { n: 30 })}</button>{/if}
       </div>
     {/if}
     {#if showMed}
       <div class="row" data-cl-med>
-        <span class="ic" aria-hidden="true"><Flower2 size={18} /></span>
+        <span class="ic" aria-hidden="true"><Flower2 size={20} /></span>
         <span class="tx">
           <a href="#/flow/act/{encodeURIComponent(actId)}"><b>{actName(mst.act)}</b></a>
           <small>

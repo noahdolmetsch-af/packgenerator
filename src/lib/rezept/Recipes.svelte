@@ -38,7 +38,7 @@
 </script>
 
 <section class="rcl" aria-labelledby="rcl-h" data-recipes>
-  <h2 id="rcl-h"><ChefHat size={18} aria-hidden="true" />{t('Success recipes')}</h2>
+  <h2 id="rcl-h"><ChefHat size={20} aria-hidden="true" />{t('Success recipes')}</h2>
   {#if !list.length}
     <p class="ws" data-recipes-empty>{t('No recipe yet. After a tour that went well, open its tour page and tap «Save as a recipe».')} <a href="#/trips">{t('To the tours')}</a></p>
   {:else}

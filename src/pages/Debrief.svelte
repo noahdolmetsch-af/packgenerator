@@ -65,6 +65,7 @@
   import ReachChips from '../lib/tourenc/ReachChips.svelte'; // Touren c 65
   import VoiceDebrief from '../lib/tourenc/VoiceDebrief.svelte'; // Touren c 68
   import LearnCard from '../lib/tourlernen/LearnCard.svelte'; // Paket Z
+  import Spaeter from '../lib/review/Spaeter.svelte'; // R1: three questions again after 1 day, 1 week, 1 month
   import UsedCard from '../lib/tourenb/UsedCard.svelte'; // Idee 58 (Touren b): Verbrauch buchen
   import IntentAsks from '../lib/tourenb/IntentAsks.svelte'; // Idee 52 (Touren b): die Fragen der Absicht
   import DayListen from '../lib/tourenb/DayListen.svelte'; // Idee 56 (Touren b): Dein Tag zum Hören
@@ -496,14 +497,14 @@
         <h2 id="ahead-h">{t('{name} is still to come', { name: trip.title || t('This trip') })}</h2>
         <p class="tp-muted">{t('It starts on {date}. A debrief now ends the trip, and the app learns from it.', { date: longDate(trip.startDate) })}</p>
         <div class="ahead-acts">
-          <button type="button" class="btn hi" onclick={() => planAgain($state.snapshot(trip))}>{t('Plan again')}<ArrowRight size={18} aria-hidden="true" /></button>
+          <button type="button" class="btn hi" onclick={() => planAgain($state.snapshot(trip))}>{t('Plan again')}<ArrowRight size={20} aria-hidden="true" /></button>
           <button type="button" class="btn" onclick={() => (anyway = trip.id)}>{t('Debrief anyway')}</button>
           <button type="button" class="tp-link" onclick={toPlay}>{t('Rather try it in the playground')}</button>
         </div>
       </section>
     </div>
   {:else if d}
-    {#snippet go()}{#if saved && openSugg.length}<button type="button" class="btn go" onclick={showSugg} data-show-sugg>{tn(openSugg.length, 'See {n} suggestion', 'See {n} suggestions')}<ArrowDown size={18} aria-hidden="true" /></button>{:else if saved}<button type="button" class="btn go" onclick={reopen}>{t('Change answers')}<ChevronRight size={18} aria-hidden="true" /></button>{:else}<button type="button" class="btn hi go" disabled={busy} onclick={finish} data-done-take>{doneLabel}<ArrowRight size={20} aria-hidden="true" /></button>{/if}{/snippet}
+    {#snippet go()}{#if saved && openSugg.length}<button type="button" class="btn go" onclick={showSugg} data-show-sugg>{tn(openSugg.length, 'See {n} suggestion', 'See {n} suggestions')}<ArrowDown size={20} aria-hidden="true" /></button>{:else if saved}<button type="button" class="btn go" onclick={reopen}>{t('Change answers')}<ChevronRight size={20} aria-hidden="true" /></button>{:else}<button type="button" class="btn hi go" disabled={busy} onclick={finish} data-done-take>{doneLabel}<ArrowRight size={20} aria-hidden="true" /></button>{/if}{/snippet}
     {@const end = tripEnd(trip)}
     {@const back = end ? Math.round((Date.parse(`${localDay()}T00:00:00Z`) - Date.parse(`${end}T00:00:00Z`)) / 864e5) : null}
     <div class="flow trip-page">
@@ -525,6 +526,7 @@
         <PasstHier place="debrief" />
         <!-- Paket Z «Aus jeder Tour lernen»: breakdown, where you slept, the tour postcard (below the answers, so the chips stay first) -->
         <LearnCard {trip} {bike} />
+        <Spaeter {trip} />
         <IntentAsks {trip} />
         <DayListen {trip} />
         <UsedCard {trip} {items} book />
@@ -571,7 +573,7 @@
               {#if top}
                 <!-- Noah 9a: one suggestion for next time, with its reason; «Ja, merken» saves it at once. -->
                 <section class="learn" aria-labelledby="learn-h1">
-                  <span class="rv-ic" aria-hidden="true"><Star size={18} /></span>
+                  <span class="rv-ic" aria-hidden="true"><Star size={20} /></span>
                   <span class="rv-m"><span class="rv-t" id="learn-h1">{top.label}</span><span class="rv-s">{top.detail}</span></span>
                   <span class="yn">
                     <button type="button" class="btn sm yes" disabled={remembering} onclick={() => remember(top)}>{t('Yes, remember')}</button>
@@ -585,7 +587,7 @@
                     {@const n = m.noteId ? fromNote(m.noteId) : null}
                     <li><span class="nm">{m.name}<small>{n ? t('from your note on the way, {time}', { time: noteWhen(n.at) }) : m.itemId ? (trip.templateId ? t('in your gear · goes into the template') : t('in your gear')) : t('not in your gear · goes to the wishlist')}</small></span>
                       <span class="state miss"><Plus size={16} aria-hidden="true" />{t('Was missing')}</span>
-                      <button type="button" class="x" aria-label={t('Remove {name}', { name: m.name })} onclick={() => dropMissing(m.id)}><X size={18} aria-hidden="true" /></button></li>
+                      <button type="button" class="x" aria-label={t('Remove {name}', { name: m.name })} onclick={() => dropMissing(m.id)}><X size={20} aria-hidden="true" /></button></li>
                   {/each}
                 </ul>
               {/if}
@@ -645,7 +647,7 @@
             <section class="rv-sec ridenotes" aria-labelledby="notes-h">
               <div class="rv-h"><div><h2 id="notes-h">{t('Notes on the way')}</h2><p class="rv-sub">{tn(freeNotes.length, '{n} · waiting here', '{n} · waiting here')}</p></div></div>
               <ul class="rv-box">
-                {#each freeNotes as n (n.key)}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><NotebookPen size={18} /></span><span class="rv-m"><span class="rv-t">{n.text}</span><span class="rv-s num">{trip.days > 1 ? `${t('Day {n}', { n: n.day + 1 })} · ` : ''}{noteWhen(n.at)}</span></span><TodoButton note={n} {trip} /></li>{/each}
+                {#each freeNotes as n (n.key)}<li class="rv-row"><span class="rv-ic" aria-hidden="true"><NotebookPen size={20} /></span><span class="rv-m"><span class="rv-t">{n.text}</span><span class="rv-s num">{trip.days > 1 ? `${t('Day {n}', { n: n.day + 1 })} · ` : ''}{noteWhen(n.at)}</span></span><TodoButton note={n} {trip} /></li>{/each}
               </ul>
               <!-- Paket M #88 (Noah «1 b und a oder andere Ablageorte»): where «Als To-do» puts a note -->
               <TodoPlace tripId={trip.id} />
@@ -659,10 +661,10 @@
             <div class="rv-h"><div><h2 id="upload-h">{t('Upload ride')}</h2><p class="rv-sub">{t('optional: pauses, plan and reality')}</p></div></div>
             <ul class="rv-box ridelink">
               <!-- GPX-Weg R3 (Noah 15.10.2026 «5a»): one way for every ride file (GPX, TCX, CSV): «Upload ride» -->
-              <li><a class="rv-row" href="#/debrief/ride" data-upload-row><span class="rv-ic" aria-hidden="true"><Upload size={18} /></span><span class="rv-m"><span class="rv-t">{t('Upload ride')}</span><span class="rv-s">{bike ? t('GPX, TCX or CSV from Strava or Garmin: the km of this trip, pauses, planned vs real') : t('GPX: pauses, planned vs real, learnings')}</span></span>{#if bike && d.rides?.length}<span class="rv-v">{tn(d.rides.length, '{n} ride', '{n} rides')}</span>{/if}<ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
+              <li><a class="rv-row" href="#/debrief/ride" data-upload-row><span class="rv-ic" aria-hidden="true"><Upload size={20} /></span><span class="rv-m"><span class="rv-t">{t('Upload ride')}</span><span class="rv-s">{bike ? t('GPX, TCX or CSV from Strava or Garmin: the km of this trip, pauses, planned vs real') : t('GPX: pauses, planned vs real, learnings')}</span></span>{#if bike && d.rides?.length}<span class="rv-v">{tn(d.rides.length, '{n} ride', '{n} rides')}</span>{/if}<ChevronRight class="rv-chev" size={20} aria-hidden="true" /></a></li>
               <!-- v0.41.0 (Noah 1, 3): the recorded ride of this trip: planned vs real and its learnings -->
               {#each tripRides as r (r.id)}
-                <li><a class="rv-row" href={`#/debrief/ride/${encodeURIComponent(r.id)}`}><span class="rv-ic" aria-hidden="true"><Route size={18} /></span><span class="rv-m"><span class="rv-t">{t('Planned vs real')}</span><span class="rv-s">{r.name}</span></span><span class="rv-v">{num(r.km)} km</span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
+                <li><a class="rv-row" href={`#/debrief/ride/${encodeURIComponent(r.id)}`}><span class="rv-ic" aria-hidden="true"><Route size={20} /></span><span class="rv-m"><span class="rv-t">{t('Planned vs real')}</span><span class="rv-s">{r.name}</span></span><span class="rv-v">{num(r.km)} km</span><ChevronRight class="rv-chev" size={20} aria-hidden="true" /></a></li>
               {/each}
             </ul>
           </section>
@@ -672,7 +674,7 @@
             <div class="rv-box">
               <!-- Noah 9a: filled in; change only what was not so. -->
               <details class="how-fold">
-                <summary class="rv-row"><span class="rv-ic" aria-hidden="true"><Sun size={18} /></span><span class="rv-m"><span class="rv-t">{t('How was it?')}</span><span class="rv-s">{byBike ? t('Weather, food, km') : t('Weather, food, bags')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></summary>
+                <summary class="rv-row"><span class="rv-ic" aria-hidden="true"><Sun size={20} /></span><span class="rv-m"><span class="rv-t">{t('How was it?')}</span><span class="rv-s">{byBike ? t('Weather, food, km') : t('Weather, food, bags')}</span></span><ChevronRight class="rv-chev" size={20} aria-hidden="true" /></summary>
                 <div class="in">
                   <!-- v0.40.0 (Noah 4a): segmented toggles instead of drop-downs: one tap, the answer in sight. -->
                   <div class="qa">
@@ -689,7 +691,7 @@
               </details>
               <!-- Noah 9a: every item counts as used; a tap on an item changes it: used → not used → broken. -->
               <details class="items-fold">
-                <summary class="rv-row"><span class="rv-ic" aria-hidden="true"><Briefcase size={18} /></span><span class="rv-m"><span class="rv-t">{tn(used, '{n} item used', '{n} items used')}</span><span class="rv-s">{t('All items by bag, also broken')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></summary>
+                <summary class="rv-row"><span class="rv-ic" aria-hidden="true"><Briefcase size={20} /></span><span class="rv-m"><span class="rv-t">{tn(used, '{n} item used', '{n} items used')}</span><span class="rv-s">{t('All items by bag, also broken')}</span></span><ChevronRight class="rv-chev" size={20} aria-hidden="true" /></summary>
                 <div class="in">
                   <p class="tp-muted tp-small cyc">{t('used → not used → broken')}</p>
                   {#each groups as g (g.slot)}
@@ -733,7 +735,7 @@
   <!-- v0.109.0 Design-Refresh P6 (T18–T20): the quiet path «‹ Touren › Rückblick › Gelernt» and the title -->
   {@const here = param === 'pace' ? t('Your pace') : param === 'logbook' ? t('Logbook') : param === 'paesse' ? t('Passes') : param === 'tourenpass' ? t('Tour pass') : param === 'freude' ? t('What made it good?') : param === 'technik' ? t('Riding technique diary') : param === 'sammlung' ? t('Collection wall') : t('Learned|review')}
   <div class="over rv-page">
-    <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{here}</span></nav>
+    <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={14} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={14} aria-hidden="true" /><span aria-current="page">{here}</span></nav>
     <h1 class="title">{here}</h1>
     {#if param === 'pace'}
       <Pace />

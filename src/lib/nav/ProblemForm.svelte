@@ -1,5 +1,6 @@
 <script>
   import PhotoSet from '../bilder/PhotoSet.svelte'; // «Bilder in der App» 3a/4a: several photos, cut, as PDF
+  import { Check } from '@lucide/svelte';
   import { lastBikeChoice, chooseBike } from '../lastchoice.js';
   /**
    * v0.45.2 (Noah on the bike): "Problem with a bike" in the + menu. Big bike buttons, one problem
@@ -102,7 +103,7 @@
 
 {#if saved}
   <div class="done" role="status">
-    <p class="ok"><span aria-hidden="true">✓</span> {tn(saved.count, '1 problem saved for {bike}', '{n} problems saved for {bike}', { bike: saved.name })}</p>
+    <p class="ok"><Check size={14} class="ic-in" aria-hidden="true" /> {tn(saved.count, '1 problem saved for {bike}', '{n} problems saved for {bike}', { bike: saved.name })}</p>
     <ul class="sorted">
       {#each savedRows as r (r.id)}
         <li>
@@ -225,9 +226,9 @@
     cursor: pointer;
   }
   .seg button[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
     font-weight: 600;
   }
   /* v0.67.1: the date field is ui/DateInput.svelte (its own box around the input) */
@@ -272,9 +273,9 @@
     cursor: pointer;
   }
   .chip[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .field {
     display: grid;

@@ -10,6 +10,7 @@
   import { localDay } from '../lib/localday.js';
   import { switchTrip } from '../lib/nav.js';
   import PathHead from '../lib/ui/PathHead.svelte';
+  import PageNote from '../lib/ui/PageNote.svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import { TriangleAlert, Check, Package, ListChecks, ChevronRight } from '@lucide/svelte';
   import { compareChoices, firstPair, pickTrip, spanOf, overlapDays, timeline, sharedGear, openTasks } from '../lib/tourplan/compare.js';
@@ -46,7 +47,6 @@
 
 <div class="page cmp" data-page="trips-compare">
   <PathHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }]} title={t('Trips side by side')} sub={t('Two trips at a glance')} />
-  <p class="intro">{t('Pick two trips: where the days overlap, which gear both lists need and what is still open.')}</p>
 
   {#if choices.length < 2}
     <div data-compare-empty>
@@ -76,11 +76,11 @@
           <p class="hint">{t('A trip without a date: the days cannot be compared.')}</p>
         {:else if overlap.length}
           <p class="warn" role="status" data-compare-overlap>
-            <TriangleAlert size={18} aria-hidden="true" />
+            <TriangleAlert size={20} aria-hidden="true" />
             <span><b>{tn(overlap.length, '{n} day overlaps', '{n} days overlap')}</b> ({overlap.map(dayMonth).join(', ')}). {t('Are the dates right?')}</span>
           </p>
         {:else}
-          <p class="ok" data-compare-overlap="0"><Check size={18} aria-hidden="true" /><span>{t('No day overlaps.')}</span></p>
+          <p class="ok" data-compare-overlap="0"><Check size={20} aria-hidden="true" /><span>{t('No day overlaps.')}</span></p>
         {/if}
       {/if}
     </section>
@@ -88,7 +88,7 @@
     {#if a && b}
       <div class="two">
         <section class="card cc" data-compare-gear>
-          <h2><Package size={18} aria-hidden="true" />{t('Shared gear')}</h2>
+          <h2><Package size={20} aria-hidden="true" />{t('Shared gear')}</h2>
           <p class="hs">{t('On both lists')}</p>
           {#if !shared.length}
             <p class="hint">{t('No item is on both lists.')}</p>
@@ -96,7 +96,7 @@
             <ul class="rows">
               {#each short as x (x.item.id)}
                 <li class="row" data-compare-short>
-                  <span class="ib w"><TriangleAlert size={18} aria-hidden="true" /></span>
+                  <span class="ib w"><TriangleAlert size={20} aria-hidden="true" /></span>
                   <span class="tx"><b>{nameOf(x.item)}</b><small>{t('You own {have}, both trips together need {need}', { have: x.have, need: x.need })}</small></span>
                 </li>
               {/each}
@@ -106,7 +106,7 @@
                 <summary>{tn(enough.length, '{n} more item is enough for both', '{n} more items are enough for both')}<ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
                 <ul class="rows">
                   {#each enough as x (x.item.id)}
-                    <li class="row"><span class="ib ok"><Check size={18} aria-hidden="true" /></span><span class="tx"><b>{nameOf(x.item)}</b><small>{overlap.length ? t('You own {have}: enough for both', { have: x.have }) : t('Not on the road at the same time')}</small></span></li>
+                    <li class="row"><span class="ib ok"><Check size={20} aria-hidden="true" /></span><span class="tx"><b>{nameOf(x.item)}</b><small>{overlap.length ? t('You own {have}: enough for both', { have: x.have }) : t('Not on the road at the same time')}</small></span></li>
                   {/each}
                 </ul>
               </details>
@@ -116,7 +116,7 @@
         </section>
 
         <section class="card cc" data-compare-tasks>
-          <h2><ListChecks size={18} aria-hidden="true" />{t('Open tasks')}</h2>
+          <h2><ListChecks size={20} aria-hidden="true" />{t('Open tasks')}</h2>
           <p class="hs">{t('What is still missing before the start')}</p>
           <div class="tw">
             <table>
@@ -141,6 +141,7 @@
       </div>
     {/if}
   {/if}
+  <PageNote text={t('Pick two trips: where the days overlap, which gear both lists need and what is still open.')} />
 </div>
 
 <style>

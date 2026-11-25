@@ -329,9 +329,9 @@
           </div>
         {:else}
           <div class="row">
-            <button type="button" class="nav" aria-label={t('Earlier|analyse')} data-dg-back onclick={() => ((back += 1), (picked = null))}><ChevronLeft size={18} aria-hidden="true" /></button>
+            <button type="button" class="nav" aria-label={t('Earlier|analyse')} data-dg-back onclick={() => ((back += 1), (picked = null))}><ChevronLeft size={20} aria-hidden="true" /></button>
             <b class="rt" data-dg-range>{rangeText}</b>
-            <button type="button" class="nav" aria-label={t('Later|analyse')} data-dg-fwd disabled={back === 0} onclick={() => ((back = Math.max(0, back - 1)), (picked = null))}><ChevronRight size={18} aria-hidden="true" /></button>
+            <button type="button" class="nav" aria-label={t('Later|analyse')} data-dg-fwd disabled={back === 0} onclick={() => ((back = Math.max(0, back - 1)), (picked = null))}><ChevronRight size={20} aria-hidden="true" /></button>
           </div>
         {/if}
       </div>
@@ -367,7 +367,7 @@
       {#if mode === 'rows'}
         {#each rows as r (r.it.key)}
           <div class="rowp" data-dg-row={r.it.key}>
-            <div class="rlw"><p class="rl"><b>{r.it.name}</b>{#if unitText(r.it)}&nbsp;{unitText(r.it)}{/if} · {t(SRC[r.it.src] ?? SRC.body)}{#if r.smooth}&nbsp;· {t('7-day mean|diagram')}{/if}{#if r.cut}&nbsp;· <span class="cutn" data-dg-cut>{t('axis stops at {a}, highest day {m}|diagram', { a: `${r.tick(r.sc.hi)}`, m: `${v(r.it, r.cut)}${unitText(r.it) ? ` ${unitText(r.it)}` : ''}` })}</span>{/if}{#if r.own}&nbsp;· <span class="ownf">{partsOf(r.own).map((p) => p.text).join(', ')}</span>{/if}</p><button type="button" class="rf" class:set={r.own} aria-label={t('Filter for {name}|filter', { name: r.it.name })} data-dg-row-filter={r.it.key} onclick={() => (filtering = r.it.key)}><Filter size={13} aria-hidden="true" /></button></div>
+            <div class="rlw"><p class="rl"><b>{r.it.name}</b>{#if unitText(r.it)}&nbsp;{unitText(r.it)}{/if} · {t(SRC[r.it.src] ?? SRC.body)}{#if r.smooth}&nbsp;· {t('7-day mean|diagram')}{/if}{#if r.cut}&nbsp;· <span class="cutn" data-dg-cut>{t('axis stops at {a}, highest day {m}|diagram', { a: `${r.tick(r.sc.hi)}`, m: `${v(r.it, r.cut)}${unitText(r.it) ? ` ${unitText(r.it)}` : ''}` })}</span>{/if}{#if r.own}&nbsp;· <span class="ownf">{partsOf(r.own).map((p) => p.text).join(', ')}</span>{/if}</p><button type="button" class="rf" class:set={r.own} aria-label={t('Filter for {name}|filter', { name: r.it.name })} data-dg-row-filter={r.it.key} onclick={() => (filtering = r.it.key)}><Filter size={14} aria-hidden="true" /></button></div>
             <div class="pl2">
               <YTicks ticks={r.sc.ticks} y={(x) => yOf(x, r.sc, RH)} h={RH} text={r.tick} width={56} />
               <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
@@ -488,8 +488,6 @@
     margin: 0;
     font-size: var(--fs-label);
     color: var(--ink-3);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
   }
   @media (max-width: 900px) {
     .chg {
@@ -511,8 +509,6 @@
   .pl {
     color: var(--ink-3);
     font-size: var(--fs-label);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
   }
   .row {
     display: flex;

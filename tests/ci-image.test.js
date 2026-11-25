@@ -17,7 +17,7 @@ describe('CI Playwright image', () => {
 
   it('the browser jobs use the image', () => {
     expect(tagsOf(files['deploy.yml']).length).toBe(2); // phone parts + Wächter on the computer
-    expect(tagsOf(files['volle-pruefung.yml']).length).toBe(2); // browser tests + Gesamttest
+    expect(tagsOf(files['volle-pruefung.yml']).length).toBe(3); // browser tests + Gesamttest + Ausprobieren
     for (const s of Object.values(files)) expect(s).not.toContain('playwright install');
   });
 
@@ -48,6 +48,18 @@ describe('Schnellspur (Weg zu online)', () => {
     // the label run never builds or runs the Wächter again, and never cancels the running code check
     for (const name of ['build', 'e2e-desktop']) expect(job(name)).toContain("github.event.action != 'labeled'");
     expect(deploy).toMatch(/group: pages-\$\{\{ github\.ref \}\}\$\{\{ github\.event\.action == 'labeled'/);
+  });
+
+  it('a «Schwer» PR runs everything only with the label «voll», and «e2e (phone)» stays red without it (Noah 24.11.2026 «a»)', () => {
+    const job = (name) => deploy.slice(deploy.indexOf(`\n  ${name}:`), deploy.indexOf('\n\n', deploy.indexOf(`\n  ${name}:`)));
+    for (const name of ['e2e-part', 'e2e-phone']) {
+      expect(job(name)).toContain("contains(github.event.pull_request.labels.*.name, 'voll')");
+      expect(job(name)).toContain("github.event.label.name == 'voll'");
+    }
+    // the parts hand the label to the scope; the gate asks the scope whether the PR is Schwer
+    expect(job('e2e-part')).toContain("contains(github.event.pull_request.labels.*.name, 'voll') && '--voll'");
+    expect(job('e2e-phone')).toContain('steps.scope.outputs.schwer == \'yes\' && !contains(github.event.pull_request.labels.*.name, \'voll\')');
+    expect(job('e2e-phone')).toContain('exit 1');
   });
 
   it('keeps the check names the branch rule asks for', () => {
@@ -93,7 +105,9 @@ describe('the night run has as many browser parts as it divides the specs into (
     expect(n).toBe(7);
     expect(v).toContain(`--shard=\${{ matrix.shard }}/${n}`);
     const gesamt = (/shard: \[1, 2\]/.test(v) ? 2 : 0) * 2; // the Gesamttest: phone and computer
-    expect(v).toContain(`rot-liste.txt ${n * 2 + gesamt} >`);
+    const ausprobieren = (/shard: \[1, 2, 3\]\n    steps:\n(?:.*\n)*?      - run: npx playwright test tests\/e2e\/ausprobieren\.spec\.js/.test(v) ? 3 : 0) * 2; // phone and computer
+    expect(ausprobieren).toBe(6);
+    expect(v).toContain(`rot-liste.txt ${n * 2 + gesamt + ausprobieren} >`);
   });
 });
 
@@ -137,7 +151,7 @@ describe('Online-Rot melden (online-rot.yml)', () => {
 describe('the night run keeps a wobbly list (Noah 21.11.2026 «4»)', () => {
   const v = files['volle-pruefung.yml'];
   it('every job leaves the names of its flaky tests next to the red ones, in the same artifact', () => {
-    for (const kind of ['e2e', 'gesamttest']) {
+    for (const kind of ['e2e', 'gesamttest', 'ausprobieren']) {
       expect(v).toMatch(new RegExp(`test-summary\\.mjs pw-report\\.json [^\\n]*rot-${kind}-[^\\n]* wackel-${kind}-`));
       expect(v).toMatch(new RegExp(`path: \\|\\n\\s+rot-${kind}-[^\\n]*\\n\\s+wackel-${kind}-`));
     }
@@ -151,7 +165,23 @@ describe('the night run keeps a wobbly list (Noah 21.11.2026 «4»)', () => {
     expect(v).toContain('gh issue close');
   });
   it('the list does not disturb the comparison of the red ones (it counts only rot-*.txt files)', () => {
-    expect(v).toContain('rot-liste.txt 18 >');
+    expect(v).toContain('rot-liste.txt 24 >');
     expect(readFileSync(new URL('../scripts/nacht-vergleich.mjs', import.meta.url), 'utf8')).toContain("/^rot-.*\\.txt$/");
+  });
+});
+
+describe('the night run cuts «Ausprobieren» out of part 1 (24.11.2026, thread «Tests schneller machen»)', () => {
+  const v = files['volle-pruefung.yml'];
+  it('the 7 parts skip the spec and a job of its own runs it in 3 parts per project', () => {
+    expect(v).toContain("E2E_SKIP_AUSPROBIEREN: '1'");
+    expect(v).toContain('npx playwright test tests/e2e/ausprobieren.spec.js --project=${{ matrix.project }} --shard=${{ matrix.shard }}/3');
+    expect(v).toContain('needs: [e2e-part, gesamttest, ausprobieren]');
+  });
+  it('the report counts the new job in «red» and in «green again», and the config knows the switch', () => {
+    expect(v.match(/needs\.ausprobieren\.result/g).length).toBeGreaterThanOrEqual(5);
+    expect(readFileSync(new URL('../playwright.config.js', import.meta.url), 'utf8')).toContain("process.env.E2E_SKIP_AUSPROBIEREN ? ['**/ausprobieren.spec.js']");
+  });
+  it('no spec limit was raised for it: the spec keeps its 5 minute limit per part', () => {
+    expect(readFileSync(new URL('./e2e/ausprobieren.spec.js', import.meta.url), 'utf8')).toContain('test.setTimeout(300_000);');
   });
 });

@@ -87,7 +87,7 @@
   {/if}
   <div class="bar">
     {#if ghost}<button type="button" class="btn sm" aria-pressed={!show} onclick={() => (show = !show)} data-ghost-toggle>{show ? t('Template off') : t('Template on')}</button>{/if}
-    <button type="button" class="shut" disabled={status !== 'live' || busy} onclick={shoot} aria-label={t('Take photo')} data-ghost-shoot><Camera size={26} aria-hidden="true" /></button>
+    <button type="button" class="shut" disabled={status !== 'live' || busy} onclick={shoot} aria-label={t('Take photo')} data-ghost-shoot><Camera size={24} aria-hidden="true" /></button>
     <label class="btn sm">{t('Choose file')}<input type="file" accept="image/*" onchange={pickFile} hidden data-ghost-file /></label>
   </div>
   <p class="hint">{t('Same side, same light, e.g. the right side with the crank level. The photos stay on this device.')}</p>

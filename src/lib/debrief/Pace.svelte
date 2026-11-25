@@ -178,10 +178,10 @@
           <div class="state" role="status">
             {#if pace.mine}
               <p><Check size={16} aria-hidden="true" /><span>{t('Pack and On the way guess the riding time with your rule now, instead of {kmh} km/h and 1 h per {m} m.', { kmh: num(std.kmh), m: num(std.climbMh) })}{#if pace.stops && pace.stops > 1.02}{' '}{t('Your usual stops add about {pct} %.', { pct: Math.round((pace.stops - 1) * 100) })}{/if}</span></p>
-              <button type="button" class="quiet" onclick={() => setStandard(true)}><Undo2 size={18} aria-hidden="true" />{t('Back to the standard rule')}</button>
+              <button type="button" class="quiet" onclick={() => setStandard(true)}><Undo2 size={20} aria-hidden="true" />{t('Back to the standard rule')}</button>
             {:else if pace.standard && !pace.need}
               <p><Check size={16} aria-hidden="true" /><span>{t('The riding time is guessed with the standard rule, {kmh} km/h and 1 h per {m} m, as you chose.', { kmh: num(std.kmh), m: num(std.climbMh) })}</span></p>
-              <button type="button" class="quiet" onclick={() => setStandard(false)}><Gauge size={18} aria-hidden="true" />{t('Use my rule')}</button>
+              <button type="button" class="quiet" onclick={() => setStandard(false)}><Gauge size={20} aria-hidden="true" />{t('Use my rule')}</button>
             {:else}
               <span class="marks" aria-hidden="true">{#each Array.from({ length: PACE_MIN }, (_, i) => i) as i (i)}<i class:on={i < pace.n}></i>{/each}</span>
               <p class="need">{pace.n ? t('{n} of {min} rides. From {min} rides your own pace counts, you can switch back any time.', { n: pace.n, min: PACE_MIN }) : t('0 of {min} rides. Until then the app guesses with {kmh} km/h and 1 h per {m} Hm.', { min: PACE_MIN, kmh: num(std.kmh), m: num(std.climbMh) })}</p>
@@ -189,7 +189,7 @@
           </div>
         {/if}
         <div class="acts">
-          {#snippet upl()}<Upload size={17} aria-hidden="true" /><span class="kl">{t('Upload ride')}</span>{/snippet}
+          {#snippet upl()}<Upload size={16} aria-hidden="true" /><span class="kl">{t('Upload ride')}</span>{/snippet}
           {@render picker('btn k hi', upl)}
         </div>
       </div>
@@ -234,7 +234,7 @@
       <div class="rv-h"><div><h2 id="from-h">{t('Where the rides come from')}</h2></div></div>
       <ul class="rv-box">
         <li>
-          {#snippet gpx()}<span class="rv-ic" aria-hidden="true"><FileUp size={18} /></span><span class="rv-m"><span class="rv-t">{t('GPX file')}</span><span class="rv-s">{t('Garmin Connect or Strava: a ride → Export GPX. Read on this device, nothing is uploaded.')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" />{/snippet}
+          {#snippet gpx()}<span class="rv-ic" aria-hidden="true"><FileUp size={20} /></span><span class="rv-m"><span class="rv-t">{t('GPX file')}</span><span class="rv-s">{t('Garmin Connect or Strava: a ride → Export GPX. Read on this device, nothing is uploaded.')}</span></span><ChevronRight class="rv-chev" size={20} aria-hidden="true" />{/snippet}
           {@render picker('rv-row', gpx)}
         </li>
       </ul>
@@ -305,8 +305,6 @@
     color: var(--ink-3);
     font-size: var(--fs-tiny);
     font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
   .sentence {
     margin: 8px 0 0;

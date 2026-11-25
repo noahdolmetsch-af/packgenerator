@@ -96,7 +96,7 @@
 
 {#if over}
   <div class="dropveil" aria-hidden="true" data-drop-veil>
-    <p><FileUp size={28} aria-hidden="true" /><span>{t('Drop to open')}</span></p>
+    <p><FileUp size={24} aria-hidden="true" /><span>{t('Drop to open')}</span></p>
   </div>
 {/if}
 

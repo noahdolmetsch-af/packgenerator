@@ -26,6 +26,7 @@ import { PLAN_KEY, plannerSessions as planSessionsOf } from '../training.js';
 import { SP_KEY, prefsOf as spPrefsOf, teamSessions } from '../spielerplus.js';
 import { BAGS_KEY, PACK_KEY, bagsOf, packsOf, packedDays } from '../flowbag.js';
 import { FIXED_KEY } from '../flowweek.js';
+import { readLite } from '../actlite.js';
 
 /** Klick-Rundgang H29: a ride booked on this day (kmBook: by hand, from a file, from Strava or Garmin). */
 const rodeOn = async (day) => (await db.kmBook.where('date').equals(day).count()) > 0;
@@ -94,7 +95,7 @@ export function hobbyQuery(today) {
       db.meta.get(HOME_FORECAST),
       // package G (#231–#233): the sources of the data milestones (flow/msdata.js)
       db.kmBook.toArray(),
-      db.activities ? db.activities.where('kind').equals('bike').toArray() : [],
+      db.activities ? readLite(db, (T) => T.where('kind').equals('bike').toArray()) : [],
       db.healthDays ? db.healthDays.toArray() : [],
       db.flowChecks.toArray(),
       db.abAnswers ? db.abAnswers.toArray() : [],
@@ -264,7 +265,7 @@ export function balanceQuery(today) {
       db.settings.get(QUESTIONS_KEY),
       db.settings.get(OFF_KEY),
       db.abAnswers.where('day').aboveOrEqual(from).toArray(), // WG: the «Wi gaht's?» answers count in the ring
-      db.activities ? db.activities.where('day').aboveOrEqual(from).toArray() : [], // 0.136.0: Strava rides before a bike's start point
+      db.activities ? readLite(db, (T) => T.where('day').aboveOrEqual(from).toArray()) : [], // 0.136.0: Strava rides before a bike's start point
       db.settings.get('strava'), // «2b»: rides on an ignored Strava bike do not count
       db.settings.get(BAGS_KEY), // package G #222: a sport bag packed in full counts as movement
       db.settings.get(PACK_KEY),

@@ -43,7 +43,7 @@
 
 {#if storm && hidden !== key}
   <div class="ev-alert warn" role="alert" data-event-storm>
-    <CloudLightning size={22} aria-hidden="true" />
+    <CloudLightning size={24} aria-hidden="true" />
     <span class="ev-txt">
       <b>{inMin < 10 ? t('Thunderstorm now at km {from}–{to} of the route', { from: num(storm.fromKm), to: num(storm.toKm) }) : t('Thunderstorm in about {min} min at km {from}–{to} of the route', { min: inMin, from: num(storm.fromKm), to: num(storm.toKm) })}</b>
       <small>{who.length ? t('Riding toward it: {names}.', { names }) : ''} {t('Look for shelter in time.')}</small>

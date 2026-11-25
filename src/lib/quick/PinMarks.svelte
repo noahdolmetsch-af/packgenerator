@@ -250,7 +250,7 @@
         data-pinmark={m.view ? null : m.id}
         data-pinview={m.view ?? null}
         onclick={() => toggle(m)}
-      ><span class="pm-dot"><Pin size={15} aria-hidden="true" /></span></button>
+      ><span class="pm-dot"><Pin size={16} aria-hidden="true" /></span></button>
     {/each}
   </div>
 {/if}
@@ -284,16 +284,25 @@
     background: var(--paper);
     border: 1px solid var(--line);
     color: var(--ink-3);
-    box-shadow: 0 1px 3px var(--shadow);
+    box-shadow: var(--shadow-1);
   }
   .pm:hover .pm-dot,
   .pm:focus-visible .pm-dot {
     color: var(--ink);
     border-color: var(--line-strong);
   }
+  /* One form (Noah 24.11.2026 «1b»): a pinned pin is no black disc any more but wears the colour of its area, like the + button */
   .pm.on .pm-dot {
-    background: var(--brand);
-    border-color: var(--brand);
-    color: var(--brand-ink);
+    background: var(--hi-soft);
+    border-color: var(--hi);
+    color: var(--hi);
+  }
+  /* quieter on a phone: a smaller dot without shadow, the 44 px tap box stays */
+  @media (max-width: 640px) {
+    .pm-dot {
+      width: 26px;
+      height: 26px;
+      box-shadow: none;
+    }
   }
 </style>

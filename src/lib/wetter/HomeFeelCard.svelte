@@ -63,7 +63,7 @@
   <div class="fc-row" role="group" aria-label={t('Sun on your spot')}>
     {#each FELT as f (f)}<button type="button" class="fc-chip" aria-pressed={sun === f} onclick={() => (sun = sun === f ? '' : f)} data-home-sun={f}>{t(SUN_TEXT[f])}</button>{/each}
   </div>
-  {#if wind || sun}<button type="button" class="btn" onclick={keep} data-home-feel-save><Check size={18} aria-hidden="true" />{t('Keep the note')}</button>{/if}
+  {#if wind || sun}<button type="button" class="btn" onclick={keep} data-home-feel-save><Check size={20} aria-hidden="true" />{t('Keep the note')}</button>{/if}
   {#if saved}<p class="rc-note" role="status">{t('Kept. Your own hints grow with every note.')}</p>{/if}
   {#if hints.length}
     <ul class="hf-list" data-home-feel-hints>
@@ -103,9 +103,9 @@
     cursor: pointer;
   }
   .fc-chip[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   .fc-list {
     list-style: none;

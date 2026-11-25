@@ -80,9 +80,9 @@
       {#each found as p (key(p))}
         <li>
           <button type="button" class="ich-row" aria-pressed={!!picked && key(picked) === key(p)} onclick={() => (picked = p)}>
-            <span class="ich-ib"><MapPin size={18} aria-hidden="true" /></span>
+            <span class="ich-ib"><MapPin size={20} aria-hidden="true" /></span>
             <span class="ich-m"><b>{p.name}</b>{#if p.detail}<small>{p.detail}</small>{/if}</span>
-            {#if picked && key(picked) === key(p)}<Check class="ich-chev" size={18} aria-hidden="true" />{/if}
+            {#if picked && key(picked) === key(p)}<Check class="ich-chev" size={20} aria-hidden="true" />{/if}
           </button>
         </li>
       {/each}

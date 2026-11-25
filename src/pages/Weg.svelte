@@ -23,6 +23,7 @@
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
   import Empty from '../lib/ui/Empty.svelte';
+  import PageNote from '../lib/ui/PageNote.svelte';
   import DateInput from '../lib/ui/DateInput.svelte';
   import RenameSheet from '../lib/ui/RenameSheet.svelte';
   import SortArrows from '../lib/ui/SortArrows.svelte';
@@ -288,7 +289,6 @@
 
 <div class="ich-page weg" data-page="weg">
   <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }]} title={t('Way to the goal')} sub={t('Count back from a big day: the app lays out the steps')} />
-  <p class="wg-intro">{t('Name a big goal and its start day. The app counts back and suggests steps. Everything is a suggestion: change, move or delete any step.')}</p>
 
   {#if !goal && !adding}
     <Empty icon={Flag} text={t('No way yet. Name a big goal with a start day, for example a race in May.')} action={{ label: t('New way'), onclick: openAdd }} />
@@ -404,7 +404,7 @@
             {@const done = goal.steps.find((s) => s.id === m.id)?.done}
             <div class="wg-circle-box">
               <button type="button" class="wg-circle" class:on={done} class:late={!done && m.state === 'late'} aria-pressed={!!done} aria-label={done ? t('Practice ride of {km} km, done', { km: m.km }) : t('Practice ride of {km} km, open', { km: m.km })} onclick={() => putGoal(setDone(goal, m.id, !done, today))} data-weg-proben-circle>
-                {#if done}<Check size={28} aria-hidden="true" />{:else}{num(m.km)}{/if}
+                {#if done}<Check size={24} aria-hidden="true" />{:else}{num(m.km)}{/if}
               </button>
               <b>{t('{km} km', { km: num(m.km) })}</b>
               <span class="wg-sub">{dayText(m.due)}</span>
@@ -522,7 +522,7 @@
             {#each wetter.days as d (d.date)}
               <li class:wet={d.wet} class:start={d.isStart} aria-label={t('{pct} % rain on {day}', { pct: num(d.pct), day: wWord(d.date) })}>
                 <b>{wWord(d.date)}</b>
-                {#if d.wet}<CloudRain size={22} aria-hidden="true" />{:else}<Sun size={22} aria-hidden="true" />{/if}
+                {#if d.wet}<CloudRain size={24} aria-hidden="true" />{:else}<Sun size={24} aria-hidden="true" />{/if}
                 <small>{num(d.pct)} %</small>
               </li>
             {/each}
@@ -556,7 +556,7 @@
                 {#if r.step.note}<span class="wg-note">{r.step.note}</span>{/if}
                 {#if linkOf(r)}<a class="wg-go" href={linkOf(r)}>{t('Open')} <ChevronRight size={14} aria-hidden="true" /></a>{/if}
               </div>
-              <button type="button" class="wg-dots" aria-expanded={isOpen('step', r.step.id)} aria-label={t('Edit {name}', { name: r.step.title })} onclick={() => toggleMenu('step', r.step.id)}><Ellipsis size={18} aria-hidden="true" /></button>
+              <button type="button" class="wg-dots" aria-expanded={isOpen('step', r.step.id)} aria-label={t('Edit {name}', { name: r.step.title })} onclick={() => toggleMenu('step', r.step.id)}><Ellipsis size={20} aria-hidden="true" /></button>
               {#if isOpen('step', r.step.id)}
                 <div class="wg-menu">
                   <label class="wg-startf"><span><CalendarClock size={14} aria-hidden="true" /> {t('Day (optional)')}</span><DateInput value={r.step.due || r.due} onchange={(v) => putGoal(setDue(goal, r.step.id, v))} aria-label={t('Day of {name}', { name: r.step.title })} /></label>
@@ -592,6 +592,7 @@
   {#if w.goals.length && !adding}
     <p class="wg-more"><button type="button" class="btn" onclick={openAdd} data-weg-add><Plus size={16} aria-hidden="true" /> {t('New way')}</button></p>
   {/if}
+  <PageNote text={t('Name a big goal and its start day. The app counts back and suggests steps. Everything is a suggestion: change, move or delete any step.')} />
 </div>
 
 {#if renaming && (goal || renaming.kind === 'template')}
@@ -623,7 +624,7 @@
   .wg-top { display: flex; justify-content: space-between; gap: var(--sp-3); align-items: flex-start; }
   .wg-head { min-width: 0; }
   .wg-hero h2 { margin: 0; color: var(--paper); overflow-wrap: break-word; }
-  .wg-kicker { margin: 0; font-size: var(--fs-small); font-weight: 600; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.04em; }
+  .wg-kicker { margin: 0; font-size: var(--fs-small); font-weight: 600; opacity: 0.75; }
   .wg-when { margin: var(--sp-1) 0 0; font-weight: 600; }
   .wg-prog { margin: var(--sp-2) 0 0; font-size: var(--fs-small); opacity: 0.85; }
   .wg-bar { height: 10px; border-radius: 6px; background: var(--ink-3); overflow: hidden; margin-top: var(--sp-3); }
@@ -642,15 +643,15 @@
   .wg-orga { display: flex; gap: var(--sp-3); align-items: center; justify-content: space-between; flex-wrap: wrap; border-left: 4px solid var(--warn); }
   .wg-orga.all { border-left-color: var(--ok); }
   .wg-orga-text { display: grid; gap: var(--sp-1); min-width: 0; }
-  .wg-proben h3 { margin: 0 0 var(--sp-3); font-size: var(--fs-small); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
+  .wg-proben h3 { margin: 0 0 var(--sp-3); font-size: var(--fs-small); color: var(--ink-3); }
   .wg-circles { display: flex; justify-content: center; gap: var(--sp-6); flex-wrap: wrap; }
   .wg-circle-box { display: grid; justify-items: center; gap: 2px; text-align: center; }
   .wg-circle { width: 64px; height: 64px; border-radius: 50%; border: 2px dashed var(--line); background: var(--paper); color: var(--ink-3); font-weight: 700; display: grid; place-items: center; cursor: pointer; margin-bottom: var(--sp-1); }
   .wg-circle.on { border-style: solid; background: var(--accent); border-color: var(--accent); color: var(--brand-ink); }
   .wg-circle.late { border-color: var(--warn); }
   .wg-proben-note { margin: var(--sp-3) 0 0; text-align: center; }
-  .wg-wetter h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
-  .wg-rest h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
+  .wg-wetter h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); color: var(--ink-3); }
+  .wg-rest h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); color: var(--ink-3); }
   .wg-restlist { list-style: none; margin: var(--sp-2) 0 0; padding: 0; }
   .wg-restrow { display: flex; align-items: center; gap: var(--sp-2); padding: var(--sp-1) 0; }
   .wg-restrow + .wg-restrow { border-top: 1px solid var(--line); }
@@ -661,16 +662,16 @@
   .wg-zeit { border-left: 4px solid var(--ok); }
   .wg-zeit.tight { border-left-color: var(--warn); }
   .wg-zeit.short { border-left-color: var(--bad, var(--warn)); }
-  .wg-zeit h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
+  .wg-zeit h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); color: var(--ink-3); }
   .wg-zbar { height: 10px; border-radius: 6px; background: var(--line); overflow: hidden; margin: var(--sp-3) 0 var(--sp-2); }
   .wg-zbar i { display: block; height: 100%; background: var(--ok); border-radius: 6px; }
   .wg-zeit.tight .wg-zbar i { background: var(--warn); }
   .wg-zeit.short .wg-zbar i { background: var(--bad, var(--warn)); }
   .wg-zeit .wg-acts { margin-top: var(--sp-3); }
   .wg-next { border-left: 4px solid var(--accent); }
-  .wg-next h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
+  .wg-next h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); color: var(--ink-3); }
   .wg-next .wg-acts { margin-top: var(--sp-3); }
-  .wg-save h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
+  .wg-save h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); color: var(--ink-3); }
   .wg-save .wg-acts { margin-top: var(--sp-3); }
   .wg-mine { display: grid; gap: var(--sp-2); justify-items: start; }
   .wg-mine-row { display: flex; gap: var(--sp-2); flex-wrap: wrap; align-items: center; }
@@ -679,10 +680,10 @@
   .wg-days li:not(.wet) { border-color: var(--ok); }
   .wg-days li.start { outline: 2px solid var(--ink); outline-offset: 1px; }
   .wg-days li.wet { color: var(--ink-3); }
-  .wg-back h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
+  .wg-back h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); color: var(--ink-3); }
   .wg-table { width: 100%; border-collapse: collapse; margin: var(--sp-3) 0 var(--sp-2); font-size: var(--fs-body); }
   .wg-table th, .wg-table td { text-align: left; padding: var(--sp-2) var(--sp-2) var(--sp-2) 0; border-bottom: 1px solid var(--line); vertical-align: top; overflow-wrap: break-word; }
-  .wg-table thead th { font-size: var(--fs-small); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
+  .wg-table thead th { font-size: var(--fs-small); font-weight: 600; color: var(--ink-3); }
   .wg-table tbody th { font-weight: 600; }
   .wg-prow { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin: var(--sp-2) 0; }
   .wg-open .wg-acts { margin-top: var(--sp-3); }
@@ -692,7 +693,7 @@
   /* the way: one line with dots, «Today» marked on it (mockup G1) */
   .wg-line { list-style: none; margin: 0; padding: 0; position: relative; }
   .wg-line::before { content: ''; position: absolute; left: 21px; top: 8px; bottom: 8px; width: 3px; background: var(--line); border-radius: 3px; }
-  .wg-ph { position: relative; margin: var(--sp-4) 0 0 56px; padding-bottom: var(--sp-1); border-bottom: 1px solid var(--line); font-size: var(--fs-small); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
+  .wg-ph { position: relative; margin: var(--sp-4) 0 0 56px; padding-bottom: var(--sp-1); border-bottom: 1px solid var(--line); font-size: var(--fs-small); font-weight: 700; color: var(--ink-3); }
   .wg-ph:first-child { margin-top: 0; }
   .wg-today { position: relative; margin: var(--sp-3) 0; padding-left: 56px; }
   .wg-today::before { content: ''; position: absolute; left: 12px; top: 50%; width: 21px; height: 21px; margin-top: -10px; border-radius: 50%; background: var(--warn); border: 3px solid var(--paper); box-sizing: border-box; }
@@ -710,7 +711,7 @@
   .wg-note { font-size: var(--fs-small); color: var(--ink-3); }
   .wg-go { display: inline-flex; align-items: center; font-weight: 600; min-height: 32px; }
   .wg-row .wg-menu { margin-left: 0; }
-  .wg-own h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
+  .wg-own h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); color: var(--ink-3); }
   .wg-own-row { display: flex; gap: var(--sp-2); flex-wrap: wrap; align-items: center; }
   .wg-own-row .inp { flex: 1; min-width: 14ch; }
   .wg-more { margin: var(--sp-3) 0 var(--sp-6); }

@@ -29,7 +29,7 @@
       <tbody>
         {#each shown as s, i (i)}
           <tr>
-            <th scope="row" class="nm">{s.name}{#if s.pr}<span class="pill ok pr" data-pr={s.pr}><Trophy size={12} aria-hidden="true" /> {prText(s.pr)}</span>{/if}</th>
+            <th scope="row" class="nm">{s.name}{#if s.pr}<span class="pill ok pr" data-pr={s.pr}><Trophy size={14} aria-hidden="true" /> {prText(s.pr)}</span>{/if}</th>
             <td><b>{mss(s.s)}</b></td>
           </tr>
         {/each}
@@ -59,8 +59,6 @@
   thead th {
     color: var(--ink-3);
     font: 600 var(--fs-tiny) / 1.3 var(--font-body);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
   }
   .nm {
     text-align: left;

@@ -123,7 +123,7 @@
     </div>
 
     <div class="note">
-      <Info size={18} aria-hidden="true" />
+      <Info size={20} aria-hidden="true" />
       <div>
         <p>{t('A suggestion from the sensors of this bike. Every page can be switched off, swapped or replaced. The Edge 1040 and the Edge 850 show the same fields; hide a field on one of them if you like.')}</p>
         <div class="sens" role="group" aria-label={t('Sensors on this bike')}>
@@ -201,9 +201,9 @@
   }
   .chip[aria-current='page'],
   .chip[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   .chip small {
     opacity: 0.7;

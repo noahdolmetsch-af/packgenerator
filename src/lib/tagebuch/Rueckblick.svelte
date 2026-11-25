@@ -101,8 +101,8 @@
   <section class="rb-card" aria-labelledby="rb-series-h" data-tb-series>
     <h2 id="rb-series-h" class="rb-h">{t('Series|diary')}</h2>
     <div class="rb-nums">
-      <span><Flame size={18} aria-hidden="true" /><b>{st.streak}</b> {t('days in a row now')}</span>
-      <span><Award size={18} aria-hidden="true" /><b>{best}</b> {t('days in a row at most')}</span>
+      <span><Flame size={20} aria-hidden="true" /><b>{st.streak}</b> {t('days in a row now')}</span>
+      <span><Award size={20} aria-hidden="true" /><b>{best}</b> {t('days in a row at most')}</span>
     </div>
     {#if done.length}
       <div class="rb-chips">{#each done as m (m.key)}<span class="rb-chip on" data-tb-milestone={m.key}>{t(m.label, m.vars)}</span>{/each}</div>

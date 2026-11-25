@@ -29,6 +29,8 @@ const T = {
   handbook: ['#/me/handbook', 'Handbook'],
   logbuch: ['#/me/logbuch', 'Improvement log'],
   push: ['#/me/push', 'Reminders on the phone'],
+  reminders: ['#/me/reminders', 'Reminders'],
+  hinweise: ['#/me/hinweise', 'Alerts and news'],
   pros: ['#/me/pros', 'Bike mechanic and guide'],
   ki: ['#/me/ki-projekte', 'My AI projects'],
 };
@@ -56,7 +58,10 @@ const NEXT = {
   '#/me/logbuch': ['handbook', 'apps'],
   '#/me/offers': ['trips', 'pros'],
   '#/me/pros': ['trips', 'checks'],
-  '#/me/push': ['handbook', 'apps'],
+  // Ich aufräumen (Noah 24.11.2026): the three reminder pages lead to each other, they share one row in Ich
+  '#/me/push': ['reminders', 'hinweise', 'handbook'],
+  '#/me/hinweise': ['reminders', 'push'],
+  '#/me/reminders': ['hinweise'], // «Reminders on the phone» is the page's own row (data-push-link), no second link
   '#/me/tennis': ['trips', 'me'],
   '#/quiz': ['checks', 'trips'],
   '#/stopps': ['weg', 'fuel', 'trips'],

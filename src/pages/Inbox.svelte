@@ -291,7 +291,7 @@
             <!-- v0.127.0 A-U2: the one empty building block -->
             <Empty icon={Inbox} title={t('Nothing to file')} text={t('No notes yet. Tap + at the top › Note when something comes up on the way.')} action={{ label: t('Write a note'), onclick: onnew }} />
           {:else if $notesQ && !openN}
-            <p class="card alldone" id="inbox-done" tabindex="-1"><Check size={18} aria-hidden="true" /><span>{t('All notes are sorted.')}</span><button type="button" class="btn sm" onclick={onnew}>+ {t('Quick note')}</button></p>
+            <p class="card alldone" id="inbox-done" tabindex="-1"><Check size={20} aria-hidden="true" /><span>{t('All notes are sorted.')}</span><button type="button" class="btn sm" onclick={onnew}>+ {t('Quick note')}</button></p>
           {/if}
           {#snippet rows(g)}
             <ul class="card ich-list list" aria-label={t(g.name)}>
@@ -348,7 +348,7 @@
             {#if g.key === 'older' && groups.length > 1}
               <!-- Impeccable Runde 2: the older notes folded; what is new stays in front -->
               <details class="older" bind:open={olderOpen}>
-                <summary class="day osum"><span class="ich-m"><b>{t('Earlier')} · {tn(g.rows.length, '{n} note', '{n} notes')}</b><small>{t('Older notes. Open them when you have time.')}</small></span><ChevronDown class="ochev" size={18} aria-hidden="true" /></summary>
+                <summary class="day osum"><span class="ich-m"><b>{t('Earlier')} · {tn(g.rows.length, '{n} note', '{n} notes')}</b><small>{t('Older notes. Open them when you have time.')}</small></span><ChevronDown class="ochev" size={20} aria-hidden="true" /></summary>
                 {#if olderOpen}{@render rows(g)}{/if}
               </details>
             {:else}
@@ -369,7 +369,7 @@
                 {@const href = targetHref(n.to, ctx)}
                 <li class="filed" data-note-id={n.id}>
                   <div class="ich-row ich-wrap nrow">
-                    <span class="ich-ib"><Check size={18} aria-hidden="true" /></span>
+                    <span class="ich-ib"><Check size={20} aria-hidden="true" /></span>
                     <span class="ich-m">
                       <b class="t">{n.text}</b>
                       {#if href}<a class="tchip" {href}><Icon size={14} aria-hidden="true" />{chipText(n)}<ChevronRight size={14} aria-hidden="true" /></a>{:else}<span class="tchip">{chipText(n)}</span>{/if}
@@ -388,7 +388,7 @@
           <div class="ich-h"><div><h2 id="outside-h">{t('From outside')}</h2><p class="ich-hs">{t('comes in by itself when this page opens')}</p></div>
             <button type="button" class="ib" aria-label={t('Fetch now')} disabled={!!intake.busy} onclick={fetchNow}><RefreshCw size={16} aria-hidden="true" /></button></div>
           <ul class="card ich-list">
-            <li><a class="ich-row" href="#/me/mail"><span class="ich-ib"><Mail size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Gmail label «Packgenerator»')}</b><small>{t('Give a mail this label, or forward it to your +pack address')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>
+            <li><a class="ich-row" href="#/me/mail"><span class="ich-ib"><Mail size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Gmail label «Packgenerator»')}</b><small>{t('Give a mail this label, or forward it to your +pack address')}</small></span><ChevronRight class="ich-chev" size={20} aria-hidden="true" /></a></li>
             <li><div class="ich-row"><span class="ich-ib"><ListTodo size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Google task list «Packgenerator»')}</b><small>{t('Open tasks there come in, e.g. said to the phone')}</small></span></div></li>
             <li><div class="ich-row"><span class="ich-ib"><CalendarDays size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Appointments with #pack')}</b><small>{t('An appointment with «#pack» in the title becomes a trip suggestion')}</small></span></div></li>
             <li><div class="ich-row ich-wrap"><span class="ich-ib"><Bookmark size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Bookmark «Into the Inbox» (computer)')}</b><small>{t('Drag the button into the bookmarks bar of Chrome. A click on it sends the open page here.')}</small>
@@ -401,7 +401,7 @@
     <div class="filedwrap">
     <ListBar bind:active={activeMonth} current={curMonth ? monthName(curMonth.key) : ''} count={curMonth ? tn(curMonth.entries.length, '{n} entry', '{n} entries') : ''}>
       <label class="search">
-        <Search size={18} aria-hidden="true" />
+        <Search size={20} aria-hidden="true" />
         <span class="sr">{t('Search the filed entries')}</span>
         <input class="inp" type="search" bind:value={query} placeholder={t('Search: text, shop, bike, amount')} />
       </label>
@@ -424,7 +424,7 @@
                 <span class="ich-ib"><Icon size={18} aria-hidden="true" /></span>
                 <span class="ich-m"><b>{n.text}</b><small>{chipText(n)}</small></span>
                 {#if n.to.chf != null}<span class="v num">{chf(n.to.chf)}</span>{/if}
-                {#if href}<ChevronRight class="ich-chev" size={18} aria-hidden="true" />{/if}
+                {#if href}<ChevronRight class="ich-chev" size={20} aria-hidden="true" />{/if}
               </svelte:element>
             {/snippet}
           </ListGroup>
@@ -444,7 +444,7 @@
 
 {#if last}
   <div class="toast" role="status">
-    <Check size={18} aria-hidden="true" /><span>{last.text}</span>
+    <Check size={20} aria-hidden="true" /><span>{last.text}</span>
     <button type="button" class="btn sm" onclick={() => undo(last.note)}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>
   </div>
 {/if}
@@ -554,9 +554,9 @@
     cursor: pointer;
   }
   .vchip[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .err {
     color: var(--bad);

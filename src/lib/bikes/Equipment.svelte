@@ -258,8 +258,6 @@
     margin: 8px 0 8px;
     color: var(--ink-3);
     font: 600 var(--fs-small) / 1.3 var(--font-body);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
   .grp {
     margin: 12px 0 0;

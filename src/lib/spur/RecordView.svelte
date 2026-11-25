@@ -50,10 +50,10 @@
     {#if rec.error}<p class="warn" role="alert">{t(rec.error)}</p>{/if}
     <p class="soft"><Sun size={16} aria-hidden="true" /> {rec.lock ? t('The screen stays on.') : t('This browser may turn the screen off: then there is a gap.')}</p>
     <div class="row">
-      <button type="button" class="btn here" onclick={() => (place = true)}><MapPin size={22} aria-hidden="true" />{t('I am here')}</button>
-      <button type="button" class="btn stop" onclick={stop}><Square size={22} aria-hidden="true" />{t('Stop')}</button>
+      <button type="button" class="btn here" onclick={() => (place = true)}><MapPin size={24} aria-hidden="true" />{t('I am here')}</button>
+      <button type="button" class="btn stop" onclick={stop}><Square size={24} aria-hidden="true" />{t('Stop')}</button>
     </div>
-    <button type="button" class="btn small" onclick={() => dialog.close()}><Minimize2 size={18} aria-hidden="true" />{t('Smaller (keeps recording)')}</button>
+    <button type="button" class="btn small" onclick={() => dialog.close()}><Minimize2 size={20} aria-hidden="true" />{t('Smaller (keeps recording)')}</button>
   {/if}
 </dialog>
 
@@ -96,8 +96,6 @@
   }
   .kick {
     font-size: var(--fs-rec-kick);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
     color: var(--rv-rec);
     margin: 0;
   }

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { existsSync } from 'node:fs';
-import { scope, newsScope, partsFor, CORE_SPECS, MAX_SPECS } from '../scripts/ci-scope.mjs';
+import { scope, newsScope, NEWEST_LINES, partsFor, quickStage, allSpecFiles, DATA_SPEC_NAME, CORE_SPECS, MAX_SPECS } from '../scripts/ci-scope.mjs';
 
 describe('ci-scope: which phone tests a PR needs', () => {
   it('docs and news only: no phone tests', () => {
@@ -103,9 +103,12 @@ describe('ci-scope: which news lines «Ausprobieren» taps in a PR', () => {
   it('a deleted news file is left out', () => {
     expect(newsScope(['src/lib/news/gone.js'], () => false)).toBe('');
   });
-  it('the update list, the go-map, the Ausprobieren code and the helpers: all lines', () => {
+  it('the update list, the go-map, the Ausprobieren code and the helpers: the newest 200 lines plus the own ones (Noah «a» 25.11.2026)', () => {
+    expect(NEWEST_LINES).toBe(200);
     for (const f of ['src/lib/whatsnew.js', 'src/lib/know/newsgo-map.js', 'src/lib/know/spot.js', 'src/lib/news/README.md', 'src/pages/WasNeu.svelte', 'tests/e2e/ausprobieren.spec.js', 'tests/e2e/clock.js', 'tests/e2e/gesamttest/lib.js'])
-      expect(newsScope(['src/lib/news/x.js', f], has), f).toBe('all');
+      expect(newsScope(['src/lib/news/x.js', f], has), f).toBe('newest:200 x.js');
+    // without an own news file only the newest lines
+    expect(newsScope(['src/lib/know/heimat.js'], has)).toBe('newest:200');
   });
   it('no files known: all lines', () => {
     expect(newsScope([], has)).toBe('all');
@@ -121,5 +124,34 @@ describe('ci-scope: the app-wide Wächter run with every PR that changes app cod
     const r = scope(['src/pages/Lend.svelte'], () => ['tests/e2e/paket-h.spec.js']);
     expect(r.mode).toBe('specs');
     for (const f of CORE_SPECS) expect(r.specs).toContain(f);
+  });
+});
+
+describe('ci-scope: the quick stage of a «Schwer» PR (Noah 24.11.2026 «a»)', () => {
+  const all = ['tests/e2e/backupzeile.spec.js', 'tests/e2e/sync-hinweis.spec.js', 'tests/e2e/erwartung.spec.js', 'tests/e2e/pf.spec.js', 'tests/e2e/zuletzt-geloescht.spec.js'];
+  it('the Kern, the data specs by name, sorted and once; a spec about «Erwartung» is no data spec', () => {
+    const r = quickStage(['src/lib/db.js'], null, all);
+    expect(r.mode).toBe('specs');
+    expect(r.specs).toEqual([...new Set([...CORE_SPECS, 'tests/e2e/backupzeile.spec.js', 'tests/e2e/sync-hinweis.spec.js', 'tests/e2e/zuletzt-geloescht.spec.js'])].sort());
+    expect(DATA_SPEC_NAME.test('erwartung.spec.js')).toBe(false);
+    expect(DATA_SPEC_NAME.test('app-wartung.spec.js')).toBe(true);
+  });
+  it('adds the PR\'s own specs and the specs of the changed pages when the map knows them', () => {
+    const r = quickStage(['src/lib/db.js', 'src/pages/Lend.svelte', 'tests/e2e/own.spec.js'], (changed) => (changed.includes('src/pages/Lend.svelte') ? ['tests/e2e/lend.spec.js'] : []), all);
+    for (const f of ['tests/e2e/own.spec.js', 'tests/e2e/lend.spec.js', ...CORE_SPECS]) expect(r.specs).toContain(f);
+  });
+  it('a file every spec reaches (more than MAX_SPECS) adds nothing', () => {
+    const many = Array.from({ length: MAX_SPECS + 1 }, (_, i) => `tests/e2e/s${i}.spec.js`);
+    expect(quickStage(['src/lib/db.js'], () => many, []).specs).toEqual([...CORE_SPECS].sort());
+  });
+  it('is smaller than everything, and every file of it exists', () => {
+    const real = allSpecFiles();
+    expect(real.length).toBeGreaterThan(300);
+    const r = quickStage(['package.json'], null, real);
+    expect(r.specs.length).toBeLessThan(60);
+    for (const f of r.specs) expect(existsSync(new URL(`../${f}`, import.meta.url)), f).toBe(true);
+  });
+  it('allSpecFiles leaves out what a PR never runs (Gesamttest, night walk, live, probes)', () => {
+    for (const f of allSpecFiles()) expect(f).not.toMatch(/gesamttest|nachtrundgang|\/live\/|tmp-durchklick/);
   });
 });

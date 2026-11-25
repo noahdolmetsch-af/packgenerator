@@ -418,6 +418,9 @@ describe('Fragen aus deinen Daten', () => {
       expect(vermutungHit(hint, 50)).toBeNull();
       expect(vermutungHit(null)).toBeNull();
       expect(vermutungHit({ ...hint, sentence: '' })).toBeNull();
+      // a gap that is hardly there asks nothing: 7 against 7.3 is 4 percent, 8 against 5 is plenty
+      expect(vermutungHit({ ...hint, hi: { mean: 7 }, lo: { mean: 7.3 } })).toBeNull();
+      expect(vermutungHit({ ...hint, hi: { mean: 8 }, lo: { mean: 5 } })).toEqual({ sentence: hint.sentence });
       const [d] = dataDue({ hint, today: TODAY });
       expect(d.q.id).toBe('daten.vermutung');
       expect(d.why.vars).toEqual({ sentence: hint.sentence });

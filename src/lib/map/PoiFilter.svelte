@@ -77,7 +77,7 @@
     <SlidersHorizontal size={16} aria-hidden="true" />
     <span>{t('Filter|poi')}{#if n}{' '}<span class="pf-n num" data-poi-filter-n>{num(n)}</span>{/if}</span>
     {#if n && total}<span class="pf-left">{t('{a} of {b} places|poi', { a: num(shown), b: num(total) })}</span>{/if}
-    <ChevronDown size={18} aria-hidden="true" class={open ? 'pf-up' : ''} />
+    <ChevronDown size={20} aria-hidden="true" class={open ? 'pf-up' : ''} />
   </button>
 
   {#if open}
@@ -262,9 +262,9 @@
     cursor: pointer;
   }
   .pf-chip[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   .pf-speed {
     display: inline-flex;

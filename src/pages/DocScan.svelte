@@ -265,7 +265,7 @@
         <label class="btn hi big"><Camera size={20} aria-hidden="true" />{t('Take photo')}<input type="file" accept="image/*" capture="environment" onchange={pick('camera')} hidden /></label>
         <label class="btn big"><ImageIcon size={20} aria-hidden="true" />{t('Gallery')}<input type="file" accept="image/*" multiple onchange={pick('gallery')} hidden /></label>
       {:else}
-        <span class="ring" aria-hidden="true"><ImageIcon size={26} /></span>
+        <span class="ring" aria-hidden="true"><ImageIcon size={24} /></span>
         <b>{t('Drag photos here')}</b>
         <span class="ich-help">{t('JPG or PNG · every photo becomes a page · everything stays on this device')}</span>
         <label class="btn hi"><ImageIcon size={16} aria-hidden="true" />{t('Choose photos')}<input type="file" accept="image/*" multiple onchange={pick('gallery')} hidden /></label>
@@ -297,10 +297,10 @@
             {/each}
             <li class="pg add">
               {#if phone}
-                <label class="addb"><Camera size={22} aria-hidden="true" />{t('Another page')}<input type="file" accept="image/*" capture="environment" onchange={pick('camera')} hidden /></label>
-                <label class="addb small"><ImageIcon size={18} aria-hidden="true" />{t('Gallery')}<input type="file" accept="image/*" multiple onchange={pick('gallery')} hidden /></label>
+                <label class="addb"><Camera size={24} aria-hidden="true" />{t('Another page')}<input type="file" accept="image/*" capture="environment" onchange={pick('camera')} hidden /></label>
+                <label class="addb small"><ImageIcon size={20} aria-hidden="true" />{t('Gallery')}<input type="file" accept="image/*" multiple onchange={pick('gallery')} hidden /></label>
               {:else}
-                <label class="addb"><Plus size={22} aria-hidden="true" />{t('Another page')}<input type="file" accept="image/*" multiple onchange={pick('gallery')} hidden /></label>
+                <label class="addb"><Plus size={24} aria-hidden="true" />{t('Another page')}<input type="file" accept="image/*" multiple onchange={pick('gallery')} hidden /></label>
               {/if}
             </li>
           </ol>

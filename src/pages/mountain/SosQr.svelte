@@ -167,9 +167,9 @@
             <path d={code.d} fill="black" />
           </svg>
           <pre class="txt" data-qr-text>{text}</pre>
-          <button type="button" class="btn hi" onclick={image} disabled={busy} data-image><Download size={18} aria-hidden="true" />{busy ? t('Making the image…') : t('Save the lock-screen image')}</button>
+          <button type="button" class="btn hi" onclick={image} disabled={busy} data-image><Download size={20} aria-hidden="true" />{busy ? t('Making the image…') : t('Save the lock-screen image')}</button>
           {#if imgMsg}<p class="sk-quiet" role="status">{imgMsg}</p>{/if}
-          <button type="button" class="btn" onclick={printCard} data-print-card><Printer size={18} aria-hidden="true" />{t('Print a wallet card')}</button>
+          <button type="button" class="btn" onclick={printCard} data-print-card><Printer size={20} aria-hidden="true" />{t('Print a wallet card')}</button>
           <p class="sk-quiet">{t('A card in credit-card size with these lines and the code. Cut it out and keep it in your wallet, for when the phone is empty or broken.')}</p>
           <details class="how">
             <summary>{t('How to put it on the lock screen')}</summary>

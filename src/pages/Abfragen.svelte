@@ -30,9 +30,10 @@
   import OwnSheet from '../lib/abfragen/OwnSheet.svelte';
   import RuleSheet from '../lib/abfragen/RuleSheet.svelte';
   import Auswertung from '../lib/abfragen/Auswertung.svelte';
+  import SpellHint from '../lib/abfragen/SpellHint.svelte';
   import { abQuery, ensureConfig, saveConfig, saveDataCfg } from '../lib/abdb.js';
   import { MAX_PER_DAY, DATA_QUESTIONS, VALUES, ruleList, moveRule, ruleName, setRuleName, dropRule, restoreRule, goneRules, ruleOn, setRule, ruleVal, setVal, ruleText, setText, resetRule, ruleChanged, ruleGap, GAP_DAYS, randomOn, setRandom, neverCount, bringBack as bringNeverBack } from '../lib/datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
-  import { OWN_AREA, QUESTION, allQuestions, MERGED_INTO, configOf, settingOf, setOn, setEvery, putOwn, newOwn, counts, stampOf, setRounds, timeOf, perDay, BUSY_DAY, areasOf, questionsIn, renameQuestion, moveToArea, deleteQuestion, restoreQuestion, goneQuestions, moveQuestion, renameArea, addArea, deleteArea, moveArea, listChanged, resetList } from '../lib/abfragen.js';
+  import { OWN_AREA, QUESTION, allQuestions, MERGED_INTO, configOf, settingOf, setOn, setEvery, putOwn, newOwn, counts, stampOf, setRounds, setMainOnly, timeOf, perDay, BUSY_DAY, areasOf, questionsIn, renameQuestion, moveToArea, deleteQuestion, restoreQuestion, goneQuestions, moveQuestion, renameArea, addArea, deleteArea, moveArea, listChanged, resetList } from '../lib/abfragen.js';
   import { qText, areaName, everyText, kindLabel, kindExtra, srcText } from '../lib/abfragen/words.js';
   import { localDay } from '../lib/localday.js';
   import { t } from '../lib/i18n.svelte.js';
@@ -93,6 +94,7 @@
   const rules = $derived(ruleList(dcfg, customQs));
   const goneRs = $derived(goneRules(dcfg));
   let ruleEdit = $state(false);
+  let typed = $state({}); // «Schreibweise»: the text of a rule just saved, per rule (the hint under the field)
   let ruleFor = $state(undefined); // undefined: closed; null: a new rule; an own question: change it
   let renamingRule = $state(null);
   const ruleTitle = (x) => (x.q ? x.q.rule.title || x.q.text : (ruleName(dcfg, x.id) ?? t(x.rule.title)));
@@ -244,7 +246,7 @@
 
 <div class="ich-page abpage">
   <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Your questions')} sub={headLine}>
-    <button type="button" class="btn" class:hi={editing} aria-pressed={editing} onclick={() => (editing = !editing)} data-ab-edit>{#if editing}<Check size={18} aria-hidden="true" />{t('Done|edit')}{:else}<Pencil size={18} aria-hidden="true" />{t('Edit questions and groups')}{/if}</button>
+    <button type="button" class="btn" class:hi={editing} aria-pressed={editing} onclick={() => (editing = !editing)} data-ab-edit>{#if editing}<Check size={20} aria-hidden="true" />{t('Done|edit')}{:else}<Pencil size={18} aria-hidden="true" />{t('Edit questions and groups')}{/if}</button>
     <button type="button" class="btn" onclick={() => addIn(OWN_AREA)}><Plus size={18} aria-hidden="true" />{t('Create your own question')}</button>
   </VeloHead>
 
@@ -290,7 +292,8 @@
               <div class="dset">
                 {#if r}
                   <label><span>{t(r.param.label)}</span><input class="inp num" type="number" min={r.param.min} max={r.param.max} step={r.param.step} value={ruleVal(dcfg, r.id)} onchange={(e) => saveD(setVal(dcfg, r.id, e.currentTarget.value))} data-rule-val={r.id} /></label>
-                  <label class="wide"><span>{t('The question|data')}</span><input class="inp" type="text" maxlength="140" value={ruleText(dcfg, r.id) ?? ''} placeholder={t(DATA_QUESTIONS[r.qid].text)} onchange={(e) => saveD(setText(dcfg, r.id, e.currentTarget.value))} data-rule-text={r.id} /></label>
+                  <label class="wide"><span>{t('The question|data')}</span><input class="inp" type="text" maxlength="140" value={ruleText(dcfg, r.id) ?? ''} placeholder={t(DATA_QUESTIONS[r.qid].text)} onchange={(e) => { saveD(setText(dcfg, r.id, e.currentTarget.value)); typed[r.id] = e.currentTarget.value; }} data-rule-text={r.id} /></label>
+                  <SpellHint text={typed[r.id] ?? ''} ontake={(v) => { saveD(setText(dcfg, r.id, v)); typed[r.id] = ''; }} />
                 {:else}
                   <button type="button" class="btn" onclick={() => (ruleFor = x.q)} data-rule-change={x.id}><Pencil size={16} aria-hidden="true" />{t('Change this rule')}</button>
                 {/if}
@@ -451,6 +454,16 @@
               <label><span>{t('Evening round')}</span><input class="inp num" type="time" value={cfg.rounds.evening} onchange={(e) => setTime('evening', e.currentTarget.value)} data-round="evening" /></label>
             </div>
           {/if}
+        </div>
+      </section>
+      <!-- «Wechsel-Varianten»: a question asks in other words from day to day; this switch keeps the main words -->
+      <section class="ich-sec" aria-labelledby="ab-words-h" data-words>
+        <div class="ich-h"><div><h2 id="ab-words-h">{t('Words of the questions')}</h2><p class="ich-hs">{t('a suggestion, can be switched off')}</p></div></div>
+        <div class="card side">
+          <div class="rsw">
+            <span class="rm"><b>{t('Always the main question')}</b><small>{t('Many questions ask in other words from day to day. The meaning and your answers stay the same. Switch on to always see the main question.')}</small></span>
+            <label class="ab-sw"><span class="sr">{t('Always the main question')}</span><input type="checkbox" role="switch" checked={cfg.mainOnly} onchange={(e) => save(setMainOnly(cfg, e.currentTarget.checked))} data-main-only /></label>
+          </div>
         </div>
       </section>
       <HelloButtonsSection />

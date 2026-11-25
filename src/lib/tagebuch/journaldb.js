@@ -9,6 +9,7 @@ import { db as appDb } from '../db.js';
 import { HOME_PLACE } from '../know.js';
 import { localDay } from '../localday.js';
 import { JOURNAL_KEY, KIND, newEntry, retag } from './journal.js';
+import { readLite } from '../actlite.js';
 
 const plain = (x) => JSON.parse(JSON.stringify(x ?? null));
 
@@ -78,7 +79,7 @@ export async function dayThings(day, t = (s) => s, db = appDb) {
     }
   };
   await safe(async () => {
-    for (const a of await db.activities.where('day').equals(day).toArray()) {
+    for (const a of await readLite(db, (T) => T.where('day').equals(day).toArray())) {
       const bits = [a.name || t('Activity')];
       if (a.km > 0) bits.push(`${r1(a.km)} km`);
       if (a.movingS > 0) bits.push(hm(a.movingS));
@@ -167,7 +168,7 @@ export async function moodContext(db = appDb) {
   const rideDays = new Set();
   const sleep = {};
   try {
-    for (const a of await db.activities.toArray()) if (a.day) rideDays.add(a.day);
+    for (const a of await readLite(db, (T) => T.toArray())) if (a.day) rideDays.add(a.day);
   } catch {
     /* no rides */
   }

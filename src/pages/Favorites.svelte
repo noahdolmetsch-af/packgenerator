@@ -142,9 +142,9 @@
       {#if often.length}
         <!-- Impeccable runde 2 (Favoriten 1): the suggestions on top, one line; a tap opens the list right here -->
         <button type="button" class="oline no-print" aria-expanded={oftenOpen} aria-controls="fav-often" onclick={() => (oftenOpen = !oftenOpen)} data-often-line>
-          <Star size={18} aria-hidden="true" />
+          <Star size={20} aria-hidden="true" />
           <span class="ol-t">{tn(often.length, '{n} suggestion: often with you, no star yet', '{n} suggestions: often with you, no star yet')}</span>
-          <ChevronRight class={oftenOpen ? 'olchev down' : 'olchev'} size={18} aria-hidden="true" />
+          <ChevronRight class={oftenOpen ? 'olchev down' : 'olchev'} size={20} aria-hidden="true" />
         </button>
         {#if oftenOpen}{@render oftenSec()}{/if}
       {/if}
@@ -155,7 +155,7 @@
           {#if shut(g.key)}
             <!-- 0.163.0: a closed kind on a phone -->
             <button type="button" class="fline" aria-expanded="false" onclick={() => (openG[g.key] = true)} data-fav-line={g.key}>
-              <ChevronRight size={18} aria-hidden="true" />
+              <ChevronRight size={20} aria-hidden="true" />
               <span class="fl-t"><b>{t(g.name)}</b><small>{g.items.slice(0, 3).map((i) => nameOf(i)).join(' · ')}</small></span>
               <span class="fl-n num">{tn(g.items.length, '{n} item', '{n} items')}{#if g.grams}<small>{formatWeight(g.grams)}</small>{/if}</span>
             </button>
@@ -177,7 +177,7 @@
                       {#if subOf(i)}<small class="sub">{subOf(i)}</small>{/if}
                     </a>
                     <!-- SN5+ F3: the last trip it was on (a tap opens the trip) -->
-                    <small class="last no-print">{#if last[i.id]}<Flag size={13} aria-hidden="true" />{t('last on:')} <a href="#/pack" onclick={(e) => openTripAt(e, last[i.id].trip)}>{last[i.id].trip.title}</a> · {shortDay(last[i.id].date)}{:else}<Flag size={13} aria-hidden="true" />{t('not on any trip yet')}{/if}</small></span>
+                    <small class="last no-print">{#if last[i.id]}<Flag size={14} aria-hidden="true" />{t('last on:')} <a href="#/pack" onclick={(e) => openTripAt(e, last[i.id].trip)}>{last[i.id].trip.title}</a> · {shortDay(last[i.id].date)}{:else}<Flag size={14} aria-hidden="true" />{t('not on any trip yet')}{/if}</small></span>
                     <span class="sv num" class:nw={i.weightG == null}>{i.weightG == null ? t('not weighed') : formatWeight(itemWeight(i))}</span>
                     <span class="rowacts no-print"><MoreActions title={nameOf(i)} label={t('More for {name}', { name: nameOf(i) })} actions={actionsOf(i)} /></span>
                   </li>
@@ -190,7 +190,7 @@
         {/each}
       </div>
       {#if !often.length}{@render oftenSec()}{/if}
-      <p class="hint no-print hide-phone"><Star size={15} aria-hidden="true" /><span>{t('You set the star in the item itself. Under «…»: remove the star, change the note.')}</span></p>
+      <p class="hint no-print hide-phone"><Star size={16} aria-hidden="true" /><span>{t('You set the star in the item itself. Under «…»: remove the star, change the note.')}</span></p>
     {:else}
       <!-- v0.127.0 A-U2: the one empty building block -->
       <Empty icon={Star} title={t('No favourites yet')} text={t('No favourites yet. In Gear tap the ☆ in front of an item.')} action={{ label: t('Open Gear'), href: '#/gear' }} />
@@ -203,7 +203,7 @@
   <!-- SN5+ F2 «Oft dabei»: on at least half of the trips of a kind, no star yet; a suggestion only -->
   {#if shut('often')}
     <button type="button" class="fline often-line no-print" aria-expanded="false" onclick={() => (openG.often = true)} data-fav-line="often">
-      <ChevronRight size={18} aria-hidden="true" />
+      <ChevronRight size={20} aria-hidden="true" />
       <span class="fl-t"><b>{t('Often with you')}</b><small>{often.length ? often.slice(0, 3).map((o) => nameOf(o.item)).join(' · ') : t('Nothing yet that is often with you and has no star.')}</small></span>
       {#if often.length}<span class="fl-n num">{tn(often.length, '{n} item', '{n} items')}</span>{/if}
     </button>
@@ -223,9 +223,9 @@
             </li>
           {/each}
         </ul>
-        <p class="shint"><Info size={15} aria-hidden="true" /><span>{t('A suggestion from your past trips. Under «…»: do not suggest any more.')}</span></p>
+        <p class="shint"><Info size={16} aria-hidden="true" /><span>{t('A suggestion from your past trips. Under «…»: do not suggest any more.')}</span></p>
       {:else}
-        <p class="shint"><Info size={15} aria-hidden="true" /><span>{anyTrips ? t('Nothing yet that is often with you and has no star.') : t('After a few trips, what is often with you shows here.')}</span></p>
+        <p class="shint"><Info size={16} aria-hidden="true" /><span>{anyTrips ? t('Nothing yet that is often with you and has no star.') : t('After a few trips, what is often with you shows here.')}</span></p>
       {/if}
     </Section>
   </div>

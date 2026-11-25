@@ -93,7 +93,7 @@
       <p class="foot">{foot}</p>
       {@render climbs()}
     {:else}
-      <p class="none"><Upload size={18} aria-hidden="true" /><span>{t('From Komoot, Garmin or Strava: distance, climbing and a guess of the riding hours.')}</span></p>
+      <p class="none"><Upload size={20} aria-hidden="true" /><span>{t('From Komoot, Garmin or Strava: distance, climbing and a guess of the riding hours.')}</span></p>
       <!-- Wegweiser 5: no GPX yet → draw the line on the map and save it as GPX -->
       <PasstHier place="route" />
     {/if}

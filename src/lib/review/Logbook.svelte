@@ -132,7 +132,7 @@
   <section id="logbook" class="logbook rv-col" aria-labelledby="log-h">
     <h2 id="log-h" class="sr">{t('Logbook')}</h2>
     <div class="tools">
-      {#if entries.length > 5}<label class="rv-search"><Search size={18} aria-hidden="true" /><input type="search" placeholder={t('Search the logbook')} bind:value={q} aria-label={t('Search the logbook')} /></label>{/if}
+      {#if entries.length > 5}<label class="rv-search"><Search size={20} aria-hidden="true" /><input type="search" placeholder={t('Search the logbook')} bind:value={q} aria-label={t('Search the logbook')} /></label>{/if}
       {#if years.length}<Seg full={false} label={t('Year')} value={year} options={YEARS} onchange={(v) => (year = v)} />{/if}
       <button type="button" class="btn" onclick={() => (adding = true)} data-log-add><PlusIc size={16} aria-hidden="true" />{t('New entry|logbook')}</button>
     </div>
@@ -171,18 +171,18 @@
             <li class="e {e.kind}">
               {#if e.fact}
                 <a class="row" href={e.fact.href} onclick={() => e.fact.trip && openTrip(e.fact.trip.id)} data-state={s?.state}>
-                  <span class="lic {s?.state}" aria-hidden="true">{#if s?.state === 'rated'}<Star size={18} />{:else}<Flag size={18} />{/if}</span>
+                  <span class="lic {s?.state}" aria-hidden="true">{#if s?.state === 'rated'}<Star size={20} />{:else}<Flag size={20} />{/if}</span>
                   <span class="body">
                     <span class="tt"><b>{e.title || DASH}</b>{#if e.kind === 'ride'}<span class="rv-tag">{t('Uploaded ride')}</span>{/if}</span>
                     <span class="facts num"><span class="when">{dates(e.date, e.end)}</span>{#if e.fact.bike}<span class="bk">{e.fact.bike}</span>{/if}<span class="kd">{t(domainName(e.domain))}</span>{#if wx !== DASH}<span class="wx">{#if e.rain?.wet}<CloudRain size={14} aria-hidden="true" />{:else}<Sun size={14} aria-hidden="true" />{/if}{wx}</span>{/if}{#if fs.length}<span>{fs.join(' · ')}</span>{/if}</span>
                     {#each e.notes as n (n)}<span class="note">{n}</span>{/each}
                   </span>
                   <span class="lpill"><TripState state={s?.state} extra={stateExtraText(s?.extra)} /></span>
-                  <ChevronRight class="chev" size={18} aria-hidden="true" />
+                  <ChevronRight class="chev" size={20} aria-hidden="true" />
                 </a>
               {:else if e.ev.source === 'excel'}
                 <div class="row ro">
-                  <span class="lic" aria-hidden="true"><BookOpen size={18} /></span>
+                  <span class="lic" aria-hidden="true"><BookOpen size={20} /></span>
                   <span class="body">
                     <span class="tt lt"><b>{e.title}</b><span class="lsrc">{t('from Excel')}</span></span>
                     <span class="facts num"><span class="when ld">{evDate(e.ev)}</span></span>
@@ -192,7 +192,7 @@
                 </div>
               {:else}
                 <details class="row ev">
-                  <summary><span class="lic" aria-hidden="true"><BookOpen size={18} /></span><span class="body"><span class="tt"><b>{e.title}</b></span><span class="facts num"><span class="when">{e.ev.dateText ?? evDate(e.ev)}</span>{#if e.ev.type}<span>{e.ev.type}</span>{/if}</span></span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+                  <summary><span class="lic" aria-hidden="true"><BookOpen size={20} /></span><span class="body"><span class="tt"><b>{e.title}</b></span><span class="facts num"><span class="when">{e.ev.dateText ?? evDate(e.ev)}</span>{#if e.ev.type}<span>{e.ev.type}</span>{/if}</span></span><ChevronRight class="chev" size={20} aria-hidden="true" /></summary>
                   <dl>
                     {#if e.ev.bike && e.ev.bike !== '–'}<dt>{t('Bike')}</dt><dd>{e.ev.bike}</dd>{/if}
                     {#if e.ev.bags && e.ev.bags !== '–'}<dt>{t('Bags')}</dt><dd>{e.ev.bags}</dd>{/if}
@@ -217,9 +217,9 @@
     <section class="rv-sec" aria-labelledby="lbmore-h">
       <div class="rv-h"><div><h2 id="lbmore-h">{t('More')}</h2></div></div>
       <ul class="rv-box">
-        <li><a class="rv-row" href="#/debrief/learnings"><span class="rv-ic" aria-hidden="true"><Lightbulb size={18} /></span><span class="rv-m"><span class="rv-t">{t('Learned|review')}</span>{#if data}<span class="rv-s num">{tn(data.learnings.length, '{n} learning', '{n} learnings')}</span>{/if}</span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
-        <li><a class="rv-row" href="#/debrief/pace"><span class="rv-ic" aria-hidden="true"><Gauge size={18} /></span><span class="rv-m"><span class="rv-t">{t('Your pace')}</span>{#if data}<span class="rv-s num">{pace.mine ? t('{kmh} km/h · your rule', { kmh: num(pace.kmh) }) : t('{kmh} km/h · standard rule', { kmh: num(pace.kmh) })}</span>{/if}</span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
-        <li><a class="rv-row" href="#/pack/past"><span class="rv-ic" aria-hidden="true"><Archive size={18} /></span><span class="rv-m"><span class="rv-t">{t('Past trips')}</span><span class="rv-s">{t('as a table')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
+        <li><a class="rv-row" href="#/debrief/learnings"><span class="rv-ic" aria-hidden="true"><Lightbulb size={20} /></span><span class="rv-m"><span class="rv-t">{t('Learned|review')}</span>{#if data}<span class="rv-s num">{tn(data.learnings.length, '{n} learning', '{n} learnings')}</span>{/if}</span><ChevronRight class="rv-chev" size={20} aria-hidden="true" /></a></li>
+        <li><a class="rv-row" href="#/debrief/pace"><span class="rv-ic" aria-hidden="true"><Gauge size={20} /></span><span class="rv-m"><span class="rv-t">{t('Your pace')}</span>{#if data}<span class="rv-s num">{pace.mine ? t('{kmh} km/h · your rule', { kmh: num(pace.kmh) }) : t('{kmh} km/h · standard rule', { kmh: num(pace.kmh) })}</span>{/if}</span><ChevronRight class="rv-chev" size={20} aria-hidden="true" /></a></li>
+        <li><a class="rv-row" href="#/pack/past"><span class="rv-ic" aria-hidden="true"><Archive size={20} /></span><span class="rv-m"><span class="rv-t">{t('Past trips')}</span><span class="rv-s">{t('as a table')}</span></span><ChevronRight class="rv-chev" size={20} aria-hidden="true" /></a></li>
       </ul>
     </section>
     {#if best?.any}

@@ -3,6 +3,8 @@
   import LazyPage from './lib/nav/LazyPage.svelte';
   import GehoertDazu from './lib/know/GehoertDazu.svelte'; // «Heute als Begleiter» PR 7
   import SeitenInhalt from './lib/ui/SeitenInhalt.svelte'; // «Wegweiser statt Katalog» PR 11
+  import SearchHere from './lib/suche/SearchHere.svelte'; // «Suche am Ort» (Warteliste 1, V2)
+  import { hereKind } from './lib/suche/ort.js';
   import { showsRow } from './lib/know/gehoert.js';
   import { warmUp } from './lib/nav/lazy.js';
   import { noteHashMove } from './lib/nav/herkunft.svelte.js';
@@ -29,7 +31,7 @@
   import { watchVeloImGriff } from './lib/veloimgriff.svelte.js';
   import { watchInspect } from './lib/inspect/live.svelte.js';
   import { wide, phone } from './lib/media.svelte.js';
-  import { Plus, MessageCircle } from '@lucide/svelte';
+  import { Plus } from '@lucide/svelte';
   import { startPushSync } from './lib/push/client.js';
   import { linkFrom } from './lib/notebook.js';
   import { INSPO_WISH } from './lib/inspiration.js';
@@ -391,6 +393,7 @@
     Gear: () => import('./pages/Gear.svelte'),
     Bikes: () => import('./pages/Bikes.svelte'),
     Pack: () => import('./pages/Pack.svelte'),
+    PackVorschlag: () => import('./pages/PackVorschlag.svelte'), // «Dein Vorschlag» (Noah 22.11.2026 «1b»): Packen › Vorschlag
     Templates: () => import('./pages/Templates.svelte'),
     Debrief: () => import('./pages/Debrief.svelte'),
     Share: () => import('./pages/Share.svelte'),
@@ -429,6 +432,9 @@
     WardrobeSetup: () => import('./pages/WardrobeSetup.svelte'), // «Kleiderschrank einrichten» (Noah 21.11.2026 «1-5a 4b»): Kleider › Einrichten
     Flow: () => import('./pages/Flow.svelte'),
     Auswerten: () => import('./pages/AuswertenStart.svelte'),
+    AuswertenHeute: () => import('./pages/AuswertenHeute.svelte'),
+    AuswertenWoche: () => import('./pages/AuswertenWoche.svelte'),
+    AuswertenVerlauf: () => import('./pages/AuswertenVerlauf.svelte'),
     // Analyse PR 1 (Noah 27.10.2026 «1a»): Auswerten › Analyse, every value as a tile
     Analyse: () => import('./pages/Analyse.svelte'),
     Between: () => import('./pages/Between.svelte'),
@@ -546,19 +552,18 @@
   <header class="top">
     {#if mini}<a class="brand" href={mini.tabs[0].href}><span class="mark" aria-hidden="true">PG</span><span class="long show">{t(mini.name)}</span></a>{:else}<a class="brand" href="#/" aria-label={t('Pack Generator, start page')}><span class="mark" aria-hidden="true"><LogoMark /></span><span class="long">Pack Generator</span></a>{/if}
     <div class="tools">
-      <!-- «Assistent» (Noah 15.10.2026 «3 a und b»): its own button next to the search -->
-      <a class="asst-ic" href="#/assistent" aria-label={t('Assistant')}><MessageCircle size={22} aria-hidden="true" /></a>
+      <!-- «Ein Eingang» (Noah 24.11.2026 «1-3a»): the assistant has no button of its own any more; the one search opens it («Open the assistant» under a question) -->
       {#if !mini}<HelpButton />{/if}<!-- «Alles finden 2» (Noah 22.10.2026 «3a»): the help of this page -->
       <Search compact />
-      {#if !guest}<button type="button" class="plus" aria-label={t('New')} aria-haspopup="dialog" aria-keyshortcuts="n" onclick={() => (newMode = 'all')}><Plus size={22} strokeWidth={2.4} aria-hidden="true" /></button>{/if}
+      {#if !guest}<button type="button" class="plus" aria-label={t('New')} aria-haspopup="dialog" aria-keyshortcuts="n" onclick={() => (newMode = 'all')}><Plus size={24} strokeWidth={2.5} aria-hidden="true" /></button>{/if}
       <MeButton inbox={$inboxQ ?? 0} current={place === 'me'} />
     </div>
   </header>
 {/if}
 <div class="col">
 {#if wide.matches && !mini}
-<!-- 4a (Noah 21.11.2026 «4a»): one place for help; on a computer the «?» and the assistant sit at the top right of the page, like in the phone's top bar -->
-<div class="dtools"><a class="asst-ic" href="#/assistent" aria-label={t('Assistant')} aria-current={hash.startsWith('#/assistent') ? 'page' : undefined}><MessageCircle size={22} aria-hidden="true" /></a><HelpButton /></div>
+<!-- 4a (Noah 21.11.2026 «4a»): one place for help; on a computer the «?» sits at the top right of the page, like in the phone's top bar. «Ein Eingang» (Noah 24.11.2026 «1-3a»): the assistant's bubble is gone here; the search opens it -->
+<div class="dtools"><HelpButton /></div>
 {/if}
 <DemoBar />
 <LogoRide />
@@ -577,8 +582,10 @@
   <!-- «Heute als Begleiter» PR 7: «Belongs to …», the functions of the same moment, on top of the page -->
   <!-- «Seitenkopf schlanker» (Noah 23.11.2026 «ja», Velos): on a phone «Belongs to …» and «What you can do here» are ONE row behind the title -->
   {#if !guest && !mini && showsRow(page, hash) && !(phone.matches && page === 'bikes')}<GehoertDazu {page} {hash} />{/if}
+  <!-- «Suche am Ort» (Noah «2a»): a field of its own behind the title of Ich, Touren and Auswerten -->
+  {#if !guest && !mini && hereKind(hash)}<SearchHere {hash} />{/if}
   <!-- «Wegweiser statt Katalog» PR 11: what you can do on this page, with what for and how it works (switched on page by page) -->
-  {#if !guest && !mini && page !== 'home'}<SeitenInhalt {hash}>{#snippet side()}{#if phone.matches && page === 'bikes' && showsRow(page, hash)}<GehoertDazu {page} {hash} />{/if}{/snippet}</SeitenInhalt>{/if}
+  {#if !guest && !mini && page !== 'home'}<SeitenInhalt {hash}>{#snippet side()}{#if phone.matches && page === 'bikes' && showsRow(page, hash)}<GehoertDazu {page} {hash} inline />{/if}{/snippet}</SeitenInhalt>{/if}
   <svelte:boundary onerror={onfail}>
   {#key `${switchN}-${listsReady.v}`}
   {#if lost}
@@ -589,7 +596,7 @@
     <!-- v0.36.0 (Noah 1a): the reviewed gear list waits here before it goes into Gear -->
     <LazyPage load={PAGES.GearImport} />
   {:else if page === 'pack'}
-    <LazyPage load={PAGES.Pack} />
+    {#if hash.startsWith('#/pack/vorschlag')}<LazyPage load={PAGES.PackVorschlag} />{:else}<LazyPage load={PAGES.Pack} />{/if}
   {:else if page === 'bikes' || page === 'care'}
     <!-- v0.21.0 (Noah 6a): Setup and Care are tabs of one page; #/care lands on Care. -->
     <LazyPage load={PAGES.Bikes} />
@@ -691,7 +698,7 @@
     <LazyPage load={PAGES.Flow} sub={hash.split('/').slice(2).join('/')} />
   {:else if page === 'auswerten'}
     <!-- «Aktiv neu» (Noah 22.10.2026 «2a»): the start of Auswerten, what you look at -->
-    {#if hash.startsWith('#/auswerten/analyse')}<LazyPage load={PAGES.Analyse} />{:else}<LazyPage load={PAGES.Auswerten} />{/if}
+    {#if hash.startsWith('#/auswerten/analyse')}<LazyPage load={PAGES.Analyse} />{:else if /^#\/auswerten(\?|$)/.test(hash)}<LazyPage load={PAGES.AuswertenHeute} />{:else if /^#\/auswerten\/woche(\/|\?|$)/.test(hash)}<LazyPage load={PAGES.AuswertenWoche} />{:else if /^#\/auswerten\/verlauf(\/|\?|$)/.test(hash)}<LazyPage load={PAGES.AuswertenVerlauf} />{:else}<LazyPage load={PAGES.Auswerten} />{/if}
   {:else if page === 'quick'}
     <!-- «Quick Links» (Noah 28.10.2026 «1a 2a 3a 4a 5a»): your pins -->
     <LazyPage load={PAGES.Quick} />
@@ -1056,17 +1063,12 @@
     justify-content: flex-end;
     align-items: center;
     gap: var(--sp-1);
-    padding: 4px var(--gut) 0;
-    min-height: 48px;
+    padding: 0 var(--gut);
+    min-height: 44px;
   }
-  .asst-ic {
-    display: inline-flex;
-    flex: none;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    color: var(--ink);
+  /* «Navigation schlank» (Noah 24.11.2026 «was ja»): on a computer the page starts right under the two round icons, not 32 px lower (less empty room above the content) */
+  .shell.wide main:not(.calm) {
+    padding-top: var(--sp-1);
   }
   .tools {
     display: flex;

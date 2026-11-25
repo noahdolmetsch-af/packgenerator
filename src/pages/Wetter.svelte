@@ -234,7 +234,7 @@
 </script>
 
 <section class="wx" data-page="wetter">
-  <PageHead title={t('Weather')} text={t('The weather for riding: today, the best time for a ride, the rain radar and your webcams. Everything is a suggestion.')} />
+  <PageHead title={t('Weather')} text={t('The weather for riding: today, the best time, the rain radar and your webcams.')} />
 
   <div class="wx-chips wx-tabs" role="tablist" aria-label={t('Parts of the weather page')} data-wx-tabs>
     {#each TABS as k (k)}
@@ -299,7 +299,7 @@
       <LakeChip />
       <HoeheBlock {place} {now} />
       <div class="rc-acts">
-        <a class="btn" href={LANDI_RADAR} target="_blank" rel="noopener noreferrer" data-landi><CloudRain size={18} aria-hidden="true" />{t('Landi rain radar')}<ExternalLink size={14} aria-hidden="true" /></a>
+        <a class="btn" href={LANDI_RADAR} target="_blank" rel="noopener noreferrer" data-landi><CloudRain size={20} aria-hidden="true" />{t('Landi rain radar')}<ExternalLink size={14} aria-hidden="true" /></a>
         <a class="btn sm" href={METEOSWISS} target="_blank" rel="noopener noreferrer">{t('MeteoSwiss')}<ExternalLink size={14} aria-hidden="true" /></a>
         <a class="btn sm" href="#/me/hinweise">{t('Warnings, avalanches, passes')}</a>
       </div>
@@ -329,7 +329,7 @@
 
   <!-- extra 7: my webcams -->
   <section class="card wx-sec" aria-labelledby="wx-cams" data-wx-cams>
-    <h2 id="wx-cams" class="wx-h"><Camera size={18} aria-hidden="true" />{t('My webcams')}</h2>
+    <h2 id="wx-cams" class="wx-h"><Camera size={20} aria-hidden="true" />{t('My webcams')}</h2>
     <!-- «332 Use Cases» (Noah 26.10.2026 «webcams und live-karte» sichtbar) -->
     <p class="cam-map" data-webcam-map><b>{t('Webcams on the live map')}</b>: {t('give a webcam a place, and it shows as a point on the live map under «My points».')}</p>
     <WebcamList />
@@ -340,7 +340,7 @@
   {#if core}
     <!-- 1a: the best weather window -->
     <section class="card wx-sec" aria-labelledby="wx-best" data-wx-best>
-      <h2 id="wx-best" class="wx-h"><Target size={18} aria-hidden="true" />{t('Best time for a ride')}</h2>
+      <h2 id="wx-best" class="wx-h"><Target size={20} aria-hidden="true" />{t('Best time for a ride')}</h2>
       <div class="wx-chips" role="group" aria-label={t('How long you ride')}>
         {#each DURS as d (d)}<button type="button" class="wx-chip" aria-pressed={dur === d} onclick={() => (dur = d)} data-wx-dur={d}>{t('{n} h', { n: d })}</button>{/each}
       </div>
@@ -391,7 +391,7 @@
   {#if place}
     <!-- extra 2: climate far ahead -->
     <section class="card wx-sec" aria-labelledby="wx-clim" data-wx-climate>
-      <h2 id="wx-clim" class="wx-h"><CalendarDays size={18} aria-hidden="true" />{t('Far ahead: the usual weather')}</h2>
+      <h2 id="wx-clim" class="wx-h"><CalendarDays size={20} aria-hidden="true" />{t('Far ahead: the usual weather')}</h2>
       <p class="rc-note">{t('For a day more than 16 days away: how it was on these days in the last 10 years.')}</p>
       <div class="wx-search">
         <input class="inp" type="date" bind:value={farDate} aria-label={t('Day')} data-wx-fardate />
@@ -544,9 +544,9 @@
   }
   .wx-chip[aria-pressed='true'],
   .wx-chip[aria-selected='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   .wx-bestline {
     margin: 0;

@@ -38,6 +38,7 @@ export const DAY_CAPS = {
   rwgps: 200, // «Neue Quellen» 20.10.2026: Ride with GPS links (api/lake.js ?action=rwgps)
   group: 1500, // Gruppen-Live-Karte 25.10.2026: the group map of a ride (api/sync.js ?action=group)
   mini: 600, // Mini-Tools 28.10.2026: questions shared by link and their answers (api/sync.js ?action=mini)
+  ask: 150, // «Frag Gemini» 23.11.2026: the free tier of Gemini must not be used up by one day (api/ask.js)
   ov: 1500, // stops and departures (api/lake.js ?action=ov-…; Vercel's cache answers most)
 };
 /** Never counted: the watcher must always be able to look. */
@@ -75,12 +76,17 @@ export async function countCall(store, name, now = Date.now(), caps = DAY_CAPS) 
   return { n, total, over: overTotal || (Number.isFinite(own) && n > own) };
 }
 
-/** The day's numbers for the watcher: { day, total, limit, over: [names over their cap] }. */
+/** The day's numbers for the watcher: { day, total, limit, over: [names over their cap], top: [the four busiest names with their calls] }. */
 export async function dayUsage(store, day, caps = DAY_CAPS) {
   const names = Object.keys(caps).filter((n) => n !== 'total');
   const vals = (await store.cmd('MGET', capKeys('total', day).all, ...names.map((n) => capKeys(n, day).one))) ?? [];
   const total = Number(vals[0]) || 0;
   const over = names.filter((n, i) => (Number(vals[i + 1]) || 0) >= caps[n]);
   if (total >= caps.total) over.unshift('total');
-  return { day, total, limit: caps.total, over };
+  const top = names
+    .map((name, i) => ({ name, n: Number(vals[i + 1]) || 0 }))
+    .filter((x) => x.n > 0)
+    .sort((a, b) => b.n - a.n)
+    .slice(0, 4);
+  return { day, total, limit: caps.total, over, top };
 }

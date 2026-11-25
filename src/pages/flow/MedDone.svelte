@@ -191,7 +191,7 @@
         <details class="more" bind:open={moreOpen} data-more>
           <summary>
             <span class="mt"><b>{t('record more')}</b><small>{t('Mood · what helped · kind · next up')}</small></span>
-            <ChevronRight size={18} class="chev" aria-hidden="true" />
+            <ChevronRight size={20} class="chev" aria-hidden="true" />
           </summary>
 
           <p class="cap">{t('Mood')}</p>
@@ -215,7 +215,7 @@
             <form class="addrow" onsubmit={addHelp}>
               <label class="grow"><span class="sr">{t('What helped?')}</span><input class="inp" bind:value={ownHelp} maxlength="60" placeholder={t('e.g. a walk before')} /></label>
               <button type="submit" class="btn">{t('Add')}</button>
-              <button type="button" class="ib" aria-label={t('Cancel')} onclick={() => (helpOpen = false)}><X size={18} aria-hidden="true" /></button>
+              <button type="button" class="ib" aria-label={t('Cancel')} onclick={() => (helpOpen = false)}><X size={20} aria-hidden="true" /></button>
             </form>
           {/if}
 
@@ -325,8 +325,6 @@
     margin: 0 0 10px;
     color: var(--warn);
     font: 700 var(--fs-tiny)/1.3 var(--font-body);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
   }
   .nl {
     display: block;

@@ -18,6 +18,7 @@ import { localDay } from './localday.js';
 import { SKI_TYPES } from './ski.js';
 import { t, num, dateOf } from './i18n.svelte.js';
 import { stravaName } from './stravanames.js';
+import { readLite } from './actlite.js';
 
 /** Entry kinds: a ride, the start value, a new reading (difference), a correction with a reason. */
 export const KINDS = ['ride', 'start', 'reading', 'correction'];
@@ -975,7 +976,7 @@ export function withStravaRides(rides = [], entries = [], acts = []) {
  */
 export async function bikeActs(db) {
   if (!db.activities) return [];
-  const [acts, prefs] = await Promise.all([db.activities.where('kind').equals('bike').toArray(), db.settings.get(STRAVA_PREFS)]);
+  const [acts, prefs] = await Promise.all([readLite(db, (T) => T.where('kind').equals('bike').toArray()), db.settings.get(STRAVA_PREFS)]);
   return notIgnored(acts, prefs?.value?.ignore);
 }
 /** UI-Test T5: the rides from `from` on as «Diese Woche» counts them (withStravaRides), read from the database. */

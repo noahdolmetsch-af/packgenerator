@@ -11,8 +11,9 @@
   import { t, tn } from '../lib/i18n.svelte.js';
   import { db } from '../lib/db.js';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
+  import KarteSkizze from '../lib/ich/KarteSkizze.svelte';
   import { ChevronDown, ChevronRight, Star } from '@lucide/svelte';
-  import { buildMap, filterMap, filterPoints, markOf, freshIds, mapSize, pathText } from '../lib/appmap.js';
+  import { buildMap, buildTree, filterMap, filterPoints, markOf, freshIds, mapSize, pathText } from '../lib/appmap.js';
   import { featureData, usedOf } from '../lib/know/featureData.js';
   import { USAGE_KEYS, cleanUsage } from '../lib/quick/usage.js';
   import { deviceKind } from '../lib/quick/quicklinks.js';
@@ -22,6 +23,12 @@
   const full = buildMap();
   let q = $state('');
   let filter = $state('all');
+  // the three views of the map (Noah 24.11.2026 «beide»): the list (the tree, the default), the cycle of a tour and the mind map
+  let view = $state('list');
+  const VIEWS = [
+    { key: 'list', label: 'List|view' },
+    { key: 'mind', label: 'Mind map|view' },
+  ];
   const FILTERS = [
     { key: 'all', label: 'All|map' },
     { key: 'never', label: 'Never opened' },
@@ -38,6 +45,21 @@
   const markName = { open: 'Opened', never: 'Never opened', new: 'New|map' };
 </script>
 
+{#snippet pageList(pages)}
+  <ul class="am-pages">
+    {#each pages as p (p.path)}
+      {@const m = markOf(p, state)}
+      <li>
+        {#if p.href}
+          <a href={p.href} class="am-pg {m}" data-am-point={p.path} data-am-mark={m}><span class="am-dot" aria-hidden="true">{#if m === 'new'}<Star size={14} />{/if}</span><span class="sr">{t(markName[m])}: </span><span class="am-pt-t">{t(p.title)}</span><ChevronRight size={16} aria-hidden="true" /></a>
+        {:else}
+          <span class="am-pg {m}" data-am-point={p.path} data-am-mark={m}><span class="am-dot" aria-hidden="true"></span><span class="sr">{t(markName[m])}: </span><span class="am-pt-t">{t(p.title)}</span></span>
+        {/if}
+      </li>
+    {/each}
+  </ul>
+{/snippet}
+
 <div class="am-page ich-page" data-appmap>
   <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Map of the app')} sub={t('Every place of the app and what lives there')} />
 
@@ -49,7 +71,15 @@
           <p class="ich-hs" data-am-count>{searching ? t('{n} functions in {places} places', { n: mapSize(shown), places }) : $dataQ ? t('{n} of {total} tried', { n: used.size, total }) : t('{total} functions in {places} places', { total, places: full.length })}</p>
         </div>
       </div>
-      <p class="am-help">{t('Each point is a page. A filled dot: you opened it or your data shows you used it. A ring: never opened. A star: new in the last two weeks. Tap a point to go there.')}</p>
+      <div class="am-filter" role="group" aria-label={t('Map view')}>
+        {#each VIEWS as v (v.key)}
+          <button type="button" class="am-chip" class:on={view === v.key} aria-pressed={view === v.key} onclick={() => (view = v.key)} data-am-view={v.key}>{t(v.label)}</button>
+        {/each}
+      </div>
+      {#if view !== 'list'}
+        <KarteSkizze map={full} marks={state} pages={pageList} />
+      {:else}
+      <p class="am-help">{t('Tap a place to see its tabs, then a tab to see its pages. A filled dot: you opened the page or your data shows you used it. A ring: never opened. A star: new in the last two weeks.')}</p>
       <div class="am-filter" role="group" aria-label={t('Show')}>
         {#each FILTERS as f (f.key)}
           <button type="button" class="am-chip" class:on={filter === f.key} aria-pressed={filter === f.key} onclick={() => (filter = f.key)} data-am-filter={f.key}>{t(f.label)}</button>
@@ -59,34 +89,38 @@
       <input class="am-search" type="search" bind:value={q} placeholder={t('Search the map')} aria-label={t('Search the map')} data-am-search />
 
       {#each shown as g (g.key)}
-        <section class="card am-place" data-am-place={g.key} aria-label={t(g.label)}>
-          <header>
-            <b>{t(g.label)}</b>
-            <small>{searching ? g.items.length : t('{n} of {m} opened', { n: countOpen(g), m: g.points.length })}</small>
-          </header>
+        {@const tree = searching ? [] : buildTree(g)}
+        {@const names = tree.filter((x) => x.key !== 'rest' && x.key !== 'windows').map((x) => t(x.label)).join(' · ')}
+        <details class="card am-place" data-am-place={g.key} open={searching || filter !== 'all'}>
+          <summary class="am-sum" aria-label={t(g.label)}>
+            <span class="am-head">
+              <b>{t(g.label)}</b>
+              <small>{searching ? tn(g.items.length, '{n} function', '{n} functions') : t('{n} of {m} opened', { n: countOpen(g), m: g.points.length })}</small>
+              {#if names}<small class="am-tabs" data-am-tabs>{names}</small>{/if}
+            </span>
+            <ChevronDown class="am-chev" size={20} aria-hidden="true" />
+          </summary>
           {#if !searching}
-            <ul class="am-points">
-              {#each g.points as p (p.path)}
-                {@const m = markOf(p, state)}
-                <li>
-                  {#if p.href}
-                    <a href={p.href} class="am-pt {m}" data-am-point={p.path} data-am-mark={m} title={t(markName[m])}><span class="am-dot" aria-hidden="true">{#if m === 'new'}<Star size={10} />{/if}</span><span class="sr">{t(markName[m])}: </span>{t(p.title)}</a>
-                  {:else}
-                    <span class="am-pt {m}" data-am-point={p.path} data-am-mark={m}><span class="am-dot" aria-hidden="true"></span><span class="sr">{t(markName[m])}: </span>{t(p.title)}</span>
-                  {/if}
-                </li>
-              {/each}
-            </ul>
+            {#each tree as tab (tab.key)}
+              {#if tree.length === 1}
+                {@render pageList(tab.pages)}
+              {:else}
+                <details class="am-tab" data-am-tab={tab.key} open={filter !== 'all' || tab.pages.length <= 5}>
+                  <summary><span>{t(tab.label)}</span><small>{tab.pages.length}</small><ChevronDown class="am-chev" size={16} aria-hidden="true" /></summary>
+                  {@render pageList(tab.pages)}
+                </details>
+              {/if}
+            {/each}
           {/if}
           <details class="am-all" open={searching}>
-            <summary>{tn(g.items.length, 'All {n} function', 'All {n} functions')}<ChevronDown class="am-chev" size={18} aria-hidden="true" /></summary>
+            <summary>{tn(g.items.length, 'All {n} function', 'All {n} functions')}<ChevronDown class="am-chev" size={20} aria-hidden="true" /></summary>
             <ul class="am-list">
               {#each g.items as i (i.id)}
                 <li data-am-item={i.id}>
                   {#if i.href}
                     <a href={i.href}>
                       <span class="am-t"><b>{t(i.title)}</b><small>{pathText(i, t)}</small></span>
-                      <ChevronRight size={18} aria-hidden="true" />
+                      <ChevronRight size={20} aria-hidden="true" />
                     </a>
                   {:else}
                     <div class="am-row">
@@ -97,10 +131,11 @@
               {/each}
             </ul>
           </details>
-        </section>
+        </details>
       {:else}
         <p class="am-help" data-am-none>{searching ? t('Nothing found. Try another word.') : t('Nothing here. You have opened everything in this filter.')}</p>
       {/each}
+      {/if}
     </section>
   </div>
 </div>
@@ -148,41 +183,73 @@
     margin-bottom: 10px;
     padding: 0;
   }
-  .am-place > header {
+  .am-sum {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 10px;
-    padding: 12px 14px 4px;
+    min-height: 56px;
+    padding: 10px 14px;
+    cursor: pointer;
+    list-style: none;
   }
-  .am-place > header small {
-    margin-left: auto;
+  .am-sum::-webkit-details-marker,
+  .am-tab > summary::-webkit-details-marker {
+    display: none;
+  }
+  .am-head {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+    gap: 2px;
+  }
+  .am-head b {
+    font-size: var(--fs-body);
+  }
+  .am-head small {
     color: var(--ink-3);
   }
-  .am-points {
+  .am-place[open] > .am-sum :global(.am-chev),
+  .am-tab[open] > summary :global(.am-chev) {
+    transform: rotate(180deg);
+  }
+  .am-tab > summary {
     display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
+    align-items: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 0 14px;
+    border-top: 1px solid var(--line);
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+  }
+  .am-tab > summary small {
+    margin-left: auto;
+    color: var(--ink-3);
+    font-weight: 400;
+  }
+  .am-pages {
     list-style: none;
     margin: 0;
-    padding: 6px 10px 10px;
+    padding: 0 0 6px;
   }
-  .am-pt {
-    display: inline-flex;
+  .am-pg {
+    display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 10px;
     min-height: 44px;
-    max-width: 100%;
-    padding: 0 12px 0 10px;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    background: var(--paper);
+    padding: 4px 14px 4px 22px;
     color: var(--ink);
-    font-size: var(--fs-small);
     text-decoration: none;
+    font-size: var(--fs-small);
+  }
+  .am-pt-t {
+    flex: 1;
+    min-width: 0;
     overflow-wrap: break-word;
   }
-  a.am-pt:hover {
-    border-color: var(--hi);
+  a.am-pg:hover {
+    background: color-mix(in srgb, var(--hi) 6%, var(--paper));
   }
   .am-dot {
     flex: none;
@@ -195,11 +262,11 @@
     box-sizing: border-box;
     color: var(--paper);
   }
-  .am-pt.open .am-dot {
+  .am-pg.open .am-dot {
     border-color: var(--hi);
     background: var(--hi);
   }
-  .am-pt.new .am-dot {
+  .am-pg.new .am-dot {
     width: 16px;
     height: 16px;
     border-color: var(--hi);

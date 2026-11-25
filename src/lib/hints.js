@@ -117,7 +117,7 @@ export const HINTS = {
       ['target', 'Goals', 'each activity with its own goal and window'],
       ['bike', 'Riding', 'rides from Strava count by themselves'],
     ],
-    jumps: [['Tick off today', 'tick-h'], ['This week', 'week-h'], ['Rings', 'ring-h']], // «Aktiv neu» (22.10.2026): the three parts of the start
+    jumps: [['This week', 'week-h'], ['Rings', 'ring-h']], // «Aktiv neu» (22.10.2026): the parts of the start; «Tick off today» is the first thing on the page since 24.11.2026, no jump to it
   },
   meditation: {
     lead: ['Here you start a session and see how it goes.', 'Like last time with one tap; the log and the look back show when it goes deepest.'],

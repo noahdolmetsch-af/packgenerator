@@ -52,7 +52,7 @@
         <a class="ask" href="#/assistent?von=fragen" data-fragen-frei>
           <MessageCircle size={20} aria-hidden="true" />
           <span class="am"><b>{t('Ask your own question')}</b><small>{t('The assistant answers questions about your data, for example «How much did I ride in October?»')}</small></span>
-          <ChevronRight size={18} aria-hidden="true" />
+          <ChevronRight size={20} aria-hidden="true" />
         </a>
 
         <!-- «Als Nächstes»: where the numbers come from, then the values themselves -->

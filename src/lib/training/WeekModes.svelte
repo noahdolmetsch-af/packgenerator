@@ -20,9 +20,9 @@
 
 <div class="wm" role="group" aria-label={t('Kind of week')} data-week-modes>
   {#if hasPlan}
-    <a class="chip sug" href="#/flow/wochenplan" data-wm-suggest><Sparkles size={15} aria-hidden="true" />{t('Suggest the week')}</a>
+    <a class="chip sug" href="#/flow/wochenplan" data-wm-suggest><Sparkles size={16} aria-hidden="true" />{t('Suggest the week')}</a>
   {:else}
-    <button type="button" class="chip sug" onclick={onsuggest} data-wm-suggest><Sparkles size={15} aria-hidden="true" />{t('Suggest the week')}</button>
+    <button type="button" class="chip sug" onclick={onsuggest} data-wm-suggest><Sparkles size={16} aria-hidden="true" />{t('Suggest the week')}</button>
   {/if}
   {#if hasPlan && canChange}
     {#each MODES as m (m.key)}

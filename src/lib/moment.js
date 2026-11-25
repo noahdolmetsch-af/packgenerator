@@ -95,9 +95,9 @@ const LISTED_MOMENTS = {
   ],
   // Tour planen
   planen: [
-    'f.racecheck', 'homeweather', 'f.plan', 'f.tripstate', 'f.assistent', 'f.sports', 'f.travel',
+    'f.racecheck', 'homeweather', 'f.plan', 'f.tripstate', 'f.assistent', 'f.askgemini', 'f.sports', 'f.travel',
     'f.komoot', 'f.tripcompare', 'f.snow', 'f.skiplan', 'f.swissmap', 'f.sosqr', 'f.scales', 'f.race',
-    'f.racesample', 'f.racemap', 'f.climbs', 'f.mapoffline', 'f.sleeplists', 'f.nightswx', 'f.abroad',
+    'f.racesample', 'f.raceatlas', 'f.racemap', 'f.climbs', 'f.mapoffline', 'f.sleeplists', 'f.nightswx', 'f.abroad',
     'f.mapmeasure', 'f.wxwatch', 'f.fuel', 'f.sleeporigin', 'f.devil', 'f.nogos', 'f.energy', 'f.gpxstops',
     'f.weather', 'f.webcams', 'f.air', 'f.racepush',
   ],
@@ -124,7 +124,7 @@ const LISTED_MOMENTS = {
   // Zurück und lernen
   zurueck: [
     'debrief', 'learn', 'pace', 'trend', 'f.breakdown', 'f.daylisten', 'f.usedbook', 'f.sleepspots',
-    'f.postcard', 'f.unneeded', 'f.missing', 'f.upload', 'f.past', 'f.logbook', 'f.learnings', 'f.best',
+    'f.postcard', 'f.later', 'f.unneeded', 'f.missing', 'f.upload', 'f.past', 'f.logbook', 'f.learnings', 'f.best',
     'f.spurmap', 'f.spurlink', 'f.travelbook', 'f.tripcosts', 'f.tourpage', 'f.diary', 'f.extraq',
     'f.notetodo', 'f.future', 'f.chronik', 'f.gelernt', 'f.jahr', 'f.neuland', 'f.newkm', 'f.osmsets', 'f.findlist', 'f.newtoday', 'f.heatmap', 'f.eveningtour',
     'f.homecoming', 'f.letters', 'f.letterreply', 'f.meaning', 'f.gooddecisions', 'f.knowhow', 'f.skillmap', 'f.freinaechstes', 'f.skiafter',

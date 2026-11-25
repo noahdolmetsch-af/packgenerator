@@ -41,11 +41,11 @@
 </script>
 
 {#if rec.on}
-  <button type="button" class="btn rec on" class:big onclick={() => (view = true)}><Square size={18} aria-hidden="true" />{t('Recording')} · <span class="num">{num(rec.km)} km</span></button>
+  <button type="button" class="btn rec on" class:big onclick={() => (view = true)}><Square size={20} aria-hidden="true" />{t('Recording')} · <span class="num">{num(rec.km)} km</span></button>
 {:else if left}
-  <button type="button" class="btn rec" class:big onclick={() => go(left)}><Circle size={18} aria-hidden="true" />{t('Continue recording from {time}', { time: zurichTime(left.startAt) })}</button>
+  <button type="button" class="btn rec" class:big onclick={() => go(left)}><Circle size={20} aria-hidden="true" />{t('Continue recording from {time}', { time: zurichTime(left.startAt) })}</button>
 {:else}
-  <button type="button" class="btn rec" class:big onclick={() => (ask = true)}><Circle size={18} aria-hidden="true" />{t('Record|spur')}</button>
+  <button type="button" class="btn rec" class:big onclick={() => (ask = true)}><Circle size={20} aria-hidden="true" />{t('Record|spur')}</button>
 {/if}
 {#if err}<p class="warn tp-small" role="alert">{err}</p>{/if}
 
@@ -57,7 +57,7 @@
     <p class="tp-muted tp-small">{t('The points stay on this device.')}</p>
     {#if err}<p class="warn" role="alert">{err}</p>{/if}
     <div class="acts">
-      <button type="button" class="btn hi" onclick={() => go()}><Circle size={18} aria-hidden="true" />{t('Start recording')}</button>
+      <button type="button" class="btn hi" onclick={() => go()}><Circle size={20} aria-hidden="true" />{t('Start recording')}</button>
       <button type="button" class="btn" onclick={() => dialog.close()}>{t('Cancel')}</button>
     </div>
   </dialog>

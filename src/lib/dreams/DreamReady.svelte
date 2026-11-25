@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../actlite.js';
   /**
    * «Bereit für den Traum?» (Träume und Neuland N16, Noah 27.10.2026 «1-5 a»), in the window of a dream: what you
    * already have (longest ride, most climb in one ride, days in a row, sleeping gear) and what is still missing,
@@ -15,7 +16,7 @@
   let { dream } = $props();
   const today = localDay();
   const q = liveQuery(async () => {
-    const [activities, rides, items] = await Promise.all([db.activities ? db.activities.toArray() : [], db.rides.toArray(), db.items.toArray()]);
+    const [activities, rides, items] = await Promise.all([db.activities ? readLite(db, (T) => T.toArray()) : [], db.rides.toArray(), db.items.toArray()]);
     return { activities, rides, items };
   });
   const checks = $derived($q ? readiness(dream, { ...$q, today }) : []);
@@ -35,7 +36,7 @@
       {#each checks as c (c.key)}
         {@const x = text(c)}
         <li class:ok={c.ok} data-ready={c.key} data-ok={c.ok}>
-          {#if c.ok}<CircleCheck size={18} aria-label={t('ready')} />{:else}<CircleDashed size={18} aria-label={t('still missing')} />{/if}
+          {#if c.ok}<CircleCheck size={20} aria-label={t('ready')} />{:else}<CircleDashed size={20} aria-label={t('still missing')} />{/if}
           <span><b>{x.have}</b><small>{x.need}{#if !c.ok}{' · '}{x.gap}{/if}</small></span>
         </li>
       {/each}

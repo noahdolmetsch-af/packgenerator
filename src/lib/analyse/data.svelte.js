@@ -6,6 +6,7 @@
 import { liveQuery } from 'dexie';
 import { fromStore } from 'svelte/store';
 import { db } from '../db.js';
+import { readLite } from '../actlite.js';
 import { tableQuery } from '../messwerte-data.js';
 import { ownBodyKeys, ownBodyDays } from '../uebersicht.js';
 import { AB_KEY, configOf } from '../abfragen.js';
@@ -35,7 +36,7 @@ export function analyseData({ from = () => localDay() } = {}) {
   const today = localDay();
   const q = fromStore(store(tableQuery()));
   const flow = live(async () => {
-    const [acts, log, activities, usual, ticks] = await Promise.all([db.flowActs.toArray(), db.flowLog.toArray(), db.activities ? db.activities.toArray() : [], db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY)]);
+    const [acts, log, activities, usual, ticks] = await Promise.all([db.flowActs.toArray(), db.flowLog.toArray(), db.activities ? readLite(db, (T) => T.toArray()) : [], db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY)]);
     const own = acts.map(normAct).sort((a, b) => a.order - b.order);
     // the same sessions as «This week» on Heute: Strava sports without a tick count too (lib/analyse/alle.js)
     return withStrava({ acts: own, log, activities, usual: usualMap(usual?.value), map: prefsOf(ticks?.value).map });

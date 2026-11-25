@@ -562,6 +562,8 @@
   $effect(() => {
     if (addingBike && bikeInput) bikeInput.focus();
   });
+  // Noah 22.11.2026 «1b»: «Suggestion in a minute» makes the trip like «Create trip» and then shows «Your suggestion» (the page #/pack/vorschlag)
+  let wantSuggest = $state(false);
   async function saveBike() {
     const name = bikeName.trim();
     if (!name) return (error = t('Give the bike a name.'));
@@ -649,7 +651,7 @@
       clearTimeout(autoTimer);
       await db.trips.put(touched(nt));
       rememberDomain(area);
-      oncreated?.(nt.id);
+      oncreated?.(nt.id, { suggest: wantSuggest });
       // UI-Grundlagen (idea 3): one confirmation per action. Pack shows «Trip created · Change · Undo» itself.
       if (!oncreated) offerDone(t('"{name}" saved.', { name: nt.title }));
       offerTrip(nt); // ER2 (Noah 14.10.2026 «er1-er3 freigabe»): «Soll ich dich vor der Tour erinnern?»
@@ -663,7 +665,7 @@
       // v0.30.0 (Noah, finding 2): the building blocks chosen in the window, like Pack's block chips.
       await db.trips.put(touched($state.snapshot(withSport(withBlocks(nt)))));
       rememberDomain(BIKEPACKING);
-      oncreated?.(nt.id);
+      oncreated?.(nt.id, { suggest: wantSuggest });
       // UI-Grundlagen (idea 3): one confirmation per action. Pack shows «Trip created · Change · Undo» itself.
       if (!oncreated) offerDone(t('"{name}" saved.', { name: nt.title }));
       offerTrip(nt); // ER2: «Soll ich dich vor der Tour erinnern?»
@@ -731,7 +733,7 @@
       if (autoId && !ended) {
         ended = true;
         rememberDomain(area);
-        oncreated?.(autoId);
+        oncreated?.(autoId, { suggest: wantSuggest });
       }
     }
     onclose?.();
@@ -791,7 +793,7 @@
     <!-- SA2 (3a): a night with a day sport: a quiet hint, nothing changes without a tap. -->
     {#if isNew && wantsBikepacking(sport, night)}
       <div class="sa-hint" role="note">
-        <Tent size={18} aria-hidden="true" />
+        <Tent size={20} aria-hidden="true" />
         <span class="sa-ht"><b>{t('A night out? Bikepacking may fit better.')}</b><small>{t('Only a suggestion. {sport} stays until you tap.', { sport: sportLabel(SPORT[sport], t) })}</small></span>
         <button type="button" class="btn sm sa-hb" onclick={() => pickSport('bikepacking')}>{t('Switch to Bikepacking')}</button>
       </div>
@@ -804,13 +806,13 @@
     {#if isNew}
       <!-- v0.114.0 (B1): the start place by postcode or name; the forecast for it as a suggestion (Open-Meteo, free). -->
       <div class="plz">
-        <label class="plzin" class:pre={placePre}><MapPin size={18} aria-hidden="true" /><input class="inp" class:pre={placePre} aria-describedby={placePre ? 'tn-placefrom' : undefined} bind:value={placeText} oninput={() => (placeTyped = true)} onblur={() => placeTyped && findPlace()} onkeydown={(e) => e.key === 'Enter' && (e.preventDefault(), findPlace())} placeholder={t('e.g. 3011 Bern')} aria-label={t('Start postcode or place')} enterkeyhint="search" /></label>
+        <label class="plzin" class:pre={placePre}><MapPin size={20} aria-hidden="true" /><input class="inp" class:pre={placePre} aria-describedby={placePre ? 'tn-placefrom' : undefined} bind:value={placeText} oninput={() => (placeTyped = true)} onblur={() => placeTyped && findPlace()} onkeydown={(e) => e.key === 'Enter' && (e.preventDefault(), findPlace())} placeholder={t('e.g. 3011 Bern')} aria-label={t('Start postcode or place')} enterkeyhint="search" /></label>
         {#if placePre && !placeBusy && !placeErr}<small class="prefrom" id="tn-placefrom">{t('from your home place · you can change it')}</small>
         {:else}<p class="note small">{placeBusy ? t('Looking up the place …') : placeErr || (wxPlace ? t('Start place for this trip') : t('Start postcode, from your settings. Changeable here.'))}</p>{/if}
       </div>
       {#if fcWx}
         <div class="fcard" aria-live="polite">
-          <Sun size={22} aria-hidden="true" />
+          <Sun size={24} aria-hidden="true" />
           <div class="fct">
             <b>{t('Forecast suggestion: {min}–{max}°, {rain}', { min: fcWx.min, max: fcWx.max, rain: fcWx.rain === 'rain' ? t('Rain') : fcWx.rain === 'showers' ? t('showers') : t('dry') })}</b>
             <small>{t('{place} · free from Open-Meteo', { place: forecast?.place?.name ?? '' })}</small>
@@ -849,7 +851,7 @@
        v0.143.0 WS3: «Like the last trip» on top again, only a trip really ridden with the chosen bike. -->
   <section class="tplbox" class:open={tplOpen}>
     <button type="button" class="tplhead" aria-expanded={tplOpen} aria-controls="tpl-body" onclick={() => (tplOpen = !tplOpen)}>
-      <span class="tplic" aria-hidden="true"><Star size={18} /></span>
+      <span class="tplic" aria-hidden="true"><Star size={20} /></span>
       <span class="tplt"><b>{t('Choose a template')}</b><small>{tplOpen ? t('The packing list starts with it: the last trip ridden with this bike or a template.') : t('{name} chosen · {own} own, {ex} examples', { name: chosenTpl ? chosenTpl.name : chosenEx ? t(chosenEx.name) : start === 'last' && lastRidden ? t('Like the last trip') : start === 'history' && hist ? t('From your trips') : t('Standard'), own: areaTemplates.length, ex: examples.length })}</small></span>
       {#if tplOpen}<ChevronDown size={20} aria-hidden="true" />{:else}<ChevronRight size={20} aria-hidden="true" />{/if}
     </button>
@@ -950,12 +952,13 @@
     <!-- v0.114.0 (Noah): «Rahmenbedingungen», no hint line under it. -->
     <header class="dh">
       <h2 id="trip-h">{isNew ? t('Conditions|newtrip') : t('Trip details')}</h2>
+      {#if isNew}<button type="submit" class="btn sm sugg" onclick={() => (wantSuggest = true)} data-suggest-start>{t('Suggestion in a minute')}</button>{/if}
     </header>
     {#if isNew && byBike}<IntentStep onapply={fromIntent} />{/if}
     {#if isNew && byBike && lastRidden && start !== 'last'}
       <!-- UI-Grundlagen (Noah 20.10.2026, idea 11 «Wie letztes Mal»): one tap takes the packing list of the last trip on
            this bike; everything below stays changeable, and «Choose a template» shows the choice. -->
-      <p class="likelast"><History size={18} aria-hidden="true" /><span>{t('Like last time: {name}', { name: lastRidden.title || t('Last trip') })}{#if lastLine}<small>{lastLine}</small>{/if}</span><button type="button" class="btn sm" onclick={pickLast} data-like-last>{t('Take over')}</button></p>
+      <p class="likelast"><History size={20} aria-hidden="true" /><span>{t('Like last time: {name}', { name: lastRidden.title || t('Last trip') })}{#if lastLine}<small>{lastLine}</small>{/if}</span><button type="button" class="btn sm" onclick={pickLast} data-like-last>{t('Take over')}</button></p>
     {/if}
     {#if isNew}
       <!-- v0.114.0 (answer 2a): «Sportart», Fahrrad first; the other areas behind «+ Andere». -->
@@ -982,7 +985,7 @@
           <legend class="lbl">{t('Bike')}</legend>
           {#if errors.bike}<p class="fieldmsg" id="tn-bike-err">{errors.bike}</p>{/if}
           <div class="tp-chips">
-            {#each bikes as b (b.id)}<button type="button" class="tp-chip" aria-pressed={draft.bikeId === b.id} onclick={() => ((draft.bikeId = b.id), (bikeOwn = true))}><BikeIcon size={16} aria-hidden="true" />{b.name}{#if bikes.length > 1 && sport !== CYCLING && isBikeSport(sport) && ownSportBike(sport, bikes, savedSportBikes, b.id)}<span class="sv-pill sa-std" aria-hidden="true"><Star size={12} class="sv-star" />{t('Standard for {sport}', { sport: sportLabel(SPORT[sport], t) })}</span>{:else if b.id === stdBike?.id && bikes.length > 1}<span class="sv-pill" aria-hidden="true"><Star size={12} class="sv-star" />{t('Standard')}</span>{/if}</button>{/each}
+            {#each bikes as b (b.id)}<button type="button" class="tp-chip" aria-pressed={draft.bikeId === b.id} onclick={() => ((draft.bikeId = b.id), (bikeOwn = true))}><BikeIcon size={16} aria-hidden="true" />{b.name}{#if bikes.length > 1 && sport !== CYCLING && isBikeSport(sport) && ownSportBike(sport, bikes, savedSportBikes, b.id)}<span class="sv-pill sa-std" aria-hidden="true"><Star size={14} class="sv-star" />{t('Standard for {sport}', { sport: sportLabel(SPORT[sport], t) })}</span>{:else if b.id === stdBike?.id && bikes.length > 1}<span class="sv-pill" aria-hidden="true"><Star size={14} class="sv-star" />{t('Standard')}</span>{/if}</button>{/each}
           </div>
           {#if sportStd && !bikeOwn}
             <small class="prefrom sa-pre">{t('standard bike for {sport} · you can change it', { sport: sportLabel(SPORT[sport], t) })}</small>
@@ -1096,7 +1099,7 @@
       <!-- UI-Grundlagen (Noah 20.10.2026, idea 3): the main button says only what it does; the live count stands
            as a quiet line above the buttons, so the button never runs over «Discard» on a phone. -->
       {#if total}<span class="cnt" data-count-split>{`${t('{n} in the bags', { n: bagN })}${meN ? ` · ${t('{n} on me', { n: meN })}` : ''}`}</span>{/if}
-      <button type="submit" class="btn hi">{isNew ? t('Create trip') : t('Save')}</button>
+      <button type="submit" class="btn hi" onclick={() => (wantSuggest = false)}>{isNew ? t('Create trip') : t('Save')}</button>
     </div>
   </form>
 </dialog>
@@ -1152,9 +1155,9 @@
     opacity: 0.85;
   }
   .toggle[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   /* v0.25.0 (M3): the context of a bike trip and the live "Your packing list". */
   .ctx {
@@ -1220,6 +1223,11 @@
   }
   .dh {
     margin: 0 0 4px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
   }
   .area .areas {
     gap: 6px;
@@ -1484,8 +1492,6 @@
     margin: 10px 0 6px;
     font-size: var(--fs-tiny);
     font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
     color: var(--ink-2);
   }
   .obtns {

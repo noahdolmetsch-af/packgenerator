@@ -18,6 +18,7 @@ import { MERKEN_KEY } from './merkendb.js';
 import { PEOPLE_KEY as ALLTAG_PEOPLE_KEY } from './alltag.js';
 import { WEIGHT_KEY as ENTRIES_KEY, entriesOf, withEntry, cleanKg } from './weight.js';
 import { dreamEntry, DREAM_Q } from './tagebuch/traum.js';
+import { readLite } from './actlite.js';
 
 const plain = (x) => JSON.parse(JSON.stringify(x));
 
@@ -30,14 +31,15 @@ export function connQuery(today) {
     const from = new Date(`${today}T00:00:00Z`);
     from.setUTCDate(from.getUTCDate() - 8);
     const get = (key) => db.settings.get(key).then((r) => r?.value ?? null).catch(() => null);
-    const [merken, weekGoals, people, acts, stars] = await Promise.all([
+    const [merken, weekGoals, people, acts, stars, notes] = await Promise.all([
       get(MERKEN_KEY),
       get(WEEK_GOALS_KEY),
       get(ALLTAG_PEOPLE_KEY),
       db.flowActs ? db.flowActs.toArray().catch(() => []) : [],
       db.flowStars ? db.flowStars.where('day').aboveOrEqual(from.toISOString().slice(0, 10)).toArray().catch(() => []) : [],
+      db.notes ? db.notes.filter((n) => n?.form?.key === 'vision').toArray().catch(() => []) : [],
     ]);
-    return { merken, weekGoals, people, acts, stars };
+    return { merken, weekGoals, people, acts, stars, notes };
   });
 }
 
@@ -64,7 +66,7 @@ export function abQuery(today) {
       db.healthDays ? db.healthDays.where('date').aboveOrEqual(near.toISOString().slice(0, 10)).toArray().catch(() => []) : [],
       db.settings.get(DATA_KEY),
       // step 2: the Strava activities and the tennis entries of the last 40 days (rules «Long day yesterday» and «A pause from training»)
-      db.activities ? db.activities.where('day').aboveOrEqual(actFrom.toISOString().slice(0, 10)).toArray().catch(() => []) : [],
+      db.activities ? readLite(db, (T) => T.where('day').aboveOrEqual(actFrom.toISOString().slice(0, 10)).toArray()).catch(() => []) : [],
       db.sportItems ? db.sportItems.where('day').aboveOrEqual(actFrom.toISOString().slice(0, 10)).toArray().catch(() => []) : [],
       // step 2: the saved home forecast and the calendar copy on this device (rules «Grey day» and «Fine weather»); nothing is fetched here
       db.settings.get(HOME_PLACE),

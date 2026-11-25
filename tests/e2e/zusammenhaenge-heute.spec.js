@@ -16,7 +16,6 @@ test('Heute: the strongest lever stands as one line in the check tile and leads 
   d.tables.settings.push({ key: 'abfragen', value: { since: '2026-10-08T19:00', q: {}, own: [] } });
   await openHome(page, context, info, { data: d });
   await put(page, { healthDays, abAnswers });
-  await page.locator('[data-ab-today]').click();
   const tile = page.locator('[data-section="heutecheck"]');
   await expect(tile).toBeVisible();
   const line = tile.locator('[data-hc-lever]');

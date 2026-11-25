@@ -276,9 +276,9 @@
       {#if s && FIXED_WHEN[s.key]}<span class="rchip"><Zap size={14} aria-hidden="true" />{t('comes along:')} <b>{t(FIXED_WHEN[s.key])}</b></span>{/if}
     </span>
     <!-- Count and weight right in one column; an unknown weight is the scale, never 0 g. -->
-    <span class="sv num" aria-hidden="true">{#if list.length}{list.length}{' · '}{#if sum.missing === list.length}<Scale size={15} class="scale" />{:else}{sum.missing ? '~' : ''}{formatWeight(sum.g)}{/if}{:else}–{/if}</span>
+    <span class="sv num" aria-hidden="true">{#if list.length}{list.length}{' · '}{#if sum.missing === list.length}<Scale size={16} class="scale" />{:else}{sum.missing ? '~' : ''}{formatWeight(sum.g)}{/if}{:else}–{/if}</span>
     <span class="sr">{tn(list.length, '{n} item', '{n} items')}{list.length && sum.missing < list.length ? `, ${sum.missing ? t('known: {w}', { w: formatWeight(sum.g) }) : formatWeight(sum.g)}` : ''}{sum.missing ? `, ${t('{n} not weighed', { n: sum.missing })}` : ''}</span>
-    <ChevronRight class="schev chev" size={18} aria-hidden="true" />
+    <ChevronRight class="schev chev" size={20} aria-hidden="true" />
   </summary>
 {/snippet}
 
@@ -293,11 +293,11 @@
       <span class="sm">
         <b><span class="nm" id="blk-{s.key}">{blockLabel(s)}</span>{#if s.key === firstNew}{' '}<i class="nbadge">{t('new|block')}</i>{/if}</b>
         <small>{#if s.inventory.length}{namesOf(s.inventory, s).join(', ')}{:else}{t('still empty: suggests nothing when packing')}{/if}</small>
-        <span class="rchip" class:off={!r.on}>{#if r.on}<Zap size={14} aria-hidden="true" />{t('comes along:')} <b>{ruleLine(s.key, r)}</b>{:else}<ZapOff size={14} aria-hidden="true" />{t('Suggestion off')} · {ruleLine(s.key, r)}{/if}</span>{#if byHand(s.key)}{' '}<span class="hchip"><Hand size={13} aria-hidden="true" />{t('still by hand')}</span>{/if}
+        <span class="rchip" class:off={!r.on}>{#if r.on}<Zap size={14} aria-hidden="true" />{t('comes along:')} <b>{ruleLine(s.key, r)}</b>{:else}<ZapOff size={14} aria-hidden="true" />{t('Suggestion off')} · {ruleLine(s.key, r)}{/if}</span>{#if byHand(s.key)}{' '}<span class="hchip"><Hand size={14} aria-hidden="true" />{t('still by hand')}</span>{/if}
       </span>
-      {#if s.inventory.length}<span class="sv num" aria-hidden="true">{s.inventory.length}{' · '}{#if s.missing === s.inventory.length}<Scale size={15} class="scale" />{:else}{s.missing ? '~' : ''}{formatWeight(s.g)}{/if}</span>{/if}
+      {#if s.inventory.length}<span class="sv num" aria-hidden="true">{s.inventory.length}{' · '}{#if s.missing === s.inventory.length}<Scale size={16} class="scale" />{:else}{s.missing ? '~' : ''}{formatWeight(s.g)}{/if}</span>{/if}
       <span class="sr">{tn(s.inventory.length, '{n} item', '{n} items')}</span>
-      <ChevronRight class="schev" size={18} aria-hidden="true" />
+      <ChevronRight class="schev" size={20} aria-hidden="true" />
     </button>
     {#if !s.inventory.length}<a class="btn sm addp" href={fillHref(s)} aria-label={t('Add items to {block}', { block: blockLabel(s) })}><Plus size={16} aria-hidden="true" />{t('Items|add')}</a>{/if}
     {@render extras(s)}
@@ -465,7 +465,7 @@
         {/if}
         {#if sitEmpty}
           <details class="emptyfold" data-empty-blocks ontoggle={(e) => e.currentTarget.open && (emptySeen = true)}>
-            <summary class="srow"><span class="sm"><b>{tn(sitEmpty, '{n} empty building block', '{n} empty building blocks')}</b><small>{t('Put in the items that should come along, for example in cold, heat or rain.')}</small></span><ChevronRight class="schev chev" size={18} aria-hidden="true" /></summary>
+            <summary class="srow"><span class="sm"><b>{tn(sitEmpty, '{n} empty building block', '{n} empty building blocks')}</b><small>{t('Put in the items that should come along, for example in cold, heat or rain.')}</small></span><ChevronRight class="schev chev" size={20} aria-hidden="true" /></summary>
             {#if emptySeen}
               <ul class="card slist">
                 {#each sitEmptyCards as s (s.key)}{#if hasRule(s.key)}{@render sitRow(s)}{:else}{@render blockCard(s)}{/if}{/each}
@@ -473,8 +473,8 @@
             {/if}
           </details>
         {/if}
-        {#if ownRain.length}<p class="shint"><CloudRain size={15} aria-hidden="true" /><span>{t('Your own block {names} follows the rule of {rain} too.', { names: ownRain.map((c) => `«${c.name}»`).join(', '), rain: blockLabel(sitCards.find((c) => c.key === 'rain') ?? { name: t('Rain|block') }) })}</span></p>{/if}
-        <p class="shint"><Info size={15} aria-hidden="true" /><span>{t('Tap a block to change its rule, limit and items, or to switch the suggestion off. Never a must: in Pack it is dashed and can be left out.')}</span></p>
+        {#if ownRain.length}<p class="shint"><CloudRain size={16} aria-hidden="true" /><span>{t('Your own block {names} follows the rule of {rain} too.', { names: ownRain.map((c) => `«${c.name}»`).join(', '), rain: blockLabel(sitCards.find((c) => c.key === 'rain') ?? { name: t('Rain|block') }) })}</span></p>{/if}
+        <p class="shint"><Info size={16} aria-hidden="true" /><span>{t('Tap a block to change its rule, limit and items, or to switch the suggestion off. Never a must: in Pack it is dashed and can be left out.')}</span></p>
       </Section>
 
       <!-- v0.154.0: «Baden», a new group, open (5a) -->
@@ -482,15 +482,15 @@
         <ul class="card slist">
           {#each bathCards as s (s.key)}{@render sitRow(s)}{/each}
         </ul>
-        <p class="shint"><Info size={15} aria-hidden="true" /><span>{t('Lakes, rivers and saunas along the route are not known to the app yet: you tap them in Plan («still by hand»). The water of Lake Zurich is in Aktiv.')}</span></p>
+        <p class="shint"><Info size={16} aria-hidden="true" /><span>{t('Lakes, rivers and saunas along the route are not known to the app yet: you tap them in Plan («still by hand»). The water of Lake Zurich is in Aktiv.')}</span></p>
       </Section>
 
       <Section fold title={t('To add')} sub={groupSub(t('one tap when you make a trip'), addCards)} count={addCards.length} id="g-add" bind:open={addOpen}>
         <ul class="card slist">
           {#each addCards as s (s.key)}{@render blockCard(s)}{/each}
         </ul>
-        <p class="shint"><Info size={15} aria-hidden="true" /><span>{t('Empty building blocks do not disturb: they only come along once an item is in them.')}</span></p>
-        <p class="shint tl"><Layers size={15} aria-hidden="true" /><a class="tlink" href="#/pack/templates">{t('Templates')} <span class="num">({tplCount})</span></a></p>
+        <p class="shint"><Info size={16} aria-hidden="true" /><span>{t('Empty building blocks do not disturb: they only come along once an item is in them.')}</span></p>
+        <p class="shint tl"><Layers size={16} aria-hidden="true" /><a class="tlink" href="#/pack/templates">{t('Templates')} <span class="num">({tplCount})</span></a></p>
       </Section>
 
       {#if gone.length}
@@ -508,12 +508,12 @@
     <div class="gcol aside">
       <Section title={t('Where the app knows the situation from')} sub={t('only from what is already in the trip')} id="g-source">
         <ul class="card slist">
-          <li class="srow"><span class="sib info" aria-hidden="true"><CloudSun size={18} /></span><span class="sm"><b>{t('Weather in Plan')}</b><small>{t('Cold, Heat, Rain · lowest and highest forecast over the days of the trip')}</small></span></li>
-          <li class="srow"><span class="sib" aria-hidden="true"><Route size={18} /></span><span class="sm"><b>{t('Route (GPX)')}</b><small>{t('Pass & climbing, Long ride · climbing, highest point, riding time')}</small></span></li>
-          <li class="srow"><span class="sib" aria-hidden="true"><MapPin size={18} /></span><span class="sm"><b>{t('Three buttons in Plan')}</b><small>{t('Pass, Abroad, Train · «Pass», the country, «Getting there: bike · train · car»')}</small></span></li>
+          <li class="srow"><span class="sib info" aria-hidden="true"><CloudSun size={20} /></span><span class="sm"><b>{t('Weather in Plan')}</b><small>{t('Cold, Heat, Rain · lowest and highest forecast over the days of the trip')}</small></span></li>
+          <li class="srow"><span class="sib" aria-hidden="true"><Route size={20} /></span><span class="sm"><b>{t('Route (GPX)')}</b><small>{t('Pass & climbing, Long ride · climbing, highest point, riding time')}</small></span></li>
+          <li class="srow"><span class="sib" aria-hidden="true"><MapPin size={20} /></span><span class="sm"><b>{t('Three buttons in Plan')}</b><small>{t('Pass, Abroad, Train · «Pass», the country, «Getting there: bike · train · car»')}</small></span></li>
           <!-- v0.154.0: two more sources -->
-          <li class="srow"><span class="sib" aria-hidden="true"><CalendarDays size={18} /></span><span class="sm"><b>{t('Days and night of the trip')}</b><small>{t('Two nights, Sleep well · number of nights, tent or bivouac')}</small></span></li>
-          <li class="srow"><span class="sib" aria-hidden="true"><Waves size={18} /></span><span class="sm"><b>{t('Bathing in Plan')} <span class="hchip"><Hand size={13} aria-hidden="true" />{t('still by hand')}</span></b><small>{t('Quick swim, Sauna and bath, Cold water · «Lake or river», «Sauna or bath», «Cold water»')}</small></span></li>
+          <li class="srow"><span class="sib" aria-hidden="true"><CalendarDays size={20} /></span><span class="sm"><b>{t('Days and night of the trip')}</b><small>{t('Two nights, Sleep well · number of nights, tent or bivouac')}</small></span></li>
+          <li class="srow"><span class="sib" aria-hidden="true"><Waves size={20} /></span><span class="sm"><b>{t('Bathing in Plan')} <span class="hchip"><Hand size={14} aria-hidden="true" />{t('still by hand')}</span></b><small>{t('Quick swim, Sauna and bath, Cold water · «Lake or river», «Sauna or bath», «Cold water»')}</small></span></li>
         </ul>
       </Section>
       {#if sample}
@@ -522,7 +522,7 @@
             <div class="lookbtn" inert aria-hidden="true">
               <OptionButton size="lg" pressed={false} icon={blockIcon(sample.key, sample.name)} tone={blockTone(sample.key, sample.name)} label={blockLabel(sample)} sub={sample.inventory.length ? `${tn(sample.inventory.length, '{n} item', '{n} items')} · ${knownWeight(sample.g, sample.missing)}` : t('still empty')} badge={hitBadge({ kind: 'cold', c: 3 })} />
             </div>
-            <p class="shint"><Hand size={15} aria-hidden="true" /><span>{t('One tap adds it, another tap takes it off again.')}</span></p>
+            <p class="shint"><Hand size={16} aria-hidden="true" /><span>{t('One tap adds it, another tap takes it off again.')}</span></p>
           </div>
         </Section>
       {/if}

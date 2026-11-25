@@ -9,6 +9,7 @@
    * Only the stars that exist today (flowms.js). Package G (#231–#233): the data areas bike, Fitbit and everyday.
    */
   import { Star, ChevronRight } from '@lucide/svelte';
+  import Empty from '../../lib/ui/Empty.svelte';
   import PageHead from '../../lib/ui/PageHead.svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import Sec from '../../lib/flow/kit/Sec.svelte';
@@ -82,15 +83,15 @@
             <p class="sub">{tn(g.count, '{n} star', '{n} stars')}{year ? ` · ${year}` : ''}</p>
             <ul class="card badges">
               {#each g.items as x (x.id)}
-                <li data-star={x.id}><span class="b" aria-hidden="true"><Star size={18} /></span><b>{msName(x.r.m)}</b><small>{when(x)}</small></li>
+                <li data-star={x.id}><span class="b" aria-hidden="true"><Star size={20} /></span><b>{msName(x.r.m)}</b><small>{when(x)}</small></li>
               {/each}
               {#if g.next && !year}
-                <li class="open" data-next={g.next.id}><span class="b" aria-hidden="true"><Star size={18} /></span><b>{msName(g.next.m)}</b><small>{t('next: {what}', { what: stageName(g.next.next) })}</small></li>
+                <li class="open" data-next={g.next.id}><span class="b" aria-hidden="true"><Star size={20} /></span><b>{msName(g.next.m)}</b><small>{t('next: {what}', { what: stageName(g.next.next) })}</small></li>
               {/if}
             </ul>
           </section>
         {:else}
-          {#if !gbShow}<p class="card none">{t('No stars here yet. The next ones are under «Milestones».')}</p>{/if}
+          {#if !gbShow}<Empty size="klein" text={t('No stars here yet. The next ones are under «Milestones».')} action={{ label: t('Open the milestones'), href: '#/flow/milestones' }} />{/if}
         {/each}
         {#if gbShow}
           <section class="grp" data-area="gipfelbuch" aria-labelledby="tv-gipfelbuch">
@@ -98,7 +99,7 @@
             <p class="sub">{tn(gb.length, '{n} star', '{n} stars')}{year ? ` · ${year}` : ''} · <a href="#/flow/gipfelbuch">{t('Open the summit book')}</a></p>
             <ul class="card badges">
               {#each [...gb].reverse() as x (x.id)}
-                <li data-star={x.id}><span class="b" aria-hidden="true"><Star size={18} /></span><b>{gbName(x)}</b><small>{x.name} · {monthWord(x.day)} {x.day.slice(0, 4)}</small></li>
+                <li data-star={x.id}><span class="b" aria-hidden="true"><Star size={20} /></span><b>{gbName(x)}</b><small>{x.name} · {monthWord(x.day)} {x.day.slice(0, 4)}</small></li>
               {/each}
             </ul>
           </section>
@@ -292,12 +293,6 @@
   }
   .wait {
     margin: 0;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
-  .none {
-    margin: 0;
-    padding: var(--sp-3) var(--sp-4);
     color: var(--ink-3);
     font-size: var(--fs-small);
   }

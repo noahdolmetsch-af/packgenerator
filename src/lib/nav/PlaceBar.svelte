@@ -187,7 +187,11 @@
     }
     a {
       font-size: var(--fs-tiny);
-      letter-spacing: -0.01em;
+      letter-spacing: -0.02em;
+    }
+    /* bold «Auswerten» was a hair wider than its slot and ended in «…» */
+    a[aria-current='page'] {
+      font-weight: 600;
     }
   }
   /* A phone turned sideways: one 44 px row, icon next to the label. */

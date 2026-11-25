@@ -152,8 +152,8 @@
               {#if sorting}<SortGrip name={l.name} onstep={(d) => move(g, i, i + d)} />{/if}
               <a class="wl-a" href={l.href} target="_blank" rel="noopener noreferrer">
                 <span class="wl-letter" aria-hidden="true">{l.name.slice(0, 1).toUpperCase()}</span>
-                <span class="wl-m"><b>{l.name}{#if l.trip}{' '}<MapPin size={13} aria-label={t('with your trip')} />{/if}</b>{#if l.sub}<small>{t(l.sub)}</small>{:else if l.own}<small>{t('Own link')}</small>{/if}</span>
-                <ExternalLink size={15} aria-label={t('opens elsewhere')} />
+                <span class="wl-m"><b>{l.name}{#if l.trip}{' '}<MapPin size={14} aria-label={t('with your trip')} />{/if}</b>{#if l.sub}<small>{t(l.sub)}</small>{:else if l.own}<small>{t('Own link')}</small>{/if}</span>
+                <ExternalLink size={16} aria-label={t('opens elsewhere')} />
               </a>
               {#if sorting}
                 <select class="tool-input wl-gsel" aria-label={t('Group of {name}', { name: l.name })} value={l.group} onchange={(e) => regroup(l, e.currentTarget.value)}>
@@ -162,7 +162,7 @@
                 </select>
                 <SortArrows name={l.name} {i} n={ls.length} onstep={(d) => move(g, i, i + d)} />
               {:else if !l.own}
-                <button type="button" class="btn sm" aria-label={t('Do not suggest «{name}» any more', { name: l.name })} onclick={() => hide(l)}><EyeOff size={15} aria-hidden="true" /></button>
+                <button type="button" class="btn sm" aria-label={t('Do not suggest «{name}» any more', { name: l.name })} onclick={() => hide(l)}><EyeOff size={16} aria-hidden="true" /></button>
               {/if}
             </li>
           {/each}
@@ -188,7 +188,7 @@
       <summary>{t('Switched-off suggestions ({n})', { n: hidden.length })}</summary>
       <ul class="tool-list">
         {#each hidden as s (s.id)}
-          <li data-off={s.id}><span class="wl-m"><b>{s.name}</b><small>{t(s.sub)}</small></span><button type="button" class="btn sm" onclick={() => show(s)}><Eye size={15} aria-hidden="true" />{t('Show again')}</button></li>
+          <li data-off={s.id}><span class="wl-m"><b>{s.name}</b><small>{t(s.sub)}</small></span><button type="button" class="btn sm" onclick={() => show(s)}><Eye size={16} aria-hidden="true" />{t('Show again')}</button></li>
         {/each}
       </ul>
     </details>

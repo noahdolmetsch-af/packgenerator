@@ -104,8 +104,8 @@
     sub={check ? tn(check.payments.length, '{file} · {n} booking read', '{file} · {n} bookings read', { file: check.file }) : loaded ? (list.length ? `${tn(sum.count, '{n} open', '{n} open')} · ${t('{amount} CHF outstanding', { amount: formatAmount(sum.sum) })}` : t('No invoices yet.')) : ''}
   >
     {#if !check}
-      <a class="btn hi" href="#/me/pay/invoices/new"><Plus size={18} aria-hidden="true" />{t('New QR invoice')}</a>
-      <button class="btn" type="button" aria-expanded={receiving} onclick={() => (receiving = !receiving)}><HandCoins size={18} aria-hidden="true" />{t('Money received')}</button>
+      <a class="btn hi" href="#/me/pay/invoices/new"><Plus size={20} aria-hidden="true" />{t('New QR invoice')}</a>
+      <button class="btn" type="button" aria-expanded={receiving} onclick={() => (receiving = !receiving)}><HandCoins size={20} aria-hidden="true" />{t('Money received')}</button>
     {/if}
   </VeloHead>
 
@@ -177,7 +177,7 @@
               {:else}
                 <span class="invs-acts">
                   <span class="pill ok">{t('paid|invoice')}</span>
-                  <button class="btn btn-link sm" type="button" onclick={() => reopen(inv)} aria-label={t('Open {no} again', { no: inv.no })}><RotateCcw size={15} aria-hidden="true" />{t('Open again')}</button>
+                  <button class="btn btn-link sm" type="button" onclick={() => reopen(inv)} aria-label={t('Open {no} again', { no: inv.no })}><RotateCcw size={16} aria-hidden="true" />{t('Open again')}</button>
                 </span>
               {/if}
             </li>
@@ -187,7 +187,7 @@
       {:else if loaded}
         <a class="card ich-row invs-empty" href="#/me/pay/invoices/new">
           <span class="ich-m"><b>{t('Write your first QR invoice')}</b><small>{t('With TWINT and the bank QR code. Free, nobody in between.')}</small></span>
-          <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+          <ChevronRight class="ich-chev" size={20} aria-hidden="true" />
         </a>
       {/if}
     </div>

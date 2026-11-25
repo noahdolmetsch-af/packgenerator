@@ -24,7 +24,7 @@
 
 {#if due.length}
   <section class="card gcheck" aria-labelledby="gc-h" data-goal-check>
-    <h2 id="gc-h"><Compass size={18} aria-hidden="true" /> {t('How is it going?')}</h2>
+    <h2 id="gc-h"><Compass size={20} aria-hidden="true" /> {t('How is it going?')}</h2>
     <p class="gc-sub">{t('Once a week for each of your goals. Only for you.')}</p>
     <ul>
       {#each due as g (g.id)}

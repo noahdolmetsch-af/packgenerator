@@ -148,7 +148,7 @@
 </script>
 
 {#snippet fileRow()}
-  <a class="orow" href={fileImport}><span class="ib"><FileText size={18} aria-hidden="true" /></span><span class="m"><b>{t('Import a file (reserve)')}</b><small>{t('Strava export or Garmin files, as before · in case Strava does not work once')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
+  <a class="orow" href={fileImport}><span class="ib"><FileText size={20} aria-hidden="true" /></span><span class="m"><b>{t('Import a file (reserve)')}</b><small>{t('Strava export or Garmin files, as before · in case Strava does not work once')}</small></span><ChevronRight class="chev" size={20} aria-hidden="true" /></a>
 {/snippet}
 
 {#snippet err()}
@@ -172,7 +172,7 @@
         </section>
         <div class="card cn">
           {#if strava.invite}<p class="invited" data-invited>{t('You were invited: connect your own Strava. Your rides stay yours, only on this device.')}</p>{/if}
-          <button type="button" class="btn hi big" onclick={() => connect()}><Link2 size={18} aria-hidden="true" />{t('Connect with Strava')}</button>
+          <button type="button" class="btn hi big" onclick={() => connect()}><Link2 size={20} aria-hidden="true" />{t('Connect with Strava')}</button>
           <p class="lock"><Lock size={14} aria-hidden="true" /><span><b>{t('Only your rides, read only. Disconnect at any time.')}</b> {t('The app writes nothing to Strava and sees no photos or contacts.')}</span></p>
           {@render err()}
         </div>
@@ -181,10 +181,10 @@
         <section class="vsec" aria-labelledby="s1a-h">
           <div class="vh"><div class="vh-t"><h2 id="s1a-h">{t('What happens afterwards')}</h2><p class="vh-s">{t('you see everything before it counts')}</p></div></div>
           <ul class="card vlist">
-            <li class="orow"><span class="ib"><RefreshCw size={18} aria-hidden="true" /></span><span class="m"><b>{t('Fetch all old rides')}</b><small>{t('once, when you first connect')}</small></span></li>
-            <li class="orow"><span class="ib"><Copy size={18} aria-hidden="true" /></span><span class="m"><b>{t('Recognise doubles')}</b><small>{t('rides from your CSV import do not count twice')}</small></span></li>
-            <li class="orow"><span class="ib"><Check size={18} aria-hidden="true" /></span><span class="m"><b>{t('Before the bike start stays aside')}</b><small>{t('already in the km you entered')}</small></span></li>
-            <li class="orow"><span class="ib"><Bike size={18} aria-hidden="true" /></span><span class="m"><b>{t('New rides by themselves')}</b><small>{t('when the app opens, or only with the button')}</small></span></li>
+            <li class="orow"><span class="ib"><RefreshCw size={20} aria-hidden="true" /></span><span class="m"><b>{t('Fetch all old rides')}</b><small>{t('once, when you first connect')}</small></span></li>
+            <li class="orow"><span class="ib"><Copy size={20} aria-hidden="true" /></span><span class="m"><b>{t('Recognise doubles')}</b><small>{t('rides from your CSV import do not count twice')}</small></span></li>
+            <li class="orow"><span class="ib"><Check size={20} aria-hidden="true" /></span><span class="m"><b>{t('Before the bike start stays aside')}</b><small>{t('already in the km you entered')}</small></span></li>
+            <li class="orow"><span class="ib"><Bike size={20} aria-hidden="true" /></span><span class="m"><b>{t('New rides by themselves')}</b><small>{t('when the app opens, or only with the button')}</small></span></li>
           </ul>
         </section>
         <section class="vsec" aria-labelledby="s1m-h">
@@ -197,7 +197,7 @@
     <!-- S2 -->
     <VeloHead {crumbs} here="Strava" title={firstBusy ? t('Fetching all rides …') : t('All rides fetched')} sub={firstBusy ? t('Once, all old rides. This takes a moment.') : `${prefs.athlete ? `${t('Connected as «{name}»', { name: prefs.athlete })} · ` : ''}${t('first fetch done, {when}', { when: timeOf(summary.at) })}`} />
     {#if firstBusy}
-      <p class="card wait" role="status"><RefreshCw size={18} aria-hidden="true" />{t('Fetching rides …')}</p>
+      <p class="card wait" role="status"><RefreshCw size={20} aria-hidden="true" />{t('Fetching rides …')}</p>
       <!-- FE9 «Ruhiges Laden» (Noah 13.10.2026): the summary's place held by calm bars, nothing jumps -->
       <div class="skw"><Skeleton rows={5} /></div>
     {:else}
@@ -224,7 +224,7 @@
               <ul class="card vlist">
                 {#each per as [id, p] (id)}
                   {@const b = bikes.find((x) => x.id === id)}
-                  <li class="orow"><span class="ib"><Bike size={18} aria-hidden="true" /></span><span class="m"><b>{nameOf(id)}</b><small class="num">{[tn(p.n, '+{n} ride', '+{n} rides'), b?.km != null ? t('now {km} km', { km: num(b.km) }) : ''].filter(Boolean).join(' · ')}</small></span><span class="plus num">+{num(Math.round(p.km))} km</span></li>
+                  <li class="orow"><span class="ib"><Bike size={20} aria-hidden="true" /></span><span class="m"><b>{nameOf(id)}</b><small class="num">{[tn(p.n, '+{n} ride', '+{n} rides'), b?.km != null ? t('now {km} km', { km: num(b.km) }) : ''].filter(Boolean).join(' · ')}</small></span><span class="plus num">+{num(Math.round(p.km))} km</span></li>
                 {/each}
               </ul>
             {:else}
@@ -262,7 +262,7 @@
           <p class="got auto" role="status"><span>{autoText(auto)}</span><button type="button" class="ulnk" onclick={undoAuto}>{t('Undo')}</button></p>
         {/if}
         {#if waiting}
-          <a class="card wlink" href={CHECK_HASH}><span class="m"><b>{tn(waiting, '{n} ride to check', '{n} rides to check')}</b><small>{t('no bike in Strava · one tap «Fits»')}</small></span><ChevronRight size={18} aria-hidden="true" /></a>
+          <a class="card wlink" href={CHECK_HASH}><span class="m"><b>{tn(waiting, '{n} ride to check', '{n} rides to check')}</b><small>{t('no bike in Strava · one tap «Fits»')}</small></span><ChevronRight size={20} aria-hidden="true" /></a>
         {/if}
 
         <section class="vsec" aria-labelledby="s3f-h">
@@ -310,7 +310,7 @@
           <div class="vh"><div class="vh-t"><h2 id="s3c-h">{t('Bike changed in Strava')}</h2></div></div>
           <StravaChanges />
           <div class="card vlist">
-            <div class="orow"><span class="ib"><Bell size={18} aria-hidden="true" /></span><span class="m"><b>{t('Always ask')}</b><small>{t('A notice on Today and at the bike: «Take over» or «Keep»')}</small></span></div>
+            <div class="orow"><span class="ib"><Bell size={20} aria-hidden="true" /></span><span class="m"><b>{t('Always ask')}</b><small>{t('A notice on Today and at the bike: «Take over» or «Keep»')}</small></span></div>
           </div>
         </section>
         <StravaFriends />

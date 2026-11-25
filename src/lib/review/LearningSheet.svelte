@@ -85,7 +85,7 @@
         <h2 id="learn-dlg-h">{isNew ? t('New learning') : t('Edit learning')}</h2>
         <p class="vd-sub">{t('Shown in Learned and as a hint when you pack.')}</p>
       </div>
-      <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={18} aria-hidden="true" /></button>
+      <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
     </div>
     <label class="vd-field"><span class="lbl">{t('What you learned')}</span><textarea class="inp" rows="2" bind:value={draft.rule} placeholder={t('e.g. Take a second pair of gloves')}></textarea></label>
     <SpeakButton wrap onsaid={(w) => (draft.rule = appendSpoken(draft.rule, w))} />

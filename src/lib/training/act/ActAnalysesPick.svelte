@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../../actlite.js';
   /**
    * «Auswertung wie Training» part 3 (Noah 20.10.2026 «das ist ab jetzt unser standard … in alle übrigen
    * bereiche»): the analyses of the ride page (ActAnalyses, the same cards, ⋯ and «Analysen anpassen») for the
@@ -18,7 +19,7 @@
   const today = localDay();
   const key = $derived([...new Set(ids.filter((x) => x != null && x !== '').map(String))].sort().join('|'));
   const actsQ = $derived(liveQuery(async () => (key ? (await db.activities.bulkGet(key.split('|'))).filter(Boolean) : [])));
-  const allQ = liveQuery(() => db.activities.toArray());
+  const allQ = liveQuery(() => readLite(db, (T) => T.toArray()));
   const acts = $derived([...($actsQ ?? [])].sort((a, b) => (b.movingS ?? 0) - (a.movingS ?? 0)));
   let pick = $state('');
   const act = $derived(acts.find((a) => a.id === pick) ?? acts[0] ?? null);
@@ -61,9 +62,9 @@
     cursor: pointer;
   }
   .chip[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   .more {
     margin: 0;

@@ -10,7 +10,9 @@ import { test, expect } from './clock.js';
 import { viaTab } from './placetab.js'; // UI-Ziele #6: the pages that were rows under Ich are tabs now
 import { mkdirSync } from 'node:fs';
 import { openHome, homeFixture, D0, day } from './home0460-fixture.js';
-import { QUESTIONS, ON_AT_START } from '../../src/lib/abfragen.js';
+import { QUESTIONS, QUESTION, ON_AT_START } from '../../src/lib/abfragen.js';
+import { askVariant } from '../../src/lib/abfragen/varianten.js';
+import { openRound } from './runde-fixture.js';
 
 const SHOTS = '/tmp/claude-0/sn-shots/ab';
 const shot = async (page, info, name, fullPage = true) => {
@@ -35,28 +37,35 @@ test.describe('AB Deine Abfragen', () => {
   test('AB3: the card on Heute, answer, save, not now', async ({ page, context }, info) => {
     const T = await openHome(page, context, info, { data: data() });
     const card = page.locator('[data-section="abfragen"]');
-    await expect(card).toBeVisible();
+    // Noah 24.11.2026 (changed on purpose): the window does not open by itself; Heute says what waits, «Los» opens it
+    await expect(card).toHaveJSProperty('open', false);
+    await openRound(page);
     // Noah 19.10.2026 (changed on purpose): Heute no longer starts with the questions; they come as a window
     await expect(card.getByRole('heading', { name: T('Morning check') })).toBeVisible();
     await expect(card).toHaveJSProperty('open', true);
-    await expect(card.getByText(T('{n} questions', { n: 2 }))).toBeVisible();
+    // one question per screen (Noah 24.11.2026): «Question 1 of 2», «Weiter» goes on
+    await expect(card.locator('[data-ab-step]')).toContainText(T('Question {n} of {m}', { n: 1, m: 2 }));
     // the battery 1–10 and the weight with the last value
     const akku = card.locator('[data-q="erholung.akku"]');
-    await expect(akku.getByText(T('How full is your battery right now?'))).toBeVisible();
+    await expect(akku.getByText(T(askVariant(QUESTION['erholung.akku'], D0)))).toBeVisible(); // the wording of the day (Wechsel-Varianten)
     // 17.11.2026 (changed on purpose, Noah «1-5a», question 2a): the window asks only about today. The battery question,
     // missed yesterday evening, does not come back as «Frage von Do., 8. Okt. 20:30»: it asks about today, at its time today.
     await expect(card.getByText(/Frage von/)).toHaveCount(0);
     await expect(akku.getByText(/Erholung · 07:00|Erholung · 7:00/)).toBeVisible();
+    await expect(card.locator('[data-q="koerper.waage"]')).toHaveCount(0);
+    await shot(page, info, 'AB3-abfrage-heute');
+    await noSideways(page);
+    await card.locator('[data-ab-next]').click();
     const w = card.locator('[data-q="koerper.waage"]');
     await expect(w.getByText(/zuletzt 72.4 kg am/)).toBeVisible();
     await expect(w.getByText(T('not checked yet · by hand until then'))).toBeVisible();
     const save = card.locator('[data-ab-save]');
     await expect(save).toBeDisabled();
-    await shot(page, info, 'AB3-abfrage-heute');
-    await noSideways(page);
+    await card.locator('[data-ab-back]').click();
     // UI-Ziele #12 (Noah 20.10.2026 «freigabe», changed on purpose): 5 steps with words in the window, stored as 2 … 10
     await akku.getByRole('button', { name: T('okay|step'), exact: true }).click();
     await expect(akku.locator('[data-step="6"]')).toHaveAttribute('aria-pressed', 'true');
+    await card.locator('[data-ab-next]').click();
     await w.getByRole('textbox').fill('72.0');
     await save.click();
     // both answered (17.11.2026: no third question from yesterday is left): the window is done; «Heute nicht» has its own test below
@@ -79,6 +88,51 @@ test.describe('AB Deine Abfragen', () => {
     await expect(page.locator('[data-row="erholung.akku"]').first()).toContainText('6');
   });
 
+  // Noah 24.11.2026 (screenshot «ganz leicht abgeschnitten», «Nie abgeschnitten»): the evening window never starts with a morning question
+  // (the dream, a short night), it opens only when asked, shows one question per screen, keeps its head and foot in the screen on a
+  // phone and on a laptop (1440 x 800), and the X only closes it
+  test('AB-N: evening window: no morning questions, one per screen, head and foot always in the screen, the X only closes', async ({ page, context }, info) => {
+    await openHome(page, context, info, { data: data({ keep: ['erholung.schlaf', 'erholung.akku', 'spass.emoji', 'erholung.traum'] }), hour: 21 });
+    const card = page.locator('[data-section="abfragen"]');
+    await expect(card).toHaveJSProperty('open', false);
+    if (info.project.name !== 'phone') await page.setViewportSize({ width: 1440, height: 800 });
+    await openRound(page);
+    await expect(card).toHaveAttribute('data-round', 'evening');
+    // the focus sits on the window, not on the X (a thick ring made it look like the main button)
+    await expect(card.locator('.vd-x')).not.toBeFocused();
+    const seen = [];
+    for (let i = 0; i < 6; i++) {
+      seen.push(await card.locator('[data-q]').getAttribute('data-q'));
+      // head, the question and the foot with the main button are whole inside the screen
+      const vp = page.viewportSize();
+      for (const sel of ['.vd-head', '[data-q]', '.ft', '[data-ab-next], [data-ab-save]']) {
+        // the window slides in: wait until it stands still
+        await expect
+          .poll(async () => {
+            const box = await card.locator(sel).first().boundingBox();
+            return box.y >= 0 && box.y + box.height <= vp.height + 1;
+          }, { message: sel })
+          .toBe(true);
+      }
+      if (!(await card.locator('[data-ab-next]').isVisible())) break;
+      await card.locator('[data-ab-next]').click();
+    }
+    expect(seen).not.toContain('erholung.schlaf');
+    expect(seen).not.toContain('erholung.traum');
+    expect(seen).toContain('erholung.akku');
+    expect(seen.length).toBeGreaterThanOrEqual(2);
+    // back goes one question back
+    await card.locator('[data-ab-back]').click();
+    await expect(card.locator('[data-q]')).toHaveAttribute('data-q', seen.at(-2));
+    // the X closes the window only: nothing is put away, the start is still there, a reload keeps it closed
+    await card.locator('.vd-x').click();
+    await expect(card).toBeHidden();
+    await expect(page.locator('[data-row="check"] button, [data-body-check] button.btn').first()).toBeVisible();
+    await page.reload();
+    await expect(page.locator('[data-section="greeting"]')).toBeVisible();
+    await expect(card).toBeHidden();
+  });
+
   // Noah 26.10.2026 «1a»: «Heute nicht» in the morning check waits only until the evening check
   test('AB3: Heute nicht in the morning, the evening check still comes', async ({ page, context }, info) => {
     const d = homeFixture();
@@ -91,17 +145,17 @@ test.describe('AB Deine Abfragen', () => {
     };
     await at('07:30');
     const card = page.locator('[data-section="abfragen"]');
+    await openRound(page);
     await expect(card).toHaveAttribute('data-round', 'morning');
     await expect(card).toHaveJSProperty('open', true);
-    await expect(card.getByText(T('«Later» brings this window back in one hour. «Not today» and ✕ close it until the evening check, without a reminder.'))).toBeVisible();
     await card.locator('[data-ab-today]').click();
     await expect(card).toHaveCount(0);
     await at('19:10');
     await expect(page.locator('[data-section="abfragen"]')).toHaveCount(0);
     await at('20:40');
+    await openRound(page);
     await expect(card).toHaveAttribute('data-round', 'evening');
     await expect(card).toHaveJSProperty('open', true);
-    await expect(card.getByText(T('«Later» brings this window back in one hour. «Not today» and ✕ close it until tomorrow, without a reminder.'))).toBeVisible();
     // in the evening «Heute nicht» means until tomorrow
     await card.locator('[data-ab-today]').click();
     await expect(card).toHaveCount(0);
@@ -115,8 +169,8 @@ test.describe('AB Deine Abfragen', () => {
     await expect(page).toHaveURL(/#\/me\/abfragen$/);
     await expect(page.getByRole('heading', { level: 1, name: T('Your questions') })).toBeVisible();
     // Impeccable Runde 2 (on purpose): the head says how often a day the app asks
-    await expect(page.locator('.vhead .vsub')).toHaveText(/^30 Fragen an · etwa [0-9]+ Mal pro Tag gefragt, in 2 Runden [(]07:00 und 20:30[)]/);
-    await expect(page.getByText('10 Bereiche · 105 Fragen · 30 an')).toBeVisible();
+    await expect(page.locator('.vhead .vsub')).toHaveText(/^31 Fragen an · etwa [0-9]+ Mal pro Tag gefragt, in 2 Runden [(]07:00 und 20:30[)]/);
+    await expect(page.getByText('10 Bereiche · 106 Fragen · 31 an')).toBeVisible();
     const areas = page.locator('[data-area]');
     await expect(areas).toHaveCount(11); // 10 areas and «Eigene»
     const erholung = page.locator('[data-area="erholung"]');
@@ -134,7 +188,7 @@ test.describe('AB Deine Abfragen', () => {
     // a switch: «Sofa oder Sattel» on → 30 on
     const sofa = erholung.locator('[data-q="erholung.sofa"]');
     await sofa.getByRole('switch').check();
-    await expect(page.getByText('10 Bereiche · 105 Fragen · 31 an')).toBeVisible();
+    await expect(page.getByText('10 Bereiche · 106 Fragen · 32 an')).toBeVisible();
     // the interval of «Akku»: twice a day
     await erholung.locator('[data-q="erholung.akku"]').getByRole('button', { name: /täglich/ }).click();
     const sheet = page.getByRole('dialog', { name: T('How often to ask?') });
@@ -145,7 +199,7 @@ test.describe('AB Deine Abfragen', () => {
     await expect(erholung.locator('[data-q="erholung.akku"]').getByRole('button', { name: /2× täglich · 8:00, 20:00/ })).toBeVisible();
     // «Alle aufklappen»
     await page.getByRole('button', { name: T('Expand all') }).click();
-    await expect(page.locator('[data-q]')).toHaveCount(105);
+    await expect(page.locator('[data-q]')).toHaveCount(106);
 
     // AB2: an own question
     const addKaffee = async (info2) => {
@@ -166,6 +220,10 @@ test.describe('AB Deine Abfragen', () => {
     await addKaffee(false);
     const note = page.locator('.rtoast');
     await expect(note).toContainText('Frage gespeichert. Sie kommt');
+    // two buttons («Rückgängig», «Ansehen») must not squeeze the text into a thin column on a phone
+    const box = await note.locator('span').first().boundingBox();
+    expect(box.width).toBeGreaterThan(150);
+    expect((await note.boundingBox()).height).toBeLessThan(160);
     await expect(mine.locator('[data-q] b').getByText('Kaffee')).toBeVisible();
     await note.getByRole('button', { name: T('Undo') }).click();
     await expect(mine.getByText('Kaffee')).toHaveCount(0);
@@ -176,7 +234,7 @@ test.describe('AB Deine Abfragen', () => {
     await expect(mine.locator('[data-q].hl')).toHaveCount(1);
     await expect(mine.locator('[data-q] b').getByText('Kaffee')).toBeVisible();
     await expect(mine.getByText('Tassen')).toBeVisible();
-    await expect(page.getByText('10 Bereiche · 106 Fragen · 32 an')).toBeVisible();
+    await expect(page.getByText('10 Bereiche · 107 Fragen · 33 an')).toBeVisible();
     // and away again
     await mine.getByRole('button', { name: /Kaffee/ }).click();
     await page.getByRole('dialog').locator('[data-own-delete]').click();
@@ -184,7 +242,7 @@ test.describe('AB Deine Abfragen', () => {
     await page.getByTestId('ask-delete').getByRole('button', { name: T('Delete'), exact: true }).click();
     await expect(mine.getByText('Kaffee')).toHaveCount(0);
     await page.reload();
-    await expect(page.getByText('10 Bereiche · 105 Fragen · 31 an')).toBeVisible();
+    await expect(page.getByText('10 Bereiche · 106 Fragen · 32 an')).toBeVisible();
   });
 
   test('AB4: the history with an old daily check, filters, change an answer', async ({ page, context }, info) => {

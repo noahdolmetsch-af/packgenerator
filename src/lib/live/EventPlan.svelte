@@ -72,7 +72,7 @@
       <ul class="ev-list">
         {#each p.cps as c, i (`${i}-${c.km}`)}
           <li data-event-plan-cp>
-            <span class="ev-ic" aria-hidden="true">🚩</span>
+            <span class="ev-ic" aria-hidden="true"><Flag size={16} /></span>
             <span class="ev-txt">
               {#if editing === i}
                 <label class="ev-fld"><span>{t('New name')}</span><input type="text" bind:value={editName} maxlength="40" onkeydown={(e) => e.key === 'Enter' && saveName(i)} /></label>
@@ -98,6 +98,6 @@
       <label class="ev-fld"><span>{t('km of the route')}</span><input type="text" inputmode="decimal" bind:value={cpKm} data-event-cp-km /></label>
     </div>
     {#if err}<p class="rc-warn" role="alert">{err}</p>{/if}
-    <div><button type="button" class="btn" onclick={addCp} data-event-cp-add><Plus size={18} aria-hidden="true" />{t('Add checkpoint')}</button></div>
+    <div><button type="button" class="btn" onclick={addCp} data-event-cp-add><Plus size={20} aria-hidden="true" />{t('Add checkpoint')}</button></div>
   {/if}
 </section>

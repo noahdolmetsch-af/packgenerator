@@ -163,7 +163,7 @@
           <tr class="gh morerow">
             <th scope="rowgroup" colspan={cols.length + 1}>
               <button type="button" class="morebtn" aria-expanded={more} onclick={() => (more = !more)}>
-                {#if more}<ChevronDown size={18} aria-hidden="true" />{:else}<ChevronRight size={18} aria-hidden="true" />{/if}
+                {#if more}<ChevronDown size={20} aria-hidden="true" />{:else}<ChevronRight size={20} aria-hidden="true" />{/if}
                 {t('More')} <span class="n">{t('{n} more parts: frame, suspension, cockpit, own parts', { n: moreCount })}</span>
               </button>
             </th>
@@ -314,8 +314,6 @@
     left: 14px;
     color: var(--ink-3);
     font: 600 var(--fs-small) / 1.3 var(--font-body);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
   .morebtn {
     position: sticky;

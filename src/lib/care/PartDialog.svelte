@@ -137,7 +137,7 @@
     <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog?.close()}><X size={20} aria-hidden="true" /></button>
   </div>
   <!-- SN7: what is due stands on top, in a soft box -->
-  {#if dueNow && st.next}<p class="duebox" data-due><Clock size={18} aria-hidden="true" /><span><b>{st.state === 'soon' ? t('Soon|part') : t('Due|part')}:</b> {st.next}</span></p>{/if}
+  {#if dueNow && st.next}<p class="duebox" data-due><Clock size={20} aria-hidden="true" /><span><b>{st.state === 'soon' ? t('Soon|part') : t('Due|part')}:</b> {st.next}</span></p>{/if}
   <p class="facts num">
     {#if state}<span class="badge {state}">{state === 'ok' ? t('OK') : state === 'warn' ? t('Soon') : t('Worn|part')}</span>{/if}
     {#if sinceNew != null}{t('{km} km since it was new', { km: fmtNum(sinceNew) })}{:else if bike.km == null}{t("Set the bike's km to count km per part")}{/if}
@@ -370,8 +370,8 @@
     border-left: 1px solid var(--line);
   }
   .seg button[aria-pressed='true'] {
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .hist {
     list-style: none;

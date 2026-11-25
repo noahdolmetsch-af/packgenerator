@@ -91,7 +91,7 @@
         <div class="top"><span class="tag">{kindName(e.kind)}</span><span class="dt">{dateOf(e.date)}</span><button type="button" class="iconb" aria-label={t('Change {name}', { name: e.title })} onclick={() => (dialog = { entry: e })}><Pencil size={16} aria-hidden="true" /></button></div>
         <h3 id="te-{e.id}">{e.title}</h3>
         {#if e.before || e.after}
-          <div class="ba"><span><small>{t('before')}</small>{e.before || '–'}</span><ArrowRight size={18} aria-hidden="true" /><span><small>{t('after')}</small>{e.after || '–'}</span></div>
+          <div class="ba"><span><small>{t('before')}</small>{e.before || '–'}</span><ArrowRight size={20} aria-hidden="true" /><span><small>{t('after')}</small>{e.after || '–'}</span></div>
         {/if}
         {#if e.why}<p class="why"><b>{t('Why:')}</b> {e.why}</p>{/if}
         <div class="facts">
@@ -135,7 +135,7 @@
 
     {#each offers.slice(0, 3) as o (o.visitId + o.part)}
       <div class="sug">
-        <Wrench size={18} aria-hidden="true" />
+        <Wrench size={20} aria-hidden="true" />
         <span class="t">{t('Workshop on {date}: {part} replaced. Into the log?', { date: dateOf(o.date), part: [partName(o.part), o.model].filter(Boolean).join(' ') })}
           <span class="acts"><button type="button" class="lnk" onclick={() => (dialog = { entry: fromVisit(o) })}>{t('Into the log')}</button> · <button type="button" class="lnk" onclick={() => skipVisit(o)}>{t('No')}</button></span></span>
       </div>
@@ -143,7 +143,7 @@
 
     {#if back}
       <div class="sug">
-        <Lightbulb size={18} aria-hidden="true" />
+        <Lightbulb size={20} aria-hidden="true" />
         <span class="t">{t('After {n} trips with {after}: back to {before}? Only if you want.', { n: back.n, after: back.after, before: back.before })}
           <span class="acts"><button type="button" class="lnk" onclick={goBack}>{t('Go back')}</button> · <button type="button" class="lnk" aria-expanded={why} onclick={() => (why = !why)}>{t('Why?')}</button></span>
           {#if why}<small class="whyx">{t('Rule: the newest change has a before and an after, and {n} trips on this bike started after it. The app asks once.', { n: 3 })}</small>{/if}
@@ -234,9 +234,9 @@
     cursor: pointer;
   }
   .chip[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   .cols {
     display: grid;

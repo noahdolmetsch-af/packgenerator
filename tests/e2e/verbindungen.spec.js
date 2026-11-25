@@ -7,6 +7,7 @@ import { put } from './aktiv-fixture.js';
 import { flowSeeded, putWall } from './wall-fixture.js';
 
 const DAY = '2026-10-15';
+const FIRST = '2026-11-01'; // monthly questions are on the pages of the 1st
 
 async function shot(page, name) {
   if (!process.env.SHOTS) return;
@@ -61,5 +62,55 @@ test('Verbindungen: the goal question offers to-dos, goals of the week and activ
   await page.reload();
   await ready(page);
   await expect(page.locator('[data-round-questions="morning"] [data-q="ziele.ziel"]').getByRole('textbox')).toHaveValue('Kette ölen · 150 Velo-km');
+  expect(errors).toEqual([]);
+});
+
+test('Verbindungen: the monthly vision question offers the visions of the notes, and says where to write one when there are none', async ({ page, context }) => {
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+  await page.clock.install({ time: new Date(`${FIRST}T20:40:00+01:00`) });
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('./#/');
+  await ready(page);
+  await flowSeeded(page);
+  await putWall(page);
+  // the evening window on Heute put today's questions away; none are skipped here. Asking since September: the monthly question of the 1st, 19:00, is on the evening page
+  await put(page, { settings: [{ key: 'abfragen', value: { since: '2026-09-01T08:00' } }, { key: 'abfragen.snooze', value: {} }] });
+  await page.goto('./#/check/evening'); // not Heute: its window would put the questions away again on a reload
+  await page.reload();
+  await ready(page);
+  const q = page.locator('[data-round-questions="evening"] [data-q="visionen.naeher"]');
+  await expect(q).toBeVisible();
+  await expect(q.locator('[data-ab-hint]')).toContainText('Noch keine Visionen');
+  await shot(page, 'verbindungen-vision-leer');
+
+  await put(page, {
+    notes: [
+      { id: 'n-v1', title: 'Alpenpässe fahren', text: 'Alpenpässe fahren', status: 'kept', form: { key: 'vision', name: 'Vision', values: { where: 'Alpen' } }, createdAt: '2026-10-01T08:00:00Z', updatedAt: '2026-10-01T08:00:00Z' },
+      { id: 'n-v2', title: 'Ein Sommer unterwegs', text: 'Ein Sommer unterwegs', status: 'kept', form: { key: 'vision', name: 'Vision', values: {} }, createdAt: '2026-10-05T08:00:00Z', updatedAt: '2026-10-05T08:00:00Z' },
+    ],
+  });
+  await page.reload(); // rows written straight into IndexedDB reach the page after a reload
+  await ready(page);
+  await expect(q.locator('[data-links="visions"]').getByRole('button')).toHaveText(['Ein Sommer unterwegs', 'Alpenpässe fahren']);
+  await q.locator('[data-links="visions"]').getByRole('button', { name: 'Alpenpässe fahren' }).click();
+  await q.getByRole('textbox').fill('Alpenpässe fahren · Karte angeschaut');
+  await shot(page, 'verbindungen-vision');
+  expect(errors).toEqual([]);
+});
+
+test('Verbindungen: the row «Mail» shows «aus» until Gmail has been allowed, then «an» (Warteliste F6)', async ({ page, context }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  await page.goto('./#/me/connections');
+  await ready(page);
+  const row = page.locator('[data-conn="mail"]');
+  await expect(row.locator('.pill')).toHaveText(/^(aus|off)$/i);
+  await put(page, { settings: [{ key: 'mail', value: { allowed: true } }] });
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('[data-conn="mail"] .pill')).toHaveText(/^(an|on)$/i);
   expect(errors).toEqual([]);
 });

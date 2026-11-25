@@ -113,7 +113,7 @@
 </script>
 
 <section class="hh" aria-labelledby="hh-h" data-hoehe>
-  <h3 id="hh-h" class="hh-h"><Mountain size={18} aria-hidden="true" />{t('Temperatures by height')}</h3>
+  <h3 id="hh-h" class="hh-h"><Mountain size={20} aria-hidden="true" />{t('Temperatures by height')}</h3>
 
   {#each items as it (it.id)}
     {@const rows = rowsFor(it)}
@@ -331,9 +331,9 @@
     color: var(--ink-2);
   }
   .hh-chip[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   .hh-chip[aria-pressed='true'] small {
     color: inherit;

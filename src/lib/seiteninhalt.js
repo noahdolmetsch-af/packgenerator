@@ -36,7 +36,7 @@ export const ON_PAGES = [
   // PR 18, area Körper (Aktiv, sports, training, meditation, body values; the Ruhiger pages go with Alltag)
   '#/flow', '#/flow/sports', '#/flow/sport/act%3Agym', '#/flow/sport/act%3Atennis', '#/flow/training', '#/flow/wochenplan', '#/flow/form', '#/flow/review',
   '#/flow/stats/hr', '#/flow/act/meditation', '#/flow/act/meditation/log', '#/flow/act/meditation/mehr', '#/auswerten',
-  '#/auswerten/analyse', '#/me/abfragen', '#/me/insights', '#/me/weight', '#/me/wohl', '#/me/fitbit', '#/trips/rides',
+  '#/auswerten/analyse', '#/auswerten/woche', '#/auswerten/verlauf', '#/me/abfragen', '#/me/insights', '#/me/weight', '#/me/wohl', '#/me/fitbit', '#/trips/rides',
   // PR 20, area «App»: the app itself (lists, privacy, rules, own values, search, assistant, mini apps).
   // Not Data and backup, Appearance, Connections: with many functions the card pushes them below 2.5 phone screens (heimat.spec.js).
   '#/me/lists', '#/me/privacy', '#/me/regeln', '#/me/werte', '#/me/hinweise',

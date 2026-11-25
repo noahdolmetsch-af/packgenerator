@@ -113,6 +113,8 @@ const BASE_QUESTIONS = [
   q('visionen', 'neues', 'How keen are you on something new: creature of habit or explorer?', scale(), daily('08:00'), ['hand'], 'How keen are you on something new?'),
   q('visionen', 'tour', 'Which tour is haunting your head right now?', text(), weekly(0, '19:00')),
   q('visionen', 'wohin', 'If you had tomorrow off and there was no weather: where to?', text(), weekly(6, '09:00')),
+  // Noah 04./05.11.2026 «monatlich Visionen und Lebensträume» (4a 23.11.2026): once a month, with the visions from the notes as one-tap answers (verbindungen.js)
+  q('visionen', 'naeher', 'Which vision or life dream did you move closer to this month, even by one small step?', text(), monthly('19:00')),
   q('visionen', 'jahr', 'What do you want to be able to do in a year that you cannot do today?', text(), monthly('19:00')),
   // 8 Ziele
   q('ziele', 'ziel', 'Your most important goal for today, in a sentence or a word.', text(), daily('08:00'), ['hand'], 'Your most important goal for today'),
@@ -219,7 +221,7 @@ export const ON_AT_START = new Set([
   'achtsamkeit.kopf', 'achtsamkeit.moment', 'achtsamkeit.tabs',
   'freunde.verbunden', 'freunde.laecheln',
   'natur.draussen', 'natur.wetter', 'natur.luft',
-  'visionen.vision', 'visionen.tour',
+  'visionen.vision', 'visionen.tour', 'visionen.naeher',
   'ziele.ziel', 'ziele.liegen',
   'erreicht.zufrieden', 'erreicht.ziel', 'erreicht.stolz', 'erreicht.pokal',
   'koerper.waage', 'koerper.ruhepuls',
@@ -497,6 +499,8 @@ export function configOf(value) {
     q: qs,
     own,
     rounds: roundsOf(v.rounds),
+    // «Wechsel-Varianten» (Noah 23.11.2026 «2a»): true = every question asks in its main words (varianten.js)
+    mainOnly: v.mainOnly === true,
     // Noah 20.10.2026: the person's changes to the list and its groups (a difference, so new questions of the app still come)
     names: texts(v.names),
     gone: strs(v.gone),
@@ -528,6 +532,8 @@ export const setRounds = (cfg, patch = {}) => {
   const c = configOf(cfg);
   return { ...c, rounds: roundsOf({ ...c.rounds, ...patch }) };
 };
+/** «Always the main question»: switch the changing wordings (varianten.js) off or on; the rest kept. */
+export const setMainOnly = (cfg, on) => ({ ...configOf(cfg), mainOnly: on === true });
 /**
  * WG: the time a question asks at with the rounds: before 11:00 the morning, from 11:00 the evening time.
  * v0.144.0 RE «Eine Tagesuhr»: the borders of the one day clock (dayclock.js; the morning ended at 12:00 before).
@@ -735,6 +741,15 @@ export function fitNow(due = [], now) {
   });
 }
 
+/**
+ * The evening window asks about the evening (Noah 24.11.2026 «Die Traumfrage kommt nicht am Abend», «wie fühlst du dich heute»
+ * passt nicht in den Abend): from the evening round on, a question whose time is in the morning (before 11:00: the dream of
+ * last night, a short night with «how do you feel today?») stays away; it comes back with its next morning.
+ * Between 11:00 and the evening the window still shows what is open from this morning (fitNow, 17.11.2026).
+ * rows: dueList / dataDue rows (their `slot`); → the rows to show.
+ */
+export const notMorningAtNight = (rows = [], now, rounds) => (isEveningRound(now, rounds) ? rows.filter((d) => hmOf(d.slot) >= DAY_FROM) : rows);
+
 /** From 11:00 the morning is over (the day clock): what is still open then is «open from this morning». */
 export const afterMorning = (now) => hmOf(now) >= DAY_FROM;
 
@@ -926,6 +941,9 @@ export function fromChecks(checks = [], pool = []) {
     add('sleep', CHECK_MAP.sleep);
     add('energy', CHECK_MAP.energy);
     add('mood', CHECK_MAP.mood);
+    // «Ein Satz zum Tag» (Noah 24.11.2026 «1a»): the free sentence of the evening page also stands in the history
+    const story = typeof c.story === 'string' ? c.story.trim() : '';
+    if (story) out.push({ id: `tc-${c.day}-satz`, qid: 'tc.satz', area: 'erreicht', day: c.day, at: null, slot: null, kind: 'text', value: story, note: null, unit: null, src: 'hand', from: 'check', label: { text: 'One sentence about the day', textDe: 'Ein Satz zum Tag' } });
     if (c.q) {
       const p = pool.find((x) => x.id === c.q);
       const qid = CHECK_MAP[c.q] ?? `tc.${c.q}`;

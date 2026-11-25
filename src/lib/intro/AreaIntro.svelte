@@ -97,7 +97,7 @@
   {:else if !open}
     <!-- Gesamttest 20.10 «2a»: one quiet line «ⓘ So geht's ›», a tap opens the Einstieg in place -->
     <button type="button" class="ai-line" data-intro={place} data-open="false" aria-expanded="false" onclick={() => save((v) => setFold(v, place, false))}>
-      <Info size={18} aria-hidden="true" />
+      <Info size={20} aria-hidden="true" />
       <span class="tx">{t('How it works|help')}</span>
       <ChevronRight size={16} aria-hidden="true" />
     </button>
@@ -139,7 +139,7 @@
       </div>
       {#if !phone.matches}
         <div class="side">
-          <button type="button" class="x" aria-label={t('Hide the introduction')} onclick={() => save((v) => hide(v, place))}><X size={18} aria-hidden="true" /></button>
+          <button type="button" class="x" aria-label={t('Hide the introduction')} onclick={() => save((v) => hide(v, place))}><X size={20} aria-hidden="true" /></button>
           {@render side()}
         </div>
       {/if}
@@ -199,8 +199,6 @@
     margin: 0;
     font-size: var(--fs-label);
     font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
     color: var(--hi);
   }
   h2 {

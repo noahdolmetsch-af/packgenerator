@@ -16,6 +16,7 @@
   import { awayName, awayOffered } from '../lib/woche/away.js';
   import { localDay } from '../lib/localday.js';
   import { t, tn } from '../lib/i18n.svelte.js';
+  import { deleteWithUndo } from '../lib/ui/ask.js';
 
   const today = localDay();
   const q = weekQuery(today);
@@ -46,10 +47,28 @@
     await putWeek(ITEMS_KEY, items);
     form = null;
   }
+  // A stay away goes with the entries it made (pack:<id>): «Rückgängig» and «Zuletzt gelöscht» bring both back (Noah 23.11.2026 «1a»)
   async function remove() {
-    await putWeek(AWAY_KEY, (src?.away ?? []).filter((x) => x.id !== form.id));
-    await putWeek(ITEMS_KEY, (src?.rawItems ?? []).filter((x) => x.ref !== `pack:${form.id}`));
+    const id = form.id;
+    const away = src?.away ?? [];
+    const rawItems = src?.rawItems ?? [];
+    const gone = away.find((x) => x.id === id);
+    const made = rawItems.filter((x) => x.ref === `pack:${id}`);
+    const name = gone?.title || t('Holidays|away');
     form = null;
+    await deleteWithUndo({
+      run: async () => {
+        await putWeek(AWAY_KEY, away.filter((x) => x.id !== id));
+        await putWeek(ITEMS_KEY, rawItems.filter((x) => x.ref !== `pack:${id}`));
+      },
+      undo: async () => {
+        await putWeek(AWAY_KEY, away);
+        await putWeek(ITEMS_KEY, rawItems);
+      },
+      text: t('"{name}" deleted.', { name }),
+      name,
+      item: gone ? { kind: 'week', parts: [{ store: AWAY_KEY, row: gone }, ...made.map((row) => ({ store: ITEMS_KEY, row }))] } : null,
+    });
   }
   const line = (a) => `${shortDate(a.from)}${a.to !== a.from ? `–${shortDate(a.to)}` : ''} · ${tn(awayDays(a), '{n} day', '{n} days')} · ${awayName(a.type, t)}`;
 </script>
@@ -88,16 +107,16 @@
         <h2 id="fe-form-h">{t('Coming up')}</h2>
         <ul class="list">
           {#each coming as a (a.id)}
-            <li><button type="button" class="ar" data-away={a.id} onclick={() => edit(a)}><Palmtree size={20} aria-hidden="true" /><span><b>{a.title || t('Holidays|away')}</b><small>{line(a)}</small></span><ChevronRight size={18} aria-hidden="true" /></button></li>
+            <li><button type="button" class="ar" data-away={a.id} onclick={() => edit(a)}><Palmtree size={20} aria-hidden="true" /><span><b>{a.title || t('Holidays|away')}</b><small>{line(a)}</small></span><ChevronRight size={20} aria-hidden="true" /></button></li>
           {:else}
             <li class="none">{t('No holidays entered. A long weekend away? Enter it once and the week plans around it.')}</li>
           {/each}
         </ul>
-        <button type="button" class="btn hi" onclick={startNew} data-add-away><Plus size={18} aria-hidden="true" />{t('Enter holidays')}</button>
+        <button type="button" class="btn hi" onclick={startNew} data-add-away><Plus size={20} aria-hidden="true" />{t('Enter holidays')}</button>
         {#if past.length}
           <h3>{t('Past')}</h3>
           <ul class="list">
-            {#each past.slice(-5).reverse() as a (a.id)}<li><button type="button" class="ar" onclick={() => edit(a)}><Palmtree size={20} aria-hidden="true" /><span><b>{a.title || t('Holidays|away')}</b><small>{line(a)}</small></span><ChevronRight size={18} aria-hidden="true" /></button></li>{/each}
+            {#each past.slice(-5).reverse() as a (a.id)}<li><button type="button" class="ar" onclick={() => edit(a)}><Palmtree size={20} aria-hidden="true" /><span><b>{a.title || t('Holidays|away')}</b><small>{line(a)}</small></span><ChevronRight size={20} aria-hidden="true" /></button></li>{/each}
           </ul>
         {/if}
       {/if}

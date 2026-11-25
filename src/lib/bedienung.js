@@ -4,7 +4,7 @@
  * mandatory.
  * - speak: the microphone button in note fields (FE10), on by default
  * - keys: keyboard shortcuts on a computer (FE6), on by default
- * - buzz: a short vibration when ticking off while packing (FE7), on by default
+ * - buzz: a short vibration when ticking off (FE7; since Noah 25.11.2026 «1a»: packing, «Tick off today», habits, to-dos, the challenge; «4a»: a longer double buzz for a finished moment), on by default
  * - quiet: night quiet on Today, 22–06 no tips (FE8), on by default
  * - search: the search offers go-to actions too (FE17), on by default
  * - path: the path line above every page (Noah 28.10.2026 «1a»), on by default
@@ -13,15 +13,17 @@
  * - murmeltier: the little marmot on empty pages and beside tips (Noah 03.11.2026, Idee 28), on by default
  * - mundart: a short Swiss German weather saying under the weather line on Today (Noah 03.11.2026, Idee 27), on by default
  * - heutebild: the drawn landscape with the next trip on top of Today (Noah 03.11.2026, Paket G), on by default
+ * - standzahlen: «Dein Stand in Zahlen» on top of an area (Noah 24.11.2026 «b»), on by default
  * - kuhglocke: the cow bells of the logo surprise ring out loud (Noah 03.11.2026, H1 aus dem Geheimmenü), off by default: the only sound that is never on by itself
  * - improve: the button «Verbessern» on every page (Noah 21.11.2026, Verbesserungs-Logbuch step 2), on by default; browser tests (webdriver) start with it off, unless a test turns it on
+ * - areacolor: a colour per area (Noah 24.11.2026 «1b»): Plan ochre, Tours terracotta, Bikes and gear blue, Analysis plum, Weather sky blue; the action colour of the page follows, on by default
  * - contrast: high contrast for the sun outdoors (FE2), off by default
  * The pure part; bedienung.svelte.js holds the live state.
  */
 export const OPS = [
   { key: 'speak', name: 'Speak instead of type', text: 'A microphone in note fields, where the browser can turn speech into text.', on: true },
   { key: 'keys', name: 'Keyboard shortcuts', text: 'On a computer: N new, / search, ? the list.', on: true },
-  { key: 'buzz', name: 'Short vibration when ticking', text: 'A short buzz when you tick off an item while packing, where the phone can.', on: true },
+  { key: 'buzz', name: 'Short vibration when ticking', text: 'A short buzz when you tick something off (packing, «Tick off today», to-dos, challenge), and a longer double buzz for a finished moment (new star, debrief, bike service), where the phone can.', on: true },
   { key: 'quiet', name: 'Night quiet', text: 'From 22:00 to 06:00 Today shows no tips.', on: true },
   { key: 'search', name: 'Search can act', text: 'The search also offers backup, settings, a quick note or a bike.', on: true },
   { key: 'path', name: 'Show the path on every page', text: 'A quiet line above the title, for example Plan › Week, so you see where you are. Pages with their own path keep it.', on: true },
@@ -32,8 +34,10 @@ export const OPS = [
   { key: 'murmeltier', name: 'The marmot', text: 'A little drawn marmot on empty pages and beside tips; it sleeps at night.', on: true },
   { key: 'mundart', name: 'Weather sayings in dialect', text: 'A short Swiss German line about the weather under the weather on Today.', on: true },
   { key: 'heutebild', name: 'Picture on top of Today', text: 'A drawn landscape with your next trip and the days to go; the sky follows the time of day and the weather.', on: true },
+  { key: 'standzahlen', name: 'Your standing in numbers', text: 'Three big numbers at the top of an area, for example this month\'s km, what is due and the last ride on Bikes and Material. Content, not help; every number leads to where it comes from.', on: true },
   { key: 'kuhglocke', name: 'Cow bells', text: 'Sound for the bell surprise behind the logo («PG», tapped five times). Off: only the picture, no sound.', on: false },
   { key: 'improve', name: 'Improve button', text: 'A button «Improve» on every page: tap it, tap a block, and write down what could be better. It goes into Me › Improvement log.', on: true },
+  { key: 'areacolor', name: 'Colour per area', text: 'Each area has its own colour: the + button, chosen chips and the line under the tab follow it. Off: one green everywhere.', on: true },
   { key: 'contrast', name: 'High contrast (outdoors)', text: 'Darker text and stronger lines, easier to read in the sun.', on: false },
 ];
 export const OPS_KEY = 'ops.';
@@ -45,6 +49,9 @@ export function opOf(key, stored, nav = typeof navigator !== 'undefined' ? navig
   if (key === 'improve' && nav?.webdriver) return false; // browser tests start without the floating button (as firststart.js)
   return !!OPS.find((o) => o.key === key)?.on;
 }
+
+/** The longer double buzz of a finished moment (Noah 25.11.2026 «4a»): a new star, a saved debrief, a done challenge day, a bike service. */
+export const DONE_PATTERN = [35, 70, 55];
 
 /** Vibrate shortly where the device can (FE7); never throws. */
 export function buzzNow(nav = typeof navigator !== 'undefined' ? navigator : null, ms = 15) {

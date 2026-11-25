@@ -2,7 +2,7 @@
 // The rides are synthetic (tests/test_data_gtp_gpx.js), nothing from a real ride.
 import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
-import { analyseRide, ridePoints, findPauses, plannedFor, compareRide, rideLearnings, learningFrom, addToPace, dropFromPace, tripsOn, tripFromRide, speedOf, hm, PAUSE_MIN } from '../src/lib/gpx.js';
+import { analyseRide, ridePoints, findPauses, plannedFor, compareRide, rideLearnings, learningFrom, addToPace, dropFromPace, tripsOn, tripFromRide, speedOf, hm, hoursText, PAUSE_MIN } from '../src/lib/gpx.js';
 import { lang } from '../src/lib/i18n.svelte.js';
 import DE from '../src/lib/i18n/de/index.js';
 import { makeGpx } from './test_data_gtp_gpx.js';
@@ -70,6 +70,8 @@ describe('pauses: 5 minutes or more is a pause, shorter stops are moving time', 
   it('hours as h:mm', () => {
     expect(hm(3.05)).toBe('3:03');
     expect(hm(0.5)).toBe('0:30');
+    expect(hoursText(3)).toBe('3');
+    expect(hoursText(3.05)).toBe('3:03');
     expect(hm(null)).toBe('–');
   });
 });
@@ -184,5 +186,30 @@ describe('the ride feeds your pace', () => {
     const s2 = dropFromPace(s1, r.id, 'now');
     expect(s2.rides).toEqual([]);
     expect(s2.kmh).toBe(null);
+  });
+});
+
+describe('R2 questions from the ride file: cold and heat', () => {
+  const ride = (temp, extra = {}) => analyseRide(makeGpx({ legs: [{ km: 60, kmh: 20 }], sensors: true, temp, ...extra }));
+  it('counts the minutes below 5 and above 28 °C while moving', () => {
+    expect(ride(2).sensors).toMatchObject({ coldMin: 180, hotMin: 0 });
+    expect(ride(30).sensors).toMatchObject({ coldMin: 0, hotMin: 180 });
+    expect(ride(15).sensors).toMatchObject({ coldMin: 0, hotMin: 0 });
+  });
+  it('asks only from an hour, and a yes keeps a weather rule', () => {
+    const cold = rideLearnings(ride(2), null, STD).find((s) => s.id === 'cold');
+    expect(cold.label).toBe('3 h below 5 °C. Did you freeze?');
+    expect(cold.ask).toBe(true);
+    const l = learningFrom(cold, [], 'Trip', 'ride-1');
+    expect(l.topic).toBe('Weather');
+    expect(l.rule).toMatch(/warm clothes/);
+    expect(rideLearnings(ride(30), null, STD).find((s) => s.id === 'hot').label).toBe('3 h above 28 °C. Did you drink enough?');
+    expect(rideLearnings(ride(15), null, STD).map((s) => s.id)).not.toContain('cold');
+    expect(rideLearnings(ride(2), null, STD, ['cold']).map((s) => s.id)).not.toContain('cold');
+  });
+  it('an older ride without the minutes: only an extreme point asks', () => {
+    const old = { ...ride(15), sensors: { hrAvg: 130, tempMin: -2, tempMax: 4 } };
+    expect(rideLearnings(old, null, STD).find((s) => s.id === 'cold').label).toBe('Down to -2 °C. Did you freeze?');
+    expect(rideLearnings({ ...old, sensors: { tempMin: 3, tempMax: 20 } }, null, STD).map((s) => s.id)).not.toContain('cold');
   });
 });

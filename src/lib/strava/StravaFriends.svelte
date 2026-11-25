@@ -104,7 +104,7 @@
       <ul class="card vlist" data-friends>
         {#each shown as f (f.id)}
           <li class="orow" data-friend={f.id}>
-            <span class="ib" aria-hidden="true"><Users size={18} /></span>
+            <span class="ib" aria-hidden="true"><Users size={20} /></span>
             <span class="m"><b>{nameOf(f)}</b><small>{lineOf(f)}</small></span>
             <button type="button" class="btn sm" onclick={() => remove(f)}>{t('Remove')}</button>
           </li>
@@ -122,7 +122,7 @@
           <button type="button" class="btn sm" onclick={copy}><Copy size={16} aria-hidden="true" />{copied ? t('Copied') : t('Copy link')}</button>
           {#if typeof navigator !== 'undefined' && navigator.share}<button type="button" class="btn sm" onclick={share}><Share2 size={16} aria-hidden="true" />{t('Share')}</button>{/if}
         </div>
-        <p class="hint" data-strava-limit>{t('Good to know: Strava lets a new app connect only one person until Strava allows more. The request is free.')} <a href={STRAVA_LIMIT} target="_blank" rel="noopener">{t('How to ask Strava')}<ExternalLink size={12} aria-hidden="true" /></a></p>
+        <p class="hint" data-strava-limit>{t('Good to know: Strava lets a new app connect only one person until Strava allows more. The request is free.')} <a href={STRAVA_LIMIT} target="_blank" rel="noopener">{t('How to ask Strava')}<ExternalLink size={14} aria-hidden="true" /></a></p>
       {/if}
       {#if error}<p class="err" role="alert">{error}</p>{/if}
     </div>

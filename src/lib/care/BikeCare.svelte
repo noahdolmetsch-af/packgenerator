@@ -352,7 +352,7 @@
           {#if ok.length}
             <li class="okrow">
               <button type="button" class="okfold" aria-expanded={okOpen} aria-controls="ok-{bike.id}" onclick={() => (okOpen = !okOpen)}>
-                <span class="chev" aria-hidden="true">{#if okOpen}<ChevronDown size={18} />{:else}<ChevronRight size={18} />{/if}</span>
+                <span class="chev" aria-hidden="true">{#if okOpen}<ChevronDown size={20} />{:else}<ChevronRight size={20} />{/if}</span>
                 <b>{t('{n} ok', { n: ok.length })}</b>
                 <span class="names">{ok.map(partName).join(', ')}</span>
               </button>
@@ -375,7 +375,7 @@
       {#if filter === 'all'}<VerlaufCard {bike} {visits} bind:open={verlaufOpen} />{/if}
       <div class="folds">
         <details class="fold" id="more-{bike.id}" bind:open={moreOpen} data-care-more>
-          <summary><MoreHorizontal size={18} aria-hidden="true" /><span class="fl">{t('More')}</span><span class="r">{#if ledgerOpen}<span class="badge warn">{tn(ledgerOpen, '{n} unclear ride', '{n} unclear rides')}</span>{/if}{#if doubleN}<span class="badge warn" data-km-doubles-badge>{tn(doubleN, '{n} double ride', '{n} double rides')}</span>{/if}<ChevronRight size={18} aria-hidden="true" /></span></summary>
+          <summary><MoreHorizontal size={20} aria-hidden="true" /><span class="fl">{t('More')}</span><span class="r">{#if ledgerOpen}<span class="badge warn">{tn(ledgerOpen, '{n} unclear ride', '{n} unclear rides')}</span>{/if}{#if doubleN}<span class="badge warn" data-km-doubles-badge>{tn(doubleN, '{n} double ride', '{n} double rides')}</span>{/if}<ChevronRight size={20} aria-hidden="true" /></span></summary>
           {#if moreOpen}
             <p class="hint">{t('The ride ledger, the bike sheets and the care rules. Nothing is gone, it is just one tap down.')}</p>
           {#if q1On}
@@ -396,7 +396,7 @@
           {/if}
         </details>
         <details class="fold" id="check-{bike.id}" bind:open={checkOpen}>
-          <summary><ListChecks size={18} aria-hidden="true" /><span class="fl">{t('{km} km check', { km: num(c.check.every ?? CHECK_KM) })}</span><span class="r">{#if c.check.due}<span class="badge warn">{t('{n} open', { n: c.check.due })}</span>{/if}<ChevronRight size={18} aria-hidden="true" /></span></summary>
+          <summary><ListChecks size={20} aria-hidden="true" /><span class="fl">{t('{km} km check', { km: num(c.check.every ?? CHECK_KM) })}</span><span class="r">{#if c.check.due}<span class="badge warn">{t('{n} open', { n: c.check.due })}</span>{/if}<ChevronRight size={20} aria-hidden="true" /></span></summary>
           {#if checkOpen}
             <ul class="checks">
               {#each c.check.rows as r (r.key)}
@@ -408,7 +408,7 @@
           {/if}
         </details>
         <details class="fold" bind:open={logOpen}>
-          <summary><BookOpen size={18} aria-hidden="true" /><span class="fl">{t('Log: everything that was done')}</span><span class="r num">{logCount}<ChevronRight size={18} aria-hidden="true" /></span></summary>
+          <summary><BookOpen size={20} aria-hidden="true" /><span class="fl">{t('Log: everything that was done')}</span><span class="r num">{logCount}<ChevronRight size={20} aria-hidden="true" /></span></summary>
           {#if logOpen}
             {#if log.length}
               <ol class="log">
@@ -426,7 +426,7 @@
           {/if}
         </details>
         <details class="fold" bind:open={shopOpen}>
-          <summary><Store size={18} aria-hidden="true" /><span class="fl">{t('Bike shop & {year}', { year: year.year })}</span><span class="r num">{#if c.order?.rows.length}<span class="badge n">{tn(c.order.rows.length, '{n} job', '{n} jobs')}</span>{/if}{t('me|by')} {year.self} · {t('bike shop|by')} {year.shop}<ChevronRight size={18} aria-hidden="true" /></span></summary>
+          <summary><Store size={20} aria-hidden="true" /><span class="fl">{t('Bike shop & {year}', { year: year.year })}</span><span class="r num">{#if c.order?.rows.length}<span class="badge n">{tn(c.order.rows.length, '{n} job', '{n} jobs')}</span>{/if}{t('me|by')} {year.self} · {t('bike shop|by')} {year.shop}<ChevronRight size={20} aria-hidden="true" /></span></summary>
           {#if shopOpen}
             <section class="sub-sec" aria-labelledby="shop-h-{bike.id}">
               <h3 id="shop-h-{bike.id}" class="ch">{t('Order for the bike shop')}</h3>
@@ -459,7 +459,7 @@
                   <span class="num">{visitTotal(lastVisit) == null ? t('cost unknown') : chf(visitTotal(lastVisit))}</span>
                 </button>
                 <details class="fold small" bind:open={visitsOpen}>
-                  <summary><span class="fl">{t('All visits and costs')}</span><span class="r num">{c.mine.length}<ChevronRight size={18} aria-hidden="true" /></span></summary>
+                  <summary><span class="fl">{t('All visits and costs')}</span><span class="r num">{c.mine.length}<ChevronRight size={20} aria-hidden="true" /></span></summary>
                   {#if visitsOpen}
                     <ul class="plain">
                       {#each visitsShown as v (v.id)}
@@ -1359,8 +1359,6 @@
   .th {
     color: var(--ink-3);
     font: 500 var(--fs-tiny)/1.3 var(--font-body);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
   /* ---------- Design-Refresh P7 (V7): the open bike is the page (path and title above) ---------- */
   .acc:not(.open):last-child {

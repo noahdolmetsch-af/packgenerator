@@ -268,7 +268,7 @@
       </div>
     {/if}
     {#if nothingYet}
-      <p class="nl-hint card"><Info size={18} aria-hidden="true" /><span>{t('Nothing found yet. Upload a ride or give a trip a GPX route: the app then colours in where you were. You can also tick by hand.')} <a href="#/debrief/ride">{t('Upload a ride')}</a></span></p>
+      <p class="nl-hint card"><Info size={20} aria-hidden="true" /><span>{t('Nothing found yet. Upload a ride or give a trip a GPX route: the app then colours in where you were. You can also tick by hand.')} <a href="#/debrief/ride">{t('Upload a ride')}</a></span></p>
     {/if}
 
     <FundList {result} book={$rawQ?.book} {year} />
@@ -321,7 +321,7 @@
                     {@const label = itemLabel(cur.id, { ...it, name: shownName(it) })}
                     <li class="row" data-id={it.id}>
                       <button type="button" class="tk" class:on={!!v} aria-pressed={!!v} aria-label={v ? t('Been there: {name}. Tap to untick.', { name: label }) : t('Tick: {name}', { name: label })} onclick={() => toggle(cur, it)}>
-                        {#if v}<Check size={18} aria-hidden="true" />{:else}<Circle size={18} aria-hidden="true" />{/if}
+                        {#if v}<Check size={20} aria-hidden="true" />{:else}<Circle size={20} aria-hidden="true" />{/if}
                       </button>
                       <button type="button" class="nm" aria-haspopup="dialog" onclick={() => (itemOpen = { cid: cur.id, id: it.id })}>
                         <b>{label}</b>
@@ -335,7 +335,7 @@
                 {/if}
               {/if}
               {#if cur.items.length && defOf(cur.id)?.osm}<OsmBox cid={cur.id} />{/if}
-              {#if cur.items.length}<button type="button" class="add" onclick={() => startName('newItem', cur)}><Plus size={18} aria-hidden="true" />{cur.builtIn ? t('Something missing? Add an entry') : t('Add an entry')}</button>{/if}
+              {#if cur.items.length}<button type="button" class="add" onclick={() => startName('newItem', cur)}><Plus size={20} aria-hidden="true" />{cur.builtIn ? t('Something missing? Add an entry') : t('Add an entry')}</button>{/if}
             </div>
             {#if cur.hidden.length}
               <details class="nl-hidden">
@@ -350,7 +350,7 @@
                 </ul>
               </details>
             {/if}
-            <p class="rv-note nl-note"><Info size={15} aria-hidden="true" /><span>{cur.kind === 'area' ? t('A route counts where it runs through.') : cur.id === 'lakes' ? t('A route within 300 m of the shore counts as «passed by»; tick a swim yourself.') : cur.id === 'passes' ? t('A route within 600 m of the top counts. Between 600 m and 1.2 km the app asks you to confirm.') : cur.builtIn ? t('A route close by counts (pass 600 m, hut 400 m, peak 250 m). Places are rounded; correct one in its window.') : t('An entry with a place counts when a route passes within 200 m.')}</span></p>
+            <p class="rv-note nl-note"><Info size={16} aria-hidden="true" /><span>{cur.kind === 'area' ? t('A route counts where it runs through.') : cur.id === 'lakes' ? t('A route within 300 m of the shore counts as «passed by»; tick a swim yourself.') : cur.id === 'passes' ? t('A route within 600 m of the top counts. Between 600 m and 1.2 km the app asks you to confirm.') : cur.builtIn ? t('A route close by counts (pass 600 m, hut 400 m, peak 250 m). Places are rounded; correct one in its window.') : t('An entry with a place counts when a route passes within 200 m.')}</span></p>
           </div>
         </div>
       </section>
@@ -467,9 +467,9 @@
     cursor: pointer;
   }
   .nl-fresh .chip[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .nl-sum {
     margin: 0 0 12px;

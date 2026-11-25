@@ -34,7 +34,7 @@
 <svelte:window onpointerdown={away} onkeydown={key} />
 
 <span class="rm" bind:this={root}>
-  <button type="button" class="rm-btn noswipe" bind:this={btn} aria-haspopup="menu" aria-expanded={open} aria-label={t('More for {name}', { name })} data-row-menu onclick={() => (open = !open)}><Ellipsis size={18} aria-hidden="true" /></button>
+  <button type="button" class="rm-btn noswipe" bind:this={btn} aria-haspopup="menu" aria-expanded={open} aria-label={t('More for {name}', { name })} data-row-menu onclick={() => (open = !open)}><Ellipsis size={20} aria-hidden="true" /></button>
   {#if open}
     <div class="rm-pop" role="menu" data-row-menu-open>
       {#each items as it (it.key)}

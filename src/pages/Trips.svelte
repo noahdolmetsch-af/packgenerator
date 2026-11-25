@@ -39,8 +39,8 @@
    */
   import LiveLabel from '../lib/live/LiveLabel.svelte';
   import HintCard from '../lib/pageinfo/HintCard.svelte';
-  import QuickLinks from '../lib/ui/QuickLinks.svelte';
   import AllHere from '../lib/ui/AllHere.svelte';
+  import PackKarten from '../lib/pack/PackKarten.svelte'; // Warteliste 4: the tours being prepared, with «Continue with …»
   import { komootFindUrl } from '../lib/komoot.js';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
@@ -76,7 +76,7 @@
   import { stravaName } from '../lib/stravanames.js';
   import Help from '../lib/ui/Help.svelte';
   import { FIELD_HELP } from '../lib/daumen.js'; // FE14
-  import { Plus, ChevronRight, ChevronDown, Route, Upload, Flag, Star, SlidersHorizontal, Bookmark, X, Zap, ZapOff, Info, Calendar, Backpack, Search, Activity } from '@lucide/svelte';
+  import { Plus, ChevronRight, ChevronDown, Route, Upload, Flag, Star, SlidersHorizontal, Bookmark, X, Zap, ZapOff, Info, Calendar, Backpack, Search, Activity, ExternalLink } from '@lucide/svelte';
   // SN4g: the rows, their values and the filters
   import { loadReview } from '../lib/review/load.js';
   import { tripFacts, periodOf, withActs } from '../lib/review/rueckblick.js';
@@ -423,7 +423,7 @@ import { normState, skKey } from '../lib/sk/tiles.js';
   {#if chips.length}
     <div class="active" data-active-filters>
       <span class="al">{t('Active|filter')}</span>
-      {#each chips as c (c.id)}<button type="button" class="ac" data-chip={c.id} aria-label={t('Remove filter {name}', { name: t(c.label, c.vars) })} onclick={() => (filter = withoutChip(filter, c))}>{t(c.label, c.vars)}<X size={15} aria-hidden="true" /></button>{/each}
+      {#each chips as c (c.id)}<button type="button" class="ac" data-chip={c.id} aria-label={t('Remove filter {name}', { name: t(c.label, c.vars) })} onclick={() => (filter = withoutChip(filter, c))}>{t(c.label, c.vars)}<X size={16} aria-hidden="true" /></button>{/each}
       <button type="button" class="btn btn-link clear" onclick={() => (filter = emptyFilter())} data-clear-filters>{t('Clear filters')}</button>
     </div>
   {/if}
@@ -432,7 +432,7 @@ import { normState, skKey } from '../lib/sk/tiles.js';
 {#snippet saBand()}
   <button type="button" class="sa-band" onclick={() => (shownRows = oldRows)}>
     <span class="sa-bt"><b>{t('New: every trip has a sport')}</b><small>{tn(oldRows.length, 'Choose one for {n} old bike trip', 'Choose one for {n} old bike trips')}</small></span>
-    <ChevronRight size={18} aria-hidden="true" />
+    <ChevronRight size={20} aria-hidden="true" />
   </button>
 {/snippet}
 
@@ -440,7 +440,7 @@ import { normState, skKey } from '../lib/sk/tiles.js';
   <div class="tools">
     <Seg full={false} label={t('Period')} value={mode} options={PERIODS} onchange={(v) => (mode = v)} />
     <StateChips value={st} counts={stCounts} onchange={(v) => (st = v)} />
-    <button type="button" class="btn k fbtn" aria-haspopup="dialog" onclick={() => (sheet = true)} data-filter-open><SlidersHorizontal size={17} aria-hidden="true" /><span class="kl">{t('Filter')}</span>{#if chips.length}<span class="fn num" data-filter-n>{chips.length}</span>{/if}</button>
+    <button type="button" class="btn k fbtn" aria-haspopup="dialog" onclick={() => (sheet = true)} data-filter-open><SlidersHorizontal size={16} aria-hidden="true" /><span class="kl">{t('Filter')}</span>{#if chips.length}<span class="fn num" data-filter-n>{chips.length}</span>{/if}</button>
   </div>
   {#if tours.saved.length}
     <div class="mine" role="group" aria-label={t('My filters')} data-my-filters>
@@ -476,7 +476,7 @@ import { normState, skKey } from '../lib/sk/tiles.js';
     </dl>
     {#if v?.watts}
       <div class="pw" data-power>
-        <span class="pwh"><Zap size={15} aria-hidden="true" />{t('Power')}</span>
+        <span class="pwh"><Zap size={16} aria-hidden="true" />{t('Power')}</span>
         <dl class="vg">
           {@render cell(t('Ø power'), n0(v.wAvg), 'W')}
           {@render cell(t('Max. power'), n0(v.wMax), 'W')}
@@ -485,7 +485,7 @@ import { normState, skKey } from '../lib/sk/tiles.js';
       </div>
     {:else if ride}
       <!-- Impeccable Touren 2: «ohne Wattwerte» only where a ride could have them; «Keine Fahrt verknüpft» is said once above the list -->
-      <p class="nw" data-no-power><ZapOff size={15} aria-hidden="true" /><span>{[t('without power values'), v.hrAvg == null ? t('No heart rate.') : ''].filter(Boolean).join(' · ')}</span></p>
+      <p class="nw" data-no-power><ZapOff size={16} aria-hidden="true" /><span>{[t('without power values'), v.hrAvg == null ? t('No heart rate.') : ''].filter(Boolean).join(' · ')}</span></p>
     {/if}
     {@render packInfo(r)}
   </div>
@@ -524,12 +524,14 @@ import { normState, skKey } from '../lib/sk/tiles.js';
       {#if !onRides}<a class="btn btn-link racelink" href="#/race" data-to-races><Flag size={16} aria-hidden="true" />{t('Races')} ›</a>{/if}
       <!-- «Sitemap» Touren (Noah 24.11.2026 «K7»): with a planned tour, «On the way» is one tap away (its day overview of the next tour) -->
       {#if !onRides && plan.length}<a class="btn btn-link racelink" href="#/ride" data-to-ontheway><Route size={16} aria-hidden="true" />{t('On the way')} ›</a>{/if}
+      <!-- «Knopf-Formen» (Noah 24.11.2026 «7»): three kinds in this row: the main action, the side actions as quiet text links (an outside page gets the arrow) -->
+      {#if !onRides}<button type="button" class="btn btn-link racelink" data-to-komoot onclick={() => window.open(komootFindUrl(), '_blank', 'noopener')}><ExternalLink size={16} aria-hidden="true" />{t('Tour from komoot')}</button>{/if}
       <Btn icon={Upload} label={t('Upload ride')} href="#/debrief/ride" />
     </div>
   </header>
+  {#if !onRides}<PackKarten />{/if}
   <!-- «332 Use Cases» (Noah 24.10.2026 «2b»): pages for every tour that were only reachable through search -->
   <!-- «Alles hier» (Noah 03.11.2026 «1a»): every Touren function as a tile on top; the row «More for your tours» keeps only komoot (an outside page), its other links are tiles now -->
-  {#if !onRides}<QuickLinks label={t('More for your tours')} links={[{ key: 'komoot', onclick: () => window.open(komootFindUrl(), '_blank', 'noopener'), label: t('Tour from komoot') }]} />{/if}
   {#if !onRides}<NextRaceRow />{/if}
   {#if !onRides}<DreamNowRow />{/if}
   {#if onRides}
@@ -638,14 +640,14 @@ import { normState, skKey } from '../lib/sk/tiles.js';
                 {/if}
                 <!-- B4: the band above no longer repeats this trip, so its card is the way into Packen -->
                 {#if bandRow?.tripId === r.tripId && (!ride || ride.tripId !== r.tripId)}
-                  <a class="inpm go-pm" href={PACK_HREF} onclick={(e) => (e.preventDefault(), switchTrip(r.tripId, PACK_HREF))} data-in-pack-mode><Backpack size={13} aria-hidden="true" />{t('being packed')} · {t('Open packing')}<ChevronRight size={13} aria-hidden="true" /></a>
+                  <a class="inpm go-pm" href={PACK_HREF} onclick={(e) => (e.preventDefault(), switchTrip(r.tripId, PACK_HREF))} data-in-pack-mode><Backpack size={14} aria-hidden="true" />{t('being packed')} · {t('Open packing')}<ChevronRight size={14} aria-hidden="true" /></a>
                 {/if}
                 <!-- UI-Prüfung T2: the ways of the trip by its phase (Packen, Wetter, Form; after the trip Rückblick, Form) -->
                 {#if r.kind === 'trip' && byId[r.tripId]}
                   {@const hasPm = bandRow?.tripId === r.tripId && (!ride || ride.tripId !== r.tripId)}
                   <nav class="pways" aria-label="{t('Ways for this trip')}: {r.title}" data-plan-ways>
                     {#each tripWays(byId[r.tripId], today).filter((w) => !(w.key === 'pack' && hasPm)) as w (w.key)}
-                      <a class="pway" href={w.href} onclick={w.key === 'pack' ? (e) => (e.preventDefault(), switchTrip(r.tripId, w.href)) : undefined} data-way={w.key}>{t(w.label)}<ChevronRight size={13} aria-hidden="true" /></a>
+                      <a class="pway" href={w.href} onclick={w.key === 'pack' ? (e) => (e.preventDefault(), switchTrip(r.tripId, w.href)) : undefined} data-way={w.key}>{t(w.label)}<ChevronRight size={14} aria-hidden="true" /></a>
                     {/each}
                   </nav>
                 {/if}
@@ -711,7 +713,7 @@ import { normState, skKey } from '../lib/sk/tiles.js';
                   {@const stats = statsOf(r)}
                   {@const isOpen = openRows.has(r.id)}
                   <li class="tr st-{s?.state}" class:open={isOpen} data-row={r.id} data-state={s?.state}>
-                    <span class="ric" aria-hidden="true">{#if s?.state === 'rated'}<Star size={18} fill="currentColor" />{:else}<Flag size={18} />{/if}</span>
+                    <span class="ric" aria-hidden="true">{#if s?.state === 'rated'}<Star size={20} fill="currentColor" />{:else}<Flag size={20} />{/if}</span>
                     <div class="rm">
                       <div class="rt"><a class="rn" href={rowHref(r)} onclick={() => openRow(r)}>{r.title}</a>{#if r.live}<LiveLabel />{/if}<TripState state={s?.state} extra={stateExtraText(s?.extra)} /></div>
                       <p class="rs">{[dates(r.start, r.end), what(r), bike].filter(Boolean).join(' · ')}</p>
@@ -719,7 +721,7 @@ import { normState, skKey } from '../lib/sk/tiles.js';
                       {#if stats}<p class="rk num" data-row-stats>{stats}</p>{/if}
                     </div>
                     <RouteShape d={shapeOf(r, (vals[r.id]?.acts ?? []))} />
-                    <button type="button" class="tog" aria-expanded={isOpen} aria-controls="det-{r.id}" aria-label="{isOpen ? t('Hide details') : t('Show details')}: {r.title}" onclick={() => toggleRow(r.id)} data-row-toggle={r.id}><ChevronDown size={18} aria-hidden="true" /></button>
+                    <button type="button" class="tog" aria-expanded={isOpen} aria-controls="det-{r.id}" aria-label="{isOpen ? t('Hide details') : t('Show details')}: {r.title}" onclick={() => toggleRow(r.id)} data-row-toggle={r.id}><ChevronDown size={20} aria-hidden="true" /></button>
                     {#if isOpen}
                       <div class="det" id="det-{r.id}" data-row-details>
                         {@render values(r)}
@@ -1107,9 +1109,9 @@ import { normState, skKey } from '../lib/sk/tiles.js';
   }
   .mf[aria-pressed='true'],
   .ac {
-    border: 1px solid var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border: 1px solid var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .clear {
     min-height: 44px;
@@ -1118,8 +1120,6 @@ import { normState, skKey } from '../lib/sk/tiles.js';
     margin: var(--sp-4) 0 var(--sp-2);
     color: var(--ink-2);
     font: 600 var(--fs-tiny) / 1.3 var(--font-body);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
   }
   .mh:first-child {
     margin-top: var(--sp-2);

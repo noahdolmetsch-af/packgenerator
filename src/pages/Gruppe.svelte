@@ -269,8 +269,8 @@
         <p class="live" role="status" data-group-sharing><span class="dot" aria-hidden="true"></span>{t('You share your location as {name}.', { name })}</p>
         <p class="tp-small tp-muted">{t('Only while this page is open and the screen is on. Every few minutes the others see where you are.')}</p>
         <div class="grp-acts">
-          <button type="button" class="btn" class:hi={!waitAt} onclick={flipWait} disabled={!fix} aria-pressed={!!waitAt} data-group-waithere><Hand size={18} aria-hidden="true" />{waitAt ? t('I ride on') : t('I am waiting here')}</button>
-          <button type="button" class="btn" onclick={stopSharing} data-group-stop><Square size={18} aria-hidden="true" />{t('Stop sharing')}</button>
+          <button type="button" class="btn" class:hi={!waitAt} onclick={flipWait} disabled={!fix} aria-pressed={!!waitAt} data-group-waithere><Hand size={20} aria-hidden="true" />{waitAt ? t('I ride on') : t('I am waiting here')}</button>
+          <button type="button" class="btn" onclick={stopSharing} data-group-stop><Square size={20} aria-hidden="true" />{t('Stop sharing')}</button>
         </div>
         {#if waitAt}<p class="tp-small" role="status" data-group-waiting>{t('The others see that you are waiting here. It ends by itself when you ride on.')}</p>{/if}
         {#if inNight(plan?.night, now)}<p class="tp-small" role="status" data-group-night>{t('Night pause: your location is not sent until {to}.', { to: plan.night.to })}</p>{/if}
@@ -280,7 +280,7 @@
           <span>{t('Your name for the others')}</span>
           <input type="text" bind:value={name} maxlength="40" autocomplete="given-name" data-group-name />
         </label>
-        <button type="button" class="btn hi" onclick={share} data-group-share><MapPin size={18} aria-hidden="true" />{t('Share my location')}</button>
+        <button type="button" class="btn hi" onclick={share} data-group-share><MapPin size={20} aria-hidden="true" />{t('Share my location')}</button>
       {/if}
       {#if geoErr}<p class="rc-warn" role="alert">{geoErr}</p>{/if}
       {#if msg}<p class="tp-small" role="status" data-group-msg>{msg}</p>{/if}
@@ -309,8 +309,6 @@
     margin: 0;
     color: var(--ink-2);
     font-size: var(--fs-small);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
   }
   h1 {
     margin: 0;

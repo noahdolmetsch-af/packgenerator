@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../../actlite.js';
   /**
    * Garmin-Übersicht (Noah 20.10.2026 «genau so kann es aussehen … baue sie 1:1 nach», light like the app):
    * on Aktiv, in Garmin Connect's order: «Aktivitäten von heute», «Im Fokus» (per sport, to swipe),
@@ -37,7 +38,7 @@
   // «Letzte 7 Tage»; Auswerten shows them in its two columns on a computer. A phone always shows everything.
   // «Zeitraum» (Noah 05.11.2026 «1a 2b 3a 4a»): `range` = { from, to, now, title } of the switch on Auswerten; the list of
   // the sports follows it, «Im Fokus» and the tiles of «Überblick» keep showing the latest days. Without it: 7 days.
-  let { today, children, part = 'all', range = null } = $props();
+  let { today, children, part = 'all', range = null, lead = null } = $props();
   const top = $derived(phone.matches || part !== 'last7');
   const tail = $derived(phone.matches || part !== 'main');
   const q = tableQuery();
@@ -47,7 +48,7 @@
   const kinds = $derived(kindsOf(table, today, 7));
   // «Alle Sportarten» (Noah 22.11.2026, Schritt D): the sports you ticked in Aktiv stand next to the Strava sports
   const tq = liveQuery(async () => {
-    const [log, activities, acts, usual, ticks] = await Promise.all([db.flowLog.toArray(), db.activities.toArray(), db.flowActs.toArray(), db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY)]);
+    const [log, activities, acts, usual, ticks] = await Promise.all([db.flowLog.toArray(), readLite(db, (T) => T.toArray()), db.flowActs.toArray(), db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY)]);
     const u = usualMap(usual?.value);
     const map = prefsOf(ticks?.value).map;
     return { acts, units: tickUnits({ log, activities, acts, usual: u, map }), raw: { log, flowActs: acts, acts: activities, usual: u, map } };
@@ -118,7 +119,7 @@
 <Sec id="overview-h" title={t('Overview|garmin')} sub={t('from Fitbit and Strava · tap a tile for more')}>
   <div class="ov" data-overview>
     <a class="card tile" href={numHref({ key: 'rhr', range: 'w' })} data-ov="hr">
-      <span class="th"><span class="ico hrt" aria-hidden="true"><Heart size={18} /></span><span>{t('Heart rate')}</span></span>
+      <span class="th"><span class="ico hrt" aria-hidden="true"><Heart size={20} /></span><span>{t('Heart rate')}</span></span>
       {#if high}<b class="num big">{num(high.v)} <small>bpm</small></b><small class="q">{high.day === today ? t('highest today') : t('highest on the latest day')}</small>{/if}
       {#if spark}<svg class="spark" viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true"><path d={spark} /></svg><small class="q">{t('resting pulse, 14 days')}</small>{/if}
       {#if rhr}<b class="num">{num(rhr.v)} <small>bpm</small></b><small class="q">{rhr.day === today ? t('at rest') : `${t('at rest')} · ${dayWord(rhr.day)}`}</small>{:else}<small class="q">{fitbitOff ? t('comes with Fitbit') : t('no value yet')}</small>{/if}
@@ -126,7 +127,7 @@
     </a>
     <AzmWeek {today} tile />
     <a class="card tile" href={numHref({ key: 'kcal', range: 'w' })} data-ov="kcal">
-      <span class="th"><span class="ico fl" aria-hidden="true"><Flame size={18} /></span><span>{t('Calories burned')}</span></span>
+      <span class="th"><span class="ico fl" aria-hidden="true"><Flame size={20} /></span><span>{t('Calories burned')}</span></span>
       {#if kcal.total != null}
         <b class="num big">{num(kcal.total)}</b><small class="q" data-kcal-day>{dayWord(kcalDay)}</small>
         {#if kcalPct != null}<span class="kb" aria-hidden="true"><i class="a" style="width:{kcalPct}%"></i><i class="r"></i></span>{/if}
@@ -143,7 +144,7 @@
       <ChevronRight class="go" size={16} aria-hidden="true" />
     </a>
     <a class="card tile" href={numHref({ key: 'sleep', range: 'w' })} data-ov="sleep">
-      <span class="th"><span class="ico mo" aria-hidden="true"><Moon size={18} /></span><span>{t('Sleep|metric')}</span></span>
+      <span class="th"><span class="ico mo" aria-hidden="true"><Moon size={20} /></span><span>{t('Sleep|metric')}</span></span>
       {#if sleep}
         <b class="num big">{shown('sleep', sleep.v, num)}</b><small class="q">{sleep.day === today ? t('last night') : t('latest night')}</small>
         <span class="nights" aria-hidden="true">{#each nights as v, i (i)}<i style="height:{v ? Math.max(8, Math.round((v / nightTop) * 100)) : 0}%" class:now={i === 6}></i>{/each}</span>
@@ -187,6 +188,7 @@
 {/if}
 {/snippet}
 
+{#if top}{@render lead?.()}{/if}
 {#if phone.matches}
   <div class="card ovfold" data-ov-fold>
     <FoldRow icon={LayoutGrid} label={asWeek ? t('Overview and last 7 days') : t('Overview and period')} summary={foldSum} bind:open={more}>{@render body()}</FoldRow>

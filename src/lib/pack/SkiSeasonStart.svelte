@@ -53,10 +53,10 @@
   {#if !state.hidden}
     <details class="ssc" bind:open={opened} data-ski-season>
       <summary>
-        <span class="ic" aria-hidden="true"><Snowflake size={18} /></span>
+        <span class="ic" aria-hidden="true"><Snowflake size={20} /></span>
         <span class="tx"><b>{t('Season start check')}</b><small class="num" data-ski-season-sum>{count.done === count.total ? t('All {n} done, the winter can come', { n: count.total }) : t('{done} of {n} done before the first tour', { done: count.done, n: count.total })}</small></span>
         <span class="mini" aria-hidden="true"><i style:width="{(count.done / (count.total || 1)) * 100}%"></i></span>
-        <ChevronRight class="chev" size={18} aria-hidden="true" />
+        <ChevronRight class="chev" size={20} aria-hidden="true" />
       </summary>
       <div class="in">
         <p class="what">{t('Before the first ski tour of the winter. Everything is a suggestion.')}</p>

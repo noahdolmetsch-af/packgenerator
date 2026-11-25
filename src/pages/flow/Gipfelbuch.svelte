@@ -117,7 +117,7 @@
 
     {#if next && (!sport || isVelo(sport))}
       <a class="ms" href="#/flow/trophies?area=gipfelbuch" data-gb-next>
-        <span class="st" aria-hidden="true"><Star size={22} /></span>
+        <span class="st" aria-hidden="true"><Star size={24} /></span>
         <span class="tx"><b>{t('Next milestone: {n} passes by bike', { n: next.target })}</b><small class="num">{t('{left} more · {have} of {n}', { left: next.target - next.have, have: next.have, n: next.target })}</small><span class="bar" aria-hidden="true"><i style:width="{(next.have / next.target) * 100}%"></i></span></span>
         <span class="go">{t('All milestones')}<ChevronRight size={16} aria-hidden="true" /></span>
       </a>
@@ -132,7 +132,7 @@
         <ul>
           {#each sugg.slice(0, 3) as s (s.ref)}
             <li data-gb-sugg={s.ref}>
-              <span class="ic" aria-hidden="true"><Mountain size={18} /></span>
+              <span class="ic" aria-hidden="true"><Mountain size={20} /></span>
               <span class="t"><b class="num">{m(s.ele)} · {t(sportOf(s.sport).name)}</b><small>{[s.title ? `«${s.title}»` : '', dayWord(s.day)].filter(Boolean).join(' · ')}</small></span>
               <span class="acts">
                 {#if s.match}<button type="button" class="btn sm hi" onclick={() => visitAgain(s)}>{t('Again at {name}', { name: placeOf(s.match)?.name ?? '' })}</button>
@@ -155,13 +155,13 @@
         <div class="col">
           {#each groups as g, i (g.year)}
             <details class="gbc yr" open={i === 0} data-gb-year={g.year}>
-              <summary><b>{g.year}</b><small class="num">{tn(g.visits, '{n} visit', '{n} visits')} · {t('{n} new', { n: g.fresh })}</small><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+              <summary><b>{g.year}</b><small class="num">{tn(g.visits, '{n} visit', '{n} visits')} · {t('{n} new', { n: g.fresh })}</small><ChevronRight class="chev" size={20} aria-hidden="true" /></summary>
               <ul>
                 {#each g.rows as r (r.place.id)}
                   {@const st = starsOfPlace(book, r.place.id)}
                   <li>
                     <button type="button" class="row" class:on={sel === r.place.id} aria-pressed={sel === r.place.id} onclick={() => pick(r.place.id)} data-gb-place={r.place.name}>
-                      <span class="ic s-{r.place.sport}" aria-hidden="true"><Mountain size={17} /></span>
+                      <span class="ic s-{r.place.sport}" aria-hidden="true"><Mountain size={16} /></span>
                       <span class="t">
                         <b>{r.place.name}{#if r.firstEver}<i class="gbp new">{t('new|gb')}</i>{/if}{#each st.filter((x) => x.day.startsWith(g.year)) as x (x.id)}<i class="gbp star">★ {starShort(x)}</i>{/each}</b>
                         <small>{[sportName(r.place), dayWord(r.visit.day), r.firstEver && r.n === 1 ? t('first time') : t('{n}×', { n: r.n })].join(' · ')}</small>
@@ -264,9 +264,9 @@
     cursor: pointer;
   }
   .chip[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .ms {
     display: flex;

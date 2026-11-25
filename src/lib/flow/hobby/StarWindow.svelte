@@ -16,6 +16,7 @@
   import { TONE_KEY, toneOf, SAYINGS, pick, stageKey } from '../tone.js';
   import { REWARD_KEY, rewardOf } from '../../flowms.js';
   import ToneSetting from '../ToneSetting.svelte';
+  import { doneBuzz } from '../../bedienung.svelte.js'; // «Fertig-Moment» (Noah 25.11.2026 «4a»): a new star buzzes twice
 
   const tq = liveQuery(() => db.settings.get(TONE_KEY));
   const tone = $derived(toneOf($tq?.value));
@@ -33,7 +34,10 @@
   let dialog = $state();
   const s = $derived(ui.star);
   $effect(() => {
-    if (s && dialog && !dialog.open) dialog.showModal();
+    if (s && dialog && !dialog.open) {
+      dialog.showModal();
+      doneBuzz();
+    }
     if (!s && dialog?.open) dialog.close();
   });
   const href = $derived(!s ? '#/flow/milestones' : `#/flow/sport/${encodeURIComponent(`act:${s.actId}`)}`);
@@ -43,7 +47,7 @@
 <dialog class="sheet centered starw" bind:this={dialog} use:backClose onclose={close} aria-labelledby="starw-h" data-star-window>
   {#if s}
     <div class="in">
-      <span class="badge" aria-hidden="true"><Star size={26} /></span>
+      <span class="badge" aria-hidden="true"><Star size={24} /></span>
       <h2 id="starw-h" class="title">{tn(s.stars.length, 'New star', '{n} new stars')}</h2>
       <p class="sport">{s.act}</p>
       <ul>
@@ -56,7 +60,7 @@
           </li>
         {/each}
       </ul>
-      {#if prize}<p class="prize" data-star-reward><Gift size={18} aria-hidden="true" /><span>{t('Your reward: {name}. You earned it.', { name: prize })}</span></p>{/if}
+      {#if prize}<p class="prize" data-star-reward><Gift size={20} aria-hidden="true" /><span>{t('Your reward: {name}. You earned it.', { name: prize })}</span></p>{/if}
       {#if saying}<p class="say" data-star-saying>{saying}</p>{/if}
       <p class="muted">{t('Stars stay, even when a series breaks.')}</p>
       <ToneSetting />

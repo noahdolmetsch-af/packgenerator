@@ -9,6 +9,7 @@
   import { keepTyped } from '../ui/keeptyped.js';
   import { X, Check, CircleCheck, Gauge, Type, Plus, Trash2 } from '@lucide/svelte';
   import { backClose } from '../ui/backclose.js';
+  import SpellHint from './SpellHint.svelte';
   import { t } from '../i18n.svelte.js';
   import { OWN_AREA } from '../abfragen.js';
   import { VALUES, MAX_CONDS, condOf, customRule } from '../datenfragen.js';
@@ -24,6 +25,7 @@
   let conds = $state((question?.rule?.conds ?? [first]).map((c) => ({ ...c })));
   // svelte-ignore state_referenced_locally
   let text = $state(question?.text ?? '');
+  let typedQ = $state(''); // «Schreibweise»: the question as just typed, for the hint below the field
   // svelte-ignore state_referenced_locally
   let area = $state(question?.area ?? OWN_AREA);
   // svelte-ignore state_referenced_locally
@@ -93,13 +95,14 @@
   </ul>
   {#if conds.length < MAX_CONDS}<button type="button" class="ab-lnk addc" onclick={add} data-cond-add><Plus size={16} aria-hidden="true" />{t('and another condition')}</button>{/if}
 
-  <label class="fld"><span class="lbl">{t('Then ask')}</span><input class="inp" type="text" maxlength="120" bind:value={text} placeholder={t('e.g. What would help you today?')} data-rule-question /></label>
+  <label class="fld"><span class="lbl">{t('Then ask')}</span><input class="inp" type="text" maxlength="120" bind:value={text} onchange={() => (typedQ = text)} placeholder={t('e.g. What would help you today?')} data-rule-question /></label>
+  <SpellHint text={typedQ} ontake={(v) => { text = v; typedQ = ''; }} />
 
   <span class="lbl" id="rule-kind">{t('Answer')}</span>
   <div class="kinds" role="group" aria-labelledby="rule-kind">
     {#each KINDS as k (k.key)}
       <button type="button" class="kb" aria-pressed={kind === k.key} onclick={() => (kind = k.key)} data-rule-kind={k.key}>
-        {#if kind === k.key}<Check size={18} aria-hidden="true" />{:else}<k.icon size={18} aria-hidden="true" />{/if}<span>{t(k.name)}</span>
+        {#if kind === k.key}<Check size={20} aria-hidden="true" />{:else}<k.icon size={18} aria-hidden="true" />{/if}<span>{t(k.name)}</span>
       </button>
     {/each}
   </div>

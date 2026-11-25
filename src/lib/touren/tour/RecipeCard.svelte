@@ -48,7 +48,7 @@
 
 {#if show}
   <section class="rc card pad" aria-labelledby="rc-h" data-tour-recipe>
-    <h2 id="rc-h"><ChefHat size={18} aria-hidden="true" />{t('A day that worked?')}</h2>
+    <h2 id="rc-h"><ChefHat size={20} aria-hidden="true" />{t('A day that worked?')}</h2>
     {#if !open}
       <p class="ws">{t('Keep what worked, breakfast, start, food and pace, as a recipe for a next tour. Only if you want.')}</p>
       <div class="row">

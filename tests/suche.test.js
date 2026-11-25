@@ -14,7 +14,7 @@ const bikes = [
 
 describe('search settings', () => {
   it('defaults follow Noah: mic always, commands at once, read aloud at once, every source on', () => {
-    expect(SUCHE_DEFAULTS).toEqual({ mic: true, run: true, read: 'auto', app: true, links: true, chrome: true, local: true });
+    expect(SUCHE_DEFAULTS).toEqual({ mic: true, run: true, read: 'auto', app: true, links: true, chrome: true, local: true, learn: true });
     expect(READ_MODES.map((m) => m.key)).toEqual(['auto', 'tap']);
   });
   it('a stored value wins, unknown values fall back', () => {
@@ -59,8 +59,8 @@ describe('where it lives', () => {
   it('the search has the microphone and «Ask further at», each behind its setting', () => {
     const s = src('src/lib/nav/Search.svelte');
     expect(s).toContain('<SearchMic onsaid={said}');
-    expect(s).toMatch(/\{#if asking && suche\.links\}<AskElsewhere/);
-    expect(s).toContain('{#if suche.app && !listSay}<AskAnswer'); // behind its setting; a command sentence shows no answer beside it
+    expect(s).toMatch(/\{#if asking && suche\.links\}[\s\S]*?<AskElsewhere/); // a closed line under a question («Ein Eingang», Noah 24.11.2026)
+    expect(s).toContain('{#if inAll && suche.app && !listSay}<AskAnswer'); // behind its setting; a command sentence shows no answer beside it; a button other than «All» shows only its kind (Noah 24.11.2026 «1-5a»)
     expect(s).toContain('chrome={suche.chrome} links={suche.links}');
   });
 });

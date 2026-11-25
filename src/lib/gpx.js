@@ -32,6 +32,10 @@ export const STOP_RADIUS_KM = 0.03;
 const STILL_KMH = 3;
 /** A pause this long (minutes) is worth a learning ("Long pause at km 80"). */
 export const LONG_PAUSE_MIN = 20;
+/** R2 «Fragen aus der Fahrdatei»: below this the ride was cold, above this hot (°C), and from how many minutes it is asked. */
+export const COLD_C = 5;
+export const HOT_C = 28;
+export const WEATHER_ASK_MIN = 60;
 /** Speed and climbing: a difference of this share or more is worth a learning. */
 export const DIFF_SHARE = 0.1;
 /** A file bigger than this is refused before it is read (a phone would hang). */
@@ -116,6 +120,8 @@ export function rideSensors(pts, still = []) {
   let wMax = null;
   let tMin = null;
   let tMax = null;
+  let coldS = 0;
+  let hotS = 0;
   for (let k = 0; k < pts.length - 1; k++) {
     if (still[k + 1]) continue;
     const dt = (pts[k + 1].t - pts[k].t) / 1000;
@@ -139,6 +145,8 @@ export function rideSensors(pts, still = []) {
       acc.temp[1] += dt;
       if (tMin == null || p.temp < tMin) tMin = p.temp;
       if (tMax == null || p.temp > tMax) tMax = p.temp;
+      if (p.temp < COLD_C) coldS += dt;
+      if (p.temp > HOT_C) hotS += dt;
     }
   }
   const avg = ([sum, n]) => (n > 0 ? Math.round(sum / n) : null);
@@ -152,6 +160,9 @@ export function rideSensors(pts, still = []) {
     tempAvg: avg(acc.temp),
     tempMin: tMin != null ? Math.round(tMin) : null,
     tempMax: tMax != null ? Math.round(tMax) : null,
+    // R2: minutes while moving below COLD_C / above HOT_C (only with temperature in the file)
+    coldMin: acc.temp[1] > 0 ? Math.round(coldS / 60) : null,
+    hotMin: acc.temp[1] > 0 ? Math.round(hotS / 60) : null,
   };
   return Object.values(out).some((v) => v != null) ? out : null;
 }
@@ -373,13 +384,15 @@ export function compareRide(ride, plan) {
 /* ---------- learnings ---------- */
 
 /**
- * 1-3 learnings from a ride (Noah 4), most telling first. Each: { id, label, detail, rule }.
+ * 1-4 learnings from a ride (Noah 4), most telling first. Each: { id, label, detail, rule }.
  * - speed: moving speed against the plan (or, without a plan, against your pace guess), when it
  *   differs by DIFF_SHARE and at least 1 km/h. "You ride faster than planned: 19 km/h instead of 16".
  * - pause: the longest pause, from LONG_PAUSE_MIN minutes. "Long pause at km 80".
  * - climb: the climbing kilometres against the guess (basis: { kmh, climbMh }), when they took
  *   DIFF_SHARE more (or less) time than the guess AND than the ride as a whole did, so a slow day
  *   does not also say "climbing slower". "Climbing slower than assumed".
+ * - cold / hot (R2, question from the file): an hour or more below COLD_C or above HOT_C while moving, or (older rides)
+ *   a coldest point of 0 °C or less / a warmest of 32 °C or more. «3 h below 5 °C. Did you freeze?» Yes keeps a rule for packing.
  * answered: ids already answered (yes or no); they are left out.
  */
 export function rideLearnings(ride, plan, basis, answered = []) {
@@ -399,6 +412,21 @@ export function rideLearnings(ride, plan, basis, answered = []) {
     const label = t('Long pause at km {km}', { km: Math.round(long.km) });
     out.push({ id: 'pause', label, detail: t('{min} min. Plan a stop there next time.', { min: long.min }), rule: t('Long pause at km {km} ({min} min): plan a stop there.', { km: Math.round(long.km), min: long.min }) });
   }
+  const sn = ride.sensors;
+  if (sn) {
+    const cold = sn.coldMin >= WEATHER_ASK_MIN ? { time: hoursText(sn.coldMin / 60) } : sn.coldMin == null && sn.tempMin != null && sn.tempMin <= 0 ? { low: sn.tempMin } : null;
+    if (cold) {
+      const label = cold.time ? t('{time} h below {t} °C. Did you freeze?', { time: cold.time, t: COLD_C }) : t('Down to {low} °C. Did you freeze?', { low: cold.low });
+      const rule = cold.time ? t('Cold on a ride ({time} h below {t} °C): pack warm clothes, gloves and a buff.', { time: cold.time, t: COLD_C }) : t('Cold on a ride (down to {low} °C): pack warm clothes, gloves and a buff.', { low: cold.low });
+      out.push({ id: 'cold', ask: true, topic: 'Weather', label, detail: t('The temperature comes from your bike computer. Yes keeps a rule for the next packing.'), rule });
+    }
+    const hot = sn.hotMin >= WEATHER_ASK_MIN ? { time: hoursText(sn.hotMin / 60) } : sn.hotMin == null && sn.tempMax != null && sn.tempMax >= 32 ? { high: sn.tempMax } : null;
+    if (hot) {
+      const label = hot.time ? t('{time} h above {t} °C. Did you drink enough?', { time: hot.time, t: HOT_C }) : t('Up to {high} °C. Did you drink enough?', { high: hot.high });
+      const rule = hot.time ? t('Heat on a ride ({time} h above {t} °C): take more water, a light shirt and sun cream.', { time: hot.time, t: HOT_C }) : t('Heat on a ride (up to {high} °C): take more water, a light shirt and sun cream.', { high: hot.high });
+      out.push({ id: 'hot', ask: true, topic: 'Weather', label, detail: t('The temperature comes from your bike computer. Yes keeps a rule for the next packing.'), rule });
+    }
+  }
   const c = ride.parts?.climb;
   if (c && c.km >= 2 && c.gainM >= 100 && c.h > 0 && basis?.kmh) {
     const climbMh = basis.climbMh || CLIMB_MH;
@@ -415,7 +443,7 @@ export function rideLearnings(ride, plan, basis, answered = []) {
       out.push({ id: 'climb', label, detail: t('Uphill took {pct} % less time than the guess.', { pct: Math.round((1 - ratio) * 100) }), rule: label });
     }
   }
-  return out.filter((s) => !answered.includes(s.id)).slice(0, 3);
+  return out.filter((s) => !answered.includes(s.id)).slice(0, 4);
 }
 
 /**
@@ -424,7 +452,7 @@ export function rideLearnings(ride, plan, basis, answered = []) {
  */
 export function learningFrom(sugg, learnings = [], source = '', rideId = null, now = new Date().toISOString()) {
   const id = Math.max(0, ...learnings.map((l) => (typeof l.id === 'number' ? l.id : 0))) + 1;
-  return { id, topic: 'Pace', rule: sugg.rule, action: '', itemIds: [], source, appliesTo: ['all'], priority: 'medium', confirmed: 0, createdAt: now, rideId, kind: sugg.id };
+  return { id, topic: sugg.topic ?? 'Pace', rule: sugg.rule, action: '', itemIds: [], source, appliesTo: ['all'], priority: 'medium', confirmed: 0, createdAt: now, rideId, kind: sugg.id };
 }
 
 /* ---------- your pace ---------- */
@@ -454,6 +482,9 @@ export const hm = (h) => {
   const mins = Math.round(h * 60);
   return `${Math.floor(mins / 60)}:${String(mins % 60).padStart(2, '0')}`;
 };
+
+/** "3" for whole hours, else "3:05": the hours in a sentence («3 h below 5 °C»), not as a clock. */
+export const hoursText = (h) => hm(h).replace(/:00$/, '');
 
 /* ---------- a file shared from another app (Android share sheet) ---------- */
 

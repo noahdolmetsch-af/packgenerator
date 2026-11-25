@@ -6,7 +6,7 @@
   import { layerOf } from '../layers.js';
   import ItemDialog from './ItemDialog.svelte';
   import { t, nameOf } from '../i18n.svelte.js';
-  import { Undo2 } from '@lucide/svelte';
+  import { Undo2, PartyPopper } from '@lucide/svelte';
 
   /**
    * Inventory check (to-do from 4.10.2026): go through everything you own once and say
@@ -101,7 +101,7 @@
       </div>
     </div>
   {:else}
-    <p class="card">{t('Everything you own is checked.')} 🎉</p>
+    <p class="card">{t('Everything you own is checked.')} <PartyPopper size={20} class="ic-in" aria-hidden="true" /></p>
   {/if}
   {#if last}
     <p class="undo" role="status"><span>{last.text}</span><button type="button" class="btn sm" onclick={undoLast}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button></p>

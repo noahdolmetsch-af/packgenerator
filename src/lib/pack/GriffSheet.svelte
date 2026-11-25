@@ -37,7 +37,7 @@
       <li data-griff-row={r.itemId}>
         <span class="tx">
           <b>{itemsById[r.itemId] ? nameOf(itemsById[r.itemId]) : r.itemId}</b>
-          <small><Hand size={13} aria-hidden="true" /> {t(WHY[r.why] ?? WHY.marked)} · {fromName(r)} <ArrowRight size={13} aria-hidden="true" /> {bagName(r)}</small>
+          <small><Hand size={14} aria-hidden="true" /> {t(WHY[r.why] ?? WHY.marked)} · {fromName(r)} <ArrowRight size={14} aria-hidden="true" /> {bagName(r)}</small>
         </span>
         <span class="btns">
           <button type="button" class="btn sm hi" onclick={() => onapply?.([r])} data-griff-move>{t('Move to {bag}', { bag: bagName(r) })}</button>
@@ -65,8 +65,6 @@
     margin: 0;
     font-size: var(--fs-small);
     font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
     color: var(--ink-3);
   }
   h2 {

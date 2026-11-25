@@ -211,12 +211,12 @@
           <SortGrip name={collName(c, t)} onstep={(dir) => step(c.id, dir)} />
           <a class="fz-row-main" href={collHref(c.id)}><b>{collName(c, t)}</b><small>{tn(countOf(c.id), '{n} entry', '{n} entries')} · {t(COLL_TYPES[c.type].hint)}</small></a>
           {#if !phone.matches}<SortArrows name={collName(c, t)} i={n} n={shown.length} onstep={(dir) => step(c.id, dir)} />{/if}
-          <button type="button" class="fz-icon" aria-label={t('Rename {name}', { name: collName(c, t) })} onclick={() => (renaming = c)} data-coll-rename><Pencil size={18} aria-hidden="true" /></button>
-          <button type="button" class="fz-icon" aria-label={t('Delete {name}', { name: collName(c, t) })} onclick={() => (deleting = c)} data-coll-delete><X size={18} aria-hidden="true" /></button>
+          <button type="button" class="fz-icon" aria-label={t('Rename {name}', { name: collName(c, t) })} onclick={() => (renaming = c)} data-coll-rename><Pencil size={20} aria-hidden="true" /></button>
+          <button type="button" class="fz-icon" aria-label={t('Delete {name}', { name: collName(c, t) })} onclick={() => (deleting = c)} data-coll-delete><X size={20} aria-hidden="true" /></button>
         </li>
       {/each}
       {#if orphans.length}
-        <li class="fz-row"><a class="fz-row-main" href={collHref('-')}><b>{t('Without a collection')}</b><small>{tn(orphans.length, '{n} entry', '{n} entries')}</small></a><ChevronRight size={18} aria-hidden="true" /></li>
+        <li class="fz-row"><a class="fz-row-main" href={collHref('-')}><b>{t('Without a collection')}</b><small>{tn(orphans.length, '{n} entry', '{n} entries')}</small></a><ChevronRight size={20} aria-hidden="true" /></li>
       {/if}
     </ul>
     <form class="fz-inline" onsubmit={addColl}>
@@ -256,7 +256,7 @@
       </div>
     {/if}
     {#if rows.filter((r) => r.coll === coll.id).length > 6}
-      <label class="fz-inline fzc-search"><Search size={18} aria-hidden="true" /><input class="inp" type="search" bind:value={search} placeholder={t('Search')} aria-label={t('Search')} /></label>
+      <label class="fz-inline fzc-search"><Search size={20} aria-hidden="true" /><input class="inp" type="search" bind:value={search} placeholder={t('Search')} aria-label={t('Search')} /></label>
     {/if}
     {#if !entries.length}<p class="fz-empty">{tag || search ? t('Nothing fits this filter.') : t('Nothing here yet. Your first entry is one tap away.')}</p>{/if}
     <div class="fz-grid">
@@ -270,7 +270,7 @@
               {#if entrySub(e, coll)}<small>{entrySub(e, coll)}</small>{/if}
               <small>{fmtDay(e.day)}</small>
             </button>
-            <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: e.title })} onclick={() => openEdit(e)}><Pencil size={18} aria-hidden="true" /></button>
+            <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: e.title })} onclick={() => openEdit(e)}><Pencil size={20} aria-hidden="true" /></button>
           </div>
           {#if series.length}
             {@const n = Math.min(compare[e.id] ?? series.length - 1, series.length - 1)}

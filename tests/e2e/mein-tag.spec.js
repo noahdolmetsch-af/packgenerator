@@ -13,10 +13,10 @@ const addDays = (day, n) => {
   return d.toISOString().slice(0, 10);
 };
 
-async function open(page, context, hash) {
+async function open(page, context, hash, at = D0) {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
-  await page.clock.install({ time: new Date(D0) });
+  await page.clock.install({ time: new Date(at) });
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto(`./${hash}`);
@@ -170,14 +170,14 @@ test('Mein Tag: drag an own entry to another time, to another day, stretch it, U
     await page.mouse.move(to?.x ?? x, to?.y ?? y + dy, { steps: 6 });
     await page.mouse.up();
   };
-  // 72 px per hour: 72 px later = one hour later
+  // an hour with an entry is 72 px: 72 px later = one hour later (empty hours are only 36 px)
   await drag('[data-grip="wi1"]', 72);
   await expect(blk).toContainText('13:00–13:45');
   // Undo
   await page.getByRole('button', { name: T('Undo') }).click();
   await expect(blk).toContainText('12:00–12:45');
-  // the length: lower edge, 36 px = 30 minutes more
-  await drag('[data-size="wi1"]', 36);
+  // the length: lower edge, 18 px to 13:00 (end of the busy hour) + 9 px of the empty hour = 15 minutes more
+  await drag('[data-size="wi1"]', 27);
   await expect(blk).toContainText('12:00–13:15');
   // onto the chip of tomorrow
   const chip = await page.locator(`[data-day="${addDays(TODAY, 1)}"]`).boundingBox();
@@ -308,5 +308,82 @@ test('Mein Tag: «Plan my day» works on tomorrow too and gives a calendar date 
   await expect(page.locator('.tl [data-entry="wi9"]')).toBeVisible();
   await page.reload();
   await expect(page.locator('.tl [data-entry="cal:k1"]')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('Mein Tag: empty hours take half the room and a dot stands only under a day with something on it', async ({ page, context }) => {
+  const errors = await open(page, context, '#/day');
+  await page.waitForSelector('h1');
+  await put(page, { settings: [{ key: 'week.items', value: ITEMS }] });
+  await page.reload();
+  // «now» is 09:00: 08:00 is empty (36 px), 09:00 has «now» in it (72 px), 10:00 and 11:00 are empty, 12:00 holds the dentist
+  const y = async (h) => (await page.locator('.tl .hr', { hasText: h }).boundingBox()).y;
+  expect((await y('09:00')) - (await y('08:00'))).toBeCloseTo(36, 0);
+  expect((await y('10:00')) - (await y('09:00'))).toBeCloseTo(72, 0);
+  expect((await y('12:00')) - (await y('11:00'))).toBeCloseTo(36, 0);
+  expect((await y('13:00')) - (await y('12:00'))).toBeCloseTo(72, 0);
+  await expect(page.locator('.tl .hr.empty').first()).toBeVisible();
+  // dots: today and tomorrow have entries, the day after tomorrow has none
+  await expect(page.locator(`[data-day="${TODAY}"] .dot`)).toHaveCount(1);
+  await expect(page.locator(`[data-day="${addDays(TODAY, 1)}"] .dot`)).toHaveCount(1);
+  await expect(page.locator(`[data-day="${addDays(TODAY, 2)}"] .dot`)).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('Mein Tag: a free dry window for the daily goal of the challenge, planned on one tap, with Undo', async ({ page, context }) => {
+  const errors = await open(page, context, '#/day');
+  await page.waitForSelector('h1');
+  const base = Date.parse(`${TODAY}T00:00:00+02:00`);
+  const hours = Array.from({ length: 24 }, (_, h) => ({ ms: base + h * 36e5, temp: 12, feels: 12, rainP: 5, rainMm: 0, code: 3, wind: 8, gust: 14, cape: 0 }));
+  const core = { key: 'wx-core:46.95,7.45', at: Date.parse(D0), place: { lat: 46.95, lon: 7.45, name: 'Testort' }, offset: 7200, hours, days: [{ date: TODAY, rise: base + 7.5 * 36e5, set: base + 18.5 * 36e5, uv: 2 }] };
+  const rec = { name: 'Outdoors', goalMin: 90, from: addDays(TODAY, -3), until: addDays(TODAY, 22), hand: { [TODAY]: [30] }, stopped: false, closed: false, no: null };
+  await put(page, { meta: [core], settings: [{ key: 'week.items', value: ITEMS }, { key: 'homePlace', value: { lat: 46.95, lon: 7.45, name: 'Testort' } }, { key: 'outdoor', value: rec }] });
+  await page.reload();
+  // 30 of 90 minutes are done, 60 are missing; «now» is 09:00 plus the seconds the page took, so the window starts at 09:30 or 09:45
+  const ghost = page.locator('[data-draussen]');
+  await expect(ghost).toContainText(T('Outdoors'));
+  await expect(ghost).toContainText(/09:(30|45)–10:(30|45)/);
+  const range = (await ghost.innerText()).match(/\d\d:\d\d–\d\d:\d\d/)[0];
+  await ghost.locator('[data-draussen-plan]').click();
+  await expect(ghost).toHaveCount(0);
+  const planned = page.locator('.tl .blk', { hasText: T('Outdoors') });
+  await expect(planned).toContainText(range);
+  // Undo takes it back and the suggestion returns
+  await page.getByRole('button', { name: T('Undo') }).click();
+  await expect(planned).toHaveCount(0);
+  await expect(page.locator('[data-draussen]')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('Mein Tag: in the evening a closed line counts what is open; tick off, to tomorrow, drop, all to tomorrow, each with Undo', async ({ page, context }) => {
+  const errors = await open(page, context, '#/day', `${TODAY}T19:30:00+02:00`);
+  await page.waitForSelector('h1');
+  await put(page, { settings: [{ key: 'week.items', value: ITEMS }] });
+  await page.reload();
+  const line = page.locator('[data-evening]');
+  // the dentist (12:00), the shopping (17:30) and the call without a time are open; the dinner is tomorrow
+  await expect(line.locator('summary')).toContainText(`3 ${T('{n} things are still open|evening').replace('{n} ', '')}`);
+  await line.locator('summary').click();
+  await expect(line.locator('[data-evening-entry]')).toHaveCount(3);
+  // tick off: the point leaves the list, Undo brings it back
+  await line.locator('li', { hasText: 'Garage anrufen' }).locator('[data-evening-done]').click();
+  await expect(line.locator('[data-evening-entry]')).toHaveCount(2);
+  await page.getByRole('button', { name: T('Undo') }).last().click(); // the newest offer: an older one may still be showing
+  await expect(line.locator('[data-evening-entry]')).toHaveCount(3);
+  // to tomorrow
+  await line.locator('li', { hasText: 'Zahnarzt' }).locator('[data-evening-later]').click();
+  await expect(line.locator('[data-evening-entry]')).toHaveCount(2);
+  // drop with Undo
+  await line.locator('li', { hasText: 'Einkaufen' }).locator('[data-evening-drop]').click();
+  await expect(line.locator('[data-evening-entry]')).toHaveCount(1);
+  await page.getByRole('button', { name: T('Undo') }).last().click(); // the newest offer: an older one may still be showing
+  await expect(line.locator('[data-evening-entry]')).toHaveCount(2);
+  // all to tomorrow: the line is gone, tomorrow holds them
+  await line.locator('[data-evening-all]').click();
+  await expect(page.locator('[data-evening]')).toHaveCount(0);
+  await page.locator(`[data-day="${addDays(TODAY, 1)}"]`).click();
+  await expect(page.locator('[data-entry="wi1"]')).toContainText('Zahnarzt');
+  await expect(page.locator('[data-entry="wi2"]')).toContainText('Einkaufen');
+  await expect(page.locator('[data-evening]')).toHaveCount(0); // tomorrow has no review
   expect(errors).toEqual([]);
 });

@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../../lib/actlite.js';
   /**
    * «Geschafft» (Noah 19.11.2026 «1-5a», Thread «Training erfassen vereinfachen», T1): the one page after a tick.
    *   #/flow/geschafft?e=<entry id>   what you did, how often this week, the week in hours and days, the weekly goals still
@@ -57,7 +58,7 @@
     let stale = false;
     (async () => {
       const [goal, weekplan, weeklog, plan, sp] = await Promise.all([db.settings.get(GOAL_KEY), db.settings.get(WEEKPLAN_KEY), db.settings.get(WEEKLOG_KEY), db.settings.get(PLAN_KEY), db.settings.get(SP_KEY)]);
-            const activities = e.stravaId ? await db.activities.toArray().catch(() => []) : [];
+            const activities = e.stravaId ? await readLite(db, (T) => T.toArray()).catch(() => []) : [];
       const stars = await db.flowStars.toArray().catch(() => []);
       if (!stale) more = { goal: goal?.value ?? null, weekplan: weekplan?.value ?? null, weeklog: weeklog?.value ?? null, plan: plan?.value ?? null, team: teamSessions(spPrefsOf(sp?.value)), activities, stars };
     })();
@@ -144,7 +145,7 @@
     <Empty text={wanted ? t('This tick is gone, perhaps it was taken back.') : t('Nothing ticked yet. Tick something on Active and this page shows what it brought.')} action={{ label: t('Back to Active'), href: '#/flow' }} />
   {:else}
     <section class="head" data-geschafft-head>
-      <span class="check" aria-hidden="true"><Check size={22} strokeWidth={2.5} /></span>
+      <span class="check" aria-hidden="true"><Check size={24} strokeWidth={2.5} /></span>
       <div class="ht">
         <h1 tabindex="-1" data-page-title>{t('Done page: {name}', { name: actName(act) })}{#if amount || entry.feel}{' '}<span class="amt">· {[amount, entry.feel ? t(FEEL_TEXT[entry.feel]) : ''].filter(Boolean).join(' · ')}</span>{/if}</h1>
         <p class="src" data-geschafft-source>{when} · {t(SOURCE[sourceKey(entry)])}</p>
@@ -228,7 +229,7 @@
           {/if}
           <div class="days" data-geschafft-days>
             {#each week.days as d, i (d)}
-              <span class:today={d === entry.day}>{dayShort(d)}<b class:y={week.done[i]} aria-hidden="true">{#if week.done[i]}✓{/if}</b><span class="vh">{fmt(d, { weekday: 'long' })}: {week.done[i] ? t('trained|day') : t('nothing ticked')}</span></span>
+              <span class:today={d === entry.day}>{dayShort(d)}<b class:y={week.done[i]} aria-hidden="true">{#if week.done[i]}<Check size={14} class="ic-in" aria-hidden="true" />{/if}</b><span class="vh">{fmt(d, { weekday: 'long' })}: {week.done[i] ? t('trained|day') : t('nothing ticked')}</span></span>
             {/each}
           </div>
           <small>{tn(week.daysDone, '{n} day with training this week', '{n} days with training this week')}</small>

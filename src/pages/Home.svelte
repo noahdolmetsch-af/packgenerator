@@ -77,6 +77,7 @@
   import { askTour, TOUR_EVENT, END_EVENT } from '../lib/tour/run.js';
   import { readRun } from '../lib/tour.js';
   import Continue from '../lib/home/Continue.svelte';
+  import TagesSatz from '../lib/home/TagesSatz.svelte';
   import { stepOf, lastEvening, notBegun } from '../lib/phase.js';
   import { quickDebrief, templateOffer, templateName, nextTrip, learningsFor } from '../lib/debrief.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
@@ -168,6 +169,7 @@
   import { INTRO_KEY, introDue } from '../lib/home/introkt.js';
   import SeriesTile from '../lib/home/SeriesTile.svelte';
   import NewsTile from '../lib/home/NewsTile.svelte';
+  import NeuSeitCard from '../lib/home/NeuSeitCard.svelte';
   import MedTile from '../lib/home/MedTile.svelte';
   import BalanceTile from '../lib/home/BalanceTile.svelte';
   import RoundTile from '../lib/home/RoundTile.svelte'; // WG: the round of «Wi gaht's?» (was the morning check)
@@ -208,7 +210,7 @@
   import { mundartFor } from '../lib/home/mundart.js'; // «Wetter-Sprüche auf Mundart» (Idee 27)
   import HeuteBild from '../lib/home/HeuteBild.svelte'; // «Paket G»: the drawn landscape on top
   import { bildOf, moodOf } from '../lib/home/heutebild.js';
-  import { PartyPopper, Sun, RotateCcw, Route, ChevronRight, SlidersHorizontal, Hand, X, ClipboardList, Flower2, Bike as BikeIcon, LayoutGrid } from '@lucide/svelte';
+  import { PartyPopper, Sun, RotateCcw, Route, ChevronRight, SlidersHorizontal, Hand, X, ClipboardList, Flower2, Bike as BikeIcon, LayoutGrid, Check } from '@lucide/svelte';
   import DuTile from '../lib/home/DuTile.svelte'; // «Heute neu» A (Noah 20.10.2026 «3a»): «You today»
   import MedStartSheet from '../lib/flow/MedStartSheet.svelte';
   import NachtragHint from '../lib/flow/NachtragHint.svelte'; // «Heute · Gestern» (Noah 22.11.2026 «b»): the morning hint of Aktiv also on top of Heute
@@ -920,7 +922,7 @@
     if (!ready) return [];
     const rows = [];
     // «Heute neu» N2: with «Your body today» on the wall the check lives there, with the Aktiv tiles meditation too
-    if (abDue && !roundOpen && !on('body')) rows.push({ key: 'check', tone: 'now', ic: ClipboardList, text: tn(abDue, abEvening ? 'Evening check · {n} question' : afterMorning(stampOf()) ? 'Open from this morning · {n} question' : 'Morning check · {n} question', abEvening ? 'Evening check · {n} questions' : afterMorning(stampOf()) ? 'Open from this morning · {n} questions' : 'Morning check · {n} questions'), act: { label: t('Start|round'), run: () => (abAsk = true) } });
+    if (abDue && !roundOpen && !(on('body') && !on('heutecheck'))) rows.push({ key: 'check', tone: 'now', ic: ClipboardList, text: tn(abDue, abEvening ? 'Evening check · {n} question' : afterMorning(stampOf()) ? 'Open from this morning · {n} question' : 'Morning check · {n} question', abEvening ? 'Evening check · {n} questions' : afterMorning(stampOf()) ? 'Open from this morning · {n} questions' : 'Morning check · {n} questions'), act: { label: t('Start|round'), run: () => (abAsk = true) } });
     if (medSt && !medSt.todayDone && !night && !on('acts')) rows.push({ key: 'med', tone: 'now', ic: Flower2, text: t('Meditation, like last time'), act: { label: t('Start|meditation'), run: () => (medOpen = true) } });
     if (suggestion && !night && !isHidden({ key: 'idea' }, S[ROWS_KEY], today)) rows.push({ key: 'idea', tone: 'now', ic: BikeIcon, text: t('Idea: ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }), act: { label: t('Quick start'), run: startQuick }, ...(bikes.length > 1 ? { act2: { label: t('Other bike'), run: nextBike, quiet: true } } : {}) });
     return rows;
@@ -954,7 +956,9 @@
     e.preventDefault();
     const el = document.getElementById(id);
     if (!el) return;
-    el.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    // at once (not smooth), and once more a frame later: lazy cards above may still change their height while a smooth scroll runs, and the jump would end beside the heading
+    el.scrollIntoView({ block: 'start' });
+    requestAnimationFrame(() => el.scrollIntoView({ block: 'start' }));
     el.setAttribute('tabindex', '-1');
     el.focus({ preventScroll: true });
   }
@@ -1182,6 +1186,8 @@
     {#if ready && !editing && bannerEntries.length}<NewsBanner entries={bannerEntries} onclose={() => (bannerOff = true)} />{/if}
     <!-- «Heute neu» A: one personal sentence; the idea for today moved into «Up now» -->
     {#if sentence}<p class="say" data-say>{#each sentence as p, i (i)}{#if i}{' '}{/if}{#if p.to}<a class="jump" href={`#${p.to}`} data-say-jump onclick={(e) => jumpTo(e, p.to)}>{p.text}</a>{:else}<span class:hi={p.hi}>{p.text}</span>{/if}{/each}</p>{/if}
+    <!-- «Heute erholen» / «Welcher Berg ruft?» (Noah 24.11.2026 «1-5»): one quiet sentence from the form of the day, the zone minutes and the weather -->
+    {#if ready && !editing && !night && !emptyDevice}<TagesSatz {today} dry={fc ? dayDry(fc, today, now.getHours()) : null} />{/if}
     <!-- «Heute entdecken» (Noah 23.11.2026 «2b»): one idea with its «Warum», right under the chips; it was the card «Entdecken» under «Mehr» -->
     {#if ready && !editing}<IdeenZeile {today} hour={now.getHours()} weekday={now.getDay()} {trips} debriefDone={(tr) => debriefs.some((d) => d.tripId === tr.id && d.status === 'done')} careDue={due.points} inbox={notes.length} />{/if}
   </section>
@@ -1236,7 +1242,7 @@
             {#each bars as s (s.key)}
               {@const cur = s.key === sched.next?.key}
               <li class:done={s.state === 'done'} class:skip={s.state === 'skip'} class:cur class:late={s.late} aria-current={cur ? 'step' : undefined}>
-                <span>{#if s.state === 'done'}{'✓ '}{/if}{t(STEP_NAME[s.key])}</span>
+                <span>{#if s.state === 'done'}<Check size={14} class="ic-in" aria-hidden="true" />{' '}{/if}{t(STEP_NAME[s.key])}</span>
               </li>
             {/each}
           </ol>
@@ -1246,7 +1252,7 @@
             <button type="button" class="btn hi main" onclick={() => allGood()}>{t('All good')}</button>
             <a class="btn" href={focus.href} onclick={() => openTrip(shown.id)}>{t(focus.label)}</a>
           {:else if stepNow}
-            <a class="btn hi main" href={stepNow.href} onclick={() => openTrip(shown.id)} data-step={sched.next.key}>{stepNow.button}<ChevronRight size={18} aria-hidden="true" /></a>
+            <a class="btn hi main" href={stepNow.href} onclick={() => openTrip(shown.id)} data-step={sched.next.key}>{stepNow.button}<ChevronRight size={20} aria-hidden="true" /></a>
             {#each stepNow.links.slice(0, 1) as l (l.href)}<a class="btn" href={l.href} onclick={() => openTrip(shown.id)}>{l.label}</a>{/each}
             {#if stepNow.href !== stepHere(shown).href}<a class="btn" href={stepHere(shown).href} onclick={() => openTrip(shown.id)}>{t('Open the trip')}</a>{/if}
           {:else if focus && isLead}
@@ -1289,7 +1295,7 @@
 <!-- one row of «Up now» and of «Good to know» -->
 {#snippet upRow(r, line = false)}
     <li class="row {r.tone}" data-row={r.key.split(':')[0]}>
-      {#if r.tone === 'party'}<PartyPopper size={18} aria-hidden="true" />{:else if r.ic}<span class="rico" aria-hidden="true"><r.ic size={18} /></span>{:else}<span class="dot" aria-hidden="true"></span>{/if}
+      {#if r.tone === 'party'}<PartyPopper size={20} aria-hidden="true" />{:else if r.ic}<span class="rico" aria-hidden="true"><r.ic size={18} /></span>{:else}<span class="dot" aria-hidden="true"></span>{/if}
       {#if r.key === 'tests' && cleanAsk}
         <span class="tx">{tn(tests.length, 'Archive {n} test trip? It stays in your data, Today leaves it out.', 'Archive {n} test trips? They stay in your data, Today leaves them out.')}</span>
         <span class="ra"><button type="button" class="btn sm" onclick={cleanTests}>{t('Archive')}</button><button type="button" class="lkb" onclick={() => (cleanAsk = false)}>{t('Cancel')}</button></span>
@@ -1474,6 +1480,8 @@
   {:else}<Skeleton kind="home" rows={2} />{/if}
   <!-- «Heute neu» A: the half-width trip card has no room for the weekly km check; it shows under the wall then -->
   {#if ready && !editing && timeWall.some((x) => x.id === 'trip' && x.size === 'l')}<div class="kmrow"><KmCard {today} /></div>{/if}
+  <!-- «Bilder bei jeder Neuheit» PR 3 (Noah 23.11.2026 «1b 2a 3a 4b 5a»): «N Neuheiten seit …» under the content (Content first) -->
+  {#if ready && !editing && !emptyDevice}<NeuSeitCard {today} />{/if}
   <!-- SV1 «Strava verbinden» (Noah 13.10.2026): until Strava is connected on this device, one card;
        0.155.0 HN4: at the very bottom, under the wall (was on top) -->
 
@@ -1512,7 +1520,7 @@
 <!-- v0.119.0 «Schnellstart» (mockup Q2a): what one click made, Noah stays on Today -->
 {#if made}
   <div class="qmade" role="status" data-quick-made>
-    <p class="qt"><span aria-hidden="true">✓{'\u00a0'}</span>{t('Trip planned: {name}', { name: made.title })}</p>
+    <p class="qt"><Check size={14} class="ic-in" aria-hidden="true" />{'\u00a0'}{t('Trip planned: {name}', { name: made.title })}</p>
     <p class="qs">{made.line}</p>
     <div class="qa">
       <Btn kind="hi" label={t('Open')} explain={explain('Open|quick')} href={madeTrip ? stepHere(madeTrip).href : '#/pack'} onclick={() => (openTrip(made.id), (made = null))} />
@@ -1679,8 +1687,6 @@
   .kick {
     margin: 0;
     font: 600 13px/1.3 var(--font-body);
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
     color: var(--ink-2);
   }
   .lk,
@@ -2552,6 +2558,9 @@
   }
   .say .hi {
     color: var(--hi);
+  }
+  .imp {
+    scroll-margin-top: 72px;
   }
   .rico {
     display: grid;

@@ -76,7 +76,7 @@ test('24: a bottle keeps its content apart from the empty weight', async ({ page
   expect(errors).toEqual([]);
 });
 
-test('38 + 40: the picture tool keeps the old names; the search asks which meaning', async ({ page, context }, info) => {
+test('38 + 40: the picture tool keeps the old names; the buttons under the search show where the hits are', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await openHome(page, context, info, { data: data() });
@@ -88,12 +88,16 @@ test('38 + 40: the picture tool keeps the old names; the search asks which meani
   if (phone(info)) await page.getByRole('button', { name: T('Search everything') }).click();
   else await field.click();
   await field.fill('zzkette');
-  const ask = page.locator('[data-search-meanings]');
-  await expect(ask).toBeVisible();
-  await expect(ask.locator('[data-meaning]')).toHaveCount(2);
-  await ask.locator('[data-meaning="gear"]').click();
-  await expect(field).toHaveValue('material zzkette');
-  await expect(ask).toHaveCount(0);
+  // «Klügere Suche» (Noah 24.11.2026 «1-4a»): «Do you mean … or …» is gone; the buttons under the field say where the hits are, with their number
+  await expect(page.locator('[data-search-meanings]')).toHaveCount(0);
+  const chips = page.locator('[data-search-filter]');
+  await expect(page.locator('[data-search-filter="gear"] .cnt')).toBeVisible();
+  await expect(page.locator('[data-search-filter="notes"] .cnt')).toBeVisible();
+  await expect(page.locator('[data-search-filter="trips"]')).toHaveCount(0); // no hits: no button
+  await expect(page.locator('[data-search-filter="bikes"]')).toHaveCount(0);
+  await expect(chips.first()).toHaveAttribute('data-search-filter', 'all');
+  await page.locator('[data-search-filter="gear"]').click();
+  await expect(page.locator('[data-search-filter="gear"]')).toHaveAttribute('aria-pressed', 'true');
   expect(await noSideways(page)).toBe(0);
   expect(errors).toEqual([]);
 });

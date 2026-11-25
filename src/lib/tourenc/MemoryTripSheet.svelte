@@ -94,7 +94,7 @@
       {#if photo}
         <span class="ph"><img src={photo} alt={t('Photo of the trip')} /><button type="button" class="btn sm" onclick={() => (photo = null)}>{t('Remove photo')}</button></span>
       {:else}
-        <label class="btn pick"><ImagePlus size={18} aria-hidden="true" />{t('Choose a photo')}<input type="file" accept="image/*" onchange={pickPhoto} data-memory-photo /></label>
+        <label class="btn pick"><ImagePlus size={20} aria-hidden="true" />{t('Choose a photo')}<input type="file" accept="image/*" onchange={pickPhoto} data-memory-photo /></label>
       {/if}
     </div>
     {#if error}<p class="err" role="alert">{error}</p>{/if}
@@ -109,7 +109,7 @@
   .memtrip { width: min(480px, calc(100vw - 24px)); }
   form { display: grid; gap: 10px; }
   .head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-  .kick { margin: 0; font-size: var(--fs-small); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+  .kick { margin: 0; font-size: var(--fs-small); font-weight: 700; color: var(--ink-3); }
   h2 { margin: 2px 0 0; font-size: var(--fs-section); }
   .ib { flex: none; display: grid; place-items: center; width: 44px; height: 44px; margin: -6px -6px 0 0; border: 0; border-radius: 10px; background: none; color: var(--ink-2); cursor: pointer; }
   .hint { margin: 0; font-size: var(--fs-small); color: var(--ink-2); }

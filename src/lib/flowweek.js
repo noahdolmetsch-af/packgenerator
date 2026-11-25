@@ -116,7 +116,9 @@ export function weekPlan({ acts = [], states = [], log = [], today, fixed = [], 
         actId: e.actId,
         n: 0,
         min: 0,
+        ticks: 0,
       };
+      x.ticks += 1;
       x.n += Number(e.n) || 1;
       x.min += Number(e.min) || 0;
       by.set(e.actId, x);
@@ -168,7 +170,7 @@ export function weekPlan({ acts = [], states = [], log = [], today, fixed = [], 
 
 /**
  * «Eine Zahl für die Woche» (V3): the units of the week, Monday to Sunday, from the days of weekPlan.
- * done: what was ticked (a tick counts once per tick); total: done plus the fixed and planned dates still to come.
+ * done: what was ticked (a tick counts once per tick, whatever its repetitions: «push-ups · 20» is one unit, like in Woche); total: done plus the fixed and planned dates still to come.
  * Suggestions do not count (they are only ideas). null when nothing is ticked or planned.
  */
 export function weekUnits(days = []) {
@@ -176,7 +178,7 @@ export function weekUnits(days = []) {
   let ahead = 0;
   for (const d of days)
     for (const x of d.items) {
-      if (x.kind === 'done') done += Math.max(1, Number(x.n) || 1);
+      if (x.kind === 'done') done += Math.max(1, Number(x.ticks) || 1);
       else if (x.kind === 'fix' || x.kind === 'plan') ahead += 1;
     }
   return done + ahead ? { done, total: done + ahead } : null;

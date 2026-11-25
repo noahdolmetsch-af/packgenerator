@@ -11,6 +11,7 @@
   import { Plus, Pencil, Trash2, Pin, Flame, Brain } from '@lucide/svelte';
   import { db } from '../lib/db.js';
   import PageHead from '../lib/ui/PageHead.svelte';
+  import PageNote from '../lib/ui/PageNote.svelte';
   import Skeleton from '../lib/ui/Skeleton.svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import SortArrows from '../lib/ui/SortArrows.svelte';
@@ -85,7 +86,7 @@
 </script>
 
 <div class="rv-page qz">
-  <PageHead title={t('Quiz the evening before')} text={t('Three questions about the gear and the route of your next trip, from your own data. The evening before a trip it waits on «Packed». Only for fun: you can switch it off.')} />
+  <PageHead title={t('Quiz the evening before')} />
   <AreaIntro place="quiz" />
 
   {#if !data}
@@ -164,6 +165,7 @@
       </div>
     </div>
   {/if}
+  <PageNote text={t('Three questions about the gear and the route of your next trip, from your own data. The evening before a trip it waits on «Packed». Only for fun: you can switch it off.')} />
 </div>
 
 {#if sheet}

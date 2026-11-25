@@ -8,6 +8,7 @@ import { test, expect } from './clock.js';
 import { openHome, homeFixture, day } from './home0460-fixture.js';
 import { QUESTIONS, ON_AT_START } from '../../src/lib/abfragen.js';
 import { READY, HEAD_N2 } from '../../src/lib/home/tiles.js';
+import { openRound, toLastStep } from './runde-fixture.js';
 
 const noSideways = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
 
@@ -106,10 +107,14 @@ test.describe('HA Heute neu A', () => {
     const d = homeFixture();
     d.tables.settings.push({ key: 'abfragen', value: { since: `${day(-1)}T19:00`, q: {}, own: [] } });
     const T = await openHome(page, context, info, { data: d });
-    const card = page.locator('[data-section="abfragen"]');
+    const card = await openRound(page);
     await expect(card).toBeVisible();
     await expect(card).toHaveJSProperty('open', true);
-    await expect(card.locator('[data-q]')).toHaveCount(3);
+    // one question per screen (Noah 24.11.2026): three steps, the rest on demand on the last one
+    await expect(card.locator('[data-q]')).toHaveCount(1);
+    await expect(card.locator('[data-ab-step]')).toContainText(T('Question {n} of {m}', { n: 1, m: 3 }));
+    await expect(card.locator('[data-ab-more]')).toHaveCount(0);
+    await toLastStep(card);
     const more = card.locator('[data-ab-more]');
     await expect(more).toBeVisible();
     const hidden = Number((await more.textContent()).match(/\d+/)[0]);
@@ -117,7 +122,7 @@ test.describe('HA Heute neu A', () => {
     expect(QUESTIONS.filter((x) => ON_AT_START.has(x.id)).length).toBeGreaterThanOrEqual(3 + hidden);
     await noSideways(page);
     await more.click();
-    await expect(card.locator('[data-q]')).toHaveCount(3 + hidden);
+    await expect(card.locator('[data-ab-step]')).toContainText(T('Question {n} of {m}', { n: 3, m: 3 + hidden }));
     await expect(more).toHaveCount(0);
     expect(T('Show {n} more questions', { n: 2 })).toMatch(/Fragen/);
   });

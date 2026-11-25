@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../actlite.js';
   /**
    * Paket U «Rennen» · 33 Briefing-Blatt (#/race/brief/<id>): one print-friendly page with the plan per
    * day, checkpoints and cut-offs, beds per night, drop bags, the biggest gaps, Sundays, emergency numbers
@@ -51,7 +52,7 @@
   const daysKey = $derived(days.join(','));
   const actsQ = $derived.by(() => {
     const ds = daysKey ? daysKey.split(',') : [];
-    return liveQuery(() => (ds.length ? db.activities.where('day').anyOf(ds).toArray() : []));
+    return liveQuery(() => (ds.length ? readLite(db, (T) => T.where('day').anyOf(ds).toArray()) : []));
   });
   const stops = $derived(stopAnalysis(rideTimes($ridesQ ?? [], $actsQ ?? [], days)));
 </script>

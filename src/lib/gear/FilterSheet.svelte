@@ -108,6 +108,7 @@
     width: 100vw;
     max-width: 100vw;
     max-height: 88vh;
+    max-height: 88dvh;
     border-radius: 16px 16px 0 0;
     padding-bottom: calc(18px + env(safe-area-inset-bottom));
   }
@@ -188,9 +189,9 @@
   }
   /* v0.102.0 Design-Refresh P3 (M3): the chosen chip filled in ink */
   .fchip[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
     font-weight: 600;
   }
   .fchip[aria-pressed='true'] small {

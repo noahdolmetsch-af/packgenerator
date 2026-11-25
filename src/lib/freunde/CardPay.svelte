@@ -40,7 +40,7 @@
   <p class="ev-muted">{t('{name} added payment details, for example to share costs after a ride.', { name })}</p>
   <div>
     <button type="button" class="btn" aria-expanded={open} aria-controls="cp-body" onclick={() => (open = !open)} data-card-payopen>
-      <ChevronDown size={18} aria-hidden="true" class={open ? 'cp-up' : ''} />{open ? t('Hide payment details') : t('Show payment details')}
+      <ChevronDown size={20} aria-hidden="true" class={open ? 'cp-up' : ''} />{open ? t('Hide payment details') : t('Show payment details')}
     </button>
   </div>
   {#if open}
@@ -50,7 +50,7 @@
           <span class="cp-tw" aria-hidden="true">TWINT</span>
           <span class="cp-tx"><b>{t('Pay with TWINT')}</b><small class="num">{pay.t}</small></span>
           <button type="button" class="btn sm" onclick={copyTwint} aria-label={t('Copy TWINT number')}>
-            {#if copied}<Check size={18} aria-hidden="true" />{t('Copied')}{:else}<Copy size={18} aria-hidden="true" />{t('Copy')}{/if}
+            {#if copied}<Check size={20} aria-hidden="true" />{t('Copied')}{:else}<Copy size={20} aria-hidden="true" />{t('Copy')}{/if}
           </button>
         </div>
       {/if}

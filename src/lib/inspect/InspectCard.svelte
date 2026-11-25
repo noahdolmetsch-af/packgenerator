@@ -44,7 +44,7 @@
 </script>
 
 <section class="ic" aria-labelledby="ic-h-{bike.id}" data-inspect-card>
-  <h3 id="ic-h-{bike.id}"><ClipboardCheck size={18} aria-hidden="true" />{t('Inspection')}</h3>
+  <h3 id="ic-h-{bike.id}"><ClipboardCheck size={20} aria-hidden="true" />{t('Inspection')}</h3>
   <p class="lead">{t('Check the bike point by point, with tools, steps and when the bike shop is better.')}</p>
 
   {#if st?.rain}

@@ -46,20 +46,74 @@ export function pruneIds(list, keep = KEEP) {
 /** How many records a backup object holds. */
 export const rowsOf = (data) => Object.values(countRows(data)).reduce((n, x) => n + x, 0);
 
+/**
+ * Every copy holds ALL data (with a big phone: some 100 MB). Reading a copy to show one line of the list
+ * made the page «Data» wait seconds, so each copy has a small note next to it («head:<id>» in the meta table
+ * of the same database): when, which version, how many records. The list reads only these notes.
+ */
+export const HEAD = 'head:';
+const headOf = ({ id, at, version, to, kind, rows }) => ({ id, at, version: version ?? null, to: to ?? null, kind, rows: rows ?? 0 });
+
+/** The id, time and kind of every copy, read from the indexes only: never a copy's data. */
+async function lightList(sdb) {
+  const [atIds, ats, kindIds, kinds] = await Promise.all([
+    sdb.snaps.orderBy('at').primaryKeys(),
+    sdb.snaps.orderBy('at').keys(),
+    sdb.snaps.orderBy('kind').primaryKeys(),
+    sdb.snaps.orderBy('kind').keys(),
+  ]);
+  const kindOf = new Map(kindIds.map((id, i) => [id, kinds[i]]));
+  return atIds.map((id, i) => ({ id, at: ats[i], kind: kindOf.get(id) }));
+}
+
 /** Keep a copy of the data now. kind: 'update' (before an update), 'restore' (before going back) or 'import' (before an import). */
 export async function takeSnapshot(db, sdb, { version, to = null, kind = 'update', now = new Date() }) {
   const data = await buildBackup(db);
-  const id = await sdb.snaps.add({ at: now.toISOString(), version: version ?? null, to, kind, rows: rowsOf(data), data });
-  const all = await sdb.snaps.toArray();
-  const drop = pruneIds(all.map(({ id, at, kind }) => ({ id, at, kind })));
-  if (drop.length) await sdb.snaps.bulkDelete(drop);
+  const entry = { at: now.toISOString(), version: version ?? null, to, kind, rows: rowsOf(data) };
+  const id = await sdb.snaps.add({ ...entry, data });
+  await sdb.meta.put({ key: HEAD + id, value: headOf({ ...entry, id }) });
+  const drop = pruneIds(await lightList(sdb));
+  if (drop.length) {
+    await sdb.snaps.bulkDelete(drop);
+    await sdb.meta.bulkDelete(drop.map((x) => HEAD + x));
+  }
   return id;
+}
+
+const newestFirst = (a, b) => String(b.at).localeCompare(String(a.at)) || b.id - a.id;
+
+/** The copies, newest first, from their notes only (no data is read). A copy without a note is not in the list until {@link ensureHeads} ran. */
+export async function readSnapshotList(sdb) {
+  const [ids, notes] = await Promise.all([sdb.snaps.toCollection().primaryKeys(), sdb.meta.where('key').startsWith(HEAD).toArray()]);
+  const alive = new Set(ids);
+  return notes.map((n) => n.value).filter((h) => alive.has(h.id)).sort(newestFirst);
+}
+
+/**
+ * Copies made before the notes existed get theirs: each is read ONCE, one at a time (this is the slow part
+ * the page used to do on every visit). Notes of copies that are gone are dropped. Returns how many were made.
+ */
+export async function ensureHeads(sdb) {
+  const [ids, notes] = await Promise.all([sdb.snaps.toCollection().primaryKeys(), sdb.meta.where('key').startsWith(HEAD).primaryKeys()]);
+  const have = new Set(notes);
+  let made = 0;
+  for (const id of ids) {
+    if (have.has(HEAD + id)) continue;
+    const snap = await sdb.snaps.get(id);
+    if (!snap) continue;
+    await sdb.meta.put({ key: HEAD + id, value: headOf(snap) });
+    made++;
+  }
+  const alive = new Set(ids.map((x) => HEAD + x));
+  const gone = notes.filter((k) => !alive.has(k));
+  if (gone.length) await sdb.meta.bulkDelete(gone);
+  return made;
 }
 
 /** The copies, newest first, without their data (for the list). */
 export async function listSnapshots(sdb) {
-  const all = await sdb.snaps.toArray();
-  return all.map(({ id, at, version, to, kind, rows }) => ({ id, at, version, to, kind, rows })).sort((a, b) => String(b.at).localeCompare(String(a.at)) || b.id - a.id);
+  await ensureHeads(sdb);
+  return readSnapshotList(sdb);
 }
 
 export const hasDataIn = async (db) => (await db.items.count()) + (await db.trips.count()) + (await db.bikes.count()) > 0;
@@ -97,7 +151,7 @@ export async function restoreSnapshot(db, sdb, id, { current, now = new Date() }
 
 /** Is there a copy from before the update to this version? (the line in the news banner) */
 export async function snapshotFor(sdb, version) {
-  const list = await listSnapshots(sdb);
+  const list = await readSnapshotList(sdb); // notes only: this runs on every start, never read a copy for it
   return list.find((s) => s.kind === 'update' && s.to === version) ?? null;
 }
 

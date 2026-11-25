@@ -46,7 +46,7 @@
 </script>
 
 <section class="cplan" aria-labelledby="cplan-h-{bike.id}" data-care-plan>
-  <h3 id="cplan-h-{bike.id}"><Wrench size={18} aria-hidden="true" />{t('Care for {bike}', { bike: bike.name })}</h3>
+  <h3 id="cplan-h-{bike.id}"><Wrench size={20} aria-hidden="true" />{t('Care for {bike}', { bike: bike.name })}</h3>
   <p class="lead">{t('You choose what the app reminds you of, and how often. The app’s numbers are the standard.')}</p>
   <ul class="rows">
     {#each shown as r (r.key)}
@@ -54,12 +54,12 @@
         <button type="button" class="main" onclick={() => (open = { key: r.key, focus: null })} aria-label={t('Set up care: {name}', { name: t(r.name) })}>
           <span class="nm"><b>{t(r.name)}</b>{' '}<small>{t(r.sub)}</small></span>
           <span class="val"><span class="num">{r.on ? careValue(r) : t('off: no reminder')}</span>{' '}<small>{#if !r.on}{t('Standard would be {v}', { v: careStdText(r) })}{:else if r.changed}{t('changed by you')} · {t('Standard {v}', { v: careStdText(r) })}{:else}{t('Standard')}{/if}</small></span>
-          <span class="ch" aria-hidden="true"><ChevronRight size={18} /></span>
+          <span class="ch" aria-hidden="true"><ChevronRight size={20} /></span>
         </button>
         {#if r.changed}<button type="button" class="tp-link rs" disabled={busy} onclick={() => reset(r)} aria-label={t('Reset {name} to the standard', { name: t(r.name) })}>{t('reset|care')}</button>{/if}
         <button type="button" class="switch" role="switch" aria-checked={r.on} disabled={busy} aria-label={t('Care: {name}', { name: t(r.name) })} onclick={() => toggle(r)}><span class="knob"></span></button>
         {#if r.note || addedOf(r)}
-          <button type="button" class="note" onclick={() => (open = { key: r.key, focus: 'note' })}><StickyNote size={15} aria-hidden="true" /><span>{[r.note, addedOf(r)].filter(Boolean).join(' · ')}</span></button>
+          <button type="button" class="note" onclick={() => (open = { key: r.key, focus: 'note' })}><StickyNote size={16} aria-hidden="true" /><span>{[r.note, addedOf(r)].filter(Boolean).join(' · ')}</span></button>
         {:else}
           <button type="button" class="tp-link addnote" onclick={() => (open = { key: r.key, focus: 'note' })}><Plus size={14} aria-hidden="true" />{t('Note|care')}</button>
         {/if}

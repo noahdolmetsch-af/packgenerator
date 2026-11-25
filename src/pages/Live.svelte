@@ -1327,7 +1327,7 @@
     {#if rec.on}
       <div class="lv-go-row">
         <span class="lv-rec" role="status"><span class="lv-dot" aria-hidden="true"></span>{t('Ride running')} · {num(rec.km)} km{#if rec.acc != null}{' '}· ± {rec.acc} m{/if}</span>
-        <button type="button" class="btn hi" onclick={() => (small = false)} data-live-open><Maximize2 size={18} aria-hidden="true" />{t('Back to the live map')}</button>
+        <button type="button" class="btn hi" onclick={() => (small = false)} data-live-open><Maximize2 size={20} aria-hidden="true" />{t('Back to the live map')}</button>
       </div>
     {:else}
       <div class="lv-go-row">
@@ -1464,10 +1464,10 @@
       <div class="lvf-alerts">
         {#if turnNext && (detourKm != null || turnNext.distM <= 1000)}<div class="lvf-turn" data-live-turn><TurnHint turn={turnNext} distM={turnNext.distM} then={turnThen} thenM={turnThen ? Math.round((turnThen.km - turnNext.km) * 1000) : null} /></div>{/if}
         {#if !me}<p class="lvf-alert" role="status">{t('Waiting for the GPS …')}</p>{/if}
-        {#if goalTapping}<p class="lvf-alert" role="status" data-live-goal-hint><Flag size={18} aria-hidden="true" /><span>{t('Tap the map where you want to go.')}</span> <button type="button" class="btn sm" onclick={() => (goalTapping = false)}>{t('Cancel')}</button></p>{/if}
-        {#if resumed}<p class="lvf-alert" role="status" data-live-resumed-full><RefreshCw size={18} aria-hidden="true" /><span>{t('The app had loaded anew: your ride goes on.')}</span> <button type="button" class="btn sm" onclick={() => (resumed = false)}>{t('OK')}</button></p>{/if}
-        {#if offWarn}<p class="lvf-alert lvf-bad" role="alert" data-live-offroute><TriangleAlert size={18} aria-hidden="true" /><span>{at?.offM >= 1000 ? t('Off the route: {d} km away.', { d: fmtKm(at.offM / 1000) }) : t('Off the route: {m} m away.', { m: at?.offM })}</span></p>{/if}
-        {#if storm}<p class="lvf-alert lvf-bad" role="alert" data-live-storm={storm.kind}>{#if storm.kind === 'rain'}<CloudRain size={18} aria-hidden="true" />{:else}<CloudLightning size={18} aria-hidden="true" />{/if}<span>{storm.kind === 'rain' ? (storm.km != null ? t('Heavy rain possible around km {km} from {at}.', { km: storm.km, at: hhmm(storm.at) }) : t('Heavy rain possible here from {at}.', { at: hhmm(storm.at) })) : storm.km != null ? t('Thunderstorm possible around km {km} from {at}.', { km: storm.km, at: hhmm(storm.at) }) : t('Thunderstorm possible here from {at}.', { at: hhmm(storm.at) })}</span></p>
+        {#if goalTapping}<p class="lvf-alert" role="status" data-live-goal-hint><Flag size={20} aria-hidden="true" /><span>{t('Tap the map where you want to go.')}</span> <button type="button" class="btn sm" onclick={() => (goalTapping = false)}>{t('Cancel')}</button></p>{/if}
+        {#if resumed}<p class="lvf-alert" role="status" data-live-resumed-full><RefreshCw size={20} aria-hidden="true" /><span>{t('The app had loaded anew: your ride goes on.')}</span> <button type="button" class="btn sm" onclick={() => (resumed = false)}>{t('OK')}</button></p>{/if}
+        {#if offWarn}<p class="lvf-alert lvf-bad" role="alert" data-live-offroute><TriangleAlert size={20} aria-hidden="true" /><span>{at?.offM >= 1000 ? t('Off the route: {d} km away.', { d: fmtKm(at.offM / 1000) }) : t('Off the route: {m} m away.', { m: at?.offM })}</span></p>{/if}
+        {#if storm}<p class="lvf-alert lvf-bad" role="alert" data-live-storm={storm.kind}>{#if storm.kind === 'rain'}<CloudRain size={20} aria-hidden="true" />{:else}<CloudLightning size={20} aria-hidden="true" />{/if}<span>{storm.kind === 'rain' ? (storm.km != null ? t('Heavy rain possible around km {km} from {at}.', { km: storm.km, at: hhmm(storm.at) }) : t('Heavy rain possible here from {at}.', { at: hhmm(storm.at) })) : storm.km != null ? t('Thunderstorm possible around km {km} from {at}.', { km: storm.km, at: hhmm(storm.at) }) : t('Thunderstorm possible here from {at}.', { at: hhmm(storm.at) })}</span></p>
           {#if shelter && !shelterSkip}
             <p class="lvf-alert" role="status" data-live-shelter>
               <span>{t('Nearest roof: {name}, {d} km away.', { name: shelter.name || t(POI_KIND[shelter.kind]?.name ?? 'Shelter'), d: fmtKm(shelter.distKm) })}</span>
@@ -1475,21 +1475,21 @@
               <button type="button" class="btn sm" onclick={() => (shelterSkip = true)} data-live-shelter-skip>{t('Not now')}</button>
             </p>
           {/if}{/if}
-        {#if cfg.eatHm && eatGain >= 300}<p class="lvf-alert" role="alert"><Utensils size={18} aria-hidden="true" /><span>{t('{m} m up since you last ate: time to eat.', { m: eatGain })}</span> <button type="button" class="btn sm" onclick={ateNow}>{t('Eaten')}</button></p>{/if}
+        {#if cfg.eatHm && eatGain >= 300}<p class="lvf-alert" role="alert"><Utensils size={20} aria-hidden="true" /><span>{t('{m} m up since you last ate: time to eat.', { m: eatGain })}</span> <button type="button" class="btn sm" onclick={ateNow}>{t('Eaten')}</button></p>{/if}
         {#if msg}<p class="lvf-alert lvf-bad" role="alert">{msg}</p>{/if}
         <LiveWetter {me} />
         <LiveEssen {me} />
         <LivePlaceNote {me} tripId={trip?.id ?? null} />
         {#if detour && detourSmall}
           <button type="button" class="lvf-alert lv-detour lv-detour-small" onclick={() => setDetour({ ...detour, small: false }, false)} aria-expanded="false" aria-label={t('Show the navigation')} data-live-detour data-live-detour-small data-live-detour-back={detour.back ?? null}>
-            <Route size={18} aria-hidden="true" />
+            <Route size={20} aria-hidden="true" />
             <b>{detourTitle}</b>
             <small>{[t('{d} km', { d: fmtKm(detour.km) }), detour.oneWay && detour.min && !detour.reached ? hhmm(detour.at + detour.min * 60000) : ''].filter(Boolean).join(' · ')}</small>
-            <ChevronDown size={18} aria-hidden="true" />
+            <ChevronDown size={20} aria-hidden="true" />
           </button>
         {:else if detour}
           <div class="lvf-alert lv-detour" role="status" data-live-detour data-live-detour-back={detour.back ?? null}>
-            <Route size={18} aria-hidden="true" />
+            <Route size={20} aria-hidden="true" />
             <span class="lv-detour-main">
               <b>{detourTitle}</b>
               <small>{[goalOn ? t('{d} km to go', { d: fmtKm(goalLeft) }) : t('{d} km', { d: fmtKm(detour.km) }), detour.gainM ? `${num(detour.gainM)} m ↑` : '', detour.min ? t('about {min} min', { min: num(detour.min) }) : '', detour.oneWay && detour.min && !detour.reached ? t('there about {at}', { at: hhmm(goalEta ?? detour.at + detour.min * 60000) }) : '', detour.rejoin ? t('back on the route at km {km}', { km: num(Math.round(detour.rejoin.km)) }) : '', detour.extraKm != null && detour.extraKm > 0 ? t('{d} km more', { d: fmtKm(detour.extraKm) }) : '', detour.skippedKm > 0 ? t('{d} km of the route left out', { d: fmtKm(detour.skippedKm) }) : ''].filter(Boolean).join(' · ')}</small>
@@ -1530,26 +1530,26 @@
               {#if gpxMsg}<small data-live-detour-gpx>{gpxMsg}</small>{/if}
               <button type="button" class="btn sm" onclick={endDetour} data-live-detour-end>{t('End navigation')}</button>
             </span>
-            <button type="button" class="lvf-ic lv-detour-x" onclick={() => setDetour({ ...detour, small: true }, false)} aria-label={t('Fold up')} data-live-detour-off><X size={18} aria-hidden="true" /></button>
+            <button type="button" class="lvf-ic lv-detour-x" onclick={() => setDetour({ ...detour, small: true }, false)} aria-label={t('Fold up')} data-live-detour-off><X size={20} aria-hidden="true" /></button>
           </div>
         {/if}
-        {#if offline}<p class="lvf-alert" role="status" data-live-offline><WifiOff size={18} aria-hidden="true" /><span>{t('Offline: the map shows what is stored, the ride goes on.')}</span></p>{/if}
-        {#if limitMsg}<p class="lvf-alert lvf-bad" role="alert" data-live-limit><TriangleAlert size={18} aria-hidden="true" /><span>{limitMsg}</span></p>{/if}
+        {#if offline}<p class="lvf-alert" role="status" data-live-offline><WifiOff size={20} aria-hidden="true" /><span>{t('Offline: the map shows what is stored, the ride goes on.')}</span></p>{/if}
+        {#if limitMsg}<p class="lvf-alert lvf-bad" role="alert" data-live-limit><TriangleAlert size={20} aria-hidden="true" /><span>{limitMsg}</span></p>{/if}
       </div>
 
       {#if !rec.paused}<button type="button" class="lvf-lap" style:bottom="{padB + 12}px" onclick={newLap} aria-label={t('New lap')} data-live-lap><Flag size={20} aria-hidden="true" /><small>{lap?.n ?? 1}</small></button>{/if}
       <PauseBar paused={rec.paused} auto={rec.auto} {standing} movingS={movingLive} pausedS={pausedLive} limit={autoKmh} bottom={padB + 12} why={whyOf(rec.whys, rec.breaks.at(-1)?.[0])} eta={arr ? when(arr.eta) : ''} onwhy={(w) => setPauseWhy(w)} onpause={() => pauseNow(false)} onresume={goOn} onstop={stop} />
       {#if forgotAsk && !rec.paused}<ForgotPause ask={forgotAsk} bottom={padB + 12} onanswer={answerForgot} />{/if}
-      <button type="button" class="lvf-ic lvf-photo" class:lvf-hidden={snap === 'full' || dpIndex > 0} onclick={() => (place = true)} style:bottom="{padB + 70}px" aria-label={t('Photo or note with the place')} data-live-photo><Camera size={22} aria-hidden="true" /></button>
+      <button type="button" class="lvf-ic lvf-photo" class:lvf-hidden={snap === 'full' || dpIndex > 0} onclick={() => (place = true)} style:bottom="{padB + 70}px" aria-label={t('Photo or note with the place')} data-live-photo><Camera size={24} aria-hidden="true" /></button>
 
       <!-- Versteckte Funktionen (Noah 22.10.2026): the emergency window one tap away, not only in «⋯» -->
-      <button type="button" class="lvf-ic lvf-sosq" class:lvf-hidden={snap === 'full' || dpIndex > 0} onclick={() => (sos = true)} style:bottom="{padB + 126}px" aria-label={t('Emergency')} data-live-sos-quick><LifeBuoy size={22} aria-hidden="true" /></button>
+      <button type="button" class="lvf-ic lvf-sosq" class:lvf-hidden={snap === 'full' || dpIndex > 0} onclick={() => (sos = true)} style:bottom="{padB + 126}px" aria-label={t('Emergency')} data-live-sos-quick><LifeBuoy size={24} aria-hidden="true" /></button>
       <!-- «In der Nähe» (Suchvorschläge): the place window one tap away -->
-      <button type="button" class="lvf-nearbtn" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-expanded={nearOpen} onclick={() => (nearOpen ? closeNear() : openNear())} style:bottom="{padB + 238}px" data-live-near-btn><MapPin size={18} aria-hidden="true" />{t('Nearby')}</button>
+      <button type="button" class="lvf-nearbtn" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-expanded={nearOpen} onclick={() => (nearOpen ? closeNear() : openNear())} style:bottom="{padB + 238}px" data-live-near-btn><MapPin size={20} aria-hidden="true" />{t('Nearby')}</button>
       <!-- «Ziel wählen»: tap the button, then the spot on the map (the long press still works) -->
-      <button type="button" class="lvf-ic lvf-goal" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-pressed={goalTapping} onclick={() => ((goalTapping = !goalTapping), goalTapping && (snap = 'peek'))} style:bottom="{padB + 182}px" aria-label={t('Choose a goal')} title={t('Choose a goal')} data-live-goal><Flag size={22} aria-hidden="true" /></button>
+      <button type="button" class="lvf-ic lvf-goal" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-pressed={goalTapping} onclick={() => ((goalTapping = !goalTapping), goalTapping && (snap = 'peek'))} style:bottom="{padB + 182}px" aria-label={t('Choose a goal')} title={t('Choose a goal')} data-live-goal><Flag size={24} aria-hidden="true" /></button>
       <!-- the «⋯» menu -->
-      <button type="button" class="lvf-ic lvf-menu-btn" aria-expanded={menu} aria-haspopup="true" onclick={() => (menu = !menu)} aria-label={t('More')} data-live-menu><Ellipsis size={22} aria-hidden="true" /></button>
+      <button type="button" class="lvf-ic lvf-menu-btn" aria-expanded={menu} aria-haspopup="true" onclick={() => (menu = !menu)} aria-label={t('More')} data-live-menu><Ellipsis size={24} aria-hidden="true" /></button>
       {#if menu}
         <div class="lvf-menu" role="group" aria-label={t('More')} data-live-menu-panel>
           <div class="lvf-menu-head">
@@ -1557,13 +1557,13 @@
             <button type="button" class="lvf-ic" onclick={() => (menu = false)} aria-label={t('Close')}><X size={20} aria-hidden="true" /></button>
           </div>
           <button type="button" class="btn lvf-sos" onclick={() => ((menu = false), (sos = true))} data-live-sos><LifeBuoy size={20} aria-hidden="true" />{t('Emergency')} · SOS</button>
-          <a class="btn" href={LANDI_RADAR} target="_blank" rel="noopener noreferrer" data-landi><CloudRain size={18} aria-hidden="true" />{t('Landi rain radar')}</a>
-          <button type="button" class="btn" onclick={() => ((menu = false), (night = true))} data-live-night><Moon size={18} aria-hidden="true" />{t('Night sheet')}</button>
-          <button type="button" class="btn" onclick={() => ((menu = false), (picked = null), (reroute = true))} data-live-reroute><Route size={18} aria-hidden="true" />{t('Plan a new way to …')}</button>
-          <button type="button" class="btn" onclick={() => ((menu = false), (sleepFind = true))} data-live-sleep-open><Tent size={18} aria-hidden="true" />{t('Find a place to sleep')}</button>
+          <a class="btn" href={LANDI_RADAR} target="_blank" rel="noopener noreferrer" data-landi><CloudRain size={20} aria-hidden="true" />{t('Landi rain radar')}</a>
+          <button type="button" class="btn" onclick={() => ((menu = false), (night = true))} data-live-night><Moon size={20} aria-hidden="true" />{t('Night sheet')}</button>
+          <button type="button" class="btn" onclick={() => ((menu = false), (picked = null), (reroute = true))} data-live-reroute><Route size={20} aria-hidden="true" />{t('Plan a new way to …')}</button>
+          <button type="button" class="btn" onclick={() => ((menu = false), (sleepFind = true))} data-live-sleep-open><Tent size={20} aria-hidden="true" />{t('Find a place to sleep')}</button>
           <!-- Navigation zum Ziel 2: the card on the map stays small, the GPX of the way lives here -->
-          {#if detour && detour.back !== 'auto'}<button type="button" class="btn" onclick={() => ((menu = false), detourToGarmin())} data-live-detour-garmin><Route size={18} aria-hidden="true" />{t('GPX for Garmin')}</button>{/if}
-          <button type="button" class="btn" onclick={() => ((menu = false), (place = true))} data-live-place><MapPin size={18} aria-hidden="true" />{t('I am here')}</button>
+          {#if detour && detour.back !== 'auto'}<button type="button" class="btn" onclick={() => ((menu = false), detourToGarmin())} data-live-detour-garmin><Route size={20} aria-hidden="true" />{t('GPX for Garmin')}</button>{/if}
+          <button type="button" class="btn" onclick={() => ((menu = false), (place = true))} data-live-place><MapPin size={20} aria-hidden="true" />{t('I am here')}</button>
           <div class="lv-dictation" data-live-dictation-slot>
             {#if DICTATION}
               {@const D = DICTATION}
@@ -1594,18 +1594,18 @@
               {#each DURING_RIDE as x (x.id)}<li><b>{t(FEATURE_TITLE[x.id])}</b><span>{t(x.sub)}</span></li>{/each}
             </ul>
           </details>
-          <button type="button" class="btn" onclick={() => ((menu = false), (small = true))} data-live-minimize><Minimize2 size={18} aria-hidden="true" />{t('Leave the full view')}</button>
+          <button type="button" class="btn" onclick={() => ((menu = false), (small = true))} data-live-minimize><Minimize2 size={20} aria-hidden="true" />{t('Leave the full view')}</button>
           <p class="rc-note">{t('The ride goes on; «Back to the live map» brings this view back.')}</p>
         </div>
       {/if}
 
       {#if goalOn || hasRoute}
-        <button type="button" class="lvf-ic lvf-all-route" class:lvf-hidden={snap === 'full' || dpIndex > 0} onclick={showWhole} style:bottom="{padB + 294}px" aria-label={t('Whole route')} title={t('Whole route')} data-live-whole><Maximize2 size={22} aria-hidden="true" /></button>
+        <button type="button" class="lvf-ic lvf-all-route" class:lvf-hidden={snap === 'full' || dpIndex > 0} onclick={showWhole} style:bottom="{padB + 294}px" aria-label={t('Whole route')} title={t('Whole route')} data-live-whole><Maximize2 size={24} aria-hidden="true" /></button>
       {/if}
       {#if goalOn}
-        <button type="button" class="lvf-ic lvf-north" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-pressed={northUp} onclick={() => (northUp = !northUp)} style:bottom="{padB + 350}px" aria-label={northUp ? t('Map turns with you') : t('North up')} title={northUp ? t('Map turns with you') : t('North up')} data-live-north><Navigation size={22} aria-hidden="true" /></button>
+        <button type="button" class="lvf-ic lvf-north" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-pressed={northUp} onclick={() => (northUp = !northUp)} style:bottom="{padB + 350}px" aria-label={northUp ? t('Map turns with you') : t('North up')} title={northUp ? t('Map turns with you') : t('North up')} data-live-north><Navigation size={24} aria-hidden="true" /></button>
       {/if}
-      <button type="button" class="lvf-ic lvf-follow" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-pressed={follow} onclick={() => (follow ? (follow = false) : recenter())} style:bottom="{padB + 12}px" aria-label={follow ? t('Map follows you') : t('Follow me')} data-live-follow><Crosshair size={22} aria-hidden="true" /></button>
+      <button type="button" class="lvf-ic lvf-follow" class:lvf-hidden={snap === 'full' || dpIndex > 0} aria-pressed={follow} onclick={() => (follow ? (follow = false) : recenter())} style:bottom="{padB + 12}px" aria-label={follow ? t('Map follows you') : t('Follow me')} data-live-follow><Crosshair size={24} aria-hidden="true" /></button>
 
       <!-- the bottom sheet -->
       <section class="lvf-sheet" class:lvf-dragging={dragH != null} style:height={desk ? null : `${sheetPx}px`} aria-label={desk ? t('Everything') : t('Ahead of you')} data-live-sheet={snap}>
@@ -1619,7 +1619,7 @@
           onpointerup={sheetUp}
           onpointercancel={sheetUp}
           data-live-sheet-toggle
-          >{#if desk}{#if snap === 'peek'}<ChevronLeft size={18} aria-hidden="true" />{t('Everything')}{:else}{t('Hide')}<ChevronRight size={18} aria-hidden="true" />{/if}{:else}<span aria-hidden="true"></span>{/if}</button
+          >{#if desk}{#if snap === 'peek'}<ChevronLeft size={20} aria-hidden="true" />{t('Everything')}{:else}{t('Hide')}<ChevronRight size={20} aria-hidden="true" />{/if}{:else}<span aria-hidden="true"></span>{/if}</button
         >
         <!-- a tap or a key inside the pulled-down sheet pulls it up -->
         <div class="lvf-body" class:lvf-scroll={snap !== 'peek'} onfocusin={() => snap === 'peek' && (snap = 'full')}>
@@ -1657,25 +1657,25 @@
               <div class="lvf-part">
                 {#if arr}
                   <p class="lv-line" data-live-arrival>
-                    <Flag size={18} aria-hidden="true" />
+                    <Flag size={20} aria-hidden="true" />
                     <span>{#if light && !light.dark && light.minLeft > 0}{t('Arrival about {at}, {left} of light left', { at: when(arr.eta), left: minText(light.minLeft) })}{:else}{t('Arrival about {at} · it is dark', { at: when(arr.eta) })}{/if}</span>
                   </p>
-                  {#if darkMin > 0}<p class="rc-warn lv-line" data-live-dark><Moon size={18} aria-hidden="true" /><span>{t('You arrive {n} after dark: lights on.', { n: minText(darkMin) })}</span></p>{/if}
+                  {#if darkMin > 0}<p class="rc-warn lv-line" data-live-dark><Moon size={20} aria-hidden="true" /><span>{t('You arrive {n} after dark: lights on.', { n: minText(darkMin) })}</span></p>{/if}
                   <p class="rc-src">{t('At your pace of {kmh} km/h while moving, slower uphill; stops not counted.', { kmh: num(kmh) })}</p>
                 {:else if light}
-                  <p class="lv-line"><Clock size={18} aria-hidden="true" /><span>{light.dark ? t('It is dark.') : t('{left} of light left', { left: minText(light.minLeft) })}</span></p>
+                  <p class="lv-line"><Clock size={20} aria-hidden="true" /><span>{light.dark ? t('It is dark.') : t('{left} of light left', { left: minText(light.minLeft) })}</span></p>
                 {/if}
                 {#if isRace && plan}
                   {#if delta != null}
-                    <p class="lv-line" class:rc-ok={delta >= 0} class:rc-warn={delta < 0} data-live-plan><Clock size={18} aria-hidden="true" /><span>{delta >= 0 ? t('{t} ahead of the plan', { t: minText(delta) }) : t('{t} behind the plan', { t: minText(-delta) })}</span></p>
+                    <p class="lv-line" class:rc-ok={delta >= 0} class:rc-warn={delta < 0} data-live-plan><Clock size={20} aria-hidden="true" /><span>{delta >= 0 ? t('{t} ahead of the plan', { t: minText(delta) }) : t('{t} behind the plan', { t: minText(-delta) })}</span></p>
                   {:else}
                     <p class="rc-note" data-live-plan>{t('Plan against reality shows during the race (from {day}).', { day: when(plan.start) })}</p>
                   {/if}
                 {/if}
                 {#if bed}
                   <div class="lv-bed" data-live-bed>
-                    {#if bed.planned}<p class="lv-line"><Moon size={18} aria-hidden="true" /><span>{t('Bed of the plan: km {km}', { km: Math.round(bed.planned.km) })}{#if bed.planned.name}{' '}· {bed.planned.name}{/if}{#if running && bed.planned.at}{' '}· {when(bed.planned.at)}{/if}</span></p>{/if}
-                    {#if bed.best}<p class="lv-line"><Moon size={18} aria-hidden="true" /><span>{t('Reachable tonight: {name}, km {km}, in {d} km, about {at}', { name: bed.best.name || kindName('sleep'), km: Math.round(bed.best.km), d: fmtKm(bed.best.distKm), at: when(bed.best.eta) })}</span></p>{/if}
+                    {#if bed.planned}<p class="lv-line"><Moon size={20} aria-hidden="true" /><span>{t('Bed of the plan: km {km}', { km: Math.round(bed.planned.km) })}{#if bed.planned.name}{' '}· {bed.planned.name}{/if}{#if running && bed.planned.at}{' '}· {when(bed.planned.at)}{/if}</span></p>{/if}
+                    {#if bed.best}<p class="lv-line"><Moon size={20} aria-hidden="true" /><span>{t('Reachable tonight: {name}, km {km}, in {d} km, about {at}', { name: bed.best.name || kindName('sleep'), km: Math.round(bed.best.km), d: fmtKm(bed.best.distKm), at: when(bed.best.eta) })}</span></p>{/if}
                   </div>
                 {/if}
                 {#if showSleep}
@@ -1684,7 +1684,7 @@
                     <SleepList compact {pois} {own} {pts} {km} {now} kmh={pace.kmh} wx={$wxQ?.data ?? null} bagC={race?.bagC ?? 5} />
                   </div>
                 {/if}
-                {#if batEst}<p class="lv-line" class:rc-warn={batEst.enough === false} data-live-battery><BatteryMedium size={18} aria-hidden="true" /><span>{t('Battery {p} %: lasts about {h} h', { p: Math.round(bat.level * 100), h: num(batEst.hours) })}{#if batEst.enough != null}{' '}· {batEst.enough ? t('enough to the finish') : t('not enough to the finish: charge or save')}{/if}</span></p>{/if}
+                {#if batEst}<p class="lv-line" class:rc-warn={batEst.enough === false} data-live-battery><BatteryMedium size={20} aria-hidden="true" /><span>{t('Battery {p} %: lasts about {h} h', { p: Math.round(bat.level * 100), h: num(batEst.hours) })}{#if batEst.enough != null}{' '}· {batEst.enough ? t('enough to the finish') : t('not enough to the finish: charge or save')}{/if}</span></p>{/if}
               </div>
             {/if}
 
@@ -1735,8 +1735,8 @@
                   {#if !next3}
                     <p class="rc-note">{t('Load the weather along the route to see cold and rain of the next hours.')}</p>
                   {:else}
-                    {#if next3.verdict === 'rain'}<p class="rc-warn lv-line" data-live-next3-say><TriangleAlert size={18} aria-hidden="true" /><span>{next3.h === 0 ? t('Rain is likely now ({p} %): rain jacket on, dry socks in a bag.', { p: next3.value }) : t('Rain is likely in about {h} h ({p} %): put the rain jacket on top before.', { h: next3.h, p: next3.value })}</span></p>
-                    {:else if next3.verdict === 'cold'}<p class="rc-warn lv-line" data-live-next3-say><TriangleAlert size={18} aria-hidden="true" /><span>{t('It gets cold: it feels like {t}° at the lowest. Warm layer and long gloves on, in about {h} h at the latest.', { t: next3.value, h: next3.h })}</span></p>
+                    {#if next3.verdict === 'rain'}<p class="rc-warn lv-line" data-live-next3-say><TriangleAlert size={20} aria-hidden="true" /><span>{next3.h === 0 ? t('Rain is likely now ({p} %): rain jacket on, dry socks in a bag.', { p: next3.value }) : t('Rain is likely in about {h} h ({p} %): put the rain jacket on top before.', { h: next3.h, p: next3.value })}</span></p>
+                    {:else if next3.verdict === 'cold'}<p class="rc-warn lv-line" data-live-next3-say><TriangleAlert size={20} aria-hidden="true" /><span>{t('It gets cold: it feels like {t}° at the lowest. Warm layer and long gloves on, in about {h} h at the latest.', { t: next3.value, h: next3.h })}</span></p>
                     {:else if next3.verdict === 'cool'}<p class="rc-note" data-live-next3-say>{t('Cool ahead: it feels like {t}° at the lowest. Arm warmers and a wind vest.', { t: next3.value })}</p>
                     {:else if next3.verdict === 'wind'}<p class="rc-note" data-live-next3-say>{t('Strong wind ahead ({w} km/h): windproof layer, plan slower.', { w: next3.value })}</p>
                     {:else}<p class="rc-note" data-live-next3-say>{t('The next 3 hours look fine: no cold, no rain.')}</p>{/if}
@@ -1780,11 +1780,11 @@
                           </div>
                         </details>
                       </div>
-                      {#if water.state === 'short'}<p class="rc-warn lv-line" data-live-water-say><TriangleAlert size={18} aria-hidden="true" /><span>{t('Your bottle will not last: about {need} needed, {have} left. Drink in small sips or fill up sooner.', { need: ml(water.needMl), have: ml(water.haveMl) })}</span></p>
+                      {#if water.state === 'short'}<p class="rc-warn lv-line" data-live-water-say><TriangleAlert size={20} aria-hidden="true" /><span>{t('Your bottle will not last: about {need} needed, {have} left. Drink in small sips or fill up sooner.', { need: ml(water.needMl), have: ml(water.haveMl) })}</span></p>
                       {:else if water.state === 'tight'}<p class="rc-note" data-live-water-say>{t('Your bottle just lasts: about {need} needed, {have} left.', { need: ml(water.needMl), have: ml(water.haveMl) })}</p>
                       {:else}<p class="rc-note" data-live-water-say>{t('Your bottle lasts until there: about {need} needed, {have} left.', { need: ml(water.needMl), have: ml(water.haveMl) })}</p>{/if}
                     {:else}
-                      <p class="rc-warn lv-line" data-live-water-say><TriangleAlert size={18} aria-hidden="true" /><span>{t('No water or open shop found ahead on the route. Your bottle lasts about {d} km.', { d: fmtKm(water.lastsKm) })}</span></p>
+                      <p class="rc-warn lv-line" data-live-water-say><TriangleAlert size={20} aria-hidden="true" /><span>{t('No water or open shop found ahead on the route. Your bottle lasts about {d} km.', { d: fmtKm(water.lastsKm) })}</span></p>
                     {/if}
                   {/if}
                   <div role="group" aria-label={t('What is left in your bottle?')}>
@@ -1802,7 +1802,7 @@
                 <div class="lv-lastshop" data-live-lamp={lamp.state}>
                   <h3 class="lv-h3"><Lightbulb size={16} aria-hidden="true" />{t('Light|lamp')}</h3>
                   {#if lamp.state === 'day'}<p class="rc-note" data-live-lamp-say>{t('No darkness ahead on this ride: your lamp is not needed.')}</p>
-                  {:else if lamp.state === 'short'}<p class="rc-warn lv-line" data-live-lamp-say><TriangleAlert size={18} aria-hidden="true" /><span>{t('Your lamp will not last: it burns until about {at}, but you ride about {d} h in the dark. Charge it, use a lower mode or take a spare light.', { at: when(lamp.untilAt), d: num(lamp.darkH) })}</span></p>
+                  {:else if lamp.state === 'short'}<p class="rc-warn lv-line" data-live-lamp-say><TriangleAlert size={20} aria-hidden="true" /><span>{t('Your lamp will not last: it burns until about {at}, but you ride about {d} h in the dark. Charge it, use a lower mode or take a spare light.', { at: when(lamp.untilAt), d: num(lamp.darkH) })}</span></p>
                   {:else if lamp.state === 'tight'}<p class="rc-note" data-live-lamp-say>{t('Your lamp just lasts: it burns until about {at}, you ride about {d} h in the dark.', { at: when(lamp.untilAt), d: num(lamp.darkH) })}</p>
                   {:else}<p class="rc-note" data-live-lamp-say>{t('Your lamp lasts: it burns until about {at}, you ride about {d} h in the dark.', { at: when(lamp.untilAt), d: num(lamp.darkH) })}</p>{/if}
                   <div role="group" aria-label={t('What is left in your lamp?')}>
@@ -1850,7 +1850,7 @@
               <!-- places: the window «In der Nähe» (Suchvorschläge, Noah 27.10.2026) -->
               <div class="lv-places" data-live-places>
                 <h3 class="lv-h3">{t('More places on the map')}</h3>
-                <button type="button" class="btn" onclick={openNear} data-live-near-open><MapPin size={18} aria-hidden="true" />{t('Nearby: what do you need?')}</button>
+                <button type="button" class="btn" onclick={openNear} data-live-near-open><MapPin size={20} aria-hidden="true" />{t('Nearby: what do you need?')}</button>
               </div>
             </div>
 
@@ -1924,7 +1924,7 @@
 
             {#if logFacts && (rec.on || logFacts.points > 0)}
               <details class="lvf-part lvf-fold" data-live-log>
-                <summary><ClipboardList size={18} aria-hidden="true" />{t('Ride log')}</summary>
+                <summary><ClipboardList size={20} aria-hidden="true" />{t('Ride log')}</summary>
                 <p class="rc-note">{t('What the recording saw: GPS points, gaps of {n} s or more, restarts. Send it when a time or distance looks wrong.', { n: GAP_S })}</p>
                 <pre class="lvf-log" data-live-log-text>{logText}</pre>
                 <button type="button" class="btn sm" onclick={sendLog} data-live-log-send><Send size={16} aria-hidden="true" />{t('Send the log')}</button>
@@ -1933,13 +1933,13 @@
 
             <!-- «Datenseiten wie am Garmin»: pages, fields, grids, charts, zones -->
             <details class="lvf-part lvf-fold" bind:open={dpOpen} data-live-datapages>
-              <summary><SlidersHorizontal size={18} aria-hidden="true" />{t('Data pages')}</summary>
+              <summary><SlidersHorizontal size={20} aria-hidden="true" />{t('Data pages')}</summary>
               {#key dpEdit}<DataPagesEditor set={dpSet} fields={dpFields} route={hasRoute} start={dpEdit} onsave={savePages} />{/key}
             </details>
 
             <!-- the numbers on top: choose and sort -->
             <details class="lvf-part lvf-fold" bind:open={choose} data-live-numbers>
-              <summary><SlidersHorizontal size={18} aria-hidden="true" />{t('Numbers on top')}</summary>
+              <summary><SlidersHorizontal size={20} aria-hidden="true" />{t('Numbers on top')}</summary>
               <p class="rc-note">{t('Choose up to {n} numbers and their order (arrows or drag).', { n: MAX_TILES })}</p>
               <div class="lvf-chips" role="group" aria-label={t('Numbers on top')}>
                 {#each LIVE_TILES.filter((x) => hasRoute || !x.route) as x (x.key)}
@@ -1956,7 +1956,7 @@
             {@render options()}
 
             <div class="lvf-part lvf-end">
-              <button type="button" class="btn lv-stop" onclick={() => (askEnd = true)} data-live-stop><Square size={18} aria-hidden="true" />{t('Stop the ride')}</button>
+              <button type="button" class="btn lv-stop" onclick={() => (askEnd = true)} data-live-stop><Square size={20} aria-hidden="true" />{t('Stop the ride')}</button>
               {#if askEnd}<EndRideSheet km={rec.km} movingS={movingLive} ondone={endAnswer} />{/if}
               <p class="rc-note">{t('Pull the handle down for the map. SOS, «I am here» and the map ground are in the «⋯» menu top right.')}</p>
             </div>
@@ -1968,7 +1968,7 @@
 
 {#snippet options()}
   <details class="rc-box lv-opts" data-live-options>
-    <summary class="lv-opts-sum"><Settings size={18} aria-hidden="true" />{t('Settings|live')}</summary>
+    <summary class="lv-opts-sum"><Settings size={20} aria-hidden="true" />{t('Settings|live')}</summary>
     <p class="rc-note">{t('All off by default; switch on what helps you. Kept on this device.')}</p>
     <ul class="rc-list">
       <li class="rc-row">
@@ -2302,8 +2302,8 @@
     transition: bottom 0.15s var(--ease-out);
   }
   .lvf-goal[aria-pressed='true'] {
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .lvf-photo {
     position: absolute;
@@ -2680,8 +2680,8 @@
     transition: bottom 0.15s var(--ease-out);
   }
   .lvf-north[aria-pressed='true'] {
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .lvf-follow {
     position: absolute;

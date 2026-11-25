@@ -146,7 +146,7 @@
         <!-- Kamera-Knopf (0.131.3): on the phone the camera opens at once, the gallery for a screenshot -->
         <PhotoPick onfile={pick} busy={reading} has={false} camera="Photograph the bill" big />
       </div>
-      {#if !form}<button class="btn btn-link sm bills-hand" type="button" onclick={() => ((form = blank()), (problem = ''), (done = ''))}><PenLine size={15} aria-hidden="true" />{t('Enter by hand')}</button>{/if}
+      {#if !form}<button class="btn btn-link sm bills-hand" type="button" onclick={() => ((form = blank()), (problem = ''), (done = ''))}><PenLine size={16} aria-hidden="true" />{t('Enter by hand')}</button>{/if}
       {#if problem}<p class="bills-err" role="alert">{problem}</p>{/if}
       {#if done}<p class="bills-done" role="status">{done}</p>{/if}
 
@@ -173,7 +173,7 @@
                   <span class="bills-acts">
                     <span class="pill ok">{t('paid|invoice')}</span>
                     {#if b.photo}<button class="btn btn-link sm" type="button" onclick={() => (opened = opened === b.id ? null : b.id)} aria-expanded={opened === b.id}>{t('Receipt|bill')}</button>{/if}
-                    <button class="btn btn-link sm" type="button" onclick={() => reopen(b)} aria-label={t('Open {to} again', { to: b.to })}><RotateCcw size={15} aria-hidden="true" />{t('Open again')}</button>
+                    <button class="btn btn-link sm" type="button" onclick={() => reopen(b)} aria-label={t('Open {to} again', { to: b.to })}><RotateCcw size={16} aria-hidden="true" />{t('Open again')}</button>
                   </span>
                 {/if}
                 {#if opened === b.id}
@@ -200,7 +200,7 @@
     {#if form}
       <section class="card bills-form" aria-labelledby="bf-h">
         <h2 id="bf-h" class="bills-h">{form.read ? t('Bill read from the photo') : t('Enter a bill')}</h2>
-        {#if form.read}<p class="bills-read"><Check size={18} aria-hidden="true" /> {t('Please check the fields.')}</p>{/if}
+        {#if form.read}<p class="bills-read"><Check size={20} aria-hidden="true" /> {t('Please check the fields.')}</p>{/if}
         <label class="field"><span class="lbl">{t('To|payee')}</span><input class="inp" bind:value={form.to} autocomplete="off" /></label>
         <label class="field"><span class="lbl">IBAN</span><input class="inp num" bind:value={form.iban} autocomplete="off" /></label>
         <div class="bills-pair">

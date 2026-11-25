@@ -58,7 +58,7 @@
                 <button type="button" class="btn sm" data-clear onpointerdown={(e) => e.preventDefault()} onclick={() => clear(g.key)}>{t('Empty|goal')}</button>
               </span>
             {:else}
-              <button type="button" class="ofb num" onclick={() => (editing = g.key)} aria-label={t('Change the goal for {name}', { name: t(g.label) })}><Pencil size={12} aria-hidden="true" />{s.of == null ? t('No goal · set one') : r ? t('{have} of {of}', { have: unitText(g, r.have), of: num(s.of) }) : t('Goal {of}', { of: unitText(g, s.of) })}</button>
+              <button type="button" class="ofb num" onclick={() => (editing = g.key)} aria-label={t('Change the goal for {name}', { name: t(g.label) })}><Pencil size={14} aria-hidden="true" />{s.of == null ? t('No goal · set one') : r ? t('{have} of {of}', { have: unitText(g, r.have), of: num(s.of) }) : t('Goal {of}', { of: unitText(g, s.of) })}</button>
             {/if}
           </span>
           <!-- Impeccable runde 2 (clarify): the switch says «zeigen», so the green box no longer reads as «reached» -->

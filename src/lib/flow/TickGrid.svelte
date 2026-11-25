@@ -24,10 +24,18 @@
   import { tileSub } from './words.js';
   import { isMedAct } from './hobby/medstart.js';
   import { t } from '../i18n.svelte.js';
+  import { tickPop, tickFlash } from '../ui/rowout.js'; // «Bewegung» 4a: the tick of a tile that was just ticked pops once
+  import { buzz } from '../bedienung.svelte.js'; // «Rückmeldung beim Tippen» (Noah 25.11.2026 «1a», «2a»): a short buzz and a soft ring when something gets ticked
   let { states = [], today, cols = 2, onmed = null, big = false, compact = false, help = false, medHelp = false, jump = false } = $props();
-  const tap = async (s) => {
+  const tap = async (s, el) => {
     if (onmed && isMedAct(s.act)) return onmed(s);
+    const ticking = !s.todayDone;
+    if (ticking) {
+      buzz();
+      tickFlash(el);
+    }
     const e = await tapAct(s, today);
+    if (ticking) requestAnimationFrame(() => tickPop(el?.querySelector?.('.ic')));
     // a new star keeps its own window and the message (nothing opens over a celebration); «almost a star» stays as the message's line
     if (jump && e && !ui.star) {
       if (ui.toast?.hint) ui.toast = { ...ui.toast, next: null };
@@ -42,19 +50,19 @@
     <li>
       <button
         type="button"
-        class="tile {s.act.ring}"
+        class="tile tap-fx {s.act.ring}"
         class:done={s.todayDone}
         data-act={s.act.id}
         aria-pressed={s.todayDone}
         title={compact ? tileSub(s) : undefined}
         aria-description={t('Long press: place, amount, duration or the countdown')}
-        use:press={{ tap: () => tap(s), long: () => (ui.tick = s.act.id) }}
+        use:press={{ tap: (ev) => tap(s, ev?.currentTarget), long: () => (ui.tick = s.act.id) }}
       >
-        <span class="ic" aria-hidden="true">{#if s.todayDone}<Check size={big ? 18 : 20} strokeWidth={2.6} />{:else}<ActIcon icon={s.act.icon} ring={s.act.ring} box={false} size={18} />{/if}</span>
+        <span class="ic" aria-hidden="true">{#if s.todayDone}<Check size={big ? 18 : 20} strokeWidth={2.5} />{:else}<ActIcon icon={s.act.icon} ring={s.act.ring} box={false} size={18} />{/if}</span>
         <span class="tx"><b>{actName(s.act)}</b>{#if compact}<small class="sr">{tileSub(s)}</small>{:else}<small>{tileSub(s)}</small>{/if}</span>
       </button>
       <!-- KT (2a): the long press as a button, for everyone who does not know it -->
-      <button type="button" class="more" data-more={s.act.id} aria-label={t('More for {name}: duration, place or stopwatch', { name: actName(s.act) })} onclick={() => (ui.tick = s.act.id)}><Ellipsis size={16} strokeWidth={3} aria-hidden="true" /></button>
+      <button type="button" class="more" data-more={s.act.id} aria-label={t('More for {name}: duration, place or stopwatch', { name: actName(s.act) })} onclick={() => (ui.tick = s.act.id)}><Ellipsis size={16} strokeWidth={2.5} aria-hidden="true" /></button>
     </li>
   {/each}
 </ul>

@@ -120,8 +120,8 @@
                 <button class="btn sm" type="button" onclick={() => label(o)}><Package size={16} aria-hidden="true" />{t('Make the label')}</button>
                 <button class="btn sm" type="button" aria-expanded={sending === o.id} onclick={() => ((sending = sending === o.id ? null : o.id), (track = ''))}><Send size={16} aria-hidden="true" />{t('Sent')}</button>
               {/if}
-              {#if o.status !== 'open'}<button class="btn btn-link sm" type="button" onclick={() => sendMail(o)}><Mail size={15} aria-hidden="true" />{o.mailed ? t('Mail again') : t('Confirmation mail')}</button>{/if}
-              <button class="btn btn-link sm" type="button" onclick={() => remove(o)} aria-label={t('Delete order #{no}?', { no: o.no })}><Trash2 size={15} aria-hidden="true" /></button>
+              {#if o.status !== 'open'}<button class="btn btn-link sm" type="button" onclick={() => sendMail(o)}><Mail size={16} aria-hidden="true" />{o.mailed ? t('Mail again') : t('Confirmation mail')}</button>{/if}
+              <button class="btn btn-link sm" type="button" onclick={() => remove(o)} aria-label={t('Delete order #{no}?', { no: o.no })}><Trash2 size={16} aria-hidden="true" /></button>
             </span>
             {#if sending === o.id}
               <div class="so-send">

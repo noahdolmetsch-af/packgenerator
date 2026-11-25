@@ -53,7 +53,7 @@
         <h2 id="rl-h">{link ? t('Change link') : draft.kind === 'race' ? t('Add race') : t('Add link|rig')}</h2>
         <p class="vd-sub meta">{t('Only the link and your own words. No text or photos are copied.')}</p>
       </div>
-      <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={18} aria-hidden="true" /></button>
+      <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
     </div>
     <div class="grid">
       <label class="wide"><span class="lbl">{t('Link')}</span><input class="inp" type="url" inputmode="url" bind:value={draft.url} placeholder="https://" required /></label>

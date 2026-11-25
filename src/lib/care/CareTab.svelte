@@ -53,6 +53,7 @@ import { ringScore } from './overview.js';
   import { hoursOn } from '../bikehours.js';
   import { vig } from '../veloimgriff.svelte.js';
   import { offerDone } from '../ui/rename.svelte.js';
+  import { doneBuzz } from '../bedienung.svelte.js'; // «Fertig-Moment» (Noah 25.11.2026 «4a»): bike service and a solved problem buzz twice
   import AlsNaechstes from '../ui/AlsNaechstes.svelte';
 
   // v0.21.0 (answer 7a): Bike care is the Care tab of Bikes. bikeId: the bike chosen on the page;
@@ -211,6 +212,7 @@ import { ringScore } from './overview.js';
     if (!b) return;
     const before = b.service ?? {};
     await db.bikes.update(bikeId, serviceDone(b, { day: today, km: b.km ?? null, hours: hoursOn(vig.hours[bikeId] ?? null, today) }));
+    doneBuzz();
     offerDone(t('Bike service saved: {date}.', { date: dateOf(today) }), () => db.bikes.update(bikeId, { service: before }));
   }
   /** «Done» on a due row: the whole-bike service, or a part's service. */
@@ -342,6 +344,7 @@ import { ringScore } from './overview.js';
   async function repairResult(task, status) {
     const before = { status: task.status, statusDate: task.statusDate, by: task.by, reviewedAt: task.reviewedAt };
     await db.maintenance.update(task.id, { status, statusDate: today, by, reviewedAt: now() });
+    if (status === 'done') doneBuzz();
     offerDone(t(RESULT_TEXT[status] ?? '«{task}» saved.', { task: task.task }), () => db.maintenance.update(task.id, before));
   }
   const repairsFor = (bikeId) => repairs.filter((t) => taskBike(t) === bikeId && t.status !== 'check');
@@ -742,9 +745,9 @@ import { ringScore } from './overview.js';
     background: var(--paper-2);
   }
   .chip[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .folds {
     margin-bottom: 20px;

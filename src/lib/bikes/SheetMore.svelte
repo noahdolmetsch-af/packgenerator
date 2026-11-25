@@ -23,7 +23,7 @@
   import Seg from '../ui/Seg.svelte';
   import DateInput from '../ui/DateInput.svelte';
   import { t, tn, num, dateOf, isDe } from '../i18n.svelte.js';
-  import { Camera, ReceiptText, Download } from '@lucide/svelte';
+  import { Camera, ReceiptText, Download, Check } from '@lucide/svelte';
   import { weiter } from '../daumen.js'; // FE16: «Weiter» to the next field, the number keyboard
 
   let { kind, bike, data, more, items = [], today, kmNow = null, visits = [], editing = $bindable(false), back = null, from = null } = $props();
@@ -343,7 +343,7 @@
       <ul class="recs">
         {#each w.receipts as r (r.id)}
           <li>
-            <ReceiptText size={18} aria-hidden="true" />
+            <ReceiptText size={20} aria-hidden="true" />
             <span class="cl"><b>{r.label}</b><small>{[dateOf(r.date), r.shop, r.photo ? t('with photo') : t('no photo yet')].filter(Boolean).join(' · ')}</small></span>
             <span class="cv">{#if !r.photo}<a class="inl noprint" href={r.href}>{t('Photo')}</a>{:else if r.chf != null}{chf(r.chf)}{/if}</span>
           </li>
@@ -402,7 +402,7 @@
 {#if kind === 'breakin'}{@render breakin()}{:else if kind === 'kit'}{@render kitS()}{:else if kind === 'warranty'}{@render warrantyS()}{:else}{@render theftS()}{/if}
 
 {#if notice}
-  <p class="notice noprint" role="status"><span>✓ {notice.text}</span>{#if notice.undo}<button type="button" class="undo" onclick={undo}>{t('Undo')}</button>{/if}</p>
+  <p class="notice noprint" role="status"><span><Check size={14} class="ic-in" aria-hidden="true" /> {notice.text}</span>{#if notice.undo}<button type="button" class="undo" onclick={undo}>{t('Undo')}</button>{/if}</p>
 {/if}
 
 <style>
@@ -454,8 +454,6 @@
     margin: 0 0 6px;
     color: var(--accent);
     font: 700 var(--fs-tiny) / 1.4 var(--font-body);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
   }
   .bdg {
     padding: 1px 8px;

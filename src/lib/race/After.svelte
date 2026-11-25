@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../actlite.js';
   /**
    * Paket U «Rennen» · Nach dem Rennen: section analysis (38), stop analysis (6), recovery (15), the bike
    * check after the race (22), the same race year by year (16) and the race report (24, Briefing.svelte
@@ -6,7 +7,7 @@
    * brake pads first.
    */
   import { liveQuery } from 'dexie';
-  import { FileText, Lightbulb } from '@lucide/svelte';
+  import { FileText, Lightbulb, Image as ImageIcon, Check } from '@lucide/svelte';
   import RaceBox from './RaceBox.svelte';
   import EditList from './EditList.svelte';
   import { db } from '../db.js';
@@ -20,6 +21,7 @@
 
   let { ctx } = $props();
   const id = ctx.trip.id;
+  let card = $state(false); // R3: the mini report as a picture
   const days = $derived(tripDays(ctx.trip));
   const endDay = $derived(days.at(-1) ?? '');
 
@@ -33,7 +35,7 @@
   const daysKey = $derived([...new Set([...days, ...years.flatMap(tripDays)])].join(','));
   const actsQ = $derived.by(() => {
     const ds = daysKey ? daysKey.split(',') : [];
-    return liveQuery(() => (ds.length ? db.activities.where('day').anyOf(ds).toArray() : []));
+    return liveQuery(() => (ds.length ? readLite(db, (T) => T.where('day').anyOf(ds).toArray()) : []));
   });
   const stops = $derived(stopAnalysis(rideTimes($ridesQ ?? [], $actsQ ?? [], days)));
   async function keepLearning() {
@@ -126,7 +128,7 @@
         <table class="rc-table">
           <thead><tr><th>{t('Day')}</th><th class="num">{t('Resting pulse')}</th><th class="num">{t('HRV')}</th><th>{t('Normal')}</th></tr></thead>
           <tbody>
-            {#each rec.after as d (d.date)}<tr><td>{dateOf(d.date)}</td><td class="num">{d.restingHr ?? '–'}</td><td class="num">{d.hrvMs ?? '–'}</td><td>{d.back ? '✓' : ''}</td></tr>{/each}
+            {#each rec.after as d (d.date)}<tr><td>{dateOf(d.date)}</td><td class="num">{d.restingHr ?? '–'}</td><td class="num">{d.hrvMs ?? '–'}</td><td>{#if d.back}<Check size={14} class="ic-in" aria-hidden="true" />{/if}</td></tr>{/each}
           </tbody>
         </table>
       </div>
@@ -177,5 +179,9 @@
 
   <RaceBox id="after-report" title={t('Race report')} what="One page with your times against the plan, food, sleep, contact points and stops; print it or save it as PDF." why="To keep, to share, and to read before next year’s race." from="Everything you logged in race mode and the rides of this trip.">
     <a class="btn hi" href="#/race/brief/{encodeURIComponent(id)}?report=1" data-race-report><FileText size={16} aria-hidden="true" />{t('Open the report')}</a>
+    <!-- R3 «Mini-Bericht als Bild» (Noah 23.11.2026): the postcard of the trip (line and four numbers), made only on a tap -->
+    <button type="button" class="btn" onclick={() => (card = true)} data-race-card><ImageIcon size={16} aria-hidden="true" />{t('Mini report as a picture')}</button>
+    <p class="rc-note">{t('One picture with the line of the race and four numbers, made on this device; you decide whether to share it.')}</p>
   </RaceBox>
+  {#if card}{#await import('../tourlernen/PostcardSheet.svelte') then m}<m.default trip={{ ...ctx.trip, route: ctx.route ?? ctx.trip.route }} onclose={() => (card = false)} />{:catch}{/await}{/if}
 </div>

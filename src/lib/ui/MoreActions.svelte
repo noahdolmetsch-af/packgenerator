@@ -99,7 +99,7 @@
 
 <!-- v0.115.0 Menü-Fix: a tap anywhere next to the open list closes it (ui/away.js); the phone sheet closes on its background -->
 <span class="ma {cls}" bind:this={wrap} onfocusout={left} use:away={() => open && !phone.matches && close(false)}>
-  <button type="button" class="btn dots" class:sm={small} bind:this={btn} aria-label={label} aria-haspopup="menu" aria-expanded={open} aria-controls={open ? uid : undefined} onclick={toggle}><Ellipsis size={18} aria-hidden="true" /></button>
+  <button type="button" class="btn dots" class:sm={small} bind:this={btn} aria-label={label} aria-haspopup="menu" aria-expanded={open} aria-controls={open ? uid : undefined} onclick={toggle}><Ellipsis size={20} aria-hidden="true" /></button>
   {#if open && !phone.matches}
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <!-- SN6+ K4: with steps the list is a group of the steps and the menu (a menu holds only its entries) -->
@@ -248,6 +248,7 @@
     width: 100%;
     max-width: 100%;
     max-height: 85vh;
+    max-height: 85dvh;
     margin: 0;
     padding: 12px 10px calc(16px + env(safe-area-inset-bottom));
     box-sizing: border-box;

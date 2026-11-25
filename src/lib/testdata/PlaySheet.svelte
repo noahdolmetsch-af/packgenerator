@@ -78,7 +78,7 @@
   {/if}
   <div class="vd-foot">
     <button type="button" class="btn" onclick={() => dialog.close()}>{t('Close')}</button>
-    {#if !running}<button type="button" class="btn hi" disabled={busy} onclick={start}>{t('Start the playground')}<ArrowRight size={18} aria-hidden="true" /></button>{/if}
+    {#if !running}<button type="button" class="btn hi" disabled={busy} onclick={start}>{t('Start the playground')}<ArrowRight size={20} aria-hidden="true" /></button>{/if}
   </div>
 </dialog>
 

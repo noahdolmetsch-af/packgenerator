@@ -98,10 +98,10 @@
           <h2>{t('Set up on the device?')}</h2>
           <div class="chk">
             {#each DEVICES as d (d)}
-              <button type="button" class="ck" role="checkbox" aria-checked={!!done[d]} onclick={() => save(toggleDone(g, prof.id, pageId, d, localDay()))}><span class="box" class:on={done[d]}>{#if done[d]}<Check size={14} strokeWidth={3} aria-hidden="true" />{/if}</span>Edge {d}{#if done[d]}<small>· {t('ticked on {date}', { date: dateOf(done[d]) })}</small>{/if}</button>
+              <button type="button" class="ck" role="checkbox" aria-checked={!!done[d]} onclick={() => save(toggleDone(g, prof.id, pageId, d, localDay()))}><span class="box" class:on={done[d]}>{#if done[d]}<Check size={14} strokeWidth={2.5} aria-hidden="true" />{/if}</span>Edge {d}{#if done[d]}<small>· {t('ticked on {date}', { date: dateOf(done[d]) })}</small>{/if}</button>
             {/each}
             {#if hasCiq}
-              <button type="button" class="ck" role="checkbox" aria-checked={!!done.ciq} onclick={() => save(toggleDone(g, prof.id, pageId, 'ciq', localDay()))}><span class="box" class:on={done.ciq}>{#if done.ciq}<Check size={14} strokeWidth={3} aria-hidden="true" />{/if}</span>{t('Connect IQ app «Time in zones» installed')}<small>· {t('free, in the Connect IQ Store')}</small></button>
+              <button type="button" class="ck" role="checkbox" aria-checked={!!done.ciq} onclick={() => save(toggleDone(g, prof.id, pageId, 'ciq', localDay()))}><span class="box" class:on={done.ciq}>{#if done.ciq}<Check size={14} strokeWidth={2.5} aria-hidden="true" />{/if}</span>{t('Connect IQ app «Time in zones» installed')}<small>· {t('free, in the Connect IQ Store')}</small></button>
             {/if}
           </div>
           <p class="hint">{t('Only to tick off. The app sends nothing to the Edge; you set up the page in Garmin Connect › Device › Activity profiles › Data screens.')}</p>

@@ -4,11 +4,17 @@
    * the days side by side, all-day entries on top, the hours down the side, appointments as blocks in the
    * colour of their calendar, a line for «now». A tap on a block opens it, a tap on an empty place starts
    * a new appointment at that time. The rows come from db.gEvents (src/lib/agenda.js weekLayout).
+   * «Termine ziehen» (Noah 24.11.2026): a block can be pulled to another time or day (mouse: pull the block, or its
+   * handle; finger: press and hold, then pull; keyboard: arrow keys), and its lower edge changes the length. Nothing is
+   * saved here: onmove(event, { mode, day, fromDay, start, end, fromStart, fromEnd }) is called once on letting go and the
+   * page saves (and offers Undo). lockOf(event) gives the reason an event cannot move (or '' / null if it can).
    */
+  import { GripVertical } from '@lucide/svelte';
   import { weekLayout, timeOf, clockIn, EVENT_COLORS } from '../agenda.js';
+  import { timedrag, shapeSpan, linearMinutes, clockOf } from '../ui/timedrag.js';
   import { t, locale } from '../i18n.svelte.js';
 
-  let { events, days, today, colors = {}, picked = null, onpick, onnew } = $props();
+  let { events, days, today, colors = {}, picked = null, onpick, onnew, lockOf = null, onmove = null } = $props();
 
   const HOUR = 44; // px per hour
   const layout = $derived(weekLayout(events, days));
@@ -32,6 +38,25 @@
     const first = Math.min(7 * 60, ...layout.flatMap((d) => d.timed.map((x) => x.from)));
     scroller.scrollTop = Math.max(0, ((first - 30) / 60) * HOUR);
   });
+
+  // «Termine ziehen»: what is dragged right now (one block), shown as it would stand on letting go
+  let drag = $state(null); // { key, mode, dx, dy, over }
+  const keyOf = (x, c) => `${x.e.id}|${c.day}`;
+  const mins = linearMinutes(HOUR);
+  const lockedBy = (e) => (onmove ? lockOf?.(e) || '' : '');
+  const spanOf = (x, c) => (drag?.key === keyOf(x, c) ? shapeSpan({ start: x.from, end: x.to }, drag.mode, mins(drag.dy)) : { start: x.from, end: x.to });
+  function commit(x, c, g) {
+    const span = shapeSpan({ start: x.from, end: x.to }, g.mode, mins(g.dy));
+    const day = g.mode === 'move' ? (g.over ?? c.day) : c.day;
+    if (day === c.day && span.start === x.from && span.end === x.to) return;
+    onmove?.(x.e, { mode: g.mode, day, fromDay: c.day, start: span.start, end: span.end, fromStart: x.from, fromEnd: x.to });
+  }
+  function step(x, c, s) {
+    const day = s.days ? days[Math.max(0, Math.min(days.length - 1, days.indexOf(c.day) + s.days))] : c.day;
+    const span = shapeSpan({ start: x.from, end: x.to }, s.mode, s.minutes);
+    if (day === c.day && span.start === x.from && span.end === x.to) return;
+    onmove?.(x.e, { mode: s.mode, day, fromDay: c.day, start: span.start, end: span.end, fromStart: x.from, fromEnd: x.to });
+  }
 
   function emptyTap(ev, day) {
     if (ev.target !== ev.currentTarget) return;
@@ -67,22 +92,34 @@
       </div>
       {#each layout as c (c.day)}
         <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-        <div class="col" class:now={c.day === today} onclick={(ev) => emptyTap(ev, c.day)}>
+        <div class="col" class:now={c.day === today} data-day={c.day} onclick={(ev) => emptyTap(ev, c.day)}>
           {#each c.timed as x (x.e.id + c.day)}
+            {@const lock = lockedBy(x.e)}
+            {@const sp = spanOf(x, c)}
             <button
               type="button"
               class="ev"
               class:sel={picked === x.e.id}
               class:free={x.e.busy === false}
+              class:td-lift={drag?.key === keyOf(x, c)}
+              class:locked={!!lock}
               style:--c={colorOf(x.e)}
-              style:top="{(x.from / 60) * HOUR}px"
-              style:height="{Math.max(((x.to - x.from) / 60) * HOUR - 2, 16)}px"
+              style:top="{(sp.start / 60) * HOUR}px"
+              style:height="{Math.max(((sp.end - sp.start) / 60) * HOUR - 2, 16)}px"
               style:left="{(x.lane / x.lanes) * 100}%"
               style:width="calc({100 / x.lanes}% - 2px)"
+              style:transform={drag?.key === keyOf(x, c) && drag.mode === 'move' ? `translateX(${drag.dx}px)` : undefined}
+              title={lock || undefined}
+              data-ev={x.e.id}
               onclick={() => onpick?.(x.e, c.day)}
+              use:timedrag={{ day: c.day, enabled: !!onmove && !lock, whole: true, keys: true, onpreview: (d) => (drag = d ? { key: keyOf(x, c), ...d } : null), oncommit: (g) => commit(x, c, g), onstep: (s) => step(x, c, s) }}
             >
               <b>{x.e.title}</b>
-              {#if x.to - x.from >= 45}<span>{clock(x.e)}</span>{/if}
+              {#if sp.end - sp.start >= 45 || drag?.key === keyOf(x, c)}<span>{drag?.key === keyOf(x, c) ? `${clockOf(sp.start)}–${clockOf(sp.end)}` : clock(x.e)}</span>{/if}
+              {#if onmove && !lock}
+                <i class="grip" data-drag-grip aria-hidden="true"><GripVertical size={14} /></i>
+                <i class="size" data-drag-size aria-hidden="true"></i>
+              {/if}
             </button>
           {/each}
           {#if c.day === today && nowMin != null}<span class="nowline" style:top="{(nowMin / 60) * HOUR}px" aria-hidden="true"></span>{/if}
@@ -204,6 +241,51 @@
     color: var(--ink);
     font-size: var(--fs-small);
     line-height: 1.3;
+  }
+  .ev {
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+  .ev .grip,
+  .ev .size {
+    position: absolute;
+    display: none;
+  }
+  .ev .grip {
+    top: 1px;
+    right: 1px;
+    width: 18px;
+    height: 18px;
+    place-items: center;
+    border-radius: 4px;
+    color: var(--ink-3);
+    cursor: grab;
+    touch-action: none;
+  }
+  .ev .size {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 8px;
+    cursor: ns-resize;
+    touch-action: none;
+  }
+  @media (hover: hover) {
+    .ev:hover .grip,
+    .ev.sel .grip,
+    .ev:focus-visible .grip {
+      display: grid;
+    }
+    .ev:hover .size,
+    .ev.sel .size {
+      display: block;
+    }
+  }
+  .ev.td-lift {
+    z-index: 6;
+    opacity: 0.95;
   }
   .ev b {
     display: block;

@@ -70,7 +70,7 @@
   </div>
   <div class="card ich-body ma">
     {#if adv && !skipped}
-      <p class="ma-now" data-month-adv-now={adv.id}><span class="ich-ib"><Tent size={18} aria-hidden="true" /></span><span><b>{shown(adv)}</b>{#if adv.hint}<small>{t(adv.hint)}</small>{/if}</span></p>
+      <p class="ma-now" data-month-adv-now={adv.id}><span class="ich-ib"><Tent size={20} aria-hidden="true" /></span><span><b>{shown(adv)}</b>{#if adv.hint}<small>{t(adv.hint)}</small>{/if}</span></p>
       <div class="ma-btns">
         {#if SPOT[adv.id]}<button type="button" class="btn hi" onclick={showMe} data-month-adv-show><ArrowDown size={16} aria-hidden="true" />{t('Show me')}</button>{/if}
         <button type="button" class="btn" onclick={() => save(skipMonth(cfg, month))} data-month-adv-skip>{t('Not this month')}</button>

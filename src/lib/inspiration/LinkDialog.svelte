@@ -76,7 +76,7 @@
       <div class="vd-t">
         <h2 id="ld-h">{link ? t('Change link') : t('Add link|insp')}</h2>
       </div>
-      <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={18} aria-hidden="true" /></button>
+      <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
     </div>
     <div class="ld-grid">
       <label class="ld-wide"><span class="lbl">{t('Link')}</span><input class="inp" type="url" inputmode="url" bind:value={draft.url} placeholder={t('Paste a link, e.g. bikepacking.com/…')} required /></label>
@@ -157,8 +157,6 @@
   }
   .ld-caps {
     margin-bottom: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
   }
   textarea {
     resize: vertical;

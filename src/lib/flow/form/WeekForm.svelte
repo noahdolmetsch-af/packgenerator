@@ -18,12 +18,12 @@
 
 {#if w}
   <a class="card wf" href="#/flow/form" data-wr="form">
-    <Activity size={18} aria-hidden="true" />
+    <Activity size={20} aria-hidden="true" />
     <span>
       <b>{t('Form and recovery')}</b>
       <small class="num">{t('Fitness {fit} ({delta} against the week before) · form {form}', { fit: num(w.fit), delta: w.delta == null ? '–' : sign(w.delta), form: sign(w.form) })}</small>
     </span>
-    <ChevronRight size={18} aria-hidden="true" />
+    <ChevronRight size={20} aria-hidden="true" />
   </a>
 {/if}
 

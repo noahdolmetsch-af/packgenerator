@@ -12,6 +12,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { activeBikes } from '../lib/bikeretire.js';
+  import StandVelos from '../lib/stand/StandVelos.svelte'; // «Dein Stand in Zahlen» (Noah 24.11.2026 «b»): the three numbers of the area, content first
   import HintCard from '../lib/pageinfo/HintCard.svelte'; // Velos aufräumen: the «Einstieg» lives in the «?» window, no second help row on the page
   import SetupTab from '../lib/bikes/SetupTab.svelte';
   import CareTab from '../lib/care/CareTab.svelte';
@@ -149,12 +150,17 @@
   {:else if route.tab === 'care' && route.view === 'inspect'}
     <!-- «Velo-Inspektion» (Noah 19.10.2026): a bike's inspections, or one running (&level=); loaded only when opened -->
     {#await import('../lib/inspect/InspectPage.svelte') then m}{#key `${route.bike}:${route.level ?? ''}`}<m.default bikeId={route.bike} level={route.level ?? null} />{/key}{/await}
+  {:else if route.tab === 'care' && route.view === 'km'}
+    <!-- Sitemap K1 (Noah 24.11.2026): the ride ledger «Every km counts» on its own page, one tap from Bikes (was only in Care › More); loaded only when opened -->
+    {#await import('../lib/care/KmBookPage.svelte') then m}<m.default bikeId={route.bike} />{:catch}<p class="quiet">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
   {:else if route.tab === 'care' && route.view === 'import'}
     <!-- v0.68.0 «Q1 Jeder km zählt» (Q1.3 a): import rides, «Check» first, then per bike -->
     <KmImport bikeId={route.bike} />
   {:else if route.tab === 'care'}
     <CareTab bikeId={route.bike} open={route.open} tripId={route.trip ?? null} onbike={pickBike} onopened={opened} />
   {:else}
+    <!-- «Dein Stand in Zahlen» (Noah 24.11.2026 «b»): what you came for, first; the help line follows -->
+    <StandVelos />
     <HintCard page="velos" intro="velos" />
     <!-- Noah 06.11.2026 «2a» (Durchklick Etappe 4): the bikes first, «Alles hier» (the functions) under them -->
     <BikeCards bikeId={shownBike} onbike={pickBike} />

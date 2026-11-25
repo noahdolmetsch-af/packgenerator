@@ -114,7 +114,7 @@
 
 {#snippet row(p, sub)}
   <li class="rc-row rr-row">
-    {#if p.kind === 'target' || p.kind === 'pick'}<span class="rr-ic" aria-hidden="true"><MapPin size={18} /></span>{:else}<KindIcon kind={p.kind} size={18} />{/if}
+    {#if p.kind === 'target' || p.kind === 'pick'}<span class="rr-ic" aria-hidden="true"><MapPin size={20} /></span>{:else}<KindIcon kind={p.kind} size={18} />{/if}
     <span class="rc-row-main"><b>{p.name || kindName(p.kind)}</b><small>{sub}</small></span>
     <button type="button" class="btn sm" onclick={() => go(p)} disabled={!!busy || !here} data-reroute-go={p.kind}>
       <Route size={16} aria-hidden="true" />{busy === String(p.id ?? `${p.lat},${p.lon}`) ? t('Planning…') : t('Plan')}
@@ -243,9 +243,9 @@
     cursor: pointer;
   }
   .rr-chip[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   .rr-row .rc-row-main {
     min-width: 0;

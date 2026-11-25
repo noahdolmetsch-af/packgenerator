@@ -237,9 +237,9 @@
         <div class="wheel">
           <span class="vd-lbl">{t(label)}</span>
           <div class="stepper">
-            <button type="button" class="btn sq" aria-label={t('0.1 bar less')} onclick={() => (w === 'f' ? (pf = step(pf, -0.1)) : (pr = step(pr, -0.1)))}><Minus size={18} aria-hidden="true" /></button>
+            <button type="button" class="btn sq" aria-label={t('0.1 bar less')} onclick={() => (w === 'f' ? (pf = step(pf, -0.1)) : (pr = step(pr, -0.1)))}><Minus size={20} aria-hidden="true" /></button>
             <input class="inp num" type="text" inputmode="decimal" aria-label={t(label)} value={v == null ? '' : String(v)} oninput={(e) => { const n = Number(e.currentTarget.value.replace(',', '.')); if (w === 'f') pf = Number.isFinite(n) && n > 0 ? n : null; else pr = Number.isFinite(n) && n > 0 ? n : null; }} />
-            <button type="button" class="btn sq" aria-label={t('0.1 bar more')} onclick={() => (w === 'f' ? (pf = step(pf, 0.1)) : (pr = step(pr, 0.1)))}><Plus size={18} aria-hidden="true" /></button>
+            <button type="button" class="btn sq" aria-label={t('0.1 bar more')} onclick={() => (w === 'f' ? (pf = step(pf, 0.1)) : (pr = step(pr, 0.1)))}><Plus size={20} aria-hidden="true" /></button>
           </div>
           <small class="quiet num">{t('Target')} {target?.[w] != null ? `${num(target[w])} bar` : '–'}</small>
         </div>

@@ -80,7 +80,7 @@
 
 <div class="sk">
   <header class="sk-head">
-    <span class="sk-badge" aria-hidden="true"><MountainSnow size={26} /></span>
+    <span class="sk-badge" aria-hidden="true"><MountainSnow size={24} /></span>
     <div>
       <h1 class="sk-h1" tabindex="-1" data-page-title>{t('Ski tours')}</h1>
       <p class="sk-sub num">{t('Season {id}', { id: stats.id })} · {tn(stats.tours, '{n} tour|ski', '{n} tours')} · {num(stats.hm)} {t('m climbed|short')}</p>
@@ -101,13 +101,13 @@
             {#if onTour.ski?.peakAt}
               <p class="sk-quiet peak num" data-peak-at>{t('At the peak at {time}. Well done, now take care on the way down.', { time: onTour.ski.peakAt })}</p>
             {:else}
-              <button type="button" class="btn plan" onclick={peakNow} data-peak><Flag size={18} aria-hidden="true" />{t('Reached the peak')}</button>
+              <button type="button" class="btn plan" onclick={peakNow} data-peak><Flag size={20} aria-hidden="true" />{t('Reached the peak')}</button>
             {/if}
             {#if way.points.length}
               <ul class="sk-list wp">
                 {#each way.points as p (p.id)}
                   <li><button type="button" class="sk-tick" role="checkbox" aria-checked={!!p.at} onclick={() => reach(p.id)} data-point={p.name}>
-                    <span class="sk-box" aria-hidden="true">{#if p.at}<Check size={18} strokeWidth={3} />{/if}</span>
+                    <span class="sk-box" aria-hidden="true">{#if p.at}<Check size={20} strokeWidth={2.5} />{/if}</span>
                     <span class="sk-tt"><b>{p.name}</b>{#if p.at}<small class="num">{t('reached at {time}', { time: p.at })}</small>{/if}</span>
                   </button></li>
                 {/each}
@@ -141,9 +141,9 @@
               <p class="sk-quiet">{t('The list of this tour is empty. Add items in Pack.')}</p>
             {/if}
             {#if nx.upcoming}
-              <a class="btn plan" href="#/ski/plan/{encodeURIComponent(trip.id)}" data-to="plan"><CalendarRange size={18} aria-hidden="true" />{t('Plan the tour')}</a>
+              <a class="btn plan" href="#/ski/plan/{encodeURIComponent(trip.id)}" data-to="plan"><CalendarRange size={20} aria-hidden="true" />{t('Plan the tour')}</a>
             {:else}
-              <button type="button" class="btn plan" onclick={() => newTrip('standard', SKI)}><Plus size={18} aria-hidden="true" />{t('Plan a ski tour')}</button>
+              <button type="button" class="btn plan" onclick={() => newTrip('standard', SKI)}><Plus size={20} aria-hidden="true" />{t('Plan a ski tour')}</button>
             {/if}
           </section>
         {:else}
@@ -157,7 +157,7 @@
             <a class="sk-row" href={nx?.upcoming ? `#/ski/start/${encodeURIComponent(nx.trip.id)}` : '#/ski/start'} data-row="start">
               <span class="sk-ri" aria-hidden="true"><ShieldCheck size={20} /></span>
               <span class="sk-rt"><b>{t('Start check at the car park')}</b><small>{t('Transceiver, battery, group check, bulletin, turnaround time · 30 seconds')}</small></span>
-              <ChevronRight size={18} aria-hidden="true" />
+              <ChevronRight size={20} aria-hidden="true" />
             </a>
           </li>
           <li>
@@ -165,33 +165,33 @@
               <span class="sk-ri" aria-hidden="true"><Wrench size={20} /></span>
               <span class="sk-rt"><b>{t('Season care')}</b><small>{t('{phase}: {n} of {m} done', { phase: t(CARE_PHASES.find((p) => p.key === phase).name), n: phaseDone, m: phaseTasks.length })}</small></span>
               {#if due}<span class="pill warn num" data-due={due}>{t('{n} due', { n: due })}</span>{/if}
-              <ChevronRight size={18} aria-hidden="true" />
+              <ChevronRight size={20} aria-hidden="true" />
             </a>
           </li>
           <li>
             <a class="sk-row" href={afterHref} data-row="after">
               <span class="sk-ri" aria-hidden="true"><PenLine size={20} /></span>
               <span class="sk-rt"><b>{t('After the tour')}</b><small>{#if toNote}{t('Last tour: {name}, not noted yet', { name: nameOf(toNote) })}{:else if lastPast}{t('Last tour: {name} · noted', { name: nameOf(lastPast) })}{:else}{t('After your first tour: peak, metres climbed, three questions')}{/if}</small></span>
-              <ChevronRight size={18} aria-hidden="true" />
+              <ChevronRight size={20} aria-hidden="true" />
             </a>
           </li>
           <li>
             <a class="sk-row" href="#/ski/season" data-row="season">
               <span class="sk-ri" aria-hidden="true"><CalendarRange size={20} /></span>
               <span class="sk-rt"><b>{t('Season')}</b><small>{toStart != null ? tn(toStart, 'In {n} day the season starts', 'In {n} days the season starts') : goal.tours ? t('{n} of {m} tours', { n: stats.tours, m: goal.tours }) : t('Goal, wish tours, transceiver practice, courses')}{#if wishesOpen}{' · '}{tn(wishesOpen, '{n} wish tour open', '{n} wish tours open')}{/if}</small></span>
-              <ChevronRight size={18} aria-hidden="true" />
+              <ChevronRight size={20} aria-hidden="true" />
             </a>
           </li>
           <li>
             <a class="sk-row" href="#/mountain" data-row="mountain">
               <span class="sk-ri" aria-hidden="true"><Siren size={20} /></span>
               <span class="sk-rt"><b>{t('Mountain and emergency')}</b><small>{t('Emergency position, map with steep slopes, emergency QR, grades')}</small></span>
-              <ChevronRight size={18} aria-hidden="true" />
+              <ChevronRight size={20} aria-hidden="true" />
             </a>
           </li>
         </ul>
         <!-- Paket J #217: the emergency numbers, also offline -->
-        <p class="sk-quiet sos-line" data-sos-line><Phone size={15} aria-hidden="true" /><span>{t('Emergency:')}</span>{#each CALLS as c, i (c.key)}{#if i}<span aria-hidden="true">·</span>{/if}<a href={telOf(c.number)} data-call={c.number}>{t(c.label)}</a>{/each}</p>
+        <p class="sk-quiet sos-line" data-sos-line><Phone size={16} aria-hidden="true" /><span>{t('Emergency:')}</span>{#each CALLS as c, i (c.key)}{#if i}<span aria-hidden="true">·</span>{/if}<a href={telOf(c.number)} data-call={c.number}>{t(c.label)}</a>{/each}</p>
         <!-- «Versteckte Funktionen» (Noah 03.11.2026 «4b»): the three mountain pages were one page deeper, behind «Mountain and emergency» -->
         <p class="sk-quiet direct" data-mountain-direct><span>{t('Straight to:')}</span><a class="btn sm" href="#/mountain/qr" data-direct="qr">{t('Emergency QR for the lock screen')}</a><a class="btn sm" href="#/mountain/scales" data-direct="scales">{t('Signposts and grades')}</a><a class="btn sm" href="#/mountain/map" data-direct="map">{t('Map with steep slopes')}</a></p>
 
@@ -199,7 +199,7 @@
           <summary class="sk-row">
             <span class="sk-ri q" aria-hidden="true"><Ellipsis size={20} /></span>
             <span class="sk-rt"><b>{t('More')}</b><small>{t('Season in numbers · peaks · learnings · building blocks')}</small></span>
-            <ChevronRight size={18} aria-hidden="true" class="chev" />
+            <ChevronRight size={20} aria-hidden="true" class="chev" />
           </summary>
           <div class="more-in">
             <h2 class="mh">{t('Season {id}', { id: stats.id })}</h2>
@@ -210,7 +210,7 @@
             </div>
             {#if stats.peaks.length}
               <ul class="sk-list peaks">
-                {#each stats.peaks as p (p.tripId)}<li><a class="sk-row" href="#/ski/after/{encodeURIComponent(p.tripId)}"><span class="sk-rt"><b>{p.name}</b><small class="num">{longDay(p.day)}{#if p.hm}{" · "}{num(p.hm)} {t('m climbed|short')}{/if}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li>{/each}
+                {#each stats.peaks as p (p.tripId)}<li><a class="sk-row" href="#/ski/after/{encodeURIComponent(p.tripId)}"><span class="sk-rt"><b>{p.name}</b><small class="num">{longDay(p.day)}{#if p.hm}{" · "}{num(p.hm)} {t('m climbed|short')}{/if}</small></span><ChevronRight size={20} aria-hidden="true" /></a></li>{/each}
               </ul>
             {/if}
             <h2 class="mh">{t('Learnings|ski')}</h2>
@@ -221,7 +221,7 @@
             {/if}
             <a class="sk-row blocks" href="#/blocks" data-to="blocks">
               <span class="sk-rt"><b>{t('Building blocks')}</b><small>{t('What comes along on every ski tour')}</small></span>
-              <ChevronRight size={18} aria-hidden="true" />
+              <ChevronRight size={20} aria-hidden="true" />
             </a>
           </div>
         </details>

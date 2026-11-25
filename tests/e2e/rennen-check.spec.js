@@ -255,7 +255,7 @@ test('Bike countdown: steps weeks before the race, tick and own steps', async ({
   await page.goto('./#/racecheck/race-sample');
   const box = page.locator('[data-race-countdown]');
   await expect(box).toContainText(T('Bike countdown'));
-  await expect(box.locator('[data-countdown-list] li')).toHaveCount(STEPS.length);
+  await expect(box.locator('[data-countdown-list] .bc-row')).toHaveCount(STEPS.length);
   await expect(box).toContainText(T(STEPS[0].text));
   await expect(box.locator('[data-countdown-sum]')).toContainText(T('{done} of {of} done', { done: 0, of: STEPS.length }));
   await box.locator(`[data-countdown-done="${STEPS[0].id}"]`).check();
@@ -263,7 +263,7 @@ test('Bike countdown: steps weeks before the race, tick and own steps', async ({
   await box.locator('[data-countdown-edit]').click();
   await box.locator('[data-race-add="countdown"]').fill('Fit the new saddle bag');
   await box.locator('[data-race-add="countdown"]').press('Enter');
-  await expect(box.locator('[data-countdown-list] li')).toHaveCount(STEPS.length + 1);
+  await expect(box.locator('[data-countdown-list] .bc-row')).toHaveCount(STEPS.length + 1);
   await page.reload();
   await expect(box.locator(`[data-countdown-done="${STEPS[0].id}"]`)).toBeChecked();
   await expect(box).toContainText('Fit the new saddle bag');

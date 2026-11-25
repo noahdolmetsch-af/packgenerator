@@ -21,6 +21,7 @@ import { kmIntoDebrief } from '../ridelist.js';
 import { sortBikes } from '../bikes.js';
 import { makeEntry } from '../kmbook.js';
 import { addEntries, ensureKmBook } from '../kmbookdb.js';
+import { readLite } from '../actlite.js';
 
 /** Settings key: the bike of the last live ride without a trip bike. */
 export const LIVE_BIKE_KEY = 'live-bike';
@@ -37,7 +38,7 @@ export const isLiveRide = (r) => r?.source === 'live';
 export async function saveLiveRide(db, ride, { trip = null, name = '', now = new Date() } = {}) {
   const pace = paceOf((await db.settings.get(PACE_KEY))?.value);
   // a Strava/Garmin ride at the same time fills what the phone did not measure (Hm, pulse, power)
-  const twin = twinActivity(ride, await db.activities.toArray());
+  const twin = twinActivity(ride, await readLite(db, (T) => T.toArray()));
   const draft = rideRowOf(ride, { trip, name, basis: { kmh: pace.kmh, climbMh: pace.climbMh }, twin, now });
   // Touren c 70: the feeling of the ride (asked before the numbers) goes with it
   const row = { ...draft, plan: trip ? plannedFor(trip, draft.date, pace) : null, ...(ride.feel ? { feel: ride.feel } : {}) };
@@ -69,7 +70,7 @@ export function bikeFor(trip, bikes = [], lastId = null) {
  * The recording keeps the entry's id as kmId (so «Add km» is not offered twice).
  */
 export async function bookBikeKm(db, ride, { trip = null, name = '', note = '' } = {}) {
-  const [bikes, acts, entries, last] = await Promise.all([db.bikes.toArray(), db.activities.toArray(), db.kmBook.toArray(), db.settings.get(LIVE_BIKE_KEY)]);
+  const [bikes, acts, entries, last] = await Promise.all([db.bikes.toArray(), readLite(db, (T) => T.toArray()), db.kmBook.toArray(), db.settings.get(LIVE_BIKE_KEY)]);
   const bike = bikeFor(trip, bikes, last?.value ?? null);
   if (!bike) return null;
   const plan = bikeKmPlan(ride, bike.id, { acts, entries });

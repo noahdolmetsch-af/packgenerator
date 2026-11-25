@@ -55,7 +55,7 @@ export default {
   'Every step above 6 of 10 adds 2.5 points, every step below takes 2.5 (from −10 to +8).': 'Jede Stufe über 6 von 10 gibt 2,5 Punkte, jede Stufe darunter nimmt 2,5 (von −10 bis +8).',
   'Every step above 6 of 10 adds 3 points, every step below takes 3 (from −12 to +10).': 'Jede Stufe über 6 von 10 gibt 3 Punkte, jede Stufe darunter nimmt 3 (von −12 bis +10).',
   'Form against your fitness: fresh adds up to 20 points, tired takes up to 30.': 'Form im Verhältnis zur Fitness: frisch gibt bis 20 Punkte, müde nimmt bis 30.',
-  'Normal: the middle of your 30 days before.': 'Normal: die Mitte deiner 30 Tage davor.',
+  'Normal: the middle of your last 12 months.': 'Normal: die Mitte deiner letzten 12 Monate.',
   'Normal: 7.5 h.': 'Normal: 7,5 h.',
   'Normal: 6 of 10.': 'Normal: 6 von 10.',
   'Normal: 0, load and recovery in balance.': 'Normal: 0, Belastung und Erholung im Gleichgewicht.',

@@ -23,12 +23,22 @@ test('Garmin pages: card on the bike, pages per profile, one page in detail', as
   await page.goto('./#/bikes');
 
   // GA-A1: the card on the bike page, one row for the bike's own profile
-  const card = page.locator('section.gcard');
-  await expect(card.getByRole('heading', { name: T('Garmin pages') })).toBeVisible();
-  await expect(card.locator('a.prof')).toHaveCount(1);
-  await expect(card.locator('a.prof')).toContainText('Test gravel bike');
-  expect(await noOverflow(page)).toBe(true);
-  await card.locator('a.prof').click();
+  // Velos nach impeccable (changed on purpose): on a phone the card is one row in «More» and opens the Garmin page of the bike
+  if (test.info().project.name === 'phone') {
+    await expect(page.locator('section.gcard')).toHaveCount(0);
+    const row = page.locator('[data-garmin-row]');
+    await expect(row).toContainText(T('Garmin pages'));
+    await expect(row).toContainText('Edge 1040');
+    expect(await noOverflow(page)).toBe(true);
+    await row.click();
+  } else {
+    const card = page.locator('section.gcard');
+    await expect(card.getByRole('heading', { name: T('Garmin pages') })).toBeVisible();
+    await expect(card.locator('a.prof')).toHaveCount(1);
+    await expect(card.locator('a.prof')).toContainText('Test gravel bike');
+    expect(await noOverflow(page)).toBe(true);
+    await card.locator('a.prof').click();
+  }
 
   // GA-A2: the pages of the profile; no power pedals yet, so no «Power in detail»
   await expect(page).toHaveURL(/tab=garmin/);

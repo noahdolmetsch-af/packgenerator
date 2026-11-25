@@ -189,7 +189,7 @@
     <section class="step" aria-labelledby="step-h">
       {#if step.kind === 'overview'}
         <div class="ovw">
-          <h2 class="ovh" id="step-h"><span class="ovt"><ListChecks size={18} aria-hidden="true" />{t('What has changed')}</span><small class="num">{tn(rows.length, '{n} change · before → after', '{n} changes · before → after')}</small></h2>
+          <h2 class="ovh" id="step-h"><span class="ovt"><ListChecks size={20} aria-hidden="true" />{t('What has changed')}</span><small class="num">{tn(rows.length, '{n} change · before → after', '{n} changes · before → after')}</small></h2>
           <ol class="ovl">
             {#each rows as r, i (r.n)}
               <li class="ovr">
@@ -201,7 +201,7 @@
                       <span class="sr">{t('before')}:</span>
                       {#if r.from.length}{#each r.from as f (f)}<s class="ochip">{f}</s>{/each}{:else}<span class="dash" aria-hidden="true">–</span><span class="sr">{t('nothing')}</span>{/if}
                     </span>
-                    <ArrowRight class="ovarr" size={18} aria-hidden="true" />
+                    <ArrowRight class="ovarr" size={20} aria-hidden="true" />
                     <span class="ovto">
                       <span class="sr">{t('after')}:</span>
                       {#each r.to as x (x.key)}{@const I = ICON[x.key]}<span class="nchip">{#if I}<I size={15} aria-hidden="true" />{/if}{x.label}{#if x.note}<small>{x.note}</small>{/if}</span>{/each}
@@ -502,7 +502,6 @@
     color: var(--ink-3);
   }
   .fresh {
-    text-transform: uppercase;
     padding: 2px 8px;
     border-radius: 6px;
     background: var(--hi);

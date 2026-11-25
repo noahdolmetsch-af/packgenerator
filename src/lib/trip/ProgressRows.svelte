@@ -62,7 +62,7 @@
             <span class="dt">{short(row.date)}</span>
             <i class="pb num">{#if s.key === 'packed'}<Check size={14} aria-hidden="true" />{/if}{t(s.label, { done: s.done, total: s.total, day: s.day })}</i>
           </span>
-          {#if !cur}<ChevronRight class="chev" size={18} aria-hidden="true" />{:else}<span class="chev" aria-hidden="true"></span>{/if}
+          {#if !cur}<ChevronRight class="chev" size={20} aria-hidden="true" />{:else}<span class="chev" aria-hidden="true"></span>{/if}
         </a>
         <div class="mw" use:away={() => menu === row.id && (menu = null)}>
           <button type="button" class="more" aria-label={t('More for {title}', { title: row.title })} aria-haspopup="menu" aria-expanded={menu === row.id} onkeydown={menuKey} onclick={() => (menu = menu === row.id ? null : row.id)}><Ellipsis size={20} aria-hidden="true" /></button>

@@ -63,7 +63,7 @@
     {#if way}
       <div class="way" data-meinetour-way>
         <p class="next"><b>{t('On the way')}</b>{' · '}{t('Only what you need now. You switch it off when you are home.')}</p>
-        <p class="act"><a class="btn hi main" href="#/live" onclick={(e) => go(e, '#/live')} data-meinetour-live><MapIcon size={18} aria-hidden="true" />{t('Open the live map')}</a></p>
+        <p class="act"><a class="btn hi main" href="#/live" onclick={(e) => go(e, '#/live')} data-meinetour-live><MapIcon size={20} aria-hidden="true" />{t('Open the live map')}</a></p>
         <p class="row2">
           <button type="button" class="btn" onclick={() => openNote('')} data-meinetour-note><Camera size={16} aria-hidden="true" />{t('Note with photo')}</button>
           <button type="button" class="btn" onclick={() => openNote(t('Breakdown: '))} data-meinetour-breakdown><Wrench size={16} aria-hidden="true" />{t('Note a breakdown')}</button>
@@ -75,13 +75,13 @@
       <ol class="strip" aria-label={t('The four phases of the tour')}>
         {#each card.phases as p, i (p.key)}
           <li class={p.state} aria-current={p.state === 'now' ? 'step' : undefined} data-meinetour-phase={p.key}>
-            <span class="no" aria-hidden="true">{#if p.state === 'done'}<Check size={12} strokeWidth={3} />{:else}{i + 1}{/if}</span>{p.title}
+            <span class="no" aria-hidden="true">{#if p.state === 'done'}<Check size={14} strokeWidth={2.5} />{:else}{i + 1}{/if}</span>{p.title}
           </li>
         {/each}
       </ol>
       {#if card.next}
         <p class="next" data-meinetour-line><b>{t('Next: {title}', { title: card.next.title })}</b>{#if card.next.line}{' · '}{card.next.line}{/if}</p>
-        <p class="act"><a class="btn hi main" href={card.next.href} onclick={(e) => go(e, card.next.href)} data-meinetour-next>{card.next.button}<ChevronRight size={18} aria-hidden="true" /></a></p>
+        <p class="act"><a class="btn hi main" href={card.next.href} onclick={(e) => go(e, card.next.href)} data-meinetour-next>{card.next.button}<ChevronRight size={20} aria-hidden="true" /></a></p>
       {:else}
         <p class="next" data-meinetour-line>{t('Nothing is open in this phase.')}</p>
       {/if}

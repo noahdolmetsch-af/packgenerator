@@ -10,6 +10,7 @@
   import { PARTS, alltagPart, ALLTAG_HASH } from '../lib/alltag.js';
   import { syncReminders } from '../lib/alltagdb.js';
   import { t } from '../lib/i18n.svelte.js';
+  import StandAlltag from '../lib/stand/StandAlltag.svelte';
   import '../lib/frei/frei.css';
 
   let { hash = '' } = $props();
@@ -32,6 +33,7 @@
     <Crumb path={[{ href: '#/week', label: t('Plan|place') }]} here={t('Everyday life')} />
     <h1 class="fz-h1" tabindex="-1" data-page-title>{t('Everyday life')}</h1>
     <p class="fz-intro">{t('Small helpers for the days at home: what to buy, what runs and when to cancel it, and who you have not seen for a while.')}</p>
+    <StandAlltag />
     <ul class="fz-box fz-list" aria-label={t('Everyday life')}>
       {#each PARTS as p (p.key)}
         {@const Icon = ICONS[p.icon]}
@@ -39,7 +41,7 @@
           <a class="fz-row" href="{ALLTAG_HASH}/{p.key}" data-alltag-page={p.key}>
             <span class="fz-icon" aria-hidden="true"><Icon size={20} /></span>
             <span class="fz-row-main"><b>{t(p.title)}</b><small>{t(p.sub)}</small></span>
-            <ChevronRight size={18} aria-hidden="true" />
+            <ChevronRight size={20} aria-hidden="true" />
           </a>
         </li>
       {/each}

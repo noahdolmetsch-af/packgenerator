@@ -74,14 +74,14 @@
     {#if home}
       <li>
         <button type="button" class="ich-row" onclick={() => pick({ kind: 'home', name: t('Home|start'), lat: home.lat, lon: home.lon })} data-start-home>
-          <span class="ich-ib"><House size={18} aria-hidden="true" /></span>
+          <span class="ich-ib"><House size={20} aria-hidden="true" /></span>
           <span class="ich-m"><b>{t('Home|start')}</b>{#if home.name}<small>{home.name}</small>{/if}</span>
         </button>
       </li>
     {/if}
     <li>
       <button type="button" class="ich-row" disabled={locating} onclick={here} data-start-here>
-        <span class="ich-ib"><LocateFixed size={18} aria-hidden="true" /></span>
+        <span class="ich-ib"><LocateFixed size={20} aria-hidden="true" /></span>
         <span class="ich-m"><b>{t('From here')}</b><small>{locating ? t('Looking for your location …') : t('Asks for your location once, keeps nothing')}</small></span>
       </button>
     </li>
@@ -96,7 +96,7 @@
       {#each found as p (key(p))}
         <li>
           <button type="button" class="ich-row" onclick={() => pick({ kind: 'place', name: p.name, lat: p.lat, lon: p.lon })} data-start-hit>
-            <span class="ich-ib"><MapPin size={18} aria-hidden="true" /></span>
+            <span class="ich-ib"><MapPin size={20} aria-hidden="true" /></span>
             <span class="ich-m"><b>{p.name}</b>{#if p.detail}<small>{p.detail}</small>{/if}</span>
           </button>
         </li>

@@ -134,13 +134,13 @@
     </p>
     <p class="la-help">{t('Open this link again to see your place.')}</p>
     <div class="la-acts">
-      <button type="button" class="btn" onclick={leave} disabled={busy} data-la-leave><UserMinus size={18} aria-hidden="true" />{t('Sign off')}</button>
+      <button type="button" class="btn" onclick={leave} disabled={busy} data-la-leave><UserMinus size={20} aria-hidden="true" />{t('Sign off')}</button>
     </div>
   {:else}
     <form class="la-form" onsubmit={join} data-la-form>
       <label class="la-fld"><span>{t('Your name')}</span><input type="text" bind:value={name} maxlength="40" autocomplete="given-name" data-la-name /></label>
       <label class="la-fld"><span>{t('A note (optional)')}</span><input type="text" bind:value={note} maxlength="120" data-la-note /></label>
-      <button type="submit" class="btn hi" disabled={busy} data-la-join><UserPlus size={18} aria-hidden="true" />{free ? t('I am in') : t('Put me on the waiting list')}</button>
+      <button type="submit" class="btn hi" disabled={busy} data-la-join><UserPlus size={20} aria-hidden="true" />{free ? t('I am in') : t('Put me on the waiting list')}</button>
     </form>
   {/if}
   {#if err}<p class="la-err" role="alert" data-la-err>{err}</p>{/if}
@@ -153,8 +153,6 @@
     margin: 0;
     color: var(--ink-2);
     font-size: var(--fs-small);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
   }
   h1 {
     margin: 0;

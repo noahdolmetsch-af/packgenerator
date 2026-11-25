@@ -23,7 +23,7 @@ beforeEach(async () => {
 
 describe('the table', () => {
   it('is schema 21, a data table (backup) and stays on this device in the sync', () => {
-    expect(SCHEMA_VERSION).toBe(21);
+    expect(SCHEMA_VERSION).toBe(22);
     expect(DATA_TABLES).toContain('trash');
     expect(syncLocal('trash', 'x')).toBe(true);
     expect(syncLocal('items', 'x')).toBe(false);
@@ -190,5 +190,26 @@ describe('items of a list in a settings record (to-dos, entries of My day)', () 
   it('a list item never lands in a table of its own (the key MERKEN_KEY is a settings key)', () => {
     expect(MERKEN_KEY).toBe('merken');
     expect(kindOfTable('@list')).toBe('other');
+  });
+  it('a training session comes back under its name in training.plan, a stay away with the entries it made', async () => {
+    await db.settings.put({ key: 'training.plan', value: { sessions: [{ id: 's2', day: '2026-11-26' }] } });
+    const s1 = { id: 's1', day: '2026-11-25', kind: 'run' };
+    const id = await trashItem(db, 'Lauf', { store: 'training.plan', path: 'sessions', row: s1, kind: 'week' });
+    expect((await db.trash.get(id)).kind).toBe('week');
+    expect((await restoreEntry(db, id)).back).toBe(1);
+    expect((await db.settings.get('training.plan')).value.sessions.map((x) => x.id)).toEqual(['s2', 's1']);
+    const away = { id: 'a1', from: '2026-12-24', to: '2026-12-28', type: 'bike' };
+    const made = [{ id: 'i1', ref: 'pack:a1', title: 'Velo packen' }, { id: 'i2', ref: 'pack:a1', title: 'Service' }];
+    const id2 = await trashItem(db, 'Ferien', { kind: 'week', parts: [{ store: 'week.away', row: away }, ...made.map((row) => ({ store: 'week.items', row }))] });
+    const e = await db.trash.get(id2);
+    expect(e.rows).toHaveLength(3);
+    expect((await restoreEntry(db, id2)).back).toBe(3);
+    expect((await db.settings.get('week.away')).value.map((x) => x.id)).toEqual(['a1']);
+    expect((await db.settings.get('week.items')).value.map((x) => x.id)).toEqual(['i1', 'i2']);
+    // a record that was never there is made, the plan key keeps its shape
+    await db.settings.delete('training.plan');
+    const id3 = await trashItem(db, 'Lauf', { store: 'training.plan', path: 'sessions', row: s1, kind: 'week' });
+    await restoreEntry(db, id3);
+    expect((await db.settings.get('training.plan')).value).toEqual({ sessions: [s1] });
   });
 });

@@ -11,6 +11,8 @@ test('Projekt-Ablage: head, own points, the way, idea board and releases', async
   page.on('pageerror', (e) => errors.push(e.message));
   const T = await openHome(page, context, info);
   await page.goto('./#/me');
+  // Ich aufräumen (Noah 24.11.2026): the project shelf waits under the closed «More»
+  await page.locator('details.ich-sec.fold > summary', { hasText: /Mehr|More/ }).click();
   await page.locator('a[data-row="next"]').click();
   const root = page.locator('[data-page="projekt-ablage"]');
   await expect(root.locator('h1')).toHaveText(T('Project shelf'));

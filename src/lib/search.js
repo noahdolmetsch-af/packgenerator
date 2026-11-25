@@ -5,6 +5,7 @@
  */
 import { t, tn, num, nameOf, locale } from './i18n.svelte.js';
 import { PAGE_ROWS, ACTIONS } from './nav/menu.js';
+import { MORE_KIND, moreGroups } from './suche/mehr.js';
 import { mapPages, wegText } from './nav/seiten.js';
 
 const norm = (s) => String(s ?? '').toLowerCase();
@@ -26,6 +27,7 @@ export const KIND = {
   note: { name: 'Notes', max: 3 },
   diary: { name: 'Diary', max: 3 }, // «Eingaben überall» (Noah 26.10.2026 «5a aber b möglich»): only when the diary is open
   log: { name: 'Logbook', max: 3 }, // v0.42.0 (Noah 9): the old trips of the Excel and the logbook
+  ...MORE_KIND, // Warteliste 1 V1: rides, places, learnings, bike care, training, tasks, settings
   page: { name: 'Pages', max: 4 },
   action: { name: 'Actions', max: 3 },
 };
@@ -42,7 +44,7 @@ const wayText = (href, group) => wegText(href, t, t(group));
  * Results grouped by kind, best first: [{ kind, name, rows: [{ id, title, sub, href, tripId? }] }].
  * Empty groups are left out; fewer than 2 letters find nothing.
  */
-export function searchAll(q, { items = [], trips = [], templates = [], bikes = [], notes = [], events = [], diary = [] } = {}) {
+export function searchAll(q, { items = [], trips = [], templates = [], bikes = [], notes = [], events = [], diary = [], more = null, full = null } = {}) {
   const words = norm(q).trim().split(/\s+/).filter(Boolean);
   if (!words.length || norm(q).trim().length < 2) return [];
   const hit = (...fields) => {
@@ -52,11 +54,15 @@ export function searchAll(q, { items = [], trips = [], templates = [], bikes = [
   // Rows whose name starts with the search come first.
   const rank = (title) => (norm(title).startsWith(words[0]) ? 0 : 1);
   const sort = (rows) => rows.sort((a, b) => rank(a.title) - rank(b.title) || a.title.localeCompare(b.title));
+  // «Klügere Suche» (Noah 24.11.2026 «1-4a»): a hit in a NAME is strong, a hit only in running text (a note, a logbook text) is weak (`weak: true`);
+  // strong rows come first in each kind, and only a strong hit may fold the gear away (suche/ordnung.js).
+  const strongFirst = (rows) => rows.sort((a, b) => (a.weak ? 1 : 0) - (b.weak ? 1 : 0));
+  const weakIf = (weak) => (weak ? { weak: true } : {});
   const groups = {
     gear: sort(
       items
         .filter((i) => i.ownership !== 'gone' && hit(i.name, i.nameDe, i.brand, i.model, i.note, i.favNote))
-        .map((i) => ({ id: i.id, title: `${i.favorite ? '★ ' : ''}${nameOf(i)}`, sub: [i.brand, i.weightG != null ? '' : t('not weighed'), i.ownership === 'wishlist' || i.ownership === 'to-buy' ? t('wishlist') : ''].filter(Boolean).join(' · '), v: i.weightG != null ? `${num(i.weightG)} g` : '', href: `#/gear?q=${encodeURIComponent(nameOf(i))}&item=${encodeURIComponent(i.id)}` })),
+        .map((i) => ({ ...weakIf(!hit(i.name, i.nameDe, i.brand, i.model)), id: i.id, title: `${i.favorite ? '★ ' : ''}${nameOf(i)}`, sub: [i.brand, i.weightG != null ? '' : t('not weighed'), i.ownership === 'wishlist' || i.ownership === 'to-buy' ? t('wishlist') : ''].filter(Boolean).join(' · '), v: i.weightG != null ? `${num(i.weightG)} g` : '', href: `#/gear?q=${encodeURIComponent(nameOf(i))}&item=${encodeURIComponent(i.id)}` })),
     ),
     trip: trips
       .filter((tr) => hit(tr.title, tr.place?.name, tr.bike))
@@ -67,19 +73,21 @@ export function searchAll(q, { items = [], trips = [], templates = [], bikes = [
     note: notes
       .filter((n) => hit(n.text))
       .sort((a, b) => (b.at ?? '').localeCompare(a.at ?? ''))
-      .map((n) => ({ id: n.id, title: n.text.length > 60 ? `${n.text.slice(0, 57)}…` : n.text, sub: n.status === 'open' ? t('to sort') : t('sorted'), href: '#/inbox' })),
+      .map((n) => ({ weak: true, id: n.id, title: n.text.length > 60 ? `${n.text.slice(0, 57)}…` : n.text, sub: n.status === 'open' ? t('to sort') : t('sorted'), href: '#/inbox' })),
     // diary entries: title, text, tags, place and what was added (voice notes as text, file names)
     diary: diary
       .filter((e) => hit(e.title, e.text, (e.tags ?? []).join(' '), e.place?.name, diaryExtra(e)))
       .sort((a, b) => `${b.day} ${b.time ?? ''}`.localeCompare(`${a.day} ${a.time ?? ''}`))
       .map((e) => {
         const head = String(e.title ?? '').trim() || String(e.text ?? '').trim().split('\n')[0] || t('Untitled');
-        return { id: e.id, title: head.length > 60 ? `${head.slice(0, 57)}…` : head, sub: tripDay(e.day), href: `#/tagebuch/${encodeURIComponent(e.id)}` };
+        return { ...weakIf(!hit(e.title, (e.tags ?? []).join(' '), e.place?.name)), id: e.id, title: head.length > 60 ? `${head.slice(0, 57)}…` : head, sub: tripDay(e.day), href: `#/tagebuch/${encodeURIComponent(e.id)}` };
       }),
     log: events
       .filter((e) => hit(e.name, e.note, e.date, e.dateText, e.result, e.learnings))
       .sort((a, b) => (b.sortDate ?? '').localeCompare(a.sortDate ?? ''))
-      .map((e) => ({ id: e.id, title: e.name, sub: [e.date ?? e.dateText ?? '', e.source === 'excel' ? t('from Excel') : ''].filter(Boolean).join(' · '), href: '#/debrief/logbook' })),
+      .map((e) => ({ ...weakIf(!hit(e.name)), id: e.id, title: e.name, sub: [e.date ?? e.dateText ?? '', e.source === 'excel' ? t('from Excel') : ''].filter(Boolean).join(' · '), href: '#/debrief/logbook' })),
+    // the tables that load only once something is typed (suche/mehr.js); without them: nothing
+    ...(more ? moreGroups(hit, more) : {}),
     page: PAGES.filter((p) => hit(p.words, p.title, t(p.title))).map((p) => ({
       id: p.id,
       title: t(p.title),
@@ -100,7 +108,12 @@ export function searchAll(q, { items = [], trips = [], templates = [], bikes = [
   }
   return Object.entries(groups)
     .filter(([, rows]) => rows.length)
-    .map(([kind, rows]) => ({ kind, name: KIND[kind].name, rows: rows.slice(0, KIND[kind].max), more: Math.max(0, rows.length - KIND[kind].max) }));
+    .map(([kind, rows]) => [kind, strongFirst(rows)])
+    .map(([kind, rows]) => {
+      // «Alle zeigen» (V4): the kind (or kinds) chosen in the buttons is not cut
+      const cap = full === kind || (Array.isArray(full) && full.includes(kind)) ? rows.length : KIND[kind].max;
+      return { kind, name: KIND[kind].name, rows: rows.slice(0, cap), more: Math.max(0, rows.length - cap) };
+    });
 }
 
 /* ---------- v0.46.0 «Startseite neu» (Noah 14a): the search becomes "What do you want to do?" ----------

@@ -7,7 +7,7 @@
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
-  import { snapDb, listSnapshots, restoreSnapshot } from './snapshots.js';
+  import { snapDb, readSnapshotList, ensureHeads, restoreSnapshot } from './snapshots.js';
   import { MAINT_KEY, maintOf, saveMaint } from './settings.js';
   import { tidyData } from '../tidy.js';
   import { settling } from '../settled.js';
@@ -18,7 +18,13 @@
   import './maint.css';
 
   const sdb = snapDb();
-  const listQ = liveQuery(() => listSnapshots(sdb));
+  // the list reads only the small notes next to each copy, never the copies (each holds all data: seconds of waiting)
+  const listQ = liveQuery(() => readSnapshotList(sdb));
+  // copies from before the notes existed get theirs once, a moment after the page stands, one at a time
+  $effect(() => {
+    const id = setTimeout(() => ensureHeads(sdb).catch(() => {}), 4000);
+    return () => clearTimeout(id);
+  });
   const setQ = liveQuery(async () => maintOf((await db.settings.get(MAINT_KEY))?.value));
   let asking = $state(null);
   let busy = $state(false);
@@ -58,7 +64,7 @@
   <ul class="card ich-list">
     {#each $listQ ?? [] as s (s.id)}
       <li class="ich-row ich-wrap" data-snapshot={s.kind}>
-        <span class="ich-ib"><History size={18} aria-hidden="true" /></span>
+        <span class="ich-ib"><History size={20} aria-hidden="true" /></span>
         <span class="ich-m">
           <b>{rowName(s)}</b>
           <small>{when(s.at)} · {tn(s.rows ?? 0, '{n} record', '{n} records')}</small>

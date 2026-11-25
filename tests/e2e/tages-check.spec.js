@@ -20,6 +20,7 @@ import { ON_AT_START } from '../../src/lib/abfragen.js';
 import { ready } from './settle.js';
 import { put, addDays } from './aktiv-fixture.js';
 import { flowSeeded, putWall } from './wall-fixture.js';
+import { saveRound, openRound, toQuestion, toLastStep } from './runde-fixture.js';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -112,8 +113,7 @@ test('WG morning (was «the morning check»): the round of «Wi gaht\'s?» on He
   const entry = page.locator('[data-daycard] [data-section="morningcheck"]');
   await expect(entry).toContainText(T('Morning round'));
   await expect(entry).toContainText(T('Start|check'));
-  // Noah 19.10.2026 (changed on purpose): the due questions come as a window first; «Später» puts it away
-  await page.locator('[data-section="abfragen"] [data-ab-later]').click();
+  // Noah 24.11.2026 (changed on purpose): the due questions come as a window only when asked, so the round entry is free
   await entry.click();
   // Noah 18.10.2026 «1 a und b» (changed on purpose): the round leads to the morning page again
   await expect(page).toHaveURL(/#\/check\/morning$/);
@@ -144,19 +144,33 @@ test('WG morning (was «the morning check»): the round of «Wi gaht\'s?» on He
   await expect(mc).toContainText(T('Start|check'));
 
   // the morning round on Heute: all four at 07:00 (mood moved from its own 08:00)
-  const card = page.locator('[data-section="abfragen"]');
-  // Noah 20.10.2026 «2» (changed on purpose): the window asks 3 questions, «Show 1 more question» brings the fourth
-  await expect(card.getByText(T('{n} questions', { n: 3 }))).toBeVisible();
-  await expect(card.locator('[data-q]')).toHaveCount(3);
+  const card = await openRound(page);
+  // Noah 20.10.2026 «2» (changed on purpose): the window asks 3 questions, «Show 1 more question» brings the fourth;
+  // Noah 24.11.2026: one question per screen
+  await expect(card.locator('[data-ab-step]')).toContainText(T('Question {n} of {m}', { n: 1, m: 3 }));
+  await expect(card.locator('[data-q]')).toHaveCount(1);
+  await toLastStep(card);
   await card.locator('[data-ab-more]').click();
-  await expect(card.getByText(T('{n} questions', { n: 4 }))).toBeVisible();
-  for (const qid of ['erholung.schlaf', 'erholung.akku', 'spass.stimmung', 'ziele.ziel']) await expect(card.locator(`[data-q="${qid}"]`)).toContainText('7:00');
+  await expect(card.locator('[data-ab-step]')).toContainText(T('Question {n} of {m}', { n: 3, m: 4 }));
   // UI-Ziele #12 (Noah 20.10.2026 «freigabe», changed on purpose): 5 steps with words, stored as 2 … 10
-  await card.locator('[data-q="erholung.schlaf"]').getByRole('button', { name: T('okay|step'), exact: true }).click();
-  await card.locator('[data-q="erholung.akku"] [data-step="4"]').click();
-  await card.locator('[data-q="spass.stimmung"] [data-step="8"]').click();
-  await card.locator('[data-q="ziele.ziel"]').getByRole('textbox').fill('Velo nach der Arbeit');
-  await card.locator('[data-ab-save]').click();
+  const answer = {
+    'erholung.schlaf': (q) => q.getByRole('button', { name: T('okay|step'), exact: true }).click(),
+    'erholung.akku': (q) => q.locator('[data-step="4"]').click(),
+    'spass.stimmung': (q) => q.locator('[data-step="8"]').click(),
+    'ziele.ziel': (q) => q.getByRole('textbox').fill('Velo nach der Arbeit'),
+  };
+  while (await card.locator('[data-ab-back]').count()) await card.locator('[data-ab-back]').click();
+  const seen = [];
+  for (let i = 0; i < 4; i++) {
+    const q = card.locator('[data-q]');
+    const qid = await q.getAttribute('data-q');
+    seen.push(qid);
+    await expect(q).toContainText('7:00');
+    await answer[qid](q);
+    if (i < 3) await card.locator('[data-ab-next]').click();
+  }
+  expect(seen.sort()).toEqual(Object.keys(answer).sort());
+  await saveRound(card);
   await expect(card).toHaveCount(0);
 
   // the tile: when, the goal, the three numbers, the evening round to come
@@ -172,7 +186,7 @@ test('WG morning (was «the morning check»): the round of «Wi gaht\'s?» on He
   expect(await row(page)).toMatchObject({ sleep: 6, energy: 4, mood: 8 });
   expect((await answers(page)).map((a) => a.qid).sort()).toEqual(['erholung.akku', 'erholung.schlaf', 'spass.stimmung', 'ziele.ziel']);
   // the start of Auswerten («Aktiv neu», 22.10.2026; was Aktiv): today's values and the 7 days
-  await page.goto('./#/auswerten');
+  await page.goto('./#/auswerten/uebersicht');
   await expect(page.locator('[data-check-row="done"]')).toContainText(`${T('Sleep|flow')} 6`);
   await expect(page.locator('[data-check-row="done"]').getByRole('link', { name: T('Change') })).toHaveAttribute('href', '#/me/abfragen');
   await expect(page.locator('.avg')).toContainText(T('⌀ 7 days'));
@@ -203,10 +217,11 @@ test('WG evening (was «the evening review»): «Abend-Runde» with the satisfac
   await expect(page.locator('[data-daycard] [data-section="morningcheck"]')).toHaveAttribute('href', '#/check/evening');
 
   // the evening round on Heute: the satisfaction at 20:30
-  const card = page.locator('[data-section="abfragen"]');
-  await expect(card.locator('[data-q="erreicht.zufrieden"]')).toContainText('20:30');
-  await card.locator('[data-q="erreicht.zufrieden"] [data-step="8"]').click(); // UI-Ziele #12: «gut»
-  await card.locator('[data-ab-save]').click();
+  const card = await openRound(page);
+  const sat = await toQuestion(card, 'erreicht.zufrieden');
+  await expect(sat).toContainText('20:30');
+  await sat.locator('[data-step="8"]').click(); // UI-Ziele #12: «gut»
+  await saveRound(card);
   await expect(mc).toHaveAttribute('data-done', 'true');
   await expect(mc.locator('[data-sat]')).toContainText(T('Satisfaction {n} of 10', { n: 8 }));
   await expect(mc).toContainText(T('Goal: {goal}', { goal: 'Fiktive Runde' }));
@@ -302,9 +317,9 @@ test('«Feste Runden» (was «Deine 15 Fragen»): a switch and the two times on 
   await expect.poll(async () => (await setting(page, 'abfragen'))?.rounds).toEqual({ on: true, morning: '07:00', evening: '21:15' });
   await page.goto('./#/');
   await ready(page);
-  const card = page.locator('[data-section="abfragen"]');
-  await card.locator('[data-q="erholung.schlaf"] [data-step="6"]').click(); // UI-Ziele #12: «okay»
-  await card.locator('[data-ab-save]').click();
+  const card = await openRound(page);
+  await (await toQuestion(card, 'erholung.schlaf')).locator('[data-step="6"]').click(); // UI-Ziele #12: «okay»
+  await saveRound(card);
   await expect(page.locator('[data-section="morningcheck"]')).toContainText(T('From {time} the evening round comes here.', { time: '21:15' }));
 
   // switched off: the questions keep their own times (the battery waits for 08:00), the times are hidden
@@ -342,6 +357,7 @@ test('«Feste Runden» (was «Deine 15 Fragen»): a switch and the two times on 
   );
   await page.goto('./#/');
   await ready(page);
+  await toQuestion(await openRound(page), 'ziele.ziel');
   await expect(card.locator('[data-q="ziele.ziel"]')).toContainText('7:00');
   expect(errors).toEqual([]);
 });
@@ -362,14 +378,19 @@ test('the Sunday question (was question 15): «Näher an deiner Vision?» in the
   await page.clock.setSystemTime(new Date('2026-10-18T20:31:00+02:00'));
   await page.reload();
   await ready(page);
-  const v = page.locator('[data-section="abfragen"] [data-q="visionen.vision"]');
+  const v = await toQuestion(await openRound(page), 'visionen.vision');
   await expect(v).toContainText('20:30');
   await v.locator('[data-step="8"]').click(); // UI-Ziele #12 (changed on purpose): 5 steps, «gut» = 8
-  await page.locator('[data-section="abfragen"] [data-ab-save]').click();
+  await saveRound(page.locator('[data-section="abfragen"]'));
   await expect.poll(async () => (await answers(page)).find((a) => a.qid === 'visionen.vision')?.value).toBe(8);
+  // saving closes the round's window, and a closed window gives back its history step one task later: reload only
+  // after that, or the step back cuts the reload off (net::ERR_ABORTED)
+  await expect(page.locator('dialog[data-section="abfragen"]')).toBeHidden();
+  await expect.poll(() => page.evaluate(() => history.state?.pgDialog ?? null)).toBeNull();
   // not on a weekday
   await page.clock.setSystemTime(new Date('2026-10-19T20:31:00+02:00'));
-  await page.reload();
+  await page.goto('./#/check/evening');
+  await page.goto('./#/');
   await ready(page);
   await expect(page.locator('[data-q="visionen.vision"]')).toHaveCount(0);
 });

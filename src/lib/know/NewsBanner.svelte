@@ -39,7 +39,7 @@
 
 {#if e}
   <aside class="nbanner" aria-labelledby="nb-h" data-news-banner>
-    <Sparkles size={18} aria-hidden="true" class="nb-i" />
+    <Sparkles size={20} aria-hidden="true" class="nb-i" />
     <h2 id="nb-h" class="sr">{t('New in {v}|banner', { v: shortVersion(e.version) })}</h2>
     <a class="nb-t" href={NEWS_HREF} onclick={done} data-news-title><b>{t('New: {title}', { title: t(e.title) })}</b>{#if more > 0}{' · '}<span>{tn(more, 'and {n} more thing', 'and {n} more things')}</span>{/if}</a>
     <a class="nb-go" href={NEWS_HREF} onclick={show} data-news-go>{t('Show me')}</a>

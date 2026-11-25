@@ -241,7 +241,7 @@
       <ul class="card ich-list">
         {#each due as x (x.tripId)}
           <li class="ich-row">
-            <span class="ich-ib"><CalendarClock size={18} aria-hidden="true" /></span>
+            <span class="ich-ib"><CalendarClock size={20} aria-hidden="true" /></span>
             <span class="ich-m"><b>{x.title}</b><small>{t('Register by {day}', { day: dayText(x.signupBy) })} · {x.days === 0 ? t('today') : tn(x.days, 'in {n} day', 'in {n} days')}</small></span>
             <button type="button" class="btn sm" onclick={() => signedUp(x.tripId)}><Check size={16} aria-hidden="true" />{t('Signed up')}</button>
           </li>
@@ -284,11 +284,11 @@
             <div class="ich-row">
               {#if !month}<SortGrip name={d.title} onstep={(dir) => save({ dreams: moveDream(store.dreams, i, i + dir) })} />{/if}
               <button type="button" class="open" onclick={() => (open = d.id)}>
-                {#if d.photo}<img class="thumb" src={d.photo} alt="" />{:else}<span class="ich-ib">{#if d.tripId}<Route size={18} aria-hidden="true" />{:else}<Sparkles size={18} aria-hidden="true" />{/if}</span>{/if}
+                {#if d.photo}<img class="thumb" src={d.photo} alt="" />{:else}<span class="ich-ib">{#if d.tripId}<Route size={20} aria-hidden="true" />{:else}<Sparkles size={20} aria-hidden="true" />{/if}</span>{/if}
                 <span class="ich-m"><b>{d.title}</b><small>{[kindName(kinds, d.kind, t), monthsText(d), isChip(d) ? '' : windowText(d), distText(d, num)].filter(Boolean).join(' · ')}</small>{#if isChip(d)}<span class="dr-chips"><span class="dr-chip">{windowText(d)}</span></span>{/if}</span>
               </button>
               {#if !month}<SortArrows name={d.title} {i} n={shown.length} onstep={(dir) => save({ dreams: moveDream(store.dreams, i, i + dir) })} />{/if}
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+              <ChevronRight class="ich-chev" size={20} aria-hidden="true" />
             </div>
           </li>
         {/each}
@@ -320,9 +320,9 @@
         {#each fulfilled as f (f.dream.id)}
           <li>
             <a class="ich-row done-row" href="#/debrief/{encodeURIComponent(f.trip.id)}" data-dream-done={f.dream.id}>
-              {#if f.dream.photo}<img class="thumb" src={f.dream.photo} alt="" />{:else}<span class="ich-ib"><Check size={18} aria-hidden="true" /></span>{/if}
+              {#if f.dream.photo}<img class="thumb" src={f.dream.photo} alt="" />{:else}<span class="ich-ib"><Check size={20} aria-hidden="true" /></span>{/if}
               <span class="ich-m"><b>{f.dream.title}</b><small>{[t('Fulfilled in {when}', { when: ymText(f.day.slice(0, 7)) }), distText(f.dream, num)].filter(Boolean).join(' · ')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+              <ChevronRight class="ich-chev" size={20} aria-hidden="true" />
             </a>
           </li>
         {/each}
@@ -346,7 +346,7 @@
       <ul class="card ich-list">
         {#each races as r (r.key)}
           <li class="ich-row" data-race={r.key}>
-            <span class="ich-ib"><Flag size={18} aria-hidden="true" /></span>
+            <span class="ich-ib"><Flag size={20} aria-hidden="true" /></span>
             <span class="ich-m"><b>{r.title}</b><small>{dayText(r.raceDate)} · {r.source === 'calendar' ? t('Google calendar') : t('Inspiration')} · {tn(daysUntil(r.raceDate, today), 'in {n} day', 'in {n} days')}</small></span>
             <button type="button" class="btn sm" onclick={() => (plan = { kind: 'race', race: r, name: r.title, start: r.raceDate, days: raceDays(r) })}><Route size={16} aria-hidden="true" />{t('Plan as a trip')}</button>
           </li>
@@ -483,8 +483,8 @@
     font-weight: 600;
   }
   .mo[aria-pressed='true'] {
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .dots {
     display: flex;

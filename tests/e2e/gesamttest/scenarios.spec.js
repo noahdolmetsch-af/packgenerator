@@ -16,6 +16,7 @@ const OLD_SETS_SRC = Function(`return ${readFileSync(new URL('../../../src/lib/g
 import { newButton } from '../newbutton.js';
 import { openRow } from '../debrief-rows.js';
 import { flowSeeded, putWall } from '../wall-fixture.js';
+import { openTools } from '../gearmenu.js';
 
 const LANG = 'de';
 const T = tr(LANG);
@@ -295,7 +296,9 @@ test('S4 new item, weigh, wardrobe, block, trip', async ({ page, context }, info
   // weigh: skip to the new item, 245 g
   await page.goto('./#/gear');
   await page.reload();
-  await page.getByRole('button', { name: new RegExp(esc(T('{n} without weight · weigh now', { n: 'X' })).replace('X', '\\d+')) }).click();
+  // Material aufräumen (Noah 23.11.2026): «Record weights» sits in the menu «…» (with the number of items without weight)
+  await openTools(page);
+  await page.locator('[data-gear-quick-item="weigh"]').click();
   const weigh = page.locator('section.weigh');
   const name = weigh.locator('.name');
   await expect(name).toBeVisible();
@@ -743,28 +746,24 @@ test('S10 Velo-Blaetter: every sheet, copy as text, pick-up check into care, und
   expect(errors).toEqual([]);
 });
 
-test('S11 Setup: the chosen bike chip is fully in view; no chip is cut at the edge (G008)', async ({ page, context }, info) => {
+test('S11 Velos: the chosen bike is the framed card; the cards stay inside the page; nothing cut at the edge (G008)', async ({ page, context }, info) => {
   const errors = await start(page, context, info, { lang: LANG });
   const { summary } = fixture();
   for (const id of summary.bikeIds) {
     await page.goto(`./#/bikes?bike=${id}`);
-    // v0.105.0 Design-Refresh P7 (V1): the bikes are light chips that wrap in their row; since Impeccable
-    // Runde 2 a phone shows one row to swipe with the chosen bike first: the chosen chip lies fully inside
-    const row = page.locator('.tabsrow');
-    const sel = row.locator('[role="tablist"] [aria-selected="true"]');
+    // Velos aufräumen (PR 1508, Noah 23.11.2026): no chips any more; the bikes are cards (a grid on a computer, one row to swipe on
+    // a phone), the chosen one has the frame and aria-current, and its details stand below. The old check (the chosen chip lies
+    // fully inside its row) is now: the chosen card is there and current, and the page never moves sideways.
+    const row = page.locator('[data-bike-cards]');
+    const sel = row.locator('[data-velo-card][aria-current="true"]');
+    await expect(sel, `${id}: one chosen card`).toHaveCount(1);
+    await expect(sel).toHaveAttribute('data-velo-card', id);
     await expect(sel).toBeVisible();
-    await expect
-      .poll(async () => {
-        const [a, b] = await Promise.all([sel.boundingBox(), row.boundingBox()]);
-        return a.x >= b.x - 1 && a.x + a.width <= b.x + b.width + 1;
-      }, { message: `${id}: chosen tab inside the row` })
-      .toBe(true);
     const st = await row.evaluate((el) => ({ sw: el.scrollWidth, w: el.clientWidth, ox: getComputedStyle(el).overflowX }));
-    if (st.ox === 'auto') {
-      // Impeccable Runde 2 (Ausstattung 2): on a phone one row to swipe sideways, the chosen bike first
-      const first = await row.locator('[role="tab"], button').evaluateAll((els) => els.reduce((m, e) => (e.getBoundingClientRect().left < m.getBoundingClientRect().left ? e : m)).getAttribute('aria-selected'));
-      expect(first, `${id}: the chosen bike stands first`).toBe('true');
-    } else expect(st.sw, `${id}: no chip cut at the edge`).toBeLessThanOrEqual(st.w + 1);
+    // a computer: the grid never overflows (no card cut at the edge); a phone: the row is a swipe row on purpose
+    if (st.ox !== 'auto') expect(st.sw, `${id}: no card cut at the edge`).toBeLessThanOrEqual(st.w + 1);
+    const page_ = await sideways(page);
+    expect(page_.sw, `${id}: the page does not move sideways`).toBeLessThanOrEqual(page_.w);
   }
   expect(errors).toEqual([]);
 });

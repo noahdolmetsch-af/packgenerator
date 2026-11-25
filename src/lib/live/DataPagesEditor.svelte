@@ -141,10 +141,10 @@
               <span class="dpe-name">{name}</span>
               <small>{summaryOf(p)}</small>
             </span>
-            <ChevronRight size={18} aria-hidden="true" />
+            <ChevronRight size={20} aria-hidden="true" />
           </button>
-          <button type="button" class="dpe-ic" onclick={() => (renaming = p)} aria-label={t('Rename {name}', { name })} data-dp-rename={p.id}><Pencil size={18} aria-hidden="true" /></button>
-          <button type="button" class="dpe-ic" onclick={() => remove(p)} aria-label={t('Delete {name}', { name })} data-dp-delete={p.id}><Trash2 size={18} aria-hidden="true" /></button>
+          <button type="button" class="dpe-ic" onclick={() => (renaming = p)} aria-label={t('Rename {name}', { name })} data-dp-rename={p.id}><Pencil size={20} aria-hidden="true" /></button>
+          <button type="button" class="dpe-ic" onclick={() => remove(p)} aria-label={t('Delete {name}', { name })} data-dp-delete={p.id}><Trash2 size={20} aria-hidden="true" /></button>
           <SortArrows {name} {i} n={cur.pages.length} onstep={(dir) => movePg(i, i + dir)} />
         </li>
       {/each}
@@ -152,7 +152,7 @@
     {#if !cur.pages.length}
       <p class="dpe-note">{t('No data pages: only the map. Add a page to see your numbers big.')}</p>
     {/if}
-    <button type="button" class="btn" onclick={add} disabled={cur.pages.length >= MAX_PAGES} data-dp-add><Plus size={18} aria-hidden="true" />{t('Add page')}</button>
+    <button type="button" class="btn" onclick={add} disabled={cur.pages.length >= MAX_PAGES} data-dp-add><Plus size={20} aria-hidden="true" />{t('Add page')}</button>
     {#if cur.pages.length >= MAX_PAGES}<p class="dpe-note">{t('At most {n} data pages.', { n: MAX_PAGES })}</p>{/if}
 
     <Fold label={t('Your zones')} summary={[cur.maxHr ? `${cur.maxHr} bpm` : '', cur.ftp ? `${cur.ftp} W FTP` : ''].filter(Boolean).join(' · ')}>
@@ -173,12 +173,12 @@
     {@const lay = layoutOf(page.items)}
     {@const name = nameOf(page)}
     <div class="dpe-top">
-      <button type="button" class="btn sm" onclick={() => (openId = null)} data-dp-back><ChevronLeft size={18} aria-hidden="true" />{t('All data pages')}</button>
+      <button type="button" class="btn sm" onclick={() => (openId = null)} data-dp-back><ChevronLeft size={20} aria-hidden="true" />{t('All data pages')}</button>
     </div>
     <h3 class="dpe-title">
       <span>{name}</span>
-      <button type="button" class="dpe-ic" onclick={() => (renaming = page)} aria-label={t('Rename {name}', { name })} data-dp-rename={page.id}><Pencil size={18} aria-hidden="true" /></button>
-      <button type="button" class="dpe-ic" onclick={() => remove(page)} aria-label={t('Delete {name}', { name })} data-dp-delete={page.id}><Trash2 size={18} aria-hidden="true" /></button>
+      <button type="button" class="dpe-ic" onclick={() => (renaming = page)} aria-label={t('Rename {name}', { name })} data-dp-rename={page.id}><Pencil size={20} aria-hidden="true" /></button>
+      <button type="button" class="dpe-ic" onclick={() => remove(page)} aria-label={t('Delete {name}', { name })} data-dp-delete={page.id}><Trash2 size={20} aria-hidden="true" /></button>
     </h3>
     <p class="dpe-note">{t('Page {n} of {all}. The map is page 1.', { n: pageAt + 2, all: cur.pages.length + 1 })}</p>
 
@@ -205,7 +205,7 @@
           {#if it.f}
             <button type="button" class="dpe-size" aria-pressed={it.big} disabled={!it.big && used >= MAX_UNITS} onclick={() => change((p) => setBig(p, i, !it.big))} data-dp-big={it.f}>{it.big ? t('Big|dp') : t('Small|dp')}</button>
           {/if}
-          <button type="button" class="dpe-ic" disabled={page.items.length < 2} onclick={() => change((p) => removeItem(p, i))} aria-label={t('Remove {name}', { name: nm })} data-dp-remove={it.f ?? `c:${it.c}`}><X size={18} aria-hidden="true" /></button>
+          <button type="button" class="dpe-ic" disabled={page.items.length < 2} onclick={() => change((p) => removeItem(p, i))} aria-label={t('Remove {name}', { name: nm })} data-dp-remove={it.f ?? `c:${it.c}`}><X size={20} aria-hidden="true" /></button>
           <SortArrows name={nm} {i} n={page.items.length} onstep={(dir) => change((p) => moveItem(p, i, i + dir))} />
         </li>
       {/each}
@@ -350,9 +350,9 @@
     cursor: pointer;
   }
   .dpe-size[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .dpe-size:disabled {
     opacity: 0.4;
@@ -400,9 +400,9 @@
   }
   .dpe-chip[aria-pressed='true'],
   .dpe-free[aria-current='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .dpe-chip:disabled {
     opacity: 0.4;

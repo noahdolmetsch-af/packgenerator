@@ -8,7 +8,7 @@ import {
   AREAS, QUESTIONS, QUESTION, ON_AT_START, MERGED_INTO, AB_KEY, configOf, settingOf, setOn, setEvery, putOwn, dropOwn, newOwn, counts,
   everyOf, lastSlot, nextSlot, pendingSlot, dueList, snoozeAll, skipToday, quietToday, isQuiet, dayEnd, eveningEve, QUIET_KEY, QUIET_ROUND, LATER_KEY, laterStamp, valueOf, numberOf, answerRow, fromChecks, mergeHistory,
   lastAnswer, filterHistory, byDay, dowOf, timeOf, CHECK_MAP, MIRROR,
-  ROUNDS, roundsOf, setRounds, roundTime, roundEvery, partOf, isEveningRound, perDay, BUSY_DAY, roundQuestions, moreQuestions,
+  ROUNDS, roundsOf, setRounds, roundTime, roundEvery, partOf, isEveningRound, perDay, BUSY_DAY, roundQuestions, moreQuestions, notMorningAtNight,
 } from '../src/lib/abfragen.js';
 import { redirectOf, pageOf, CHECK_PAGES } from '../src/lib/nav.js';
 import { ownNormal, withWithout, feltMeasured, areaWeek, observation, sourceCounts, weekOf, dailyValues, MIN_GROUP } from '../src/lib/abauswertung.js';
@@ -24,11 +24,11 @@ describe('the 50 questions', () => {
   it('10 areas with 5 questions each (Paket P adds 4 evening questions), every one with an answer form and an interval', () => {
     expect(AREAS).toHaveLength(10);
     // Noah 20.10.2026: plus 50 sample questions, 5 per area, all off at the start
-    expect(QUESTIONS).toHaveLength(105);
-    expect(AREAS.map((a) => QUESTIONS.filter((q) => q.area === a.key).length)).toEqual([12, 10, 10, 10, 12, 10, 10, 11, 10, 10]);
+    expect(QUESTIONS).toHaveLength(106);
+    expect(AREAS.map((a) => QUESTIONS.filter((q) => q.area === a.key).length)).toEqual([12, 10, 10, 10, 12, 10, 11, 11, 10, 10]);
     expect(AREAS.map((a) => QUESTIONS.filter((q) => q.area === a.key && q.sample).length)).toEqual(Array(10).fill(5));
     expect(QUESTIONS.filter((q) => q.sample).some((q) => ON_AT_START.has(q.id))).toBe(false);
-    expect(new Set(QUESTIONS.map((q) => q.id)).size).toBe(105);
+    expect(new Set(QUESTIONS.map((q) => q.id)).size).toBe(106);
     for (const q of QUESTIONS) {
       expect(['scale', 'chips', 'yesno', 'number', 'text']).toContain(q.form.kind);
       if (q.form.kind === 'chips' || q.form.kind === 'yesno') expect(q.form.options.length).toBeGreaterThan(1);
@@ -49,11 +49,11 @@ describe('the 50 questions', () => {
   });
 
   it('29 are on at the start (AB5 and Paket P, minus the six that ask the same as another one); the others can be switched on', () => {
-    expect(ON_AT_START.size).toBe(30);
+    expect(ON_AT_START.size).toBe(31);
     for (const id of ON_AT_START) expect(QUESTION[id]).toBeTruthy();
     const n = counts(null);
-    expect(n).toMatchObject({ all: 105, on: 30 });
-    expect(AREAS.map((a) => n.per[a.key].on)).toEqual([6, 2, 1, 3, 4, 3, 2, 3, 4, 2]);
+    expect(n).toMatchObject({ all: 106, on: 31 });
+    expect(AREAS.map((a) => n.per[a.key].on)).toEqual([6, 2, 1, 3, 4, 3, 3, 3, 4, 2]);
     expect(settingOf(null, QUESTION['erholung.sofa']).on).toBe(false); // AB5: Sofa oder Sattel is off
     // Noah 04.11.2026 «3a»: one question per topic: the merged ones are off at the start, the one they merge into is on
     expect(Object.keys(MERGED_INTO)).toHaveLength(6);
@@ -77,10 +77,10 @@ describe('switching and intervals', () => {
     let c = configOf({ since: `${d(-10)}T08:00` });
     c = setOn(c, 'spass.gelacht', true, `${D0}T20:30`);
     expect(settingOf(c, QUESTION['spass.gelacht'])).toMatchObject({ on: true, since: `${D0}T20:30` });
-    expect(counts(c).on).toBe(31);
+    expect(counts(c).on).toBe(32);
     c = setOn(c, 'erholung.akku', false, `${D0}T09:00`);
     expect(settingOf(c, QUESTION['erholung.akku']).on).toBe(false);
-    expect(counts(c).on).toBe(30);
+    expect(counts(c).on).toBe(31);
   });
 
   it('own interval per question, several times a day sorted and without doubles', () => {
@@ -119,7 +119,7 @@ describe('own questions (AB2)', () => {
     expect(own).toMatchObject({ text: 'Kaffee', area: 'eigene', form: { kind: 'number', unit: 'Tassen' }, own: true, src: ['only'] });
     let c = putOwn(null, own, `${D0}T10:00`);
     expect(c.own).toHaveLength(1);
-    expect(counts(c)).toMatchObject({ all: 106, on: 31 });
+    expect(counts(c)).toMatchObject({ all: 107, on: 32 });
     expect(settingOf(c, c.own[0])).toMatchObject({ on: true, since: `${D0}T10:00`, every: { kind: 'times', times: ['12:00', '18:00'] } });
     c = putOwn(c, { ...own, text: 'Espresso', every: { kind: 'off' } }, `${D0}T11:00`);
     expect(c.own[0].text).toBe('Espresso');
@@ -392,6 +392,14 @@ describe('the old daily checks in the one history (never lost)', () => {
     expect(rows.filter((r) => r.day === d(-3))).toEqual([]); // nothing valid that day
   });
 
+  it('the free sentence of the evening page («Ein Satz zum Tag») is a text row of its day', () => {
+    const rows = fromChecks([{ day: d(-1), mood: 7, story: '  Ein ruhiger Abend am See.  ' }, { day: d(-2), story: '   ' }, { day: d(-3), story: 5 }], pool);
+    const satz = rows.filter((r) => r.qid === 'tc.satz');
+    expect(satz).toHaveLength(1);
+    expect(satz[0]).toMatchObject({ day: d(-1), kind: 'text', value: 'Ein ruhiger Abend am See.', from: 'check', label: { textDe: 'Ein Satz zum Tag' } });
+    expect(rows.some((r) => r.day === d(-2) || r.day === d(-3))).toBe(false); // empty or not a text: no row
+  });
+
   it('read together with the answers; an answer of the same day and question wins', () => {
     const answers = [answerRow(QUESTION['erholung.schlaf'], 8, { at: `${d(-1)}T07:10` }), answerRow(QUESTION['erholung.akku'], 6, { at: `${D0}T08:10` })];
     const all = mergeHistory(answers, checks, pool);
@@ -412,7 +420,7 @@ describe('the database (schema 9): answers next to the daily checks', () => {
   });
 
   it('a new table abAnswers in the backup; flowChecks stay untouched', async () => {
-    expect(SCHEMA_VERSION).toBe(21); // «Zuletzt gelöscht»: version 21 adds trash; «Verbesserungs-Logbuch»: version 20 adds logbuch; Paket T «Freie Zeit»: version 19 adds frei; «Velo-Inspektion»: version 18 adds inspections; Paket O: version 17 adds sportItems; Paket S «Reise-Spur» adds tracks as 16; «Timer» (Z5) adds the timer log as version 11, P3b the documents as 12, Fitbit healthDays as 13, Google gEvents and gTasks as 15
+    expect(SCHEMA_VERSION).toBe(22); // «Aktivitäten-Zusammenfassung»: version 22 adds the derived table activitiesLite; «Zuletzt gelöscht»: version 21 adds trash; «Verbesserungs-Logbuch»: version 20 adds logbuch; Paket T «Freie Zeit»: version 19 adds frei; «Velo-Inspektion»: version 18 adds inspections; Paket O: version 17 adds sportItems; Paket S «Reise-Spur» adds tracks as 16; «Timer» (Z5) adds the timer log as version 11, P3b the documents as 12, Fitbit healthDays as 13, Google gEvents and gTasks as 15
     expect(DATA_TABLES).toContain('abAnswers');
     await db.flowChecks.put({ day: d(-1), sleep: 6, energy: 5, mood: 7, q: null, extra: null });
     await db.abAnswers.put(answerRow(QUESTION['erholung.akku'], 6, { at: `${D0}T08:10` }));
@@ -564,5 +572,21 @@ describe('moreQuestions', () => {
     const off = setOn(null, 'erholung.akku', false, `${day}T06:00`);
     expect(moreQuestions(off, 'morning', day).map((d) => d.q.id)).toContain('erholung.akku');
     expect(moreQuestions(null, 'morning', day, ['erholung.sofa']).map((d) => d.q.id)).not.toContain('erholung.sofa');
+  });
+});
+
+// Noah 24.11.2026 «Die Traumfrage kommt nicht am Abend»: from the evening round the window keeps the morning questions away
+describe('notMorningAtNight', () => {
+  const rows = [{ q: { id: 'erholung.traum' }, slot: '2026-10-09T07:00' }, { q: { id: 'erholung.akku' }, slot: '2026-10-09T20:00' }, { q: { id: 'x.mittag' }, slot: '2026-10-09T13:00' }];
+  it('in the evening only the questions of the day and the evening stay', () => {
+    expect(notMorningAtNight(rows, '2026-10-09T20:40', null).map((d) => d.q.id)).toEqual(['erholung.akku', 'x.mittag']);
+  });
+  it('before the evening round everything stays, also what is open from this morning', () => {
+    expect(notMorningAtNight(rows, '2026-10-09T09:00', null)).toHaveLength(3);
+    expect(notMorningAtNight(rows, '2026-10-09T18:32', null)).toHaveLength(3);
+  });
+  it('a round time of its own moves the border', () => {
+    expect(notMorningAtNight(rows, '2026-10-09T21:10', { on: true, morning: '07:00', evening: '21:15' })).toHaveLength(3);
+    expect(notMorningAtNight(rows, '2026-10-09T21:20', { on: true, morning: '07:00', evening: '21:15' })).toHaveLength(2);
   });
 });

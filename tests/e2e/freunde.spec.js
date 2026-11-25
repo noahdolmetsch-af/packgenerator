@@ -65,7 +65,7 @@ test('Freunde fragen: pack together, the friend answers, the answer is kept with
   await tap(box.locator('[data-fr-keep]'), info);
   await expect(box).toHaveCount(0);
   const group = page.locator('[data-fr-group="duties"]');
-  await expect(group).toContainText(`✓ ${first}`);
+  await expect(group).toContainText(first);
   await expect(group).toContainText('test_data_gtp_ Jo');
   const notes = await setting(page, 'friendNotes');
   expect(notes.map((n) => [n.kind, n.by, n.topic])).toEqual([['reply', 'test_data_gtp_ Jo', 'duties']]);

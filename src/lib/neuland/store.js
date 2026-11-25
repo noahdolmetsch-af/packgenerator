@@ -10,6 +10,7 @@ import { splitNeuland } from './split.js';
 import { GB_KEY, bookOf } from '../gipfelbuch.js';
 import { visitLines } from './funde.js'; // N10: the summit book's visits count as lines too
 import { OSM_KEY } from './osm.js';
+import { readLite } from '../actlite.js';
 
 export async function readState(db) {
   return stateOf((await db.settings.get(NEULAND_KEY))?.value);
@@ -34,7 +35,7 @@ export async function readRaw(db) {
     db.settings.get(NEULAND_KEY),
     db.trips.toArray(),
     db.rides.toArray(),
-    db.activities ? db.activities.toArray() : [],
+    db.activities ? readLite(db, (T) => T.toArray()) : [],
     db.tracks ? db.tracks.where('kind').equals('rec').toArray() : [], // the app's own recordings, like the Heatmap
     db.settings.get('homePlace'),
     db.settings.get(GB_KEY),

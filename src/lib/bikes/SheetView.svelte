@@ -426,7 +426,7 @@
             <h3>{sec.name}</h3>
             <dl class="vals">
               {#each sec.rows as r (r.id)}
-                <div class="vr"><dt>{r.label}</dt><dd>{#if r.value != null}{r.value}{:else}{@render enter(r.edit)}{/if}{#if r.note}<small class="vnote" class:chk={r.chk}>{#if r.chk}<Check size={12} aria-hidden="true" />{/if}{r.note}</small>{/if}{#if r.id === 'fit:pressureR'}<span class="noprint"><PressureHint bikeId={bike.id} /></span>{/if}</dd></div>
+                <div class="vr"><dt>{r.label}</dt><dd>{#if r.value != null}{r.value}{:else}{@render enter(r.edit)}{/if}{#if r.note}<small class="vnote" class:chk={r.chk}>{#if r.chk}<Check size={14} aria-hidden="true" />{/if}{r.note}</small>{/if}{#if r.id === 'fit:pressureR'}<span class="noprint"><PressureHint bikeId={bike.id} /></span>{/if}</dd></div>
               {/each}
             </dl>
           </section>
@@ -748,8 +748,6 @@
     margin: 0 0 6px;
     color: var(--accent);
     font: 700 var(--fs-tiny) / 1.4 var(--font-body);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
   }
   .vals {
     margin: 0;

@@ -25,6 +25,7 @@
   import { OUTDOOR_KEY, REMIND_AT, okHm, CHIPS, DEFAULT_GOAL_MIN, MAX_GOAL_MIN, outdoorOf, startOutdoor, standing, addMin, undoMin, missingMin, untickMin, allMin, lightLine, offerOpen, hm } from '../outdoor.js';
   import { addDays } from '../flow.js';
   import { t, tn, locale } from '../i18n.svelte.js';
+  import { readLite } from '../actlite.js';
 
   /** `offerLine` false (Aktiv): only a running challenge is shown there, the offer stays on Heute */
   let { today, offerLine = true } = $props();
@@ -34,7 +35,7 @@
       const [set, place, push] = await Promise.all([db.settings.get(OUTDOOR_KEY), db.settings.get(HOME_PLACE), db.settings.get(PUSH_KEY)]);
       const rec = outdoorOf(set?.value);
       const from = rec?.from ?? today;
-      const acts = rec?.from ? await db.activities.where('day').between(from, rec.until, true, true).toArray() : [];
+      const acts = rec?.from ? await readLite(db, (T) => T.where('day').between(from, rec.until, true, true).toArray()) : [];
       return { rec, acts, place: place?.value ?? null, remind: outdoorRemindOn(push?.value) };
     }),
   );
@@ -154,7 +155,7 @@
       </span>
       {#if st.phase === 'running'}
         <span class="now" data-outdoor-now>
-          {#if st.today.done}<Check size={16} strokeWidth={3} aria-hidden="true" /> {t('Done today: {min} of {goal} min', { min: st.today.total, goal: live.goalMin })}
+          {#if st.today.done}<Check size={16} strokeWidth={2.5} aria-hidden="true" /> {t('Done today: {min} of {goal} min', { min: st.today.total, goal: live.goalMin })}
           {:else}<b>{t('{min} of {goal} min today', { min: st.today.total, goal: live.goalMin })}</b> · {t('{n} min to go', { n: st.today.left })}{/if}
         </span>
         {#if st.today.strava > 0}<small data-outdoor-strava>{t('of that {n} min from Strava', { n: st.today.strava })}{#if st.today.hand > 0}, {t('{n} min from you', { n: st.today.hand })}{/if}</small>{/if}

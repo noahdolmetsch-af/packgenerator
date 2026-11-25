@@ -206,15 +206,15 @@
           {#if done.note}<dt>{t('Your note')}</dt><dd>{done.note}</dd>{/if}
         </dl>
         <p class="keep">{t('Keep this link: with it you can see or cancel your booking.')}</p>
-        <p class="lnk"><span>{ownLink(done)}</span><button type="button" class="ibtn" aria-label={t('Copy link')} onclick={() => copy(ownLink(done))}><Copy size={18} aria-hidden="true" /></button></p>
+        <p class="lnk"><span>{ownLink(done)}</span><button type="button" class="ibtn" aria-label={t('Copy link')} onclick={() => copy(ownLink(done))}><Copy size={20} aria-hidden="true" /></button></p>
         {#if copied}<p class="muted" role="status">{copied}</p>{/if}
         {#if ask}
           <p class="ask" role="alert">{t('Cancel this booking?')}</p>
           <div class="two"><button type="button" class="btn bad" disabled={busy} onclick={cancel}>{t('Yes, cancel')}</button><button type="button" class="btn" onclick={() => (ask = false)}>{t('Keep it')}</button></div>
         {:else}
           <div class="two">
-            {#if done.status !== 'requested' && done.status !== 'declined'}<button type="button" class="btn" onclick={calendar}><CalendarDays size={18} aria-hidden="true" />{t('Add to calendar')}</button>{/if}
-            {#if done.canCancel !== false}<button type="button" class="btn" onclick={() => (ask = true)}><X size={18} aria-hidden="true" />{t('Cancel|booking')}</button>{/if}
+            {#if done.status !== 'requested' && done.status !== 'declined'}<button type="button" class="btn" onclick={calendar}><CalendarDays size={20} aria-hidden="true" />{t('Add to calendar')}</button>{/if}
+            {#if done.canCancel !== false}<button type="button" class="btn" onclick={() => (ask = true)}><X size={20} aria-hidden="true" />{t('Cancel|booking')}</button>{/if}
           </div>
           {#if done.canCancel === false}<p class="muted">{t('It is too late to cancel online. Please get in touch directly.')}</p>{/if}
         {/if}
@@ -369,8 +369,6 @@
     margin: 16px 0 8px;
     font-size: var(--fs-label);
     font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
     color: var(--ink-2);
   }
   .days {
@@ -396,9 +394,9 @@
     font-size: var(--fs-body);
   }
   .dy[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .dy[aria-pressed='true'] b {
     color: var(--paper);

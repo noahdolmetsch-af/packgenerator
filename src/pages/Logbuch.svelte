@@ -5,6 +5,7 @@
    * change, delete with Undo. The button «Verbessern» on every page, the photo and «Auftrag kopieren» follow as steps 2–4.
    * Everything stays on this device and goes into the backup; nothing is sent, nothing is synced.
    */
+  import { onMount } from 'svelte';
   import { liveQuery } from 'dexie';
   import { NotebookPen, Plus, Check, Pencil, ClipboardCopy, Images, ListTree } from '@lucide/svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
@@ -43,7 +44,16 @@
   });
   let kindsOpen = $state(/[?&]arten=1/.test(globalThis.location?.hash ?? ''));
   let look = $state(null); // { list, start } while a photo is shown big
+  // «?neu» (Sitemap 24.11.2026): the row «Write down an improvement» in New and the line in the «?» window open the empty entry at once
+  const wantsNew = () => /[?&]neu(\b|=)/.test(globalThis.location?.hash ?? '');
   let sheet = $state(null); // { entry } while the window is open (entry null = new)
+  // the address keeps «?neu» only until the window is open, so a reload does not open it again
+  const askedNew = () => {
+    if (!wantsNew()) return;
+    sheet = { entry: null };
+    globalThis.history?.replaceState(null, '', `${globalThis.location.pathname}${globalThis.location.search}#/me/logbuch`);
+  };
+  onMount(askedNew);
   const keepKinds = (next) => saveKinds(next).catch((err) => offerDone(saveFailed(err)));
 
   const when = (iso) => (iso ? new Date(iso).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '');
@@ -78,6 +88,7 @@
   const done = (e) => updateEntry(e.id, { state: e.state === 'done' ? 'open' : 'done' });
 </script>
 
+<svelte:window onhashchange={askedNew} />
 <div class="lb" data-logbuch>
   <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} here={t('Improvement log')} title={t('Improvement log')} sub={t('Write down what bothers you or is missing, right when you see it. Stays on this device and goes into your backup. Nothing is sent.')}>
     <button type="button" class="btn hi" data-lb-new onclick={() => (sheet = { entry: null })}><Plus size={16} aria-hidden="true" />{t('New entry')}</button>
@@ -173,9 +184,9 @@
     cursor: pointer;
   }
   .fchip[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
     font-weight: 600;
   }
   .lb-list {

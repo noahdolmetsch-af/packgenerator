@@ -4,6 +4,7 @@
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { flowSeeded, putWall } from './wall-fixture.js';
+import { saveRound, openRound, toQuestion } from './runde-fixture.js';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -168,16 +169,15 @@ test('WG the daily check (was «four taps on its page»): the row leads to «Wi 
       }),
   );
   await page.goto('./#/');
-  const ab = page.locator('[data-section="abfragen"]');
-  // Noah 20.10.2026 «2» (changed on purpose): the window asks 3 questions, the others on «Show more questions»
+  // Noah 24.11.2026 (changed on purpose): the window opens when asked, one question per screen
+  const ab = await openRound(page);
   await expect(ab).toHaveJSProperty('open', true);
-  if (await ab.locator('[data-ab-more]').count()) await ab.locator('[data-ab-more]').click();
   // UI-Ziele #12 (changed on purpose): 5 steps with words, stored as 2 … 10
-  await ab.locator('[data-q="erholung.schlaf"] [data-step="8"]').click();
-  await ab.locator('[data-q="erholung.akku"] [data-step="6"]').click();
-  await ab.locator('[data-ab-save]').click();
-  // Noah 19.10.2026: the window of the round; what is still due waits with «Später»
-  if (await ab.count()) await ab.locator('[data-ab-later]').click();
+  await (await toQuestion(ab, 'erholung.schlaf')).locator('[data-step="8"]').click();
+  await (await toQuestion(ab, 'erholung.akku')).locator('[data-step="6"]').click();
+  await saveRound(ab);
+  // what is still due stays on Heute's card; the window is closed with the X
+  if (await ab.isVisible()) await ab.locator('.vd-x').click();
   await expect(ab).toBeHidden();
   await dk.locator('[data-clock="morning"]').click();
   await expect(card.locator('[data-val]')).toHaveCount(3);

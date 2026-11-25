@@ -85,6 +85,10 @@ test('«Mit den Einträgen kopieren» inside «Weiter fragen»: the question and
   await expect(res.getByRole('button', { name: T('Copy with the entries') })).toHaveCount(0); // only for a question
   await f.fill('Was nehme ich bei Regen mit?');
   // one block (Noah 22.10.2026 «3a»): the copy button sits inside «Weiter fragen», no own heading
+  // «Ein Eingang» (Noah 24.11.2026): under a question «Ask further at …» is a closed line; a tap opens it
+  const fold = res.locator('[data-search-ask-fold]');
+  await expect(fold).not.toHaveAttribute('open', '');
+  await fold.locator('summary').click();
   const block = res.locator('[data-ask-elsewhere]');
   await expect(block.getByText(T('Ask further at'))).toBeVisible();
   await expect(res.getByText(T('Ask Claude or Chrome'))).toHaveCount(0);
@@ -108,6 +112,7 @@ test('Chrome AI: where Chrome offers it, it answers right in the search, on the 
   const f = await field(page, info);
   const res = page.getByRole('region', { name: T('Search results') });
   await f.fill('Was nehme ich bei Regen mit?');
+  await res.locator('[data-search-ask-fold] summary').click(); // the closed line «Ask further at …» holds the Chrome AI
   await res.getByRole('button', { name: T('Ask Chrome AI') }).click();
   await expect(res.getByText(T('Chrome AI, on this device'))).toBeVisible();
   await expect(res.getByText('Nimm die Regenjacke oben in die Satteltasche.')).toBeVisible();

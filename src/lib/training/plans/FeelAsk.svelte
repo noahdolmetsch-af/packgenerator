@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../../actlite.js';
   /**
    * «Von selbst» (Noah 19.11.2026 «1-5a», Thread «Training erfassen vereinfachen», T3): at the top of Aktiv one card asks
    * «How was it?» about the newest Strava activity of the last 3 days without an answer, for every sport: three words
@@ -24,7 +25,7 @@
   import { stravaFacts, healthFacts } from '../../flow/actfacts.js';
 
   const today = localDay();
-  const q = liveQuery(() => db.activities.where('day').aboveOrEqual(shiftDay(today, -3)).toArray());
+  const q = liveQuery(() => readLite(db, (T) => T.where('day').aboveOrEqual(shiftDay(today, -3)).toArray()));
   const hq = liveQuery(() => db.healthDays.where('date').aboveOrEqual(shiftDay(today, -3)).toArray());
   const sq = liveQuery(() => db.settings.get(HEALTH_FEEL_KEY));
   const strava = $derived(feelToAsk($q ?? [], today));

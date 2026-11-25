@@ -1,48 +1,777 @@
 {
   "_readme": "Wächter baseline (docs/design-audit.md «Wächter»): the violations that existed when the checks came in. A check fails only when a file or route gets MORE than listed here. The numbers may only shrink; a PR that raises one explains why. style: file → rule → count (scripts/style-lint.mjs --update). layout: route@width → rule → count (GUARD_UPDATE=1 playwright run, then scripts/style-lint.mjs --merge-e2e).",
   "style": {
+    "src/App.svelte": {
+      "radius": 1
+    },
+    "src/app.css": {
+      "radius": 5,
+      "shadow": 2
+    },
+    "src/booking/Book.svelte": {
+      "radius": 3
+    },
+    "src/booking/Wish.svelte": {
+      "radius": 1
+    },
+    "src/lib/DataPanel.svelte": {
+      "radius": 3
+    },
     "src/lib/DemoBar.svelte": {
-      "colour": 3
+      "colour": 3,
+      "radius": 1
+    },
+    "src/lib/QuickNote.svelte": {
+      "radius": 1
+    },
+    "src/lib/abfragen/Auswertung.svelte": {
+      "radius": 3
+    },
+    "src/lib/abfragen/ab.css": {
+      "radius": 2
+    },
+    "src/lib/agenda/WeekGrid.svelte": {
+      "radius": 3
+    },
+    "src/lib/alltag/Einkauf.svelte": {
+      "radius": 1
+    },
+    "src/lib/anpassen/AnpassenSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/anpassen/EditRows.svelte": {
+      "radius": 1,
+      "shadow": 1
+    },
+    "src/lib/anpassen/TabsEdit.svelte": {
+      "radius": 1
+    },
+    "src/lib/auswerten/NormalBand.svelte": {
+      "radius": 1
+    },
+    "src/lib/bedarf/NeedsSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/bikes/BagSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/bikes/BikeCards.svelte": {
+      "radius": 2
+    },
+    "src/lib/bikes/BikeOrderSheet.svelte": {
+      "radius": 1,
+      "shadow": 1
+    },
+    "src/lib/bikes/EdgeScreen.svelte": {
+      "radius": 1
+    },
+    "src/lib/bikes/Equipment.svelte": {
+      "radius": 3
+    },
+    "src/lib/bikes/ExampleCard.svelte": {
+      "radius": 1
+    },
+    "src/lib/bikes/FitCard.svelte": {
+      "radius": 2,
+      "shadow": 1
+    },
+    "src/lib/bikes/GarminPage.svelte": {
+      "radius": 2
+    },
+    "src/lib/bikes/GarminPages.svelte": {
+      "radius": 1
+    },
+    "src/lib/bikes/RetireSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/bikes/RigLog.svelte": {
+      "radius": 5
+    },
+    "src/lib/bikes/RigPlan.svelte": {
+      "radius": 2
+    },
+    "src/lib/bikes/RigTab.svelte": {
+      "radius": 3,
+      "shadow": 1
+    },
+    "src/lib/bikes/SetupBand.svelte": {
+      "radius": 1
+    },
+    "src/lib/bikes/SetupBar.svelte": {
+      "radius": 1
+    },
+    "src/lib/bikes/SetupCompare.svelte": {
+      "radius": 2
+    },
+    "src/lib/bikes/SetupDetail.svelte": {
+      "radius": 1
+    },
+    "src/lib/bikes/SetupDrawing.svelte": {
+      "radius": 2
     },
     "src/lib/bikes/SetupTab.svelte": {
-      "colour": 2
+      "colour": 2,
+      "radius": 1,
+      "shadow": 2
+    },
+    "src/lib/bikes/SheetMore.svelte": {
+      "radius": 4,
+      "shadow": 1
+    },
+    "src/lib/bikes/SheetView.svelte": {
+      "radius": 4,
+      "shadow": 1
+    },
+    "src/lib/bikes/ValueCard.svelte": {
+      "radius": 3
+    },
+    "src/lib/bikes/ValuesPage.svelte": {
+      "radius": 2,
+      "shadow": 1
     },
     "src/lib/bikes/WhoCard.svelte": {
-      "colour": 1
+      "colour": 1,
+      "radius": 2
+    },
+    "src/lib/bikes/blocks/BlockArrange.svelte": {
+      "radius": 1
+    },
+    "src/lib/bikes/blocks/BlockSwitch.svelte": {
+      "radius": 2,
+      "shadow": 1
+    },
+    "src/lib/bikes/blocks/BlocksPage.svelte": {
+      "shadow": 1
+    },
+    "src/lib/bikes/standardvelo.css": {
+      "radius": 3
+    },
+    "src/lib/bikes/velo-dlg.css": {
+      "radius": 2,
+      "shadow": 1
+    },
+    "src/lib/bilder/CropSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/bilder/PhotoSet.svelte": {
+      "radius": 1
+    },
+    "src/lib/bilder/ProblemPhotosSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/bilder/SetupPhotos.svelte": {
+      "radius": 2
     },
     "src/lib/care/BikeCare.svelte": {
-      "colour": 2
+      "colour": 2,
+      "radius": 5
+    },
+    "src/lib/care/CareOverview.svelte": {
+      "radius": 1
+    },
+    "src/lib/care/CarePlanCard.svelte": {
+      "radius": 1,
+      "shadow": 1
+    },
+    "src/lib/care/CareSheet.svelte": {
+      "radius": 2,
+      "shadow": 1
+    },
+    "src/lib/care/CareTab.svelte": {
+      "shadow": 1
+    },
+    "src/lib/care/GhostCamera.svelte": {
+      "radius": 3
+    },
+    "src/lib/care/GlanceCard.svelte": {
+      "radius": 3
+    },
+    "src/lib/care/KmBook.svelte": {
+      "radius": 1,
+      "shadow": 1
+    },
+    "src/lib/care/KmGapSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/care/KmImport.svelte": {
+      "radius": 1
     },
     "src/lib/care/OrderDialog.svelte": {
       "colour": 4,
       "fontsize": 2
     },
+    "src/lib/care/PartFlow.svelte": {
+      "radius": 4
+    },
+    "src/lib/care/PartsTable.svelte": {
+      "radius": 2
+    },
+    "src/lib/care/SellPage.svelte": {
+      "radius": 1
+    },
+    "src/lib/care/StartValues.svelte": {
+      "radius": 1
+    },
+    "src/lib/care/TemplatePage.svelte": {
+      "radius": 1,
+      "shadow": 1
+    },
     "src/lib/care/TripCare.svelte": {
-      "global": 2
+      "global": 2,
+      "radius": 2
+    },
+    "src/lib/care/VeloCard.svelte": {
+      "radius": 1,
+      "shadow": 1
+    },
+    "src/lib/care/VisitDialog.svelte": {
+      "radius": 1
+    },
+    "src/lib/care/WearCard.svelte": {
+      "radius": 1
+    },
+    "src/lib/care/WearPage.svelte": {
+      "radius": 1
+    },
+    "src/lib/care/WearPhotos.svelte": {
+      "radius": 2
+    },
+    "src/lib/challenges/ZielCard.svelte": {
+      "radius": 1
+    },
+    "src/lib/charts/BarChart.svelte": {
+      "radius": 1
+    },
+    "src/lib/charts/ChartSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/charts/LineChart.svelte": {
+      "radius": 1
+    },
+    "src/lib/debrief/HeartZones.svelte": {
+      "radius": 1
+    },
+    "src/lib/debrief/Pace.svelte": {
+      "radius": 3,
+      "shadow": 2
+    },
+    "src/lib/draw/DrawSheet.svelte": {
+      "shadow": 1
+    },
+    "src/lib/dreams/DreamSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/dreams/DreamsDoneLine.svelte": {
+      "radius": 1
+    },
+    "src/lib/drop/DropLayer.svelte": {
+      "radius": 1
+    },
+    "src/lib/eingabe/BildKarte.svelte": {
+      "radius": 1
+    },
+    "src/lib/eingabe/InputBar.svelte": {
+      "radius": 1
+    },
+    "src/lib/equipment/MainSheet.svelte": {
+      "radius": 2
+    },
+    "src/lib/erkenntnisse/Insights.svelte": {
+      "radius": 1
+    },
+    "src/lib/erkenntnisse/Muster.svelte": {
+      "radius": 1
+    },
+    "src/lib/firststart/AdjustExamples.svelte": {
+      "radius": 1
+    },
+    "src/lib/firststart/FirstStart.svelte": {
+      "radius": 1
+    },
+    "src/lib/flow/ActEditor.svelte": {
+      "radius": 4
+    },
+    "src/lib/flow/ActIcon.svelte": {
+      "radius": 1
+    },
+    "src/lib/flow/FlowLayer.svelte": {
+      "shadow": 2
+    },
+    "src/lib/flow/MedStartSheet.svelte": {
+      "radius": 2
+    },
+    "src/lib/flow/MinInput.svelte": {
+      "radius": 1
+    },
+    "src/lib/flow/NachtragHint.svelte": {
+      "radius": 1
+    },
+    "src/lib/flow/NextGoalRow.svelte": {
+      "radius": 2
+    },
+    "src/lib/flow/PlaceSheet.svelte": {
+      "radius": 2
+    },
+    "src/lib/flow/RuhetagHint.svelte": {
+      "radius": 1
+    },
+    "src/lib/flow/TickGrid.svelte": {
+      "radius": 1
+    },
+    "src/lib/flow/TimerSheet.svelte": {
+      "radius": 2
+    },
+    "src/lib/flow/WeekDetail.svelte": {
+      "radius": 2
+    },
+    "src/lib/flow/WeekGoals.svelte": {
+      "radius": 4
+    },
+    "src/lib/flow/WeekMore.svelte": {
+      "radius": 3
+    },
+    "src/lib/flow/YearGoals.svelte": {
+      "radius": 4
+    },
+    "src/lib/flow/auswertung/AnHalves.svelte": {
+      "radius": 2
+    },
+    "src/lib/flow/auswertung/AnLine.svelte": {
+      "radius": 1
+    },
+    "src/lib/flow/auswertung/TkGrid.svelte": {
+      "radius": 1
+    },
+    "src/lib/flow/auswertung/TkHalves.svelte": {
+      "radius": 2
+    },
+    "src/lib/flow/auswertung/TkSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/flow/check/Scale.svelte": {
+      "shadow": 1
+    },
+    "src/lib/flow/form/FormLandschaft.svelte": {
+      "radius": 1
+    },
+    "src/lib/flow/form/FormTeile.svelte": {
+      "radius": 3
+    },
+    "src/lib/flow/form/FormTour.svelte": {
+      "radius": 1
+    },
+    "src/lib/flow/form/FormVerlauf.svelte": {
+      "radius": 1
+    },
+    "src/lib/flow/garmin/Focus.svelte": {
+      "radius": 1
+    },
+    "src/lib/flow/garmin/Overview.svelte": {
+      "radius": 1
+    },
+    "src/lib/flow/hobby/MsCard.svelte": {
+      "radius": 2
+    },
+    "src/lib/flow/hobby/MsHow.svelte": {
+      "radius": 1
+    },
+    "src/lib/flow/hobby/RewardRow.svelte": {
+      "radius": 1
+    },
+    "src/lib/flow/hobby/SessionView.svelte": {
+      "radius": 1,
+      "shadow": 1
+    },
+    "src/lib/flow/hobby/StarWindow.svelte": {
+      "radius": 1
+    },
+    "src/lib/flow/hobby/Sugg.svelte": {
+      "radius": 1
+    },
+    "src/lib/flow/kit/MsRows.svelte": {
+      "radius": 2
+    },
+    "src/lib/frei/Geteilt.svelte": {
+      "radius": 1
+    },
+    "src/lib/frei/Reise.svelte": {
+      "radius": 1
+    },
+    "src/lib/frei/Sammlungen.svelte": {
+      "radius": 3
+    },
+    "src/lib/freunde/freunde.css": {
+      "radius": 5
+    },
+    "src/lib/gear/FavBlockSheet.svelte": {
+      "radius": 3
+    },
+    "src/lib/gear/FavStar.svelte": {
+      "radius": 1
+    },
+    "src/lib/gear/GearRow.svelte": {
+      "radius": 2
+    },
+    "src/lib/gear/ItemDialog.svelte": {
+      "radius": 5
+    },
+    "src/lib/gear/ItemLife.svelte": {
+      "radius": 2
+    },
+    "src/lib/gear/MatCard.svelte": {
+      "radius": 1,
+      "shadow": 1
     },
     "src/lib/gear/MergeSheet.svelte": {
-      "global": 1
+      "global": 1,
+      "radius": 3
     },
     "src/lib/gear/ReviewMode.svelte": {
       "global": 1
     },
+    "src/lib/gear/RuleSheet.svelte": {
+      "radius": 5,
+      "shadow": 1
+    },
     "src/lib/gear/WeighMode.svelte": {
-      "global": 2
+      "global": 2,
+      "radius": 3
+    },
+    "src/lib/haustuer/ParkedSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/health/AzmWeek.svelte": {
+      "radius": 4
+    },
+    "src/lib/heat/HeatMap.svelte": {
+      "shadow": 1
+    },
+    "src/lib/hinweise/LeiserFrage.svelte": {
+      "radius": 1
+    },
+    "src/lib/home/AktivTile.svelte": {
+      "radius": 1
+    },
+    "src/lib/home/BalanceTile.svelte": {
+      "radius": 4
     },
     "src/lib/home/BikeCards.svelte": {
       "fontsize": 3
     },
+    "src/lib/home/BodySheet.svelte": {
+      "radius": 1,
+      "shadow": 1
+    },
+    "src/lib/home/BodyTile.svelte": {
+      "radius": 3
+    },
+    "src/lib/home/ChallengeLine.svelte": {
+      "radius": 1
+    },
+    "src/lib/home/FlowCard.svelte": {
+      "radius": 3
+    },
+    "src/lib/home/HabitCard.svelte": {
+      "radius": 1
+    },
+    "src/lib/home/IdeenZeile.svelte": {
+      "radius": 1
+    },
+    "src/lib/home/IntroKT.svelte": {
+      "radius": 1,
+      "shadow": 2
+    },
+    "src/lib/home/KmCard.svelte": {
+      "radius": 1,
+      "shadow": 1
+    },
+    "src/lib/home/MedCard.svelte": {
+      "radius": 1
+    },
+    "src/lib/home/MsHome.svelte": {
+      "radius": 1
+    },
+    "src/lib/home/OutdoorCard.svelte": {
+      "radius": 1
+    },
+    "src/lib/home/PullRefresh.svelte": {
+      "radius": 1,
+      "shadow": 2
+    },
+    "src/lib/home/RoutineTile.svelte": {
+      "radius": 2
+    },
+    "src/lib/home/SmallTile.svelte": {
+      "radius": 2,
+      "shadow": 1
+    },
+    "src/lib/home/SprucheSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/home/TagesKarte.svelte": {
+      "radius": 3
+    },
+    "src/lib/home/TileHead.svelte": {
+      "radius": 1
+    },
+    "src/lib/home/Wall.svelte": {
+      "radius": 5,
+      "shadow": 1
+    },
     "src/lib/home/WearToday.svelte": {
-      "global": 2
+      "global": 2,
+      "radius": 1
+    },
+    "src/lib/home/WochenKarte.svelte": {
+      "radius": 1
     },
     "src/lib/home/YearRow.svelte": {
       "fontsize": 4
     },
     "src/lib/hubs/BikeQuickDialog.svelte": {
-      "global": 1
+      "global": 1,
+      "radius": 1
+    },
+    "src/lib/inbox/FileSheet.svelte": {
+      "radius": 2
+    },
+    "src/lib/inspect/HowTo.svelte": {
+      "radius": 1
+    },
+    "src/lib/inspect/InspectCard.svelte": {
+      "radius": 1
+    },
+    "src/lib/inspect/InspectPage.svelte": {
+      "radius": 2
+    },
+    "src/lib/inspect/InspectRun.svelte": {
+      "radius": 7
+    },
+    "src/lib/inspiration/InspoCard.svelte": {
+      "radius": 4
+    },
+    "src/lib/inspiration/InspoHint.svelte": {
+      "radius": 1
+    },
+    "src/lib/inspiration/TakeDialog.svelte": {
+      "radius": 2
+    },
+    "src/lib/intro/AreaIntro.svelte": {
+      "radius": 2
+    },
+    "src/lib/kisuche/SearchFree.svelte": {
+      "radius": 1
+    },
+    "src/lib/know/NeuSeitSheet.svelte": {
+      "radius": 2
+    },
+    "src/lib/know/NewsBild.svelte": {
+      "shadow": 1
+    },
+    "src/lib/know/VersionNews.svelte": {
+      "radius": 2
     },
     "src/lib/know/WhatsNew.svelte": {
-      "breakword": 1
+      "breakword": 1,
+      "radius": 1
+    },
+    "src/lib/know/spot.css": {
+      "radius": 2,
+      "shadow": 1
+    },
+    "src/lib/kurse/Entscheidung.svelte": {
+      "radius": 1
+    },
+    "src/lib/lernen/Beobachtungen.svelte": {
+      "radius": 2
+    },
+    "src/lib/lernen/ObsDetail.svelte": {
+      "radius": 2
+    },
+    "src/lib/lernen/QuizOwnSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/list/ListBar.svelte": {
+      "shadow": 1
+    },
+    "src/lib/list/TopButton.svelte": {
+      "shadow": 1
+    },
+    "src/lib/live/AfterRide.svelte": {
+      "radius": 1
+    },
+    "src/lib/live/DpChart.svelte": {
+      "radius": 1
+    },
+    "src/lib/live/EndRideSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/live/LiveEssen.svelte": {
+      "shadow": 1
+    },
+    "src/lib/live/LiveSmallMap.svelte": {
+      "radius": 1
+    },
+    "src/lib/live/LiveWebcam.svelte": {
+      "radius": 1
+    },
+    "src/lib/live/LiveWetter.svelte": {
+      "shadow": 1
+    },
+    "src/lib/live/PauseBar.svelte": {
+      "radius": 1,
+      "shadow": 4
+    },
+    "src/lib/live/SensorBox.svelte": {
+      "radius": 1
+    },
+    "src/lib/live/TooShortSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/live/TurnHint.svelte": {
+      "shadow": 1
+    },
+    "src/lib/live/WayRating.svelte": {
+      "radius": 1
+    },
+    "src/lib/localai/LocalAiSettings.svelte": {
+      "radius": 2
+    },
+    "src/lib/localai/LocalAsk.svelte": {
+      "radius": 1
+    },
+    "src/lib/logbuch/Improve.svelte": {
+      "radius": 1,
+      "shadow": 1
+    },
+    "src/lib/logbuch/KindsSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/logbuch/LogEntrySheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/logo/LogoBells.svelte": {
+      "radius": 1,
+      "shadow": 1
+    },
+    "src/lib/logo/LogoFlat.svelte": {
+      "radius": 1,
+      "shadow": 1
+    },
+    "src/lib/logo/LogoPanorama.svelte": {
+      "radius": 1,
+      "shadow": 1
+    },
+    "src/lib/logo/LogoRide.svelte": {
+      "radius": 1,
+      "shadow": 1
+    },
+    "src/lib/logo/LogoSaying.svelte": {
+      "radius": 1,
+      "shadow": 1
+    },
+    "src/lib/logo/LogoWeather.svelte": {
+      "radius": 1,
+      "shadow": 1
+    },
+    "src/lib/maintenance/MaintHint.svelte": {
+      "radius": 2
+    },
+    "src/lib/maintenance/maint.css": {
+      "shadow": 1
+    },
+    "src/lib/map/MapView.svelte": {
+      "radius": 2,
+      "shadow": 3
+    },
+    "src/lib/map/PoiFilter.svelte": {
+      "radius": 1
+    },
+    "src/lib/map/PoiPanel.svelte": {
+      "radius": 1
+    },
+    "src/lib/map/WxTimeline.svelte": {
+      "radius": 1
+    },
+    "src/lib/merken/KindSheet.svelte": {
+      "radius": 2,
+      "shadow": 1
+    },
+    "src/lib/merken/LinkedTodos.svelte": {
+      "radius": 2
+    },
+    "src/lib/merken/ListSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/merken/ListView.svelte": {
+      "radius": 1
+    },
+    "src/lib/merken/TodoSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/mini/DateEdit.svelte": {
+      "radius": 2
+    },
+    "src/lib/mini/DateWho.svelte": {
+      "radius": 2
+    },
+    "src/lib/mini/FoodAnswer.svelte": {
+      "radius": 1
+    },
+    "src/lib/mini/FoodResult.svelte": {
+      "radius": 1
+    },
+    "src/lib/mini/InviteAnswer.svelte": {
+      "radius": 1
+    },
+    "src/lib/mini/InviteResult.svelte": {
+      "radius": 1
+    },
+    "src/lib/mini/ListAnswer.svelte": {
+      "radius": 2
+    },
+    "src/lib/mini/ListNew.svelte": {
+      "radius": 1
+    },
+    "src/lib/mini/ListResult.svelte": {
+      "radius": 2
+    },
+    "src/lib/mini/PlacePick.svelte": {
+      "radius": 1
+    },
+    "src/lib/mini/PollAnswer.svelte": {
+      "radius": 2
+    },
+    "src/lib/mini/PollNew.svelte": {
+      "radius": 1
+    },
+    "src/lib/mini/PollResult.svelte": {
+      "radius": 1
+    },
+    "src/lib/murmeltier/Murmeltier.svelte": {
+      "radius": 1,
+      "shadow": 1
+    },
+    "src/lib/nav/HelpButton.svelte": {
+      "radius": 1
+    },
+    "src/lib/nav/Keys.svelte": {
+      "radius": 1
+    },
+    "src/lib/nav/MeButton.svelte": {
+      "radius": 1
+    },
+    "src/lib/nav/MiniBar.svelte": {
+      "radius": 2
+    },
+    "src/lib/nav/NewSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/nav/PlaceBar.svelte": {
+      "radius": 3
+    },
+    "src/lib/nav/PlaceTabs.svelte": {
+      "radius": 2
     },
     "src/lib/nav/ProblemForm.svelte": {
       "breakword": 1,
@@ -51,35 +780,836 @@
     },
     "src/lib/nav/Search.svelte": {
       "breakword": 1,
-      "fontsize": 5
+      "fontsize": 5,
+      "shadow": 1
+    },
+    "src/lib/nav/SideBar.svelte": {
+      "radius": 4,
+      "shadow": 1
+    },
+    "src/lib/nav/SkipLink.svelte": {
+      "radius": 1
+    },
+    "src/lib/neuland/Bingo.svelte": {
+      "radius": 1
+    },
+    "src/lib/neuland/CollectionsSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/neuland/ItemProof.svelte": {
+      "radius": 1
+    },
+    "src/lib/neuland/WhiteSpots.svelte": {
+      "radius": 1
+    },
+    "src/lib/notes/FileView.svelte": {
+      "radius": 2
+    },
+    "src/lib/notes/NoteReader.svelte": {
+      "radius": 1
+    },
+    "src/lib/notes/NoteSheet.svelte": {
+      "radius": 2
+    },
+    "src/lib/pack/BagLabel.svelte": {
+      "shadow": 1
+    },
+    "src/lib/pack/BikeChoice.svelte": {
+      "radius": 1
+    },
+    "src/lib/pack/DazuSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/pack/GriffSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/pack/NotPacked.svelte": {
+      "radius": 2,
+      "shadow": 1
+    },
+    "src/lib/pack/Onion.svelte": {
+      "radius": 4,
+      "shadow": 1
+    },
+    "src/lib/pack/PackBlocks.svelte": {
+      "radius": 2
+    },
+    "src/lib/pack/PackDay.svelte": {
+      "radius": 2,
+      "shadow": 1
+    },
+    "src/lib/pack/PackStage.svelte": {
+      "radius": 4,
+      "shadow": 1
+    },
+    "src/lib/pack/PlaceSuggest.svelte": {
+      "radius": 1
+    },
+    "src/lib/pack/SetupPick.svelte": {
+      "radius": 2,
+      "shadow": 1
+    },
+    "src/lib/pack/SkiSeasonStart.svelte": {
+      "radius": 1
+    },
+    "src/lib/pack/TripDialog.svelte": {
+      "radius": 2
+    },
+    "src/lib/pack/WeightCard.svelte": {
+      "radius": 2
+    },
+    "src/lib/pack/WhySheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/pack/WornCard.svelte": {
+      "radius": 1
+    },
+    "src/lib/pack/calm-pack.css": {
+      "radius": 2,
+      "shadow": 1
+    },
+    "src/lib/paesse/Passschild.svelte": {
+      "radius": 1
+    },
+    "src/lib/pageinfo/EarthEverest.svelte": {
+      "radius": 3
+    },
+    "src/lib/pageinfo/HintCard.svelte": {
+      "radius": 1
+    },
+    "src/lib/pageinfo/KindTag.svelte": {
+      "radius": 1
+    },
+    "src/lib/pageinfo/TipLine.svelte": {
+      "radius": 1
+    },
+    "src/lib/pageinfo/TipsSheet.svelte": {
+      "radius": 2
+    },
+    "src/lib/pay/BillPreview.svelte": {
+      "radius": 3
+    },
+    "src/lib/pay/BillReminder.svelte": {
+      "radius": 1
+    },
+    "src/lib/pay/PayDetect.svelte": {
+      "radius": 1
+    },
+    "src/lib/pay/PayReminder.svelte": {
+      "radius": 1
+    },
+    "src/lib/pay/PayReports.svelte": {
+      "radius": 2
+    },
+    "src/lib/pay/StatementResult.svelte": {
+      "radius": 1
+    },
+    "src/lib/probe/DoorCheck.svelte": {
+      "radius": 1
+    },
+    "src/lib/probe/ProbePage.svelte": {
+      "radius": 1
+    },
+    "src/lib/race/AtlasFilters.svelte": {
+      "radius": 3
+    },
+    "src/lib/race/AtlasList.svelte": {
+      "radius": 4
+    },
+    "src/lib/race/AtlasMap.svelte": {
+      "radius": 2,
+      "shadow": 2
+    },
+    "src/lib/race/BikeCountdown.svelte": {
+      "radius": 1
+    },
+    "src/lib/race/Check.svelte": {
+      "radius": 1
+    },
+    "src/lib/race/Climbs.svelte": {
+      "radius": 3
+    },
+    "src/lib/race/Nonstop.svelte": {
+      "radius": 1
+    },
+    "src/lib/race/RaceLearnings.svelte": {
+      "radius": 1
+    },
+    "src/lib/race/SampleBar.svelte": {
+      "radius": 1
+    },
+    "src/lib/remind/RemindCard.svelte": {
+      "radius": 2
+    },
+    "src/lib/review/Group.svelte": {
+      "radius": 1
+    },
+    "src/lib/review/HeartPower.svelte": {
+      "radius": 1
+    },
+    "src/lib/review/Hub.svelte": {
+      "radius": 2
+    },
+    "src/lib/review/InZahlen.svelte": {
+      "radius": 4
+    },
+    "src/lib/review/TripSaved.svelte": {
+      "radius": 1
+    },
+    "src/lib/review/UndoToast.svelte": {
+      "shadow": 1
+    },
+    "src/lib/route/RouteClimbs.svelte": {
+      "radius": 2
+    },
+    "src/lib/sk/SkToast.svelte": {
+      "shadow": 1
+    },
+    "src/lib/sk/TileSheet.svelte": {
+      "radius": 4,
+      "shadow": 1
+    },
+    "src/lib/sk/Woanders.svelte": {
+      "radius": 1
+    },
+    "src/lib/ski/SkiTurn.svelte": {
+      "shadow": 1
+    },
+    "src/lib/ski/ski.css": {
+      "radius": 5
+    },
+    "src/lib/spielerplus/SportDates.svelte": {
+      "radius": 1
+    },
+    "src/lib/sportpage/MilestoneSlot.svelte": {
+      "radius": 1
+    },
+    "src/lib/sportpage/sport.css": {
+      "radius": 8
+    },
+    "src/lib/sports.css": {
+      "radius": 2
+    },
+    "src/lib/spur/TourMap.svelte": {
+      "shadow": 2
+    },
+    "src/lib/stand/CancelSteps.svelte": {
+      "radius": 1
+    },
+    "src/lib/stand/UseLog.svelte": {
+      "radius": 1
+    },
+    "src/lib/stand/WaitPick.svelte": {
+      "radius": 1
+    },
+    "src/lib/stand/WaitingGroup.svelte": {
+      "radius": 1
+    },
+    "src/lib/strava/StravaConnect.svelte": {
+      "radius": 1
+    },
+    "src/lib/strava/StravaPage.svelte": {
+      "radius": 2
+    },
+    "src/lib/strava/ZoneBar.svelte": {
+      "radius": 1
+    },
+    "src/lib/tag/EntrySheet.svelte": {
+      "radius": 2
+    },
+    "src/lib/tag/PlanSheet.svelte": {
+      "radius": 2
+    },
+    "src/lib/tag/TodoSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/tagebuch/EntrySheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/tagebuch/Settings.svelte": {
+      "radius": 1
+    },
+    "src/lib/tempo/TempoMesser.svelte": {
+      "radius": 1
+    },
+    "src/lib/tennis/TennisTop.svelte": {
+      "radius": 1
+    },
+    "src/lib/testdata/TestDataSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/timer/TimerFloat.svelte": {
+      "shadow": 1
+    },
+    "src/lib/tools/Markup.svelte": {
+      "radius": 1
+    },
+    "src/lib/tour/TourHost.svelte": {
+      "radius": 2,
+      "shadow": 1
+    },
+    "src/lib/tour/TourStart.svelte": {
+      "radius": 1
+    },
+    "src/lib/touren/ActCal.svelte": {
+      "radius": 1
+    },
+    "src/lib/touren/ActTiles.svelte": {
+      "radius": 1
+    },
+    "src/lib/touren/Activities.svelte": {
+      "radius": 1,
+      "shadow": 1
+    },
+    "src/lib/touren/DoppelteSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/touren/PackBand.svelte": {
+      "radius": 2
+    },
+    "src/lib/touren/tour/RouteChart.svelte": {
+      "radius": 1
+    },
+    "src/lib/tourenb/IntentStep.svelte": {
+      "radius": 1
+    },
+    "src/lib/tourenb/NotePlace.svelte": {
+      "radius": 1
+    },
+    "src/lib/tourenb/UsedCard.svelte": {
+      "radius": 1
+    },
+    "src/lib/tourenc/ForgotPause.svelte": {
+      "shadow": 1
+    },
+    "src/lib/tourenc/MemoryTripSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/tourenc/SplitCard.svelte": {
+      "radius": 1
+    },
+    "src/lib/tourenc/VoiceDebrief.svelte": {
+      "radius": 1
+    },
+    "src/lib/tourlernen/PostcardSheet.svelte": {
+      "shadow": 1
+    },
+    "src/lib/tourplan/TourPrep.svelte": {
+      "radius": 2
+    },
+    "src/lib/tpl/Menu.svelte": {
+      "shadow": 1
+    },
+    "src/lib/tpl/Toast.svelte": {
+      "shadow": 1
+    },
+    "src/lib/training/AnaSheet.svelte": {
+      "radius": 1,
+      "shadow": 1
+    },
+    "src/lib/training/act/AnaGrid.svelte": {
+      "radius": 1
+    },
+    "src/lib/training/act/AnaHalves.svelte": {
+      "radius": 2
+    },
+    "src/lib/training/act/AnaSections.svelte": {
+      "shadow": 1
+    },
+    "src/lib/training/act/AnaTimeline.svelte": {
+      "radius": 1
+    },
+    "src/lib/training/act/PowerBlock.svelte": {
+      "radius": 2
+    },
+    "src/lib/training/inhalt/AnaIntervals.svelte": {
+      "shadow": 1
+    },
+    "src/lib/training/inhalt/AnaPlan.svelte": {
+      "radius": 2
+    },
+    "src/lib/training/plans/FeelAsk.svelte": {
+      "radius": 1
+    },
+    "src/lib/training/plans/NextWeek.svelte": {
+      "radius": 1
+    },
+    "src/lib/training/plans/SuggestWeek.svelte": {
+      "radius": 2
+    },
+    "src/lib/training/week/AnaMonth.svelte": {
+      "radius": 2
+    },
+    "src/lib/training/week/AnaYear.svelte": {
+      "radius": 2
+    },
+    "src/lib/trip/BaseCheck.svelte": {
+      "radius": 1
     },
     "src/lib/trip/ChargeList.svelte": {
-      "global": 1
+      "global": 1,
+      "radius": 2
+    },
+    "src/lib/trip/CheckEdit.svelte": {
+      "shadow": 1
+    },
+    "src/lib/trip/CheckSheet.svelte": {
+      "radius": 2
     },
     "src/lib/trip/InProgress.svelte": {
       "colour": 2,
-      "global": 1
+      "global": 1,
+      "radius": 2,
+      "shadow": 2
+    },
+    "src/lib/trip/ProgressRows.svelte": {
+      "radius": 3,
+      "shadow": 1
+    },
+    "src/lib/trip/TourAmpel.svelte": {
+      "radius": 1
+    },
+    "src/lib/trip/TripBand.svelte": {
+      "radius": 2
+    },
+    "src/lib/trip/trip.css": {
+      "radius": 1
+    },
+    "src/lib/ui/AllHere.svelte": {
+      "radius": 1
+    },
+    "src/lib/ui/DeleteSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/ui/Empty.svelte": {
+      "shadow": 1
+    },
+    "src/lib/ui/Help.svelte": {
+      "radius": 1
     },
     "src/lib/ui/Lightbox.svelte": {
-      "colour": 9
+      "colour": 9,
+      "radius": 2
+    },
+    "src/lib/ui/ListTable.svelte": {
+      "radius": 1,
+      "shadow": 1
+    },
+    "src/lib/ui/MoreActions.svelte": {
+      "radius": 5,
+      "shadow": 2
+    },
+    "src/lib/ui/OptionButton.svelte": {
+      "radius": 1
+    },
+    "src/lib/ui/PasstHier.svelte": {
+      "radius": 1
+    },
+    "src/lib/ui/QuickLinks.svelte": {
+      "radius": 1
+    },
+    "src/lib/ui/RenameSheet.svelte": {
+      "radius": 1
+    },
+    "src/lib/ui/RenameToast.svelte": {
+      "shadow": 1
+    },
+    "src/lib/ui/RowMenu.svelte": {
+      "shadow": 1
+    },
+    "src/lib/ui/Section.svelte": {
+      "radius": 1
     },
     "src/lib/ui/Seg.svelte": {
-      "fontsize": 1
+      "fontsize": 1,
+      "radius": 2
+    },
+    "src/lib/ui/SortArrows.svelte": {
+      "radius": 1
+    },
+    "src/lib/ui/SortGrip.svelte": {
+      "radius": 1
+    },
+    "src/lib/ui/daumen.css": {
+      "shadow": 1
+    },
+    "src/lib/unterwegs/Lenker.svelte": {
+      "radius": 1
+    },
+    "src/lib/unterwegs/unterwegs.css": {
+      "radius": 1
+    },
+    "src/lib/vision/PackPhoto.svelte": {
+      "radius": 1
+    },
+    "src/lib/vision/SitPosCard.svelte": {
+      "radius": 1
+    },
+    "src/lib/vision/SitPosition.svelte": {
+      "radius": 1
+    },
+    "src/lib/vorschlaege/Karte.svelte": {
+      "radius": 2,
+      "shadow": 1
+    },
+    "src/lib/vorschlaege/Untergrund.svelte": {
+      "radius": 1
+    },
+    "src/lib/werkstatt/Handover.svelte": {
+      "radius": 1
+    },
+    "src/lib/werkstatt/ReceiptSplit.svelte": {
+      "radius": 3
+    },
+    "src/lib/werkstatt/RoundsPage.svelte": {
+      "radius": 1
+    },
+    "src/lib/wetter/FensterBox.svelte": {
+      "radius": 1
+    },
+    "src/lib/wetter/HeuteHoehe.svelte": {
+      "radius": 1
+    },
+    "src/lib/wetter/HeuteKarten.svelte": {
+      "radius": 1
+    },
+    "src/lib/wetter/HeuteNacht.svelte": {
+      "radius": 1
+    },
+    "src/lib/wetter/HeuteNebel.svelte": {
+      "radius": 1
+    },
+    "src/lib/wetter/HeuteSchnee.svelte": {
+      "radius": 1
+    },
+    "src/lib/wetter/HeuteWetter.svelte": {
+      "radius": 2
+    },
+    "src/lib/wetter/HoeheBlock.svelte": {
+      "radius": 1
+    },
+    "src/lib/wetter/NachtBlock.svelte": {
+      "radius": 2
+    },
+    "src/lib/wetter/Regen3h.svelte": {
+      "radius": 1
+    },
+    "src/lib/wetter/WebcamList.svelte": {
+      "radius": 1
+    },
+    "src/lib/woche/Entry.svelte": {
+      "radius": 1
+    },
+    "src/lib/wohl/GoodDayLine.svelte": {
+      "radius": 1
+    },
+    "src/lib/wohl/PhotoGreeting.svelte": {
+      "radius": 1
+    },
+    "src/lib/yoga/YogaCard.svelte": {
+      "radius": 2
+    },
+    "src/pages/Agenda.svelte": {
+      "radius": 2
+    },
+    "src/pages/Analyse.svelte": {
+      "radius": 1
+    },
+    "src/pages/AppMap.svelte": {
+      "radius": 1
+    },
+    "src/pages/Between.svelte": {
+      "radius": 3,
+      "shadow": 1
+    },
+    "src/pages/Bills.svelte": {
+      "radius": 1
+    },
+    "src/pages/BlockCheck.svelte": {
+      "radius": 3,
+      "shadow": 1
+    },
+    "src/pages/Blocks.svelte": {
+      "radius": 2,
+      "shadow": 1
+    },
+    "src/pages/Check.svelte": {
+      "radius": 2
+    },
+    "src/pages/Checks.svelte": {
+      "radius": 1
+    },
+    "src/pages/Chronik.svelte": {
+      "radius": 1
     },
     "src/pages/Debrief.svelte": {
       "global": 1
     },
+    "src/pages/DocScan.svelte": {
+      "radius": 1,
+      "shadow": 1
+    },
+    "src/pages/Docs.svelte": {
+      "radius": 1
+    },
+    "src/pages/Dreams.svelte": {
+      "radius": 1
+    },
+    "src/pages/Equipment.svelte": {
+      "radius": 4
+    },
+    "src/pages/Favorites.svelte": {
+      "radius": 2,
+      "shadow": 1
+    },
+    "src/pages/Features.svelte": {
+      "radius": 4
+    },
+    "src/pages/Gear.svelte": {
+      "radius": 10,
+      "shadow": 4
+    },
     "src/pages/GearImport.svelte": {
-      "global": 3
+      "global": 3,
+      "radius": 7,
+      "shadow": 1
+    },
+    "src/pages/Handbook.svelte": {
+      "radius": 1
+    },
+    "src/pages/Heatmap.svelte": {
+      "radius": 1
     },
     "src/pages/Home.svelte": {
-      "fontsize": 21
+      "fontsize": 21,
+      "radius": 8,
+      "shadow": 1
+    },
+    "src/pages/Inbox.svelte": {
+      "shadow": 1
+    },
+    "src/pages/Lists.svelte": {
+      "radius": 1
+    },
+    "src/pages/Live.svelte": {
+      "radius": 4,
+      "shadow": 20
+    },
+    "src/pages/Look.svelte": {
+      "radius": 4,
+      "shadow": 1
+    },
+    "src/pages/Merken.svelte": {
+      "radius": 5,
+      "shadow": 1
+    },
+    "src/pages/MiniTools.svelte": {
+      "radius": 4
+    },
+    "src/pages/Mitmachen.svelte": {
+      "radius": 2
+    },
+    "src/pages/Neuland.svelte": {
+      "radius": 1
+    },
+    "src/pages/Offers.svelte": {
+      "radius": 3
+    },
+    "src/pages/Pack.svelte": {
+      "radius": 2,
+      "shadow": 1
+    },
+    "src/pages/PastTrips.svelte": {
+      "radius": 1,
+      "shadow": 2
+    },
+    "src/pages/Pay.svelte": {
+      "radius": 1
+    },
+    "src/pages/PayLink.svelte": {
+      "radius": 3
+    },
+    "src/pages/Push.svelte": {
+      "radius": 1,
+      "shadow": 1
+    },
+    "src/pages/Quiz.svelte": {
+      "radius": 1
+    },
+    "src/pages/Reminders.svelte": {
+      "radius": 1,
+      "shadow": 1
+    },
+    "src/pages/Ride.svelte": {
+      "shadow": 1
+    },
+    "src/pages/Rides.svelte": {
+      "radius": 2
+    },
+    "src/pages/Routine.svelte": {
+      "shadow": 1
     },
     "src/pages/Share.svelte": {
-      "colour": 2
+      "colour": 2,
+      "radius": 2
+    },
+    "src/pages/ShopBuy.svelte": {
+      "radius": 1
+    },
+    "src/pages/Tag.svelte": {
+      "radius": 2,
+      "shadow": 1
+    },
+    "src/pages/TemplateEdit.svelte": {
+      "radius": 2
+    },
+    "src/pages/TemplateNew.svelte": {
+      "radius": 2
+    },
+    "src/pages/TennisFlyer.svelte": {
+      "radius": 3
+    },
+    "src/pages/Timer.svelte": {
+      "radius": 3
+    },
+    "src/pages/TimerFaces.svelte": {
+      "radius": 1
+    },
+    "src/pages/Tour.svelte": {
+      "radius": 1
+    },
+    "src/pages/Trash.svelte": {
+      "radius": 2
+    },
+    "src/pages/Trips.svelte": {
+      "radius": 4,
+      "shadow": 1
+    },
+    "src/pages/TripsCompare.svelte": {
+      "radius": 1
+    },
+    "src/pages/Vorschlaege.svelte": {
+      "radius": 4,
+      "shadow": 1
     },
     "src/pages/Wardrobe.svelte": {
-      "global": 3
+      "global": 3,
+      "radius": 4,
+      "shadow": 4
+    },
+    "src/pages/WardrobeTryOn.svelte": {
+      "radius": 1
+    },
+    "src/pages/WasNeu.svelte": {
+      "radius": 1,
+      "shadow": 1
+    },
+    "src/pages/Weg.svelte": {
+      "radius": 5
+    },
+    "src/pages/Weight.svelte": {
+      "radius": 1
+    },
+    "src/pages/Woche.svelte": {
+      "radius": 3
+    },
+    "src/pages/WochePlanen.svelte": {
+      "radius": 2
+    },
+    "src/pages/Wohl.svelte": {
+      "radius": 2
+    },
+    "src/pages/analyse/AnalyseWert.svelte": {
+      "radius": 1
+    },
+    "src/pages/analyse/Ansichten.svelte": {
+      "radius": 1
+    },
+    "src/pages/analyse/DaySheet.svelte": {
+      "radius": 1
+    },
+    "src/pages/analyse/Diagramm.svelte": {
+      "radius": 2
+    },
+    "src/pages/analyse/FilterSheet.svelte": {
+      "radius": 1
+    },
+    "src/pages/analyse/Muster.svelte": {
+      "radius": 1
+    },
+    "src/pages/analyse/Ueberblick.svelte": {
+      "radius": 1,
+      "shadow": 1
+    },
+    "src/pages/analyse/ValuePicker.svelte": {
+      "radius": 1
+    },
+    "src/pages/flow/Bags.svelte": {
+      "radius": 4
+    },
+    "src/pages/flow/Geschafft.svelte": {
+      "radius": 3
+    },
+    "src/pages/flow/Gipfelbuch.svelte": {
+      "radius": 4
+    },
+    "src/pages/flow/Ideas.svelte": {
+      "radius": 3
+    },
+    "src/pages/flow/MedDone.svelte": {
+      "radius": 4
+    },
+    "src/pages/flow/MedLog.svelte": {
+      "radius": 3
+    },
+    "src/pages/flow/MedPatterns.svelte": {
+      "radius": 3
+    },
+    "src/pages/flow/MedReview.svelte": {
+      "radius": 3,
+      "shadow": 2
+    },
+    "src/pages/flow/MedTimer.svelte": {
+      "radius": 5
+    },
+    "src/pages/flow/Meditation.svelte": {
+      "radius": 3
+    },
+    "src/pages/flow/Milestones.svelte": {
+      "radius": 2
+    },
+    "src/pages/flow/MySports.svelte": {
+      "radius": 3
+    },
+    "src/pages/flow/Rest.svelte": {
+      "radius": 2
+    },
+    "src/pages/flow/Training.svelte": {
+      "radius": 2
+    },
+    "src/pages/flow/TrainingAct.svelte": {
+      "radius": 2
+    },
+    "src/pages/flow/TrainingWeek.svelte": {
+      "radius": 1
+    },
+    "src/pages/flow/Trophies.svelte": {
+      "radius": 1
+    },
+    "src/pages/flow/Week.svelte": {
+      "radius": 3
+    },
+    "src/pages/flow/WeekReview.svelte": {
+      "radius": 1
+    },
+    "src/pages/mountain/Scales.svelte": {
+      "radius": 1
+    },
+    "src/pages/mountain/SosQr.svelte": {
+      "radius": 1
+    },
+    "src/pages/ski/SkiStart.svelte": {
+      "radius": 1
     }
   },
   "layout": {

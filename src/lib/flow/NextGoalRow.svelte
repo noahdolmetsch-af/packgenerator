@@ -33,14 +33,14 @@
 
 {#if best}
   <a class="card ngr" {href} data-next-goal>
-    <span class="ic" aria-hidden="true"><Star size={18} /></span>
+    <span class="ic" aria-hidden="true"><Star size={20} /></span>
     <span class="tx">
       <small>{t('Next goal')}</small>
       <b>{name}</b>
       <small class="num">{t('{value} of {target} · {pct} %', { value: fmt(best.value), target: fmt(best.target), pct: Math.round(best.progress * 100) })}</small>
     </span>
     <span class="bar" aria-hidden="true"><i style="width:{Math.round(best.progress * 100)}%"></i></span>
-    <ChevronRight size={18} aria-hidden="true" />
+    <ChevronRight size={20} aria-hidden="true" />
   </a>
 {/if}
 

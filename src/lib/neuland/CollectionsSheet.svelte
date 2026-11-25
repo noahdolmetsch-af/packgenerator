@@ -41,13 +41,13 @@
           <b>{name}</b>
           <small>{c.builtIn ? (c.name ? t('Own name · built in') : t('Built in')) : tn(counts[c.id] ?? 0, 'Own · {n} entry', 'Own · {n} entries')}</small>
         </span>
-        <button type="button" class="ib" aria-label={t('Rename: {name}', { name })} onclick={() => onrename?.(c)}><Pencil size={18} aria-hidden="true" /></button>
-        {#if !c.builtIn}<button type="button" class="ib" aria-label={t('Delete: {name}', { name })} onclick={() => ondelete?.(c)}><Trash2 size={18} aria-hidden="true" /></button>{/if}
+        <button type="button" class="ib" aria-label={t('Rename: {name}', { name })} onclick={() => onrename?.(c)}><Pencil size={20} aria-hidden="true" /></button>
+        {#if !c.builtIn}<button type="button" class="ib" aria-label={t('Delete: {name}', { name })} onclick={() => ondelete?.(c)}><Trash2 size={20} aria-hidden="true" /></button>{/if}
         <label class="nl-sw"><span class="nl-sr">{t('Collect {name}', { name })}</span><input type="checkbox" role="switch" checked={c.on} onchange={(e) => onswitch?.(c.id, e.currentTarget.checked)} /></label>
       </li>
     {/each}
   </ul>
-  <button type="button" class="add" onclick={() => onadd?.()}><Plus size={18} aria-hidden="true" />{t('Own collection')}</button>
+  <button type="button" class="add" onclick={() => onadd?.()}><Plus size={20} aria-hidden="true" />{t('Own collection')}</button>
   <p class="hint">{t('Own collection: e.g. «Favourite cafés». Add places with a name; with a place the app finds them on your routes.')}</p>
   <div class="vd-foot"><button type="button" class="btn hi" onclick={() => dialog.close()}>{t('Done')}</button></div>
 </dialog>

@@ -186,7 +186,7 @@
      SN4: the card «Dein 2026» on top (★ 4a), the state chips with «Art» in one row, a column Zustand with the
      pill, «Bewerten» right in the row of a trip whose debrief is missing; on a phone cards instead of a table. -->
 <div class="past rv-page">
-  <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{t('Past trips')}</span></nav>
+  <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={14} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={14} aria-hidden="true" /><span aria-current="page">{t('Past trips')}</span></nav>
   <header class="head">
     <div>
       <h1 class="title">{t('Past trips')}</h1>
@@ -218,11 +218,11 @@
           <NeulandLine {year} />
           <DreamsDoneLine {year} />
         </span>
-        <span class="rowacts"><a class="btn k" href="#/debrief" onclick={() => keepPeriod('year')}><span class="kl">{t('View|review')}</span><ChevronRight size={17} aria-hidden="true" /></a></span>
+        <span class="rowacts"><a class="btn k" href="#/debrief" onclick={() => keepPeriod('year')}><span class="kl">{t('View|review')}</span><ChevronRight size={16} aria-hidden="true" /></a></span>
       </section>
     {/if}
     <div class="tools">
-      <label class="rv-search find"><Search size={18} aria-hidden="true" /><input type="search" bind:value={q} placeholder={t('Trip, place or learning')} aria-label={t('Search trips and learnings')} /></label>
+      <label class="rv-search find"><Search size={20} aria-hidden="true" /><input type="search" bind:value={q} placeholder={t('Trip, place or learning')} aria-label={t('Search trips and learnings')} /></label>
       <Seg full={false} label={t('Period')} value={mode} options={PERIODS} onchange={(v) => (mode = v)} />
     </div>
     <StateChips value={st} {counts} onchange={(v) => (st = v)}>
@@ -310,7 +310,7 @@
                     {#if s?.open}
                       <Btn label={t('Rate|debrief')} href={r.href} onclick={() => go(r)} aria="{t('Rate|debrief')}: {r.title}" />
                     {:else}
-                      <a class="chev" href={r.href} onclick={() => go(r)} tabindex="-1" aria-label={t('Open {trip}', { trip: r.title })}><ChevronRight size={18} aria-hidden="true" /></a>
+                      <a class="chev" href={r.href} onclick={() => go(r)} tabindex="-1" aria-label={t('Open {trip}', { trip: r.title })}><ChevronRight size={20} aria-hidden="true" /></a>
                     {/if}
                   </td>
                 </tr>
@@ -589,8 +589,6 @@
     color: var(--ink-3);
     font-size: var(--fs-tiny);
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
     white-space: nowrap;
   }
   .ms {

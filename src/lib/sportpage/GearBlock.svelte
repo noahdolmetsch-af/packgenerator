@@ -4,6 +4,7 @@
    * maingear.js), and for a bike sport the sport's standard bike (sports.js sportBikeId) and the bikes.
    */
   import { ChevronRight, Bike, Plus } from '@lucide/svelte';
+  import Empty from '../ui/Empty.svelte';
   import { t, tn, num, nameOf } from '../i18n.svelte.js';
 
   let { sport, gearRows = [], bike = null } = $props();
@@ -11,9 +12,9 @@
 
 {#if sport.bike}
   <a class="srow" href={bike ? `#/bikes?bike=${encodeURIComponent(bike.id)}` : '#/bikes'} data-sport-bike>
-    <Bike size={18} aria-hidden="true" />
+    <Bike size={20} aria-hidden="true" />
     <span class="t"><b>{bike ? bike.name : t('Bikes|place')}</b><small>{bike ? t('Standard bike for this sport') : t('Add your bikes under Bikes.')}</small></span>
-    <ChevronRight size={18} aria-hidden="true" />
+    <ChevronRight size={20} aria-hidden="true" />
   </a>
 {/if}
 {#if gearRows.length}
@@ -23,8 +24,8 @@
     {/each}
   </ul>
 {:else if !sport.bike}
-  <p class="none">{t('No main equipment for this sport yet (for example skis, a racket, shoes).')}</p>
+  <Empty size="klein" text={t('No main equipment for this sport yet (for example skis, a racket, shoes).')} action={{ label: t('Add equipment'), href: '#/equipment' }} />
 {/if}
-{#if !sport.bike || gearRows.length}
+{#if gearRows.length}
   <a class="lnk" href="#/equipment" data-gear-link><Plus size={14} aria-hidden="true" /> {t('Add or change equipment')}</a>
 {/if}

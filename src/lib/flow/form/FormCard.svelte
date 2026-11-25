@@ -10,6 +10,7 @@
   import { RAMP_MAX } from '../../form.js';
   import { levelWord, answerLine, partText, tourText } from './words.js';
   import { dayAnswer } from './tagesantwort.js';
+  import TagesVorschlag from './TagesVorschlag.svelte';
   import { t, num } from '../../i18n.svelte.js';
 
   let { today } = $props();
@@ -22,6 +23,7 @@
 </script>
 
 {#if f}
+  <div class="fcw">
   <a class="card fc" href="#/flow/form" data-section="form" data-level={ans?.level ?? 'none'}>
     {#if r}
       <svg class="ring" viewBox="0 0 100 100" aria-hidden="true">
@@ -40,7 +42,7 @@
         <span>{t('Comes with your first activities from Strava or with Fitbit: then the app shows each morning what today suits.')}</span>
       </span>
     {/if}
-    <ChevronRight class="go" size={18} aria-hidden="true" />
+    <ChevronRight class="go" size={20} aria-hidden="true" />
     {#if f.alarm || f.rampHigh || f.tour}
       <ul class="notes">
         {#if f.alarm}<li data-form-alarm><TriangleAlert size={16} aria-hidden="true" /><span>{t('Resting pulse up and HRV down two days in a row: an easy day may help.')}</span></li>{/if}
@@ -49,9 +51,17 @@
       </ul>
     {/if}
   </a>
+  <!-- Tagesvorschlag (Noah 24.11.2026 «1-5a»): outside the link of the card -->
+  {#if r}<TagesVorschlag level={ans.level} />{/if}
+  </div>
 {/if}
 
 <style>
+  .fcw {
+    display: grid;
+    gap: var(--sp-1);
+    min-width: 0;
+  }
   .fc {
     position: relative;
     display: grid;
@@ -79,7 +89,7 @@
     stroke: var(--paper-2);
   }
   .ring .fl {
-    stroke: var(--hi);
+    stroke: var(--ok); /* a status colour (good / take it easy / rest), never the area colour («Zahlen», Noah 24.11.2026 «5a») */
     stroke-linecap: round;
   }
   .ring .lv-rest {

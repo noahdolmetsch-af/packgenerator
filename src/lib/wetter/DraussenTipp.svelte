@@ -43,8 +43,8 @@
 
 {#if core}
   <p class="dt" data-draussen>
-    {#if good}<Sun size={18} aria-hidden="true" /><span>{good.now ? t('Good for outside now ({temp} °C).', { temp: num(good.temp) }) : t('Good for outside from {at} ({temp} °C).', { at: hm(good.at), temp: num(good.temp) })}</span>
-    {:else if rain}<CloudRain size={18} aria-hidden="true" /><span>{t('rain from {at}', { at: hm(rain) })}</span>{/if}
+    {#if good}<Sun size={20} aria-hidden="true" /><span>{good.now ? t('Good for outside now ({temp} °C).', { temp: num(good.temp) }) : t('Good for outside from {at} ({temp} °C).', { at: hm(good.at), temp: num(good.temp) })}</span>
+    {:else if rain}<CloudRain size={20} aria-hidden="true" /><span>{t('rain from {at}', { at: hm(rain) })}</span>{/if}
     {#if rain}<a class="btn sm" href={LANDI_RADAR} target="_blank" rel="noopener noreferrer" data-landi>{t('Radar')}</a>{/if}
     <LakeChip />
     <a class="dt-more" href="#/wetter">{t('Weather')}<ChevronRight size={14} aria-hidden="true" /></a>

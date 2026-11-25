@@ -158,7 +158,7 @@
                   {@const c = firstCare(r)}
                   <li>
                     <button type="button" class="row" class:on={sel === r.item.id} aria-pressed={sel === r.item.id} onclick={() => pick(r.item.id)} data-mg-row={nameOf(r.item)}>
-                      <span class="ic" aria-hidden="true"><Mountain size={17} /></span>
+                      <span class="ic" aria-hidden="true"><Mountain size={16} /></span>
                       <span class="t">
                         <b>{nameOf(r.item)}{#if r.due}<i class="mgp due">{t('due|care')}</i>{/if}</b>
                         <small class="num">{[unitText(r.total, r.main.unit), r.last ? t('last {day}', { day: dayWord(r.last) }) : t('not used yet')].join(' · ')}</small>
@@ -279,9 +279,9 @@
     cursor: pointer;
   }
   .chip[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .undo {
     margin: 0;

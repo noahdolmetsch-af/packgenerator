@@ -144,7 +144,7 @@
         {#if main}
           <div class="dial"><Face {face} sec={minutes * 60} frac={0} fmt="auto" size="m" sub={gong} label={t('{n} min', { n: minutes })} /></div>
           <button type="button" class="btn hi go" onclick={startMain} data-start={ls ? 'last' : 'first'}>
-            <Play size={22} aria-hidden="true" />
+            <Play size={24} aria-hidden="true" />
             {#if running}{t('Open the running session')}{:else if mins != null && mins !== main.minutes}{t('Start · {n} min', { n: minutes })}{:else if ls}{t('Like last time · {n} min', { n: main.minutes })}{:else}{t('Start now · {n} min', { n: main.minutes })}{/if}
           </button>
           {#if mainLine}<p class="ml">{mainLine}</p>{/if}
@@ -166,9 +166,9 @@
           <a class="tchip new" href="{base}/timer?new=1" data-to="new-tpl"><Plus size={16} aria-hidden="true" />{t('new|template')}</a>
         </div>
         <ul class="opts">
-          <li><a class="row" href="{base}/timer?new=1" data-opt="sounds"><span class="ri" aria-hidden="true"><Bell size={18} /></span><span class="rt"><b>{t('Sounds')}</b><small>{main ? startLine({ ...main, name: null }) : ''}</small></span><span class="v">{t('Change')}<ChevronRight size={16} aria-hidden="true" /></span></a></li>
-          <li><a class="row" href="{base}/mehr" data-opt="kind"><span class="ri" aria-hidden="true"><Flower2 size={18} /></span><span class="rt"><b>{t('Kind|meditation')}</b><small>{(main && kindName(main.art)) || t('none chosen')}</small></span><span class="v">{t('Change')}<ChevronRight size={16} aria-hidden="true" /></span></a></li>
-          <li><a class="row" href="#/timer/faces?scope=meditation" data-opt="clock"><span class="ri" aria-hidden="true"><Clock size={18} /></span><span class="rt"><b>{t('Clock')}</b><small>{t('Ring · hourglass · moon · digits')}</small></span><span class="v">{t('Change')}<ChevronRight size={16} aria-hidden="true" /></span></a></li>
+          <li><a class="row" href="{base}/timer?new=1" data-opt="sounds"><span class="ri" aria-hidden="true"><Bell size={20} /></span><span class="rt"><b>{t('Sounds')}</b><small>{main ? startLine({ ...main, name: null }) : ''}</small></span><span class="v">{t('Change')}<ChevronRight size={16} aria-hidden="true" /></span></a></li>
+          <li><a class="row" href="{base}/mehr" data-opt="kind"><span class="ri" aria-hidden="true"><Flower2 size={20} /></span><span class="rt"><b>{t('Kind|meditation')}</b><small>{(main && kindName(main.art)) || t('none chosen')}</small></span><span class="v">{t('Change')}<ChevronRight size={16} aria-hidden="true" /></span></a></li>
+          <li><a class="row" href="#/timer/faces?scope=meditation" data-opt="clock"><span class="ri" aria-hidden="true"><Clock size={20} /></span><span class="rt"><b>{t('Clock')}</b><small>{t('Ring · hourglass · moon · digits')}</small></span><span class="v">{t('Change')}<ChevronRight size={16} aria-hidden="true" /></span></a></li>
         </ul>
       </section>
 
@@ -217,7 +217,7 @@
               <small>{t('{n} to go', { n: val(Math.max(0, Math.round((nextStar.target - nextStar.value) * 10) / 10), nextStar.m.unit) })}</small>
               <span class="bar" role="progressbar" aria-label={msName(nextStar.m)} aria-valuemin="0" aria-valuemax="100" aria-valuenow={pct(nextStar)}><i style:width="{pct(nextStar)}%"></i></span>
             </span>
-            <ChevronRight size={18} aria-hidden="true" />
+            <ChevronRight size={20} aria-hidden="true" />
           </a>
         {/if}
 
@@ -226,7 +226,7 @@
         <a class="surf row more" href="{base}/mehr" data-to="more">
           <span class="ri" aria-hidden="true"><Ellipsis size={20} /></span>
           <span class="rt"><b>{t('More')}</b><small>{t('Kinds · sounds · places and things · quotes · links · all stars')}</small></span>
-          <ChevronRight size={18} aria-hidden="true" />
+          <ChevronRight size={20} aria-hidden="true" />
         </a>
       </div>
     </div>

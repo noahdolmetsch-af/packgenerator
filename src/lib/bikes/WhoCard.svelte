@@ -20,7 +20,7 @@
 <!-- v0.40.0 (design check R1): only once there is something: a job, a visit or something due. -->
 {#if y.self || y.shop || recent.length || next?.rows.length}
 <section class="card who" aria-labelledby="who-h">
-  <h2 id="who-h"><Wrench size={18} aria-hidden="true" />{t('Who works on it')}<span class="r num">{y.year}</span></h2>
+  <h2 id="who-h"><Wrench size={20} aria-hidden="true" />{t('Who works on it')}<span class="r num">{y.year}</span></h2>
   {#if pct != null}
     <div class="split" role="img" aria-label={t('{year}: me {self}, bike shop {shop}', { year: y.year, self: y.self, shop: y.shop })}>
       <i class="me" style:width="{pct}%"></i><i class="shop" style:width="{100 - pct}%"></i>
@@ -35,7 +35,7 @@
     {#each recent as r (r.id)}
       <li>
         <span class="nm"><b>{r.what}</b><small class="num">{[dateOf(r.date), r.km != null ? `${num(r.km)} km` : '', r.shop, r.chf != null ? chf(r.chf) : ''].filter(Boolean).join(' · ')}</small></span>
-        {#if r.who === 'shop'}<span class="badge mech"><Store size={12} aria-hidden="true" />{t('bike shop|who')}</span>{:else if r.who === 'self'}<span class="badge"><User size={12} aria-hidden="true" />{t('me|who')}</span>{/if}
+        {#if r.who === 'shop'}<span class="badge mech"><Store size={14} aria-hidden="true" />{t('bike shop|who')}</span>{:else if r.who === 'self'}<span class="badge"><User size={14} aria-hidden="true" />{t('me|who')}</span>{/if}
       </li>
     {:else}
       <li class="quiet">{t('Nothing recorded yet. Bike care keeps who did the work.')}</li>

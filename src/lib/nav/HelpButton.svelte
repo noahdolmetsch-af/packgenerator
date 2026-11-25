@@ -8,7 +8,7 @@
    * own. The one line behind the page's title (ui/SeitenInhalt.svelte) opens this window (event pg:help).
    * 4a (Noah 21.11.2026): one place for help, the round «?» at the top (phone: top bar; computer: top right of the page).
    */
-  import { CircleQuestionMark, X, ChevronRight, BookOpen, Search as SearchIcon } from '@lucide/svelte';
+  import { CircleQuestionMark, X, ChevronRight, BookOpen, Search as SearchIcon, NotebookPen } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
   import { helpHere } from '../pageinfo/here.svelte.js';
   import { canRows } from '../pageinfo.js';
@@ -62,7 +62,7 @@
   }
 </script>
 
-<button type="button" class="hic" aria-label={t('Help for this page')} aria-haspopup="dialog" onclick={show} bind:this={btn} data-help-open><CircleQuestionMark size={22} aria-hidden="true" /></button>
+<button type="button" class="hic" aria-label={t('Help for this page')} aria-haspopup="dialog" onclick={show} bind:this={btn} data-help-open><CircleQuestionMark size={24} aria-hidden="true" /></button>
 
 <dialog class="sheet from-below hsheet" bind:this={dlg} use:backClose onclose={() => (open = false)} aria-labelledby="help-h" data-help>
   <div class="hhead">
@@ -85,10 +85,12 @@
     {/if}
     {#if !helpHere.hint && !rows.length && !here.length && !isHome}<p class="none">{t('This page has no own help yet. Everything else is in «Help and functions».')}</p>{/if}
     <div class="more">
-      <a class="go" href="#/features" onclick={close} data-help-all><b>{t('Help and functions')}</b><small>{t('Everything the app can do, the handbook and how it decides')}</small><ChevronRight size={18} aria-hidden="true" /></a>
+      <a class="go" href="#/features" onclick={close} data-help-all><b>{t('Help and functions')}</b><small>{t('Everything the app can do, the handbook and how it decides')}</small><ChevronRight size={20} aria-hidden="true" /></a>
       <div class="lks">
         <a href="#/me/handbook" onclick={close}><BookOpen size={16} aria-hidden="true" />{t('Handbook')}</a>
         <button type="button" onclick={search}><SearchIcon size={16} aria-hidden="true" />{t('Search|page')}</button>
+        <!-- Sitemap 24.11.2026 (Noah «Logbuch nach vorne»): what is missing goes into the log from every page, no new block -->
+        <a href="#/me/logbuch?neu" onclick={close} data-help-log><NotebookPen size={16} aria-hidden="true" />{t('Something missing? Into the log')}</a>
       </div>
     </div>
   {/if}
@@ -140,8 +142,6 @@
     margin: 4px 0 0;
     font-size: var(--fs-small);
     font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
     color: var(--ink-3);
   }
   .can {

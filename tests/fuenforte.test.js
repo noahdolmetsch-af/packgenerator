@@ -67,7 +67,7 @@ describe('the pages under each place', () => {
     // «Aktiv neu» (Noah 22.10.2026): Aktiv is for doing, «Auswerten» for looking
     for (const [h, k] of [['#/flow/sports', 'sports'], ['#/flow/sport/act:yoga', 'sports'], ['#/flow/act/meditation', 'meditation'], // V4b2: Meditation is a chip of «Alltag»
        ['#/flow/bags', 'sports'], ['#/flow/training', 'training'], ['#/flow/rest', 'rest'], ['#/flow/week', 'flowhome']]) expect(subOf('week', h)?.key, h).toBe(k);
-    for (const [h, k] of [['#/auswerten', 'start'], ['#/flow/form', 'form'], ['#/flow/stats/hr', 'body'], ['#/flow/auswertung', 'ticks'], ['#/flow/milestones?act=yoga', 'milestones'], ['#/flow/trophies', 'milestones'], ['#/flow/ideen', 'ideen']]) {
+    for (const [h, k] of [['#/auswerten', 'heute'], ['#/auswerten/uebersicht', 'start'], ['#/flow/form', 'form'], ['#/flow/stats/hr', 'body'], ['#/flow/auswertung', 'ticks'], ['#/flow/milestones?act=yoga', 'milestones'], ['#/flow/trophies', 'milestones'], ['#/flow/ideen', 'ideen']]) {
       expect(leaf('analysis', h), h).toBe(k);
       expect(placeOf(pageOf(h), h), h).toBe('analysis');
     }

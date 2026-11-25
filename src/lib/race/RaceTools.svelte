@@ -31,7 +31,7 @@
 </script>
 
 <section class="rc-box" aria-labelledby="tl-h" data-race-tools>
-  <h2 id="tl-h" class="rc-h2"><Wrench size={18} aria-hidden="true" /> {t('Tools for this bike')}</h2>
+  <h2 id="tl-h" class="rc-h2"><Wrench size={20} aria-hidden="true" /> {t('Tools for this bike')}</h2>
   <p class="rc-note">
     {#if bike}{t('Made from your bike «{name}»: tyres, chain, brakes. Tick off what is packed.', { name: bike.name })}{:else}{t('The race has no bike yet, so these are general suggestions. Tick off what is packed.')}{/if}
   </p>

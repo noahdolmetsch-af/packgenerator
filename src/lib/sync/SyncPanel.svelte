@@ -467,6 +467,13 @@
   {/if}
   {#if pairing && !(sync.running && $cfgQ?.on && view !== 'link')}<p class="busyline" role="status" data-sync-busy>{t('Syncing …')}</p>{/if}
   {#if message}<p class="msg" role="status">{message}</p>{/if}
+  <!-- Noah 23.11.2026: «ich dachte, dass alles immer 1:1 gespiegelt wird»: what goes to the other device and what stays (sync/geraet.js) -->
+  <details class="lost" data-sync-map>
+    <summary>{t('What is synced?')}</summary>
+    <p class="small"><b>{t('Goes to the other device:')}</b> {t('everything you enter or change, such as trips, packing lists, gear, bikes, training, notes, your weekly plan and lists like «What does me good».')}</p>
+    <p class="small"><b>{t('Stays on this device:')}</b> {t('how a page looks (language, colour, sort order, filters, what was open last), what this device has already shown or what you dismissed («Not today», tips), things that are running (timer, tour, live ride), keys and accounts (payment, Strava key, push), the Improvement log and the private calendar links.')}</p>
+    <p class="small">{t('Both devices change the same list at once: nothing is lost. The entries and ticks of both stay. When both changed the same single entry, the newer change counts and the other version waits for 30 days under «Settled by itself».')}</p>
+  </details>
 </div>
 
 <style>

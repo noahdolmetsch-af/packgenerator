@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../actlite.js';
   /**
    * «Route kennt deine Erfahrung» (S3, Noah 21.11.2026): under the route of a trip, what your own rides say about it.
    * The stretches you marked as bad or good after a ride show at once (one small settings row); how much of the
@@ -26,7 +27,7 @@
     busy = true;
     try {
       const [activities, rides, tracks, entries] = await Promise.all([
-        db.activities ? db.activities.toArray() : [],
+        db.activities ? readLite(db, (T) => T.toArray()) : [],
         db.rides.toArray(),
         db.tracks ? db.tracks.where('kind').equals('rec').toArray() : [],
         db.kmBook.toArray(),

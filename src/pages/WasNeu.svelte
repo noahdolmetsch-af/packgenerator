@@ -183,7 +183,7 @@
   {:else if r.state === 'never'}
     <span class="pill warn wn-never">{t('Never|used')}</span>
   {:else}
-    <span class="wn-used"><Check size={14} strokeWidth={3} aria-hidden="true" />{#if r.n}<span class="num">{r.n}×</span>{:else}<span class="sr">{t('Used|tips')}</span>{/if}</span>
+    <span class="wn-used"><Check size={14} strokeWidth={2.5} aria-hidden="true" />{#if r.n}<span class="num">{r.n}×</span>{:else}<span class="sr">{t('Used|tips')}</span>{/if}</span>
   {/if}
 {/snippet}
 
@@ -221,9 +221,9 @@
         <!-- W2: the whole list of functions behind one row (the list itself is unchanged) -->
         <a class="card ich-list wn-allrow" href="{NEWS_HREF}?all&sort=new">
           <span class="ich-row">
-            <span class="ich-ib"><ListFilter size={18} aria-hidden="true" /></span>
+            <span class="ich-ib"><ListFilter size={20} aria-hidden="true" /></span>
             <span class="ich-m"><b>{t('All functions')}</b><small>{t('{n} · sortable, with a search', { n: FEATURES.length })}</small></span>
-            <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            <ChevronRight class="ich-chev" size={20} aria-hidden="true" />
           </span>
         </a>
       {/if}
@@ -242,7 +242,7 @@
           {/each}
         </div>
         <label class="wn-find">
-          <Search size={18} aria-hidden="true" />
+          <Search size={20} aria-hidden="true" />
           <input type="search" bind:value={q} placeholder={t('Find a function')} aria-label={t('Find a function')} autocomplete="off" />
         </label>
         <div class="card wn-list" data-sort={by}>
@@ -285,7 +285,7 @@
           <!-- SL4 (answer 5a): the search and the group you are in stay on top -->
           <ListBar bind:active current={cur ? dayLabel(cur) : ''} count={cur ? nUp(cur.entries.length) : ''}>
             <label class="wn-find wn-vfind">
-              <Search size={18} aria-hidden="true" />
+              <Search size={20} aria-hidden="true" />
               <input type="search" bind:value={vq} placeholder={t('Find an update')} aria-label={t('Find an update')} autocomplete="off" />
             </label>
             {#if forYou.length}
@@ -304,7 +304,7 @@
                   <button type="button" class="wn-vr" aria-expanded={openV === e.version} data-row={e.version} onclick={() => (openV = openV === e.version ? null : e.version)}>
                     <span class="wn-vb num">{shortVersion(e.version)}</span>
                     <span class="wn-vm"><b>{t(e.title)}</b>{#if e.lead}<small>{t(e.lead)}</small>{/if}</span>
-                    {#if openV === e.version}<ChevronUp size={18} aria-hidden="true" />{:else}<ChevronDown size={18} aria-hidden="true" />{/if}
+                    {#if openV === e.version}<ChevronUp size={20} aria-hidden="true" />{:else}<ChevronDown size={20} aria-hidden="true" />{/if}
                   </button>
                   {#if openV === e.version}<div class="wn-vopen"><VersionNews {e} level={4} /></div>{/if}
                 {/snippet}
@@ -327,8 +327,8 @@
           <section class="ich-sec" aria-labelledby="wn-two-h">
             <div class="ich-h"><div><h2 id="wn-two-h">{t('Two rankings')}</h2></div></div>
             <ul class="card ich-list">
-              <li><button type="button" class="ich-row" onclick={() => (by = 'top')}><span class="ich-ib"><Activity size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Your top 10')}</b><small>{t('what you use most, counted on this device')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
-              <li><div class="ich-row" aria-current="true"><span class="ich-ib"><Lightbulb size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Most important 10')}</b><small>{t('what brings the most, chosen once')}</small></span></div></li>
+              <li><button type="button" class="ich-row" onclick={() => (by = 'top')}><span class="ich-ib"><Activity size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('Your top 10')}</b><small>{t('what you use most, counted on this device')}</small></span><ChevronRight class="ich-chev" size={20} aria-hidden="true" /></button></li>
+              <li><div class="ich-row" aria-current="true"><span class="ich-ib"><Lightbulb size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('Most important 10')}</b><small>{t('what brings the most, chosen once')}</small></span></div></li>
             </ul>
           </section>
         {:else}
@@ -338,7 +338,7 @@
             <ul class="card ich-list">
               {#each SORTS.filter((s) => s.key !== by) as s (s.key)}
                 {@const Icon = SORT_ROWS[s.key] ?? SORT_ICON[s.key]}
-                <li><button type="button" class="ich-row" data-sort-to={s.key} onclick={() => (by = s.key)}><span class="ich-ib"><Icon size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t(s.label)}</b><small>{t(s.note, { n: FEATURES.length })}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
+                <li><button type="button" class="ich-row" data-sort-to={s.key} onclick={() => (by = s.key)}><span class="ich-ib"><Icon size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t(s.label)}</b><small>{t(s.note, { n: FEATURES.length })}</small></span><ChevronRight class="ich-chev" size={20} aria-hidden="true" /></button></li>
               {/each}
             </ul>
           </section>
@@ -407,7 +407,7 @@
     <ul class="card ich-list">
       {#each since.slice(0, 5) as r (r.id)}
         {@const Icon = GROUP_ICON[GROUP[r.group].icon]}
-        <li><button type="button" class="ich-row" data-feature={r.id} onclick={() => goFeature(r, { bikeId })}><span class="ich-ib"><Icon size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t(r.title)}</b><small class="num">{shortVersion(r.since)}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
+        <li><button type="button" class="ich-row" data-feature={r.id} onclick={() => goFeature(r, { bikeId })}><span class="ich-ib"><Icon size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t(r.title)}</b><small class="num">{shortVersion(r.since)}</small></span><ChevronRight class="ich-chev" size={20} aria-hidden="true" /></button></li>
       {/each}
     </ul>
   {/if}
