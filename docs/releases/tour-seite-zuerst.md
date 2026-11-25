@@ -1,6 +1,6 @@
 # Tour-Seite: Packliste zuerst
 
-PR #1775 · 24.11.2026 · Auftrag: Noah 24.11.2026 07:37 UTC «1-5a» (impeccable ganze App, Welle 1, Paket 2; Bericht `touren.md`, Fund 1)
+PR #1776 · 24.11.2026 · Auftrag: Noah 24.11.2026 07:37 UTC «1-5a» (impeccable ganze App, Welle 1, Paket 2; Bericht `touren.md`, Fund 1)
 
 ## Was ist neu
 - Auf `#/pack` steht die Packliste gleich nach dem Kopf: auf dem Handy bei etwa 1190 px statt bei 2850 px (Gesamttest-Daten, 390 px breit). Am Computer stand sie schon links vorn.
