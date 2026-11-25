@@ -8,6 +8,12 @@ import { openHome as openHomeBase, homeFixture, day } from './home0460-fixture.j
 import { openRoundIfDue, toQuestion, saveRound, toLastStep, notAsked } from './runde-fixture.js';
 import { QUESTIONS, ON_AT_START } from '../../src/lib/abfragen.js';
 
+// «Die App fragt dich» is a closed line on the page since 24.11.2026 (Noah «1-5a»): the page opens with it open
+const goAbfragen = async (page) => {
+  await page.goto('./#/me/abfragen');
+  await page.locator('[data-datenfragen]').evaluate((d) => (d.open = true));
+};
+
 const SHOTS = '/tmp/claude-0/sn-shots/fad';
 // the window opens only when asked (Noah 24.11.2026): open it after the home is ready, when something is due
 async function openHome(page, context, info, opts) {
@@ -110,7 +116,7 @@ test.describe('Fragen aus deinen Daten', () => {
 
   test('the switch under Deine Abfragen turns the rule off and on', async ({ page, context }, info) => {
     const T = await openHome(page, context, info, { data: data(61) });
-    await page.goto('./#/me/abfragen');
+    await goAbfragen(page);
     const rule = page.locator('[data-rule="ruhepuls"]');
     await expect(rule).toBeVisible();
     await expect(rule.locator('b').filter({ hasText: T('Resting pulse above your usual') })).toBeVisible();
@@ -122,7 +128,7 @@ test.describe('Fragen aus deinen Daten', () => {
     await openRoundIfDue(page);
     await toQuestion(page.locator('[data-section="abfragen"]'), 'erholung.akku');
     await notAsked(page.locator('[data-section="abfragen"]'), '[data-q="daten.ruhepuls"]');
-    await page.goto('./#/me/abfragen');
+    await goAbfragen(page);
     await expect(page.locator('[data-rule="ruhepuls"]').getByRole('switch')).not.toBeChecked();
   });
 
@@ -158,7 +164,7 @@ test.describe('Fragen aus deinen Daten', () => {
     const card = page.locator('[data-section="abfragen"]');
     await toQuestion(card, 'erholung.akku');
     await notAsked(page.locator('[data-section="abfragen"]'), '[data-q^="daten."]');
-    await page.goto('./#/me/abfragen');
+    await goAbfragen(page);
     for (const id of ['ruhepuls', 'schlaf', 'stimmung', 'training', 'pause', 'spiel', 'platz']) await expect(page.locator(`[data-rule="${id}"]`).getByRole('switch')).toBeChecked();
   });
 
@@ -298,7 +304,7 @@ test.describe('Fragen aus deinen Daten', () => {
 
   test('no calendar or no weather yet: the box says why the weather rules are quiet', async ({ page, context }, info) => {
     await openHome(page, context, info, { data: data(52) });
-    await page.goto('./#/me/abfragen');
+    await goAbfragen(page);
     await expect(page.locator('[data-data-empty-calendar]')).toBeVisible();
     await expect(page.locator('[data-rule="grau"]')).toBeVisible();
     await expect(page.locator('[data-rule="draussen"]')).toBeVisible();
@@ -319,7 +325,7 @@ test.describe('Fragen aus deinen Daten', () => {
     await card.screenshot({ path: `${SHOTS}/fad8-zufall-${info.project.name === 'phone' ? 390 : 1440}.png` });
     await q.locator('[data-never]').click();
     await expect(card.locator(`[data-q="${id}"]`)).toHaveCount(0);
-    await page.goto('./#/me/abfragen');
+    await goAbfragen(page);
     const row = page.locator('[data-rule="zufall"]');
     await expect(row.locator('[data-random-never]')).toContainText('1');
     await page.screenshot({ path: `${SHOTS}/fad8-regeln-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
@@ -331,7 +337,7 @@ test.describe('Fragen aus deinen Daten', () => {
     await openHome(page, context, info, { data: data(52, { cfg: { zufall: { off: true } } }) });
     await toQuestion(page.locator('[data-section="abfragen"]'), 'erholung.akku');
     await expect(page.locator('[data-random]')).toHaveCount(0);
-    await page.goto('./#/me/abfragen');
+    await goAbfragen(page);
     await expect(page.locator('[data-random-switch]')).not.toBeChecked();
   });
 
@@ -355,21 +361,21 @@ test.describe('Fragen aus deinen Daten', () => {
     await openHome(page, context, info, { data: data(52, { guess: true, sleepMin: 250 }) });
     await toQuestion(page.locator('[data-section="abfragen"]'), 'erholung.akku');
     await notAsked(page.locator('[data-section="abfragen"]'), '[data-q="daten.vermutung"]');
-    await page.goto('./#/me/abfragen');
+    await goAbfragen(page);
     await expect(page.locator('[data-rule="vermutung"]').getByRole('switch')).toBeChecked();
     await page.screenshot({ path: `${SHOTS}/fad9-regeln-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
   });
 
   test('no tennis noted: the box says why the tennis rules are quiet', async ({ page, context }, info) => {
     await openHome(page, context, info, { data: data(52) });
-    await page.goto('./#/me/abfragen');
+    await goAbfragen(page);
     await expect(page.locator('[data-data-empty-tennis]')).toBeVisible();
     await page.locator('[data-datenfragen]').screenshot({ path: `${SHOTS}/fad5-regeln-${info.project.name === 'phone' ? 390 : 1440}.png` });
   });
 
   test('no activities yet: the box says why the training rules are quiet', async ({ page, context }, info) => {
     await openHome(page, context, info, { data: data(52) });
-    await page.goto('./#/me/abfragen');
+    await goAbfragen(page);
     await expect(page.locator('[data-data-empty-training]')).toBeVisible();
     await page.locator('[data-datenfragen]').screenshot({ path: `${SHOTS}/fad4-regeln-${info.project.name === 'phone' ? 390 : 1440}.png` });
   });
@@ -383,7 +389,7 @@ test.describe('Fragen aus deinen Daten', () => {
     await card.screenshot({ path: `${SHOTS}/fad6-seltener-${info.project.name === 'phone' ? 390 : 1440}.png` });
     await q.locator('[data-fewer-yes]').click();
     await expect(q.locator('[data-fewer]')).toHaveCount(0);
-    await page.goto('./#/me/abfragen');
+    await goAbfragen(page);
     await expect(page.locator('[data-rule-gap="ruhepuls"]')).toContainText('alle 7 Tage');
     await page.locator('[data-rule="ruhepuls"] [data-rule-reset]').click();
     await expect(page.locator('[data-rule-gap="ruhepuls"]')).toHaveCount(0);
@@ -393,7 +399,7 @@ test.describe('Fragen aus deinen Daten', () => {
   // leaving Heute with the window open counts as «Heute nicht» (quiet until the evening), so each way is its own test
   test('a higher threshold keeps the rule quiet', async ({ page, context }) => {
     await openHome(page, context, test.info(), { data: data(61) });
-    await page.goto('./#/me/abfragen');
+    await goAbfragen(page);
     const rule = page.locator('[data-rule="ruhepuls"]');
     await expect(rule.locator('[data-rule-reset]')).toHaveCount(0);
     // 61 against 52 is 9 above: a threshold of 12 keeps the rule quiet
@@ -411,7 +417,7 @@ test.describe('Fragen aus deinen Daten', () => {
 
   test('own wording and threshold: it asks in your words, links to the rule, goes back to standard', async ({ page, context }, info) => {
     await openHome(page, context, info, { data: data(61) });
-    await page.goto('./#/me/abfragen');
+    await goAbfragen(page);
     const rule = page.locator('[data-rule="ruhepuls"]');
     await rule.locator('[data-rule-val]').fill('6');
     await rule.locator('[data-rule-val]').blur();
@@ -435,7 +441,7 @@ test.describe('Fragen aus deinen Daten', () => {
   // Noah 05.11.2026 «nutzer kann diese und andere regeln im front end eingeben, ändern, löschen, neue erstellen»
   test('a rule of your own: make it, it asks with the reason, change it, delete it with Undo', async ({ page, context }, info) => {
     const T = await openHome(page, context, info, { data: data(52) });
-    await page.goto('./#/me/abfragen');
+    await goAbfragen(page);
     const px = info.project.name === 'phone' ? 390 : 1440;
     await page.locator('[data-rule-add]').click();
     const sheet = page.locator('[data-rule-sheet]');
@@ -470,7 +476,7 @@ test.describe('Fragen aus deinen Daten', () => {
     await saveRound(card);
     await expect(card.locator('[data-q^="own-"]')).toHaveCount(0);
     // change it: a second condition and another name
-    await page.goto('./#/me/abfragen');
+    await goAbfragen(page);
     await page.locator('[data-rule^="own-"] [data-rule-change]').click();
     await expect(sheet.locator('[data-cond]')).toHaveCount(1);
     await sheet.locator('[data-cond-add]').click();
@@ -497,7 +503,7 @@ test.describe('Fragen aus deinen Daten', () => {
 
   test('a rule of your own needs a question and a condition that fits the data; no data, no question', async ({ page, context }, info) => {
     await openHome(page, context, info, { data: data(52) });
-    await page.goto('./#/me/abfragen');
+    await goAbfragen(page);
     await page.locator('[data-rule-add]').click();
     const sheet = page.locator('[data-rule-sheet]');
     await expect(sheet.locator('[data-rule-save]')).toBeDisabled();
@@ -515,7 +521,7 @@ test.describe('Fragen aus deinen Daten', () => {
 
   test('rules of the app: rename, sort, delete with Undo, bring back', async ({ page, context }, info) => {
     const T = await openHome(page, context, info, { data: data(61) });
-    await page.goto('./#/me/abfragen');
+    await goAbfragen(page);
     const px = info.project.name === 'phone' ? 390 : 1440;
     await page.locator('[data-rule-edit]').click();
     await expect(page.locator('[data-rule-row]').first()).toHaveAttribute('data-rule-row', 'ruhepuls');
@@ -530,6 +536,7 @@ test.describe('Fragen aus deinen Daten', () => {
     await page.locator('[data-rule-row="schlaf"] .sort-ar').first().click();
     await expect(page.locator('[data-rule-row]').first()).toHaveAttribute('data-rule-row', 'schlaf');
     await page.reload();
+    await page.locator('[data-datenfragen]').evaluate((d) => (d.open = true)); // closed again after a reload
     await page.locator('[data-rule-edit]').click();
     await expect(page.locator('[data-rule-row]').first()).toHaveAttribute('data-rule-row', 'schlaf');
     // the new name and place count on the normal view
@@ -552,7 +559,7 @@ test.describe('Fragen aus deinen Daten', () => {
     await page.goto('./#/');
     const gone = await openRoundIfDue(page);
     if (gone) await notAsked(gone, '[data-q="daten.ruhepuls"]');
-    await page.goto('./#/me/abfragen');
+    await goAbfragen(page);
     await page.locator('[data-rules-gone] summary').click();
     await page.locator('[data-rule-restore="ruhepuls"]').click();
     await expect(page.locator('[data-rule="ruhepuls"]')).toBeVisible();
@@ -566,7 +573,7 @@ test.describe('Fragen aus deinen Daten', () => {
     const d = data(61);
     d.tables.healthDays = [];
     await openHome(page, context, info, { data: d });
-    await page.goto('./#/me/abfragen');
+    await goAbfragen(page);
     await expect(page.locator('[data-data-empty]')).toBeVisible();
     await expect(page.locator('[data-data-next]')).toHaveAttribute('href', '#/me/insights');
   });

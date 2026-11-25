@@ -268,7 +268,7 @@
             <button type="button" class="skip" onclick={() => skip(d)} aria-label={t('Skip «{q}»', { q: askText(d.q, today, data?.cfg) })} data-ab-skip>{t('Skip|question')}</button>
           </span>
         </div>
-        {#if d.why}<small class="last why" data-why><b>{t('Why am I asking this?')}</b> {t(d.why.text, d.why.vars)}{#each d.why.facts ?? [] as f}{' '}{t(f.text, f.vars)}{/each} <a class="ab-lnk" href="#/me/abfragen" data-why-adjust>{d.random ? t('Change this') : t('Change this rule')}</a></small>{/if}
+        {#if d.why}<small class="last why" data-why><b>{t('Why am I asking this?')}</b> {t(d.why.text, d.why.vars)}{#each d.why.facts ?? [] as f}{' '}{t(f.text, f.vars)}{/each} <a class="ab-lnk" href="#/me/abfragen?rules=1" data-why-adjust>{d.random ? t('Change this') : t('Change this rule')}</a></small>{/if}
         {#if d.fewer}
           <div class="fewer" data-fewer>
             <small>{t('You skipped this question three times. Ask less often?')}</small>

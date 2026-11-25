@@ -16,6 +16,7 @@ test.describe('Schreibweise', () => {
   test('a rule text: the hint comes after saving, your text stays until Use it', async ({ page, context }, info) => {
     await openHome(page, context, info, { data: data() });
     await page.goto('./#/me/abfragen');
+    await page.locator('[data-datenfragen]').evaluate((d) => (d.open = true)); // the rules sit in a closed line
     const field = page.locator('[data-rule-text="schlaf"]');
     await expect(field).toBeVisible();
     // nothing to suggest on opening the page
@@ -40,6 +41,7 @@ test.describe('Schreibweise', () => {
   test('Keep mine hides the line and keeps the text; a text that is fine gets no line', async ({ page, context }, info) => {
     await openHome(page, context, info, { data: data() });
     await page.goto('./#/me/abfragen');
+    await page.locator('[data-datenfragen]').evaluate((d) => (d.open = true)); // the rules sit in a closed line
     const field = page.locator('[data-rule-text="schlaf"]');
     await field.fill('was hat dich wachgehalten?');
     await field.blur();
