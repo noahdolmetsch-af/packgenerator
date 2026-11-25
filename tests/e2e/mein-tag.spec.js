@@ -329,3 +329,28 @@ test('Mein Tag: empty hours take half the room and a dot stands only under a day
   await expect(page.locator(`[data-day="${addDays(TODAY, 2)}"] .dot`)).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('Mein Tag: a free dry window for the daily goal of the challenge, planned on one tap, with Undo', async ({ page, context }) => {
+  const errors = await open(page, context, '#/day');
+  await page.waitForSelector('h1');
+  const base = Date.parse(`${TODAY}T00:00:00+02:00`);
+  const hours = Array.from({ length: 24 }, (_, h) => ({ ms: base + h * 36e5, temp: 12, feels: 12, rainP: 5, rainMm: 0, code: 3, wind: 8, gust: 14, cape: 0 }));
+  const core = { key: 'wx-core:46.95,7.45', at: Date.parse(D0), place: { lat: 46.95, lon: 7.45, name: 'Testort' }, offset: 7200, hours, days: [{ date: TODAY, rise: base + 7.5 * 36e5, set: base + 18.5 * 36e5, uv: 2 }] };
+  const rec = { name: 'Outdoors', goalMin: 90, from: addDays(TODAY, -3), until: addDays(TODAY, 22), hand: { [TODAY]: [30] }, stopped: false, closed: false, no: null };
+  await put(page, { meta: [core], settings: [{ key: 'week.items', value: ITEMS }, { key: 'homePlace', value: { lat: 46.95, lon: 7.45, name: 'Testort' } }, { key: 'outdoor', value: rec }] });
+  await page.reload();
+  // 30 of 90 minutes are done, 60 are missing; «now» is 09:00 plus the seconds the page took, so the window starts at 09:30 or 09:45
+  const ghost = page.locator('[data-draussen]');
+  await expect(ghost).toContainText(T('Outdoors'));
+  await expect(ghost).toContainText(/09:(30|45)–10:(30|45)/);
+  const range = (await ghost.innerText()).match(/\d\d:\d\d–\d\d:\d\d/)[0];
+  await ghost.locator('[data-draussen-plan]').click();
+  await expect(ghost).toHaveCount(0);
+  const planned = page.locator('.tl .blk', { hasText: T('Outdoors') });
+  await expect(planned).toContainText(range);
+  // Undo takes it back and the suggestion returns
+  await page.getByRole('button', { name: T('Undo') }).click();
+  await expect(planned).toHaveCount(0);
+  await expect(page.locator('[data-draussen]')).toBeVisible();
+  expect(errors).toEqual([]);
+});

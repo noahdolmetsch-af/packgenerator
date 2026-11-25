@@ -90,4 +90,9 @@ export default {
   '{n} suggestion looks like your plan|similar': '{n} Vorschlag der App sieht aus wie dein Plan',
   '{n} suggestions look like your plan|similar': '{n} Vorschläge der App sehen aus wie dein Plan',
   'like «{name}»': 'wie «{name}»',
+  'Dry, {temp} °C': 'Trocken, {temp} °C',
+  'Plan it': 'Einplanen',
+  '«{name}» set for {time}.': '«{name}» auf {time} gelegt.',
+  'No free dry window of {n} min on this day.': 'An diesem Tag ist kein freies, trockenes Fenster von {n} Min.',
+  'Longest free and dry stretch: {from}–{to}.': 'Längstes freies, trockenes Stück: {from}–{to}.',
 };

@@ -28,6 +28,10 @@
   import { t, tn } from '../lib/i18n.svelte.js';
   import { layoutDay, hourRows, isOver, fmtMin, nowMin, weekOf } from '../lib/tag/timeline.js';
   import { foldSimilar } from '../lib/tag/similar.js';
+  import { HOME_PLACE } from '../lib/know.js';
+  import { loadCore, atLocal } from '../lib/wetter/kern.js';
+  import { OUTDOOR_KEY, outdoorOf, dayOf as outdoorDay } from '../lib/outdoor.js';
+  import { outdoorWindow, needOf, planRef } from '../lib/tag/draussen.js';
 
   let { sub = '' } = $props();
   const today = localDay();
@@ -81,8 +85,48 @@
   const busyOf = (x) => week?.days.find((w) => w.day === x)?.entries.filter((e) => e.kind !== 'away' && !(e.id.startsWith('tr:') && !e.done)).length ?? 0;
 
   const now = $derived(nowMin(day, today));
+
+  // «When do I get my 90 minutes?» (Noah 25.11.2026 «1-3»): the free, dry window for the daily goal of the challenge «Outdoors», as a dashed block in the timeline
+  const homeQ = liveQuery(() => db.settings.get(HOME_PLACE));
+  const recQ = liveQuery(() => db.settings.get(OUTDOOR_KEY));
+  const place = $derived($homeQ?.value && Number.isFinite(Number($homeQ.value.lat)) ? $homeQ.value : null);
+  let core = $state(null);
+  $effect(() => {
+    const pl = place;
+    if (!pl) {
+      core = null;
+      return;
+    }
+    loadCore(db, pl)
+      .then((c) => (core = c))
+      .catch(() => (core = null));
+  });
+  const rec = $derived(outdoorOf($recQ?.value));
+  const outName = $derived(!rec?.name || rec.name === 'Outdoors' ? t('Outdoors') : rec.name);
+  const outdoor = $derived.by(() => {
+    if (!core || !rec?.from || rec.stopped || rec.closed || day < today || day < rec.from || day > rec.until) return null;
+    if (items().some((x) => x.ref === planRef(day) && !x.done)) return null;
+    const need = needOf(rec.goalMin, outdoorDay(rec, src?.acts ?? [], today).total, day, today);
+    if (need < 15) return null;
+    const base = atLocal(day, 0, core.offset ?? 0);
+    const busy = lay.blocks.map((b) => [base + b.start * 6e4, base + b.end * 6e4]);
+    const events = src?.google?.prefs?.calendar === true ? (src.google.events ?? []) : [];
+    const w = outdoorWindow(core, { events, busy, need, day, now: Date.now() });
+    if (!w) return null;
+    const mins = (ms) => Math.round((ms - base) / 6e4);
+    return w.start != null ? { need, win: { s: mins(w.start), e: mins(w.end), mins: w.mins, temp: w.temp } } : { need, short: w.short ? { s: mins(w.short.start), e: mins(w.short.end) } : null };
+  });
+  async function planOutdoor() {
+    const w = outdoor?.win;
+    if (!w) return;
+    const before = items();
+    const item = cleanItem({ kind: 'date', title: outName, day, time: fmtMin(w.s), mins: w.mins, ref: planRef(day) });
+    await saveItems([...before, item]);
+    offerDone(t('«{name}» set for {time}.', { name: outName, time: fmtMin(w.s) }), () => saveItems(before));
+  }
+
   // empty hours are half as tall (Noah 24.11.2026); the rows come from the saved entries, so the layout holds still while dragging
-  const grid = $derived(hourRows(lay.blocks, { from: lay.from, to: lay.to, now }));
+  const grid = $derived(hourRows([...lay.blocks, ...(outdoor?.win ? [{ start: outdoor.win.s, end: outdoor.win.e }] : [])], { from: lay.from, to: lay.to, now }));
   const top = (m) => grid.pos(m);
   const hourLabels = $derived([...grid.rows.map((r) => r.from), lay.to]);
 
@@ -276,6 +320,10 @@
     </details>
   {/if}
 
+  {#if outdoor && !outdoor.win}
+    <p class="outnote" data-draussen-none>{t('No free dry window of {n} min on this day.', { n: outdoor.need })}{#if outdoor.short}{' '}{t('Longest free and dry stretch: {from}–{to}.', { from: fmtMin(outdoor.short.s), to: fmtMin(outdoor.short.e) })}{/if}</p>
+  {/if}
+
   {#snippet timeline()}
   <section class="tl" aria-label={t('Timeline')} style="height: {grid.height}px">
     {#each hourLabels as h, i (h)}
@@ -304,6 +352,13 @@
         {/if}
       </a>
     {/each}
+    {#if outdoor?.win}
+      {@const g = outdoor.win}
+      <div class="ghost" data-draussen style="top: {top(g.s)}px; height: {Math.max(44, top(g.e) - top(g.s) - 2)}px">
+        <span class="gt"><b>{outName}</b><small class="num">{fmtMin(g.s)}–{fmtMin(g.e)} · {g.temp != null ? t('Dry, {temp} °C', { temp: g.temp }) : t('Dry|weather')}</small></span>
+        <button type="button" class="plan" data-draussen-plan onclick={planOutdoor}>{t('Plan it')}</button>
+      </div>
+    {/if}
   </section>
   {/snippet}
 
@@ -607,6 +662,56 @@
   /* what is over today is quieter than what is still to come (Noah 24.11.2026) */
   .blk.past {
     opacity: 0.55;
+  }
+  .ghost {
+    position: absolute;
+    left: 52px;
+    right: 4px;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    box-sizing: border-box;
+    padding: 4px 6px 4px 10px;
+    border: 1.5px dashed var(--wk-sport);
+    border-radius: var(--r-2);
+    background: color-mix(in srgb, var(--wk-sport) 7%, var(--paper));
+  }
+  .ghost .gt {
+    display: grid;
+    min-width: 0;
+  }
+  .ghost b,
+  .ghost small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .ghost b {
+    font-size: var(--fs-small);
+  }
+  .ghost small {
+    font-size: var(--fs-tiny);
+    color: var(--ink-2);
+  }
+  .ghost .plan {
+    flex: none;
+    min-height: 36px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: var(--r-pill);
+    background: var(--hi);
+    color: var(--hi-ink);
+    font: inherit;
+    font-size: var(--fs-small);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .outnote {
+    margin: 0 0 8px;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
   }
   .hr .num {
     position: absolute;
