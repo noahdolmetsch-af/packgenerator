@@ -62,7 +62,7 @@
 {#snippet body()}
   <ul class="card ich-list mt">
     <li class="ich-row ich-wrap" data-maint="rate">
-      <span class="ich-ib"><Activity size={18} aria-hidden="true" /></span>
+      <span class="ich-ib"><Activity size={20} aria-hidden="true" /></span>
       <span class="ich-m">
         <b>{t('Strava requests')}</b>
         <small>{d?.rate?.at ? t('as of {when}', { when: timeOf(d.rate.at) }) : t('No numbers yet: they come with the next Strava fetch.')}</small>
@@ -80,7 +80,7 @@
       {/if}
     </li>
     <li class="ich-row ich-wrap" data-maint="links">
-      <span class="ich-ib"><Link2 size={18} aria-hidden="true" /></span>
+      <span class="ich-ib"><Link2 size={20} aria-hidden="true" /></span>
       <span class="ich-m">
         <b>{t('Links')}</b>
         <small>{#if links?.checked}{t('{ok} of {all} answer', { ok: links.ok, all: links.all })}{#if links.broken.length}{' · '}{t('not answering: {names}', { names: links.broken.map((n) => t(n)).join(', ') })}{/if}{:else}{t('not checked')}{/if}</small>
@@ -88,13 +88,13 @@
       {#if links?.broken.length}<span class="pill warn">{t('to do')}</span>{/if}
     </li>
     <li class="ich-row ich-wrap" data-maint="strava">
-      <span class="ich-ib"><Bike size={18} aria-hidden="true" /></span>
+      <span class="ich-ib"><Bike size={20} aria-hidden="true" /></span>
       <span class="ich-m"><b>{t('Strava connection')}</b><small>{checked?.strava ? t(STRAVA_LINE[checked.strava]) : t('not checked')}</small></span>
       {#if checked?.strava === 'attention'}<a class="btn sm" href="#/bikes?tab=care&view=strava">{t('Open')}</a>{/if}
     </li>
     <li class="keys" data-maint="keys">
       <div class="ich-row ich-wrap">
-        <span class="ich-ib"><KeyRound size={18} aria-hidden="true" /></span>
+        <span class="ich-ib"><KeyRound size={20} aria-hidden="true" /></span>
         <span class="ich-m"><b>{t('Keys with an end date')}</b><small>{keys.length ? tn(keys.filter((k) => k.due).length, '{n} runs out within 30 days', '{n} run out within 30 days') : t('none')}</small></span>
         <button type="button" class="btn btn-link sm" aria-expanded={editing} onclick={() => (editing = !editing)}>{editing ? t('Done|keys') : t('Change|keys')}</button>
       </div>
@@ -104,7 +104,7 @@
             {#if editing}
               <input class="inp" type="text" value={t(k.name)} aria-label={t('Name of the key')} maxlength="60" onchange={(e) => editKey(k.id, { name: e.currentTarget.value })} />
               <input class="inp" type="date" value={k.until} aria-label={t('Runs out on')} onchange={(e) => editKey(k.id, { until: e.currentTarget.value })} />
-              <button type="button" class="kx" aria-label={t('Remove {name}', { name: t(k.name) })} onclick={() => removeKey(k.id)}><X size={18} aria-hidden="true" /></button>
+              <button type="button" class="kx" aria-label={t('Remove {name}', { name: t(k.name) })} onclick={() => removeKey(k.id)}><X size={20} aria-hidden="true" /></button>
             {:else}
               <span class="kn">{t(k.name)}</span>
               <span class="kd">{t('until {date}', { date: dateOf(k.until) })} · {k.days < 0 ? t('ran out') : tn(k.days, 'in {n} day', 'in {n} days')}</span>

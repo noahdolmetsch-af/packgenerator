@@ -205,7 +205,7 @@
     </section>
 
     <section class="wcard" aria-labelledby="w-parts" data-wear-parts>
-      <h2 id="w-parts"><Gauge size={18} aria-hidden="true" />{t('Parts')}</h2>
+      <h2 id="w-parts"><Gauge size={20} aria-hidden="true" />{t('Parts')}</h2>
       {#if !rows.length}
         <p class="quiet">{t('No wear parts on this bike yet. Add parts in Bike care.')}</p>
       {/if}

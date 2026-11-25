@@ -17,6 +17,7 @@
 import { FUEL_KEY, LIMITS, tripOwnOf, valuesOf } from '../../fuel.js';
 import { RECIPES_KEY, recipesOf } from '../../rezept.js';
 import { localDay } from '../../localday.js';
+import { readLite } from '../../actlite.js';
 
 /** A ride counts as a test from this length (hours of moving time; Noah «2a»: 3 h). */
 export const TEST_HOURS = 3;
@@ -68,7 +69,7 @@ export default {
     const [fuel, trips, activities, rides, recipes] = await Promise.all([
       db.settings.get(FUEL_KEY),
       db.trips.toArray(),
-      db.activities.toArray(),
+      readLite(db, (T) => T.toArray()),
       db.rides.toArray(),
       db.settings.get(RECIPES_KEY),
     ]);

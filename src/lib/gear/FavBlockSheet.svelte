@@ -72,7 +72,7 @@
         <li>
           <label class="row" class:off={!picked.has(i.id)}>
             <input type="checkbox" class="sr" checked={picked.has(i.id)} onchange={() => flip(i.id)} />
-            <span class="ck" aria-hidden="true">{#if picked.has(i.id)}<Check size={16} strokeWidth={3} />{/if}</span>
+            <span class="ck" aria-hidden="true">{#if picked.has(i.id)}<Check size={16} strokeWidth={2.5} />{/if}</span>
             <span class="sib" aria-hidden="true"><Icon size={18} /></span>
             <span class="nm"><b>{nameOf(i)}</b><small>{CATEGORY[i.category] ? t(CATEGORY[i.category].name) : ''}</small></span>
             <span class="w num">{i.weightG == null ? t('not weighed') : formatWeight(itemWeight(i))}</span>
@@ -82,10 +82,10 @@
     </ul>
     <p class="sum num"><span>{tn(chosen.length, '{n} item', '{n} items')}</span><b>{formatWeight(grams)}</b></p>
     {#if error}<p class="err" role="alert">{error}</p>{/if}
-    <p class="hint"><Info size={15} aria-hidden="true" /><span>{t('Afterwards under Gear › Building blocks, one tap when you make a {kind} trip. Your stars stay as they are.', { kind })}</span></p>
+    <p class="hint"><Info size={16} aria-hidden="true" /><span>{t('Afterwards under Gear › Building blocks, one tap when you make a {kind} trip. Your stars stay as they are.', { kind })}</span></p>
     <div class="foot daumen-foot">
       <button type="button" class="btn btn-link" onclick={() => dialog.close()}>{t('Cancel')}</button>
-      <button type="submit" class="btn hi" disabled={!chosen.length}><Check size={17} aria-hidden="true" />{t('Save')}</button>
+      <button type="submit" class="btn hi" disabled={!chosen.length}><Check size={16} aria-hidden="true" />{t('Save')}</button>
     </div>
   </form>
 </dialog>

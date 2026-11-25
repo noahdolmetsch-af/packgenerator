@@ -12,6 +12,7 @@ import { buildList, pushOf, anyOn, PUSH_KEY } from './schedule.js';
 import { BUDGET_KEY, CALM_KEY, applyBudget, applyCalm } from '../ruhig/weniger.js';
 import { INSPECT_RAIN } from '../inspect/inspect.js';
 import { PREFS_KEY as GRIFF_PREFS } from '../griff.js';
+import { readLite } from '../actlite.js';
 
 export const PUSH_URL = 'https://packgen-three.vercel.app/api/push';
 const TOKEN_KEY = 'push.token';
@@ -67,7 +68,7 @@ export async function readData() {
   const [rain, griff, events] = await Promise.all([db.meta.get(INSPECT_RAIN), db.settings.get(GRIFF_PREFS), Promise.resolve().then(() => db.gEvents.where('day').aboveOrEqual(from).limit(400).toArray()).catch(() => [])]);
   const [push, ownValues, merken, homePlace, air, lends, eatRemind, outdoor, challengeask, tagesziele, rennatlas, budget, calm] = settings.map((r) => r?.value ?? null);
   // «Draussen» PR 2: today's activities (the daily reminder is left out once the day is reached)
-  const todayActs = outdoor ? await db.activities.where('day').equals(from).toArray().catch(() => []) : [];
+  const todayActs = outdoor ? await readLite(db, (T) => T.where('day').equals(from).toArray()).catch(() => []) : [];
   // Paket H: supplies (items with a best-before date) and lent things (settings 'lends')
   return { trips, repairs, bikes, notes, events: events ?? [], visits, kmBook, rain: rain ?? null, griff: griff?.value ?? null, items: items.filter((i) => i.expires), lends: Array.isArray(lends) ? lends : [], todayActs, settings: { push, ownValues, merken, homePlace, air, eatRemind, outdoor, challengeask, tagesziele, rennatlas, budget, calm }, lastBackup: meta?.at ?? null, now: new Date() };
 }

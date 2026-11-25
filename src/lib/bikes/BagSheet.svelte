@@ -32,14 +32,14 @@
       <h2 id="bagsheet-h">{place}</h2>
       <p class="vd-sub meta">{[bikeName, where, t('choose one bag')].filter(Boolean).join(' · ')}</p>
     </div>
-    <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={18} aria-hidden="true" /></button>
+    <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
   </div>
   <ul class="vd-panel opts" aria-label={t('Bags for this place')}>
     {#each options as o (o.id)}
       <li>
         <button type="button" class="opt" aria-pressed={current === o.id} onclick={() => pick(o.id)}>
           <span class="dot" aria-hidden="true"></span>
-          <span class="nm"><b>{o.name}</b><small class="num">{[o.sub, o.others ? t('also on {bikes}', { bikes: o.others }) : ''].filter(Boolean).join(' · ')}{#if o.unweighed}<span class="nw" title={t('not weighed')}><Scale size={13} aria-hidden="true" /><span class="sr">{t('not weighed')}</span></span>{/if}</small></span>
+          <span class="nm"><b>{o.name}</b><small class="num">{[o.sub, o.others ? t('also on {bikes}', { bikes: o.others }) : ''].filter(Boolean).join(' · ')}{#if o.unweighed}<span class="nw" title={t('not weighed')}><Scale size={14} aria-hidden="true" /><span class="sr">{t('not weighed')}</span></span>{/if}</small></span>
         </button>
       </li>
     {:else}
@@ -52,7 +52,7 @@
       </button>
     </li>
   </ul>
-  <button type="button" class="addrow" onclick={() => (dialog.close(), onadd?.())}><span class="ib"><Plus size={18} aria-hidden="true" /></span>{t('Add bag')}</button>
+  <button type="button" class="addrow" onclick={() => (dialog.close(), onadd?.())}><span class="ib"><Plus size={20} aria-hidden="true" /></span>{t('Add bag')}</button>
   <div class="vd-foot">
     <button type="button" class="btn hi" onclick={() => dialog.close()}>{t('Done')}</button>
   </div>
@@ -157,6 +157,7 @@
       margin: auto 0 0;
       border-radius: 20px 20px 0 0;
       max-height: 85vh;
+    max-height: 85dvh;
       padding-bottom: calc(16px + env(safe-area-inset-bottom));
     }
   }

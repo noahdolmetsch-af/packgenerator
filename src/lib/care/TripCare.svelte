@@ -40,15 +40,15 @@
   {#if soon != null}
     <!-- Impeccable (18.10.2026, Velopflege 1): a trip in the next 7 days stands on top of the page. -->
     <summary>
-      <Flag size={18} aria-hidden="true" />
+      <Flag size={20} aria-hidden="true" />
       <h2 id="trip-{trip.id}" class="title">{t('Before {trip}', { trip: trip.title })} · {whenSoon(soon)} <small class="soon-s">{#if !care}{bikeName ?? t('no bike')}{:else if count}{tn(count, '{bike} · {n} point to check before the ride', '{bike} · {n} points to check before the ride', { bike: bikeName })}{:else}{t('Your bike is ready for {trip}', { trip: trip.title })} <Check size={14} class="ok" aria-hidden="true" />{/if}</small></h2>
-      <span class="r">{#if count}<span class="btn go">{t('Check before the ride')}</span>{/if}<ChevronRight size={18} aria-hidden="true" /></span>
+      <span class="r">{#if count}<span class="btn go">{t('Check before the ride')}</span>{/if}<ChevronRight size={20} aria-hidden="true" /></span>
     </summary>
   {:else}
   <summary>
-    <Flag size={18} aria-hidden="true" />
+    <Flag size={20} aria-hidden="true" />
     <h2 id="trip-{trip.id}" class="title">{t('Before {trip}', { trip: trip.title })} <small><span class="num">{dateOf(trip.startDate)}</span> · {bikeName ?? t('no bike')}</small></h2>
-    <span class="r">{#if count}<span class="badge">{t('{n} due', { n: count })}</span>{/if}<ChevronRight size={18} aria-hidden="true" /></span>
+    <span class="r">{#if count}<span class="badge">{t('{n} due', { n: count })}</span>{/if}<ChevronRight size={20} aria-hidden="true" /></span>
   </summary>
   {/if}
   {#if open}

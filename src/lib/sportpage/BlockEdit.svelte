@@ -60,7 +60,7 @@
 <section class="card" aria-labelledby="be-h" data-block-edit>
   <div class="hl">
     <h2 id="be-h">{t('Adjust blocks')}</h2>
-    <button type="button" class="ibtn" aria-label={t('Close')} onclick={onclose}><X size={18} aria-hidden="true" /></button>
+    <button type="button" class="ibtn" aria-label={t('Close')} onclick={onclose}><X size={20} aria-hidden="true" /></button>
   </div>
 
   <fieldset class="colors" data-colors>

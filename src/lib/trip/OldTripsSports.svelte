@@ -48,8 +48,8 @@
     </div>
   </div>
   <p class="sa-rule">
-    <span><Bike size={15} aria-hidden="true" />{t('1 day → by the bike')} ({nDay})</span>
-    <span><Tent size={15} aria-hidden="true" />{t('more days → Bikepacking')} ({rows.length - nDay})</span>
+    <span><Bike size={16} aria-hidden="true" />{t('1 day → by the bike')} ({nDay})</span>
+    <span><Tent size={16} aria-hidden="true" />{t('more days → Bikepacking')} ({rows.length - nDay})</span>
   </p>
   <ul class="sa-list">
     {#each rows as r (r.trip.id)}
@@ -62,9 +62,9 @@
       </li>
     {/each}
   </ul>
-  <p class="sa-note"><Info size={15} aria-hidden="true" /><span>{t('Nothing changes without your tap. Trips without a bike stay as they are.')}</span></p>
+  <p class="sa-note"><Info size={16} aria-hidden="true" /><span>{t('Nothing changes without your tap. Trips without a bike stay as they are.')}</span></p>
   <div class="vd-foot">
     <button type="button" class="btn btn-link" onclick={later}>{t('Later')}</button>
-    <button type="button" class="btn hi" disabled={busy} onclick={takeAll}><Check size={17} aria-hidden="true" />{t('Take all')}</button>
+    <button type="button" class="btn hi" disabled={busy} onclick={takeAll}><Check size={16} aria-hidden="true" />{t('Take all')}</button>
   </div>
 </dialog>

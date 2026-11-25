@@ -400,9 +400,9 @@
               <b>{ownLabel(p, t)}</b>
               <small>{pointKindName(p.kind, t)}{#if k != null}{' '}· {t('km {km} of this route', { km: Math.round(k) })}{/if}{#if p.note}{' '}· {p.note}{/if}</small>
             </button>
-            <button type="button" class="rc-icon" aria-label={t('Show {name} on the map', { name: ownLabel(p, t) })} onclick={() => showOnMap(p)}><MapPin size={18} aria-hidden="true" /></button>
+            <button type="button" class="rc-icon" aria-label={t('Show {name} on the map', { name: ownLabel(p, t) })} onclick={() => showOnMap(p)}><MapPin size={20} aria-hidden="true" /></button>
             <SortArrows name={ownLabel(p, t)} {i} n={own.length} onstep={(dir) => move(i, i + dir)} />
-            <button type="button" class="rc-icon" aria-label={t('Change {name}', { name: ownLabel(p, t) })} onclick={() => (sheet = { point: p, fresh: false })} data-own-edit={p.id}><Pencil size={18} aria-hidden="true" /></button>
+            <button type="button" class="rc-icon" aria-label={t('Change {name}', { name: ownLabel(p, t) })} onclick={() => (sheet = { point: p, fresh: false })} data-own-edit={p.id}><Pencil size={20} aria-hidden="true" /></button>
           </li>
         {/each}
       </ul>

@@ -37,7 +37,7 @@
     <input class="inp" type="text" bind:value={name} oninput={() => (saved = false)} autocomplete="given-name" maxlength="40" aria-labelledby="look-name" />
     <button type="submit" class="btn">{t('Save')}</button>
   </form>
-  <p class="prev"><Sun size={15} aria-hidden="true" /><span>{t('On Today: «{text}»', { text: preview })}</span></p>
+  <p class="prev"><Sun size={16} aria-hidden="true" /><span>{t('On Today: «{text}»', { text: preview })}</span></p>
   {#if saved}<p class="ok" role="status">{t('Saved|name')}</p>{/if}
 </section>
 

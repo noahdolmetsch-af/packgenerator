@@ -213,7 +213,7 @@
 {#snippet suggest()}
   {#if sugg}
     <section class="sg" aria-labelledby="cq-sugg" data-sugg={sugg.id}>
-      <Lightbulb size={18} aria-hidden="true" />
+      <Lightbulb size={20} aria-hidden="true" />
       <div class="sgb">
         {#if suggOff}
           <p><b id="cq-sugg">{t('Suggestion for today')}</b> {t('Not today. Fine.')}</p>
@@ -231,17 +231,17 @@
   <section class="card" aria-labelledby="cq-today">
     <div class="ch2"><h2 id="cq-today">{t('Today at a glance')}</h2><p>{dateShort}</p></div>
     <ul class="rows">
-      {#if data.weather}<li><span class="ib"><Sun size={18} aria-hidden="true" /></span><span class="rt"><b>{wxWords(data.weather)}</b><small>{t('home weather, saved forecast')}</small></span></li>{/if}
+      {#if data.weather}<li><span class="ib"><Sun size={20} aria-hidden="true" /></span><span class="rt"><b>{wxWords(data.weather)}</b><small>{t('home weather, saved forecast')}</small></span></li>{/if}
       {#if medAct}
-        <li data-row="med"><span class="ib"><Flower2 size={18} aria-hidden="true" /></span><span class="rt"><b>{t('Meditation')}</b><small>{#if medToday}{t('today {min} min', { min: medToday.min })}{:else if medYesterday}{t('yesterday {min} min', { min: medYesterday.min })}{:else}{t('not yet today')}{/if}{#if medStreak > 1}{' '}· {tn(medStreak, '{n} day in a row', '{n} days in a row')}{/if}</small></span></li>
+        <li data-row="med"><span class="ib"><Flower2 size={20} aria-hidden="true" /></span><span class="rt"><b>{t('Meditation')}</b><small>{#if medToday}{t('today {min} min', { min: medToday.min })}{:else if medYesterday}{t('yesterday {min} min', { min: medYesterday.min })}{:else}{t('not yet today')}{/if}{#if medStreak > 1}{' '}· {tn(medStreak, '{n} day in a row', '{n} days in a row')}{/if}</small></span></li>
       {/if}
       {#if nextTrip}
-        <li><span class="ib"><Route size={18} aria-hidden="true" /></span><span class="rt"><b>{nextTrip.title || t('Next trip')}</b><small>{nextTrip.startDate <= today ? t('under way') : t('next trip · from {date}', { date: dayWords(nextTrip.startDate) })}</small></span></li>
+        <li><span class="ib"><Route size={20} aria-hidden="true" /></span><span class="rt"><b>{nextTrip.title || t('Next trip')}</b><small>{nextTrip.startDate <= today ? t('under way') : t('next trip · from {date}', { date: dayWords(nextTrip.startDate) })}</small></span></li>
       {/if}
       {#each appts as a (a.key)}
-        <li data-row="appt"><span class="ib"><CalendarClock size={18} aria-hidden="true" /></span><span class="rt"><b>{a.title}</b><small><span class="num">{a.time}</span> · {a.kind === 'fixed' ? t('fixed date') : t('Google Calendar')}</small></span></li>
+        <li data-row="appt"><span class="ib"><CalendarClock size={20} aria-hidden="true" /></span><span class="rt"><b>{a.title}</b><small><span class="num">{a.time}</span> · {a.kind === 'fixed' ? t('fixed date') : t('Google Calendar')}</small></span></li>
       {/each}
-      {#if !data.weather && !medAct && !nextTrip && !appts.length}<li><span class="ib"><Clock size={18} aria-hidden="true" /></span><span class="rt"><small>{t('Nothing known for today yet.')}</small></span></li>{/if}
+      {#if !data.weather && !medAct && !nextTrip && !appts.length}<li><span class="ib"><Clock size={20} aria-hidden="true" /></span><span class="rt"><small>{t('Nothing known for today yet.')}</small></span></li>{/if}
     </ul>
   </section>
 {/snippet}

@@ -156,7 +156,7 @@
       {#if OR[block.key]}<p class="extra">{OR[block.key] === 'pass' ? t('or a pass') : t('or snow')}</p>{/if}
       {#if NEED[block.key]}
         <!-- v0.154.0 (mockup SN3i): a fixed second condition, by hand where the app does not know it yet -->
-        <p class="extra need">{needLine(block.key)}{#if byHand(block.key)}{' '}<span class="hchip"><Hand size={13} aria-hidden="true" />{t('still by hand')}</span>{/if}</p>
+        <p class="extra need">{needLine(block.key)}{#if byHand(block.key)}{' '}<span class="hchip"><Hand size={14} aria-hidden="true" />{t('still by hand')}</span>{/if}</p>
       {/if}
       <p class="src">{sourceLine(metric)}{#if !own && !bool && metric === std.metric}{' · '}{t('Standard: {v}', { v: `${num(std.limit)} ${unitOf(metric)}` })}{/if}{#if ALT[block.key]}{' · '}{t('Standard: {v}', { v: `${num(std.alt)} m` })}{/if}</p>
       {#if NEED[block.key] === 'lake'}<p class="src">{t('Lake or river is not known to the app yet: you tap it in Plan («Lake or river»). Later from the route.')}</p>{/if}
@@ -196,9 +196,9 @@
     {:else}
       <p class="empty">{t('Still empty: it is only suggested once an item is in it.')}</p>
     {/if}
-    <a class="btn add" href={`#/gear?fill=${encodeURIComponent(block.key)}`} onclick={() => dialog.close()}><Plus size={18} aria-hidden="true" />{t('Add items')}</a>
-    <button type="button" class="namerow" onclick={() => onrename?.()}><Pencil size={18} aria-hidden="true" /><span>{t('Name|block')}</span><small>{block.name}</small><ChevronRight size={18} aria-hidden="true" /></button>
-    {#if ondelete}<button type="button" class="namerow del" onclick={() => ondelete()}><Trash2 size={18} aria-hidden="true" /><span>{t('Delete building block')}</span><small></small><ChevronRight size={18} aria-hidden="true" /></button>{/if}
+    <a class="btn add" href={`#/gear?fill=${encodeURIComponent(block.key)}`} onclick={() => dialog.close()}><Plus size={20} aria-hidden="true" />{t('Add items')}</a>
+    <button type="button" class="namerow" onclick={() => onrename?.()}><Pencil size={20} aria-hidden="true" /><span>{t('Name|block')}</span><small>{block.name}</small><ChevronRight size={20} aria-hidden="true" /></button>
+    {#if ondelete}<button type="button" class="namerow del" onclick={() => ondelete()}><Trash2 size={20} aria-hidden="true" /><span>{t('Delete building block')}</span><small></small><ChevronRight size={20} aria-hidden="true" /></button>{/if}
 
     <div class="foot">
       <button type="button" class="tp-link reset" onclick={reset}>{t('Reset|rule')}</button>

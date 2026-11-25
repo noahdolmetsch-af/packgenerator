@@ -26,7 +26,7 @@
 <dialog bind:this={dialog} use:backClose class="where" aria-labelledby="ww-h" onclose={() => onclose?.()} data-wr-where>
   <header>
     <h2 id="ww-h">{t('Where the numbers come from')}</h2>
-    <button type="button" class="x" onclick={() => dialog.close()} aria-label={t('Close')}><X size={18} aria-hidden="true" /></button>
+    <button type="button" class="x" onclick={() => dialog.close()} aria-label={t('Close')}><X size={20} aria-hidden="true" /></button>
   </header>
   <p class="cap">{t('Hours: measured time (Strava, timer, typed) plus the usual duration where nothing was measured, marked «ca.». km and Hm: each ride once, also rides that wait in «Zum Prüfen». Only reading: nothing here is changed.')}</p>
 

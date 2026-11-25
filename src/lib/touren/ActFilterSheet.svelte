@@ -68,7 +68,7 @@
           <div class="chips">
             {#each liveBikes as b (b.id)}
               {@const on = draft.bikes.includes(b.id)}
-              <button type="button" class="fchip" aria-pressed={on} data-af="bikes" data-value={b.id} onclick={() => (draft = toggleActBike(draft, b.id))}>{#if on}<Check size={15} aria-hidden="true" />{/if}{b.name}<span class="num">{num(counts.bikes[b.id] ?? 0)}</span></button>
+              <button type="button" class="fchip" aria-pressed={on} data-af="bikes" data-value={b.id} onclick={() => (draft = toggleActBike(draft, b.id))}>{#if on}<Check size={16} aria-hidden="true" />{/if}{b.name}<span class="num">{num(counts.bikes[b.id] ?? 0)}</span></button>
             {/each}
           </div>
         {:else}<p class="fsub">{t('No activity with a bike yet.')}</p>{/if}
@@ -94,7 +94,7 @@
         <legend>{t('Save your own filter')}</legend>
         <div class="save">
           <label class="nm"><span class="sr">{t('Name of the filter')}</span><input type="text" bind:value={name} maxlength="40" placeholder={t('e.g. Without commute')} data-save-name /></label>
-          <button type="button" class="btn k" disabled={!name.trim() || !actChips(draft).length} onclick={save} data-save><Bookmark size={17} aria-hidden="true" /><span class="kl">{t('Save')}</span></button>
+          <button type="button" class="btn k" disabled={!name.trim() || !actChips(draft).length} onclick={save} data-save><Bookmark size={16} aria-hidden="true" /><span class="kl">{t('Save')}</span></button>
         </div>
         <p class="fsub">{t('It then stands under «My filters» above the list, one tap sets it.')}</p>
         {#if saved.length}

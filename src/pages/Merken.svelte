@@ -221,7 +221,7 @@
         <button type="button" class="tx" onclick={() => (sheet = { todo: x })}>
           <b>{x.text}</b>
           {#if meta(x).length || pr.total || linksOf(x).length}
-            <small>{#if x.repeat}<Repeat2 size={13} aria-hidden="true" />{:else if x.remind}<Bell size={13} aria-hidden="true" />{/if}{[...meta(x), pr.total ? t('{done} of {total} done', pr) : '', ...linksOf(x).map(linkText)].filter(Boolean).join(' · ')}</small>
+            <small>{#if x.repeat}<Repeat2 size={14} aria-hidden="true" />{:else if x.remind}<Bell size={14} aria-hidden="true" />{/if}{[...meta(x), pr.total ? t('{done} of {total} done', pr) : '', ...linksOf(x).map(linkText)].filter(Boolean).join(' · ')}</small>
           {/if}
           {#if pr.total}<span class="pbar" aria-hidden="true"><i style:width="{(100 * pr.done) / pr.total}%"></i></span>{/if}
         </button>
@@ -270,7 +270,7 @@
         </p>
       {/if}
     </form>
-    <button type="button" class="add" onclick={() => (sheet = {})}><Plus size={18} aria-hidden="true" />{t('Add a to-do')}</button>
+    <button type="button" class="add" onclick={() => (sheet = {})}><Plus size={20} aria-hidden="true" />{t('Add a to-do')}</button>
     {#if d.todos.length || d.notes.length}
       <!-- F3: one search for to-dos and notes; F2: «Sort» shows arrows and the handle -->
       <div class="tools tl2">
@@ -318,8 +318,8 @@
               <span class="ki" aria-hidden="true"><Cake size={16} /></span>
               <button type="button" class="tx" onclick={() => (kindSheet = { todo: r.td })}>
                 <b>{r.td.text}</b>
-                <small>{#if !r.td.off && r.td.reminds?.length}<Bell size={13} aria-hidden="true" />{/if}{bdayMeta(r)}</small>
-                {#if r.td.gift}<small class="gift"><Gift size={13} aria-hidden="true" />{r.td.gift}</small>{/if}
+                <small>{#if !r.td.off && r.td.reminds?.length}<Bell size={14} aria-hidden="true" />{/if}{bdayMeta(r)}</small>
+                {#if r.td.gift}<small class="gift"><Gift size={14} aria-hidden="true" />{r.td.gift}</small>{/if}
               </button>
               <span class="due" class:soon={r.in <= 1}>{inDays(r.in)}</span>
             </li>
@@ -338,7 +338,7 @@
             <span class="ki" aria-hidden="true"><Sprout size={16} /></span>
             <button type="button" class="tx" onclick={() => (kindSheet = { todo: r.td })}>
               <b>{r.td.text}</b>
-              <small>{#if !r.td.off && r.td.remind}<Bell size={13} aria-hidden="true" />{/if}{plantMeta(r)}</small>
+              <small>{#if !r.td.off && r.td.remind}<Bell size={14} aria-hidden="true" />{/if}{plantMeta(r)}</small>
             </button>
             <span class="side">
               <span class="due" class:late={r.in < 0} class:soon={r.in === 0}>{plantDue(r.in)}</span>
@@ -385,10 +385,10 @@
         {#each d.lists.filter((l) => !isEnded(l)) as l (l.id)}
           <li>
             <a class="mlrow" href={`#/calendar/list/${l.id}`}>
-              <ListChecks size={18} aria-hidden="true" />
-              <span class="tx"><b>{l.name}</b>{#if l.pin}<small><Pin size={13} aria-hidden="true" />{pinOf(l)}</small>{/if}{#if l.sync === 'trello'}<small class="intr">{t('Also in Trello')}</small>{/if}</span>
+              <ListChecks size={20} aria-hidden="true" />
+              <span class="tx"><b>{l.name}</b>{#if l.pin}<small><Pin size={14} aria-hidden="true" />{pinOf(l)}</small>{/if}{#if l.sync === 'trello'}<small class="intr">{t('Also in Trello')}</small>{/if}</span>
               <span class="due">{l.check ? t('{n} open', { n: openCount(l) }) : t('{n} notes', { n: l.items.length })}</span>
-              <ChevronRight size={18} aria-hidden="true" />
+              <ChevronRight size={20} aria-hidden="true" />
             </a>
           </li>
         {/each}

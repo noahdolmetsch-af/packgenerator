@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../lib/actlite.js';
   /**
    * «Heatmap» (Noah 20.10.2026 «ich möchte eine Heatmap … wo alle meine Rides eingezeichnet werden»;
    * answers «1a+b 2b+a 3 alle Fahrten von Strava 4a 5a»). #/heatmap (Touren › Rückblick › Heatmap,
@@ -34,7 +35,7 @@
 
   const dataQ = liveQuery(async () => {
     const [activities, rides, tracks, entries, bikes, fill] = await Promise.all([
-      db.activities ? db.activities.toArray() : [],
+      db.activities ? readLite(db, (T) => T.toArray()) : [],
       db.rides.toArray(),
       db.tracks ? db.tracks.where('kind').equals('rec').toArray() : [],
       db.kmBook.toArray(),
@@ -171,7 +172,7 @@
               {@const href = hrefOf(l)}
               <li>
                 {#if href}
-                  <a class="rv-row" {href}><span class="rv-m"><span class="rv-t">{nameOf(l)}</span><span class="rv-s">{dayLong(l.day)} · {kindName(l.kind)}{#if l.bikeId && bikeName[l.bikeId]}{' · '}{bikeName[l.bikeId]}{/if}</span></span><span class="rv-v">{num(Math.round(l.km))} km</span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a>
+                  <a class="rv-row" {href}><span class="rv-m"><span class="rv-t">{nameOf(l)}</span><span class="rv-s">{dayLong(l.day)} · {kindName(l.kind)}{#if l.bikeId && bikeName[l.bikeId]}{' · '}{bikeName[l.bikeId]}{/if}</span></span><span class="rv-v">{num(Math.round(l.km))} km</span><ChevronRight class="rv-chev" size={20} aria-hidden="true" /></a>
                 {:else}
                   <div class="rv-row"><span class="rv-m"><span class="rv-t">{nameOf(l)}</span><span class="rv-s">{dayLong(l.day)} · {kindName(l.kind)}</span></span><span class="rv-v">{num(Math.round(l.km))} km</span></div>
                 {/if}

@@ -35,7 +35,7 @@
       {#each rows as r (r.x.id)}
         <li class:due={r.due} data-own-rem={r.x.id}>
           <span class="m"><b>{r.x.name}</b><small>{state(r)}</small></span>
-          <button type="button" class="btn sm" class:hi={r.due} onclick={() => done(r)}><Check size={15} aria-hidden="true" />{t('Done|task')}</button>
+          <button type="button" class="btn sm" class:hi={r.due} onclick={() => done(r)}><Check size={16} aria-hidden="true" />{t('Done|task')}</button>
         </li>
       {/each}
     </ul>

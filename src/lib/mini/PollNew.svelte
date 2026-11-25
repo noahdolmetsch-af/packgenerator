@@ -145,7 +145,7 @@
     <p class="pn-help"><Lock size={14} aria-hidden="true" /> {t('Only you can read the answers. They are locked on the other person’s device; the server cannot read them and deletes them after these days.')}</p>
   </section>
   {#if formErr}<p class="pn-err" role="alert" data-pn-err>{formErr}</p>{/if}
-  <div class="pn-acts"><button type="submit" class="btn hi" disabled={making} data-pn-make><Share2 size={18} aria-hidden="true" />{t('Make the link')}</button><a class="btn btn-link" href="#/me/mini">{t('Cancel')}</a></div>
+  <div class="pn-acts"><button type="submit" class="btn hi" disabled={making} data-pn-make><Share2 size={20} aria-hidden="true" />{t('Make the link')}</button><a class="btn btn-link" href="#/me/mini">{t('Cancel')}</a></div>
 </form>
 
 <style>

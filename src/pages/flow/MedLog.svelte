@@ -214,7 +214,7 @@
               <span class="rd num">{r.at ? whenShort(r.at).replace(' · ', '\n') : dayShort(r.day)}</span>
               <span class="rt"><b>{artLabel(r.art)}</b>{#if rowSub(r)}<small>{rowSub(r)}</small>{/if}</span>
               <b class="rm num">{r.min ? t('{n} min', { n: r.min }) : t('ticked')}</b>
-              <ChevronRight size={18} aria-hidden="true" />
+              <ChevronRight size={20} aria-hidden="true" />
             </a>
           </li>
         {/each}
@@ -239,17 +239,17 @@
               <a class="nb" href="{base}/log?range=1m" data-num="min">
                 <small>{t('Minutes|log')}</small>
                 <b class="num">{t('{n} min', { n: mn.now.min })}</b>
-                {#if trend.min != null}<span class="pill tr">{#if trend.min >= 0}<ArrowUp size={12} aria-hidden="true" />{:else}<ArrowDown size={12} aria-hidden="true" />{/if}{Math.abs(trend.min)} %</span>{/if}
+                {#if trend.min != null}<span class="pill tr">{#if trend.min >= 0}<ArrowUp size={14} aria-hidden="true" />{:else}<ArrowDown size={14} aria-hidden="true" />{/if}{Math.abs(trend.min)} %</span>{/if}
               </a>
               <a class="nb" href="{base}/log?range=1m" data-num="days">
                 <small>{t('Days|log')}</small>
                 <b class="num">{t('{n} of {m}', { n: mn.now.days, m: mn.now.of })}</b>
-                {#if trend.days != null}<span class="pill tr">{#if trend.days >= 0}<ArrowUp size={12} aria-hidden="true" />{:else}<ArrowDown size={12} aria-hidden="true" />{/if}{Math.abs(trend.days)}</span>{/if}
+                {#if trend.days != null}<span class="pill tr">{#if trend.days >= 0}<ArrowUp size={14} aria-hidden="true" />{:else}<ArrowDown size={14} aria-hidden="true" />{/if}{Math.abs(trend.days)}</span>{/if}
               </a>
               <a class="nb" href="{base}/log?range=1m&note=1" data-num="depth">
                 <small>{t('Depth ⌀')}</small>
                 <b class="num">{mn.now.depth ?? '–'}</b>
-                {#if trend.depth != null}<span class="pill tr">{#if trend.depth >= 0}<ArrowUp size={12} aria-hidden="true" />{:else}<ArrowDown size={12} aria-hidden="true" />{/if}{Math.abs(trend.depth)}</span>{/if}
+                {#if trend.depth != null}<span class="pill tr">{#if trend.depth >= 0}<ArrowUp size={14} aria-hidden="true" />{:else}<ArrowDown size={14} aria-hidden="true" />{/if}{Math.abs(trend.depth)}</span>{/if}
               </a>
             </div>
           </Sec>
@@ -344,8 +344,8 @@
                 <p class="hx">{h.other != null ? t('With «{name}»: depth ⌀ {a}, otherwise ⌀ {b}.', { name: helpedLabel(h.id), a: h.depth, b: h.other }) : t('With «{name}»: depth ⌀ {a}.', { name: helpedLabel(h.id), a: h.depth })}</p>
                 {#if helps.length > 1}
                   <p class="hn">
-                    <button type="button" class="ib" aria-label={t('Previous tip')} onclick={() => (hi = (hi + helps.length - 1) % helps.length)}><ChevronLeft size={18} aria-hidden="true" /></button>
-                    <button type="button" class="ib" aria-label={t('Next tip')} onclick={() => (hi = (hi + 1) % helps.length)}><ChevronRight size={18} aria-hidden="true" /></button>
+                    <button type="button" class="ib" aria-label={t('Previous tip')} onclick={() => (hi = (hi + helps.length - 1) % helps.length)}><ChevronLeft size={20} aria-hidden="true" /></button>
+                    <button type="button" class="ib" aria-label={t('Next tip')} onclick={() => (hi = (hi + 1) % helps.length)}><ChevronRight size={20} aria-hidden="true" /></button>
                   </p>
                 {/if}
               </div>

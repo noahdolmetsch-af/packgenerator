@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../actlite.js';
   /**
    * Paket U «Rennen» · Nach dem Rennen: section analysis (38), stop analysis (6), recovery (15), the bike
    * check after the race (22), the same race year by year (16) and the race report (24, Briefing.svelte
@@ -6,7 +7,7 @@
    * brake pads first.
    */
   import { liveQuery } from 'dexie';
-  import { FileText, Lightbulb, Image as ImageIcon } from '@lucide/svelte';
+  import { FileText, Lightbulb, Image as ImageIcon, Check } from '@lucide/svelte';
   import RaceBox from './RaceBox.svelte';
   import EditList from './EditList.svelte';
   import { db } from '../db.js';
@@ -34,7 +35,7 @@
   const daysKey = $derived([...new Set([...days, ...years.flatMap(tripDays)])].join(','));
   const actsQ = $derived.by(() => {
     const ds = daysKey ? daysKey.split(',') : [];
-    return liveQuery(() => (ds.length ? db.activities.where('day').anyOf(ds).toArray() : []));
+    return liveQuery(() => (ds.length ? readLite(db, (T) => T.where('day').anyOf(ds).toArray()) : []));
   });
   const stops = $derived(stopAnalysis(rideTimes($ridesQ ?? [], $actsQ ?? [], days)));
   async function keepLearning() {
@@ -127,7 +128,7 @@
         <table class="rc-table">
           <thead><tr><th>{t('Day')}</th><th class="num">{t('Resting pulse')}</th><th class="num">{t('HRV')}</th><th>{t('Normal')}</th></tr></thead>
           <tbody>
-            {#each rec.after as d (d.date)}<tr><td>{dateOf(d.date)}</td><td class="num">{d.restingHr ?? '–'}</td><td class="num">{d.hrvMs ?? '–'}</td><td>{d.back ? '✓' : ''}</td></tr>{/each}
+            {#each rec.after as d (d.date)}<tr><td>{dateOf(d.date)}</td><td class="num">{d.restingHr ?? '–'}</td><td class="num">{d.hrvMs ?? '–'}</td><td>{#if d.back}<Check size={14} class="ic-in" aria-hidden="true" />{/if}</td></tr>{/each}
           </tbody>
         </table>
       </div>

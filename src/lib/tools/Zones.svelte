@@ -76,8 +76,8 @@
           <span class="z-m"><b>{z.name}</b><small class="tool-muted">{diffText(z.tz, here, now)}{s ? ` · ${s > 0 ? t('tomorrow') : t('yesterday')}` : ''}</small></span>
           <b class="z-time">{timeIn(z.tz, now, locale())}</b>
           <SortArrows name={z.name} {i} n={list.length} onstep={(d) => move(i, i + d)} />
-          <button type="button" class="btn sm" aria-label={t('Rename {name}', { name: z.name })} onclick={() => (renaming = z)}><Pencil size={15} aria-hidden="true" /></button>
-          <button type="button" class="btn sm" aria-label={t('Delete {name}', { name: z.name })} onclick={() => remove(z)}><Trash2 size={15} aria-hidden="true" /></button>
+          <button type="button" class="btn sm" aria-label={t('Rename {name}', { name: z.name })} onclick={() => (renaming = z)}><Pencil size={16} aria-hidden="true" /></button>
+          <button type="button" class="btn sm" aria-label={t('Delete {name}', { name: z.name })} onclick={() => remove(z)}><Trash2 size={16} aria-hidden="true" /></button>
         </li>
       {/each}
     </ul>

@@ -23,7 +23,7 @@
   {#if rows.length}
     <ul class="rc-list">
       {#each rows as r, i (r.slot)}
-        <li class="rc-row"><button type="button" class="btn" onclick={() => (at = i)} data-race-bag-shot={r.slot}><ImageIcon size={18} aria-hidden="true" />{r.name || t('Bag')}<small> · {day(r.photo)}</small></button></li>
+        <li class="rc-row"><button type="button" class="btn" onclick={() => (at = i)} data-race-bag-shot={r.slot}><ImageIcon size={20} aria-hidden="true" />{r.name || t('Bag')}<small> · {day(r.photo)}</small></button></li>
       {/each}
     </ul>
   {:else}

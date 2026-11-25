@@ -451,8 +451,8 @@
           <div class="of-wh">
             <h2 id="of-week-h">{t('Free times · week {n}', { n: weekNo(monday) })}</h2>
             <span class="of-nav">
-              <button type="button" class="ibtn" aria-label={t('Week before')} onclick={() => (monday = addDays(monday, -7))}><ChevronLeft size={18} aria-hidden="true" /></button>
-              <button type="button" class="ibtn" aria-label={t('Next week')} onclick={() => (monday = addDays(monday, 7))}><ChevronRight size={18} aria-hidden="true" /></button>
+              <button type="button" class="ibtn" aria-label={t('Week before')} onclick={() => (monday = addDays(monday, -7))}><ChevronLeft size={20} aria-hidden="true" /></button>
+              <button type="button" class="ibtn" aria-label={t('Next week')} onclick={() => (monday = addDays(monday, 7))}><ChevronRight size={20} aria-hidden="true" /></button>
             </span>
           </div>
           <div class="of-slots">
@@ -584,26 +584,26 @@
       <div class="ich-side">
         <section class="card" aria-labelledby="of-link-h">
           <div class="of-wh"><h2 id="of-link-h">{t('Link for the people who book')}</h2><small class="muted">{t('no app, no account')}</small></div>
-          <p class="of-link"><Link2 size={18} aria-hidden="true" /><span class="u">{link}</span></p>
+          <p class="of-link"><Link2 size={20} aria-hidden="true" /><span class="u">{link}</span></p>
           <div class="of-two">
-            <a class="btn" href={whatsapp} target="_blank" rel="noopener"><MessageCircle size={18} aria-hidden="true" />{t('Send via WhatsApp')}</a>
-            <button type="button" class="btn" onclick={copy}><Copy size={18} aria-hidden="true" />{t('Copy link')}</button>
+            <a class="btn" href={whatsapp} target="_blank" rel="noopener"><MessageCircle size={20} aria-hidden="true" />{t('Send via WhatsApp')}</a>
+            <button type="button" class="btn" onclick={copy}><Copy size={20} aria-hidden="true" />{t('Copy link')}</button>
           </div>
           {#if note}<p class="hint" role="status">{note}</p>{/if}
           <p class="of-fine">{t('They see only free times, never the names of others.')}</p>
-          {#if mine.offer.kind === 'tennis'}<a class="btn" data-flyer-from-offer href={`#/me/tennis/flyer?o=${mine.id}`}><FileImage size={18} aria-hidden="true" />{t('Make a flyer')}</a>{/if}
+          {#if mine.offer.kind === 'tennis'}<a class="btn" data-flyer-from-offer href={`#/me/tennis/flyer?o=${mine.id}`}><FileImage size={20} aria-hidden="true" />{t('Make a flyer')}</a>{/if}
         </section>
 
         <section class="card" aria-labelledby="of-rules-h">
           <div class="of-wh"><h2 id="of-rules-h">{t('How booking works')}</h2><button type="button" class="lkb" onclick={openRules}>{t('Change')}</button></div>
           <ul class="of-rules">
-            <li><Clock size={18} aria-hidden="true" /><b>{t('Length')}</b><span>{lengthWord(o)}</span></li>
-            <li><Users size={18} aria-hidden="true" /><b>{t('Places|seats')}</b><span>{o.types.map((x) => `${x.label} ${x.places}`).join(' · ')}</span></li>
-            <li><CreditCard size={18} aria-hidden="true" /><b>{t('Price')}</b><span>{o.types.map((x) => `${x.label} ${chf(x.price)} CHF`).join(' · ')}</span></li>
-            <li><Bell size={18} aria-hidden="true" /><b>{t('Booking')}</b><span>{o.mode === 'wish' ? t('wish times, you answer within 24 h') : o.mode === 'request' ? t('request, you answer within 24 h') : t('booked at once')}</span></li>
-            <li><Repeat size={18} aria-hidden="true" /><b>{t('Payment')}</b><span>{o.pay === 'online' ? t('online (test mode)') : t('on site (cash, TWINT)')}</span></li>
-            <li><Bell size={18} aria-hidden="true" /><b>{t('Cancelling')}</b><span>{t('people up to {n} h before · you any time', { n: o.cancelHours })}</span></li>
-            {#if o.venues?.length}<li><MapPin size={18} aria-hidden="true" /><b>{t('Places|venues')}</b><span>{o.venues.join(' · ')}</span></li>{:else if o.place}<li><MapPin size={18} aria-hidden="true" /><b>{t('Place|venue')}</b><span>{o.place}</span></li>{/if}
+            <li><Clock size={20} aria-hidden="true" /><b>{t('Length')}</b><span>{lengthWord(o)}</span></li>
+            <li><Users size={20} aria-hidden="true" /><b>{t('Places|seats')}</b><span>{o.types.map((x) => `${x.label} ${x.places}`).join(' · ')}</span></li>
+            <li><CreditCard size={20} aria-hidden="true" /><b>{t('Price')}</b><span>{o.types.map((x) => `${x.label} ${chf(x.price)} CHF`).join(' · ')}</span></li>
+            <li><Bell size={20} aria-hidden="true" /><b>{t('Booking')}</b><span>{o.mode === 'wish' ? t('wish times, you answer within 24 h') : o.mode === 'request' ? t('request, you answer within 24 h') : t('booked at once')}</span></li>
+            <li><Repeat size={20} aria-hidden="true" /><b>{t('Payment')}</b><span>{o.pay === 'online' ? t('online (test mode)') : t('on site (cash, TWINT)')}</span></li>
+            <li><Bell size={20} aria-hidden="true" /><b>{t('Cancelling')}</b><span>{t('people up to {n} h before · you any time', { n: o.cancelHours })}</span></li>
+            {#if o.venues?.length}<li><MapPin size={20} aria-hidden="true" /><b>{t('Places|venues')}</b><span>{o.venues.join(' · ')}</span></li>{:else if o.place}<li><MapPin size={20} aria-hidden="true" /><b>{t('Place|venue')}</b><span>{o.place}</span></li>{/if}
           </ul>
         </section>
 

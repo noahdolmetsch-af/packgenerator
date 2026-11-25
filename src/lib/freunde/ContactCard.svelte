@@ -213,7 +213,7 @@
       {#if qrText}
         <QrCode text={qrText} label={t('Your contact card')} />
         <p class="ev-strong">{shown.name}</p>
-        <button type="button" class="btn hi" onclick={showBig} data-card-big><Maximize size={18} aria-hidden="true" />{t('Show big')}</button>
+        <button type="button" class="btn hi" onclick={showBig} data-card-big><Maximize size={20} aria-hidden="true" />{t('Show big')}</button>
         <p class="ev-muted">{t('On the card: {list}', { list: [...SHOWN.filter((f) => shown[f]).map((f) => t(LABEL[f])), ...(pay ? [t('Payment|card')] : [])].join(', ') || t('only your name') })}</p>
       {:else}
         <p class="ev-muted">{t('Write your first name; then the QR code appears.')}</p>
@@ -254,8 +254,8 @@
       <div role="group" aria-labelledby="cc-img-h" data-card-images>
         <p id="cc-img-h" class="ev-strong">{t('As an image')}</p>
         <div class="cc-seg">
-          <button type="button" class="btn sm" onclick={() => image('lock')} disabled={!!imgBusy} data-card-img="lock"><Smartphone size={18} aria-hidden="true" />{t('Lock screen')}</button>
-          <button type="button" class="btn sm" onclick={() => image('sticker')} disabled={!!imgBusy} data-card-img="sticker"><Sticker size={18} aria-hidden="true" />{t('Sticker «Found?»')}</button>
+          <button type="button" class="btn sm" onclick={() => image('lock')} disabled={!!imgBusy} data-card-img="lock"><Smartphone size={20} aria-hidden="true" />{t('Lock screen')}</button>
+          <button type="button" class="btn sm" onclick={() => image('sticker')} disabled={!!imgBusy} data-card-img="sticker"><Sticker size={20} aria-hidden="true" />{t('Sticker «Found?»')}</button>
         </div>
         <p class="ev-muted">{t('The lock-screen image helps whoever finds your phone; the sticker goes on the bike, the helmet or a bag. Both open the page with buttons, without an end day and without payment details.')}</p>
         {#if imgMsg}<p class="ev-muted" role="status" data-card-imgmsg>{imgMsg}</p>{/if}
@@ -274,8 +274,8 @@
 <section class="card ev-box" aria-labelledby="cc-p-h" data-people>
   <h2 id="cc-p-h">{t('People from events')}</h2>
   <div class="ev-acts">
-    <button type="button" class="btn" onclick={() => fileEl?.click()} data-card-scan><Camera size={18} aria-hidden="true" />{t('Scan a card from a photo')}</button>
-    <button type="button" class="btn" onclick={byHand} data-card-byhand><Plus size={18} aria-hidden="true" />{t('Add a person by hand')}</button>
+    <button type="button" class="btn" onclick={() => fileEl?.click()} data-card-scan><Camera size={20} aria-hidden="true" />{t('Scan a card from a photo')}</button>
+    <button type="button" class="btn" onclick={byHand} data-card-byhand><Plus size={20} aria-hidden="true" />{t('Add a person by hand')}</button>
     <input type="file" accept="image/*" capture="environment" hidden bind:this={fileEl} onchange={scan} />
   </div>
   {#if scanErr}<p class="rc-warn" role="alert">{scanErr}</p>{/if}

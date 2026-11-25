@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import TOURS from '../src/lib/vorschlaege/data/netz.js';
+import MORE from '../src/lib/vorschlaege/data/netz-mehr.js';
+import { daysOf, joinStages, MAX_STAGES } from '../src/lib/vorschlaege/tage.js';
 import KANTONE from '../src/lib/vorschlaege/data/kantone.js';
 import { kmMarks, stepFor, lineKm, pointAtKm, nearestOnLine } from '../src/lib/spur/kmmarks.js';
 import { fineOfTour, coarseOfTour, kmsOf, steepest, stretchOf } from '../src/lib/vorschlaege/steil.js';
@@ -18,7 +20,7 @@ const P = PILOT.map(by);
 const ids = (o, list = TOURS) => filterTours(list, o).map((t) => t.id);
 
 describe('Tourenvorschläge: die Daten', () => {
-  it('hat 200 Touren, je mit Linie, Höhenprofil, Untergrund und Kanton', () => {
+  it('hat 200 Touren in der ersten Datei, je mit Linie, Höhenprofil, Untergrund und Kanton', () => {
     expect(TOURS.length).toBe(200);
     expect(new Set(TOURS.map((t) => t.id)).size).toBe(200);
     for (const t of TOURS) {
@@ -701,5 +703,57 @@ describe('Tourenvorschläge: Neuland', () => {
     expect(doneIn(g, '2026-12')).toBe(0);
     g = tickTour(g, m, 'a', false);
     expect(g.done[m]).toEqual(['b']);
+  });
+});
+
+describe('Tourenvorschläge: dreimal so viele Touren (Noah 24.11.2026)', () => {
+  const STAGES = [...TOURS, ...MORE];
+  const DAYS = daysOf(STAGES);
+  it('die zweite Datei bringt die übrigen Etappen, keine doppelt', () => {
+    expect(MORE.length).toBeGreaterThan(200);
+    expect(new Set(STAGES.map((t) => t.id)).size).toBe(STAGES.length);
+    for (const t of MORE) {
+      expect(t.line.length).toBeGreaterThan(5);
+      expect(t.ele.length).toBe(t.cls.length);
+      expect(t.region).toMatch(/^[a-z]{2}$/);
+      expect(Number.isFinite(t.et)).toBe(true);
+    }
+  });
+  it('Etappen und Tagestouren sind zusammen mehr als dreimal so viele wie vorher (200)', () => {
+    expect(STAGES.length + DAYS.length).toBeGreaterThanOrEqual(600);
+    expect(new Set([...STAGES, ...DAYS].map((t) => t.id)).size).toBe(STAGES.length + DAYS.length);
+  });
+  it('eine Tagestour fügt aufeinanderfolgende Etappen derselben Route zusammen', () => {
+    expect(DAYS.length).toBeGreaterThan(100);
+    const byId = new Map(STAGES.map((t) => [`${t.route}:${t.et}`, t]));
+    for (const d of DAYS) {
+      expect(d.days).toBeGreaterThanOrEqual(2);
+      expect(d.days).toBeLessThanOrEqual(MAX_STAGES);
+      const parts = Array.from({ length: d.days }, (_, i) => byId.get(`${d.route}:${d.et + i}`));
+      expect(parts.every(Boolean)).toBe(true);
+      expect(d.line.length).toBe(parts.reduce((n, p, i) => n + p.line.length - (i ? 1 : 0), 0));
+      expect(d.ele.length).toBe(d.cls.length);
+      expect(d.up).toBe(parts.reduce((n, p) => n + p.up, 0));
+      expect(d.lenM).toBe(parts.reduce((n, p) => n + p.lenM, 0));
+      expect(d.dz).toBe(parts[0].dz);
+      expect(d.single + d.unpaved + d.paved).toBeGreaterThanOrEqual(99);
+    }
+  });
+  it('die Schwierigkeit der Tagestour ist die höchste ihrer Etappen', () => {
+    const a = { id: 'a', route: '1', et: 1, title: 'A → B', region: 'gr', km: 10, up: 100, down: 50, cond: 'easy', tech: 'medium', lenM: 10000, max: 900, min: 600, dz: 5, line: [[46, 9], [46.1, 9.1]], ele: [600, 700], cls: 'sp' };
+    const b = { ...a, id: 'b', et: 2, title: 'B → C', cond: 'difficult', tech: null, line: [[46.1, 9.1], [46.2, 9.2]], cls: 'us' };
+    const j = joinStages([a, b]);
+    expect(j.cond).toBe('difficult');
+    expect(j.tech).toBe('medium');
+    expect(j.title).toBe('A → C');
+    expect(j.km).toBe(20);
+    expect(j.line).toEqual([[46, 9], [46.1, 9.1], [46.2, 9.2]]);
+    expect(j.id).toBe('sm-1-1_2');
+  });
+  it('Etappen, die nicht aufeinander folgen oder weit auseinander liegen, werden nicht verbunden', () => {
+    const mk = (et, line) => ({ id: `x${et}`, route: '9', et, title: 'A → B', region: 'zh', km: 5, up: 1, down: 1, cond: 'easy', tech: 'easy', lenM: 5000, max: 5, min: 1, dz: 1, line, ele: [1, 2], cls: 'pp' });
+    expect(daysOf([mk(1, [[46, 9], [46.1, 9]]), mk(3, [[46.1, 9], [46.2, 9]])])).toEqual([]);
+    expect(daysOf([mk(1, [[46, 9], [46.1, 9]]), mk(2, [[46.5, 9], [46.6, 9]])])).toEqual([]);
+    expect(daysOf([mk(1, [[46, 9], [46.1, 9]]), mk(2, [[46.1, 9], [46.2, 9]])]).length).toBe(1);
   });
 });

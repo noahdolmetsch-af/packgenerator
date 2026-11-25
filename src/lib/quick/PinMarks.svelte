@@ -250,7 +250,7 @@
         data-pinmark={m.view ? null : m.id}
         data-pinview={m.view ?? null}
         onclick={() => toggle(m)}
-      ><span class="pm-dot"><Pin size={15} aria-hidden="true" /></span></button>
+      ><span class="pm-dot"><Pin size={16} aria-hidden="true" /></span></button>
     {/each}
   </div>
 {/if}

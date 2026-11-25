@@ -47,7 +47,7 @@
     <div class="td-main">
       <div class="vd-head">
         <div class="vd-t"><h2 id="td-h">{t('The note becomes …')}</h2></div>
-        <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={18} aria-hidden="true" /></button>
+        <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
       </div>
       <div class="td-quote">
         <span class="td-q" aria-hidden="true"><Quote size={14} /></span>

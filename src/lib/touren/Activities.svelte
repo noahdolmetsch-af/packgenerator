@@ -125,7 +125,7 @@
         </button>
       {/each}
     </div>{/if}
-    {#if rows.length}<button type="button" class="btn k fbtn" aria-haspopup="dialog" onclick={() => (sheet = true)} data-act-filter-open><SlidersHorizontal size={17} aria-hidden="true" /><span class="kl">{t('Filter')}</span>{#if fchips.length}<span class="fn num" data-act-filter-n>{fchips.length}</span>{/if}</button>{/if}
+    {#if rows.length}<button type="button" class="btn k fbtn" aria-haspopup="dialog" onclick={() => (sheet = true)} data-act-filter-open><SlidersHorizontal size={16} aria-hidden="true" /><span class="kl">{t('Filter')}</span>{#if fchips.length}<span class="fn num" data-act-filter-n>{fchips.length}</span>{/if}</button>{/if}
   </div>
   <!-- «Handy kurz»: on a phone the views wait behind «Ansicht und Auswahl» under the five rows (page at most 3 screens) -->
   {#if allRows.length && !(short && view === 'rows' && list.length > PHONE_ROWS)}
@@ -147,7 +147,7 @@
   {#if fchips.length}
     <div class="active" data-act-active-filters>
       <span class="al">{t('Active|filter')}</span>
-      {#each fchips as c (c.id)}<button type="button" class="ac" data-chip={c.id} aria-label={t('Remove filter {name}', { name: t(c.label, c.vars) })} onclick={() => setFilter(withoutActChip(filter, c))}>{t(c.label, c.vars)}<X size={15} aria-hidden="true" /></button>{/each}
+      {#each fchips as c (c.id)}<button type="button" class="ac" data-chip={c.id} aria-label={t('Remove filter {name}', { name: t(c.label, c.vars) })} onclick={() => setFilter(withoutActChip(filter, c))}>{t(c.label, c.vars)}<X size={16} aria-hidden="true" /></button>{/each}
       <button type="button" class="btn btn-link clear" onclick={() => setFilter(emptyActFilter())} data-clear-filters>{t('Clear filters')}</button>
     </div>
   {/if}
@@ -178,19 +178,19 @@
               <div class="am">
                 <div class="at">
                   <a class="an" href={r.href}>{r.name || t(typeKey(r.type))}</a>
-                  {#if r.grp}<span class="pm grp" data-grp={r.grp.id}><Link2 size={13} aria-hidden="true" />{t('joined')}</span>{/if}
+                  {#if r.grp}<span class="pm grp" data-grp={r.grp.id}><Link2 size={14} aria-hidden="true" />{t('joined')}</span>{/if}
                   {#if r.changed?.length}<span class="chg">{t('changed')}</span>{/if}
-                  {#if r.hidden}<span class="chg"><EyeOff size={12} aria-hidden="true" />{t('hidden')}</span>{/if}
-                  {#if r.pm}<span class="pm" data-pm={r.pm.tripId}><Backpack size={13} aria-hidden="true" />{t('With packing list: {name}', { name: r.pm.title })}<TripState state={r.pm.state} /></span>{/if}
+                  {#if r.hidden}<span class="chg"><EyeOff size={14} aria-hidden="true" />{t('hidden')}</span>{/if}
+                  {#if r.pm}<span class="pm" data-pm={r.pm.tripId}><Backpack size={14} aria-hidden="true" />{t('With packing list: {name}', { name: r.pm.title })}<TripState state={r.pm.state} /></span>{/if}
                 </div>
                 <p class="as">
                   <span>{when(r)}</span>
-                  {#if r.type}<span class="ty" data-type={r.type}><Tag size={12} aria-hidden="true" />{t('Strava type «{type}»', { type: r.type })}</span>{/if}
-                  {#if r.bikeId && bikeName[r.bikeId]}<span class="bk" data-bike={r.bikeId}><ArrowRight size={12} aria-hidden="true" /><Bike size={12} aria-hidden="true" />{bikeName[r.bikeId]}</span>{/if}
+                  {#if r.type}<span class="ty" data-type={r.type}><Tag size={14} aria-hidden="true" />{t('Strava type «{type}»', { type: r.type })}</span>{/if}
+                  {#if r.bikeId && bikeName[r.bikeId]}<span class="bk" data-bike={r.bikeId}><ArrowRight size={14} aria-hidden="true" /><Bike size={14} aria-hidden="true" />{bikeName[r.bikeId]}</span>{/if}
                 </p>
               </div>
               {#if !phone.matches || r.km > 0 || r.hm}<div class="ak num"><span><b>{r.km > 0 || r.kind !== 'other' ? n1(r.km) : DASH}</b><small>km</small></span><span><b>{n0(r.hm)}</b><small>{t('Hm|col')}</small></span></div>{/if}
-              <span class="chev" aria-hidden="true"><ChevronRight size={18} /></span>
+              <span class="chev" aria-hidden="true"><ChevronRight size={20} /></span>
               {#if phone.matches}
                 <!-- 0.163.0 (2b): one grey line; the zones and the other values after a tap -->
                 {@const line = lineOf(r)}

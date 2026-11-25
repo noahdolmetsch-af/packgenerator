@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../actlite.js';
   /**
    * «Alle Zahlen dahinter» (Noah 01.11.2026 «2a»): the detail page of ONE observation of a week
    * (#/flow/review/obs?kind=<kind>&w=<Monday>): the sentence, the chart larger with every value written out,
@@ -28,7 +29,7 @@
 
   const q = liveQuery(async () => {
     const [acts, rides, trips, health, answers, checks, log, flowActs, rec] = await Promise.all([
-      db.activities.toArray(),
+      readLite(db, (T) => T.toArray()),
       db.rides.toArray(),
       db.trips.toArray(),
       db.healthDays.toArray(),

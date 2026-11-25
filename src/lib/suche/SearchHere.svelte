@@ -80,8 +80,8 @@
   {#if kind}
     <section class="sh" data-suche-hier={kind} aria-label={placeholder}>
       <label class="sh-field">
-        <Search size={18} aria-hidden="true" />
-        <input type="search" bind:value={q} {placeholder} onfocus={load} autocomplete="off" enterkeyhint="search" data-suche-hier-input />
+        <Search size={20} aria-hidden="true" />
+        <input type="search" bind:value={q} {placeholder} aria-label={placeholder} onfocus={load} autocomplete="off" enterkeyhint="search" data-suche-hier-input />
       </label>
       {#if kind === 'trips'}
         <div class="sh-chips" role="group" aria-label={t('Filter')}>

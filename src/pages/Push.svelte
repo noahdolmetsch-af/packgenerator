@@ -121,7 +121,7 @@
 
   <section class="card ps-card" aria-label={t('Reminders on the phone')}>
     <div class="ps-row ps-main">
-      <span class="ps-ib" aria-hidden="true"><BellRing size={18} /></span>
+      <span class="ps-ib" aria-hidden="true"><BellRing size={20} /></span>
       <span class="ps-m"><b id="ps-main-l">{t('On the phone')}</b><small role="status">{status}</small></span>
       <input class="ps-sw" type="checkbox" role="switch" aria-labelledby="ps-main-l" checked={p.on} disabled={busy} onchange={(e) => setMain(e.currentTarget.checked)} data-push-main />
     </div>

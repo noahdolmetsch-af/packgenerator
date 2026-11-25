@@ -151,10 +151,10 @@
           <img class="mk-th" src={p.src} alt={name} />
           <span class="mk-m"><b>{name}</b>
           <span class="mk-acts">
-            <button type="button" class="btn sm" aria-label={t('Turn page {n}', { n: i + 1 })} title={t('Turn|page')} disabled={!!busy} onclick={() => turn(p)} data-turn><RotateCw size={15} aria-hidden="true" /></button>
-            <button type="button" class="btn sm" aria-label={t('Cut page {n}', { n: i + 1 })} title={t('Cut the edges')} disabled={!!busy} onclick={() => (cutting = p)} data-cut><Crop size={15} aria-hidden="true" /></button>
+            <button type="button" class="btn sm" aria-label={t('Turn page {n}', { n: i + 1 })} title={t('Turn|page')} disabled={!!busy} onclick={() => turn(p)} data-turn><RotateCw size={16} aria-hidden="true" /></button>
+            <button type="button" class="btn sm" aria-label={t('Cut page {n}', { n: i + 1 })} title={t('Cut the edges')} disabled={!!busy} onclick={() => (cutting = p)} data-cut><Crop size={16} aria-hidden="true" /></button>
             <DrawOn src={p.src} list={[p.src]} {inks} icon cls="btn sm" label={t('Draw on page {n}', { n: i + 1 })} title={name} onsave={({ list, inks: next }) => setSrc(p.id, list[0], next)} data-draw />
-            <button type="button" class="btn sm" aria-label={t('Remove page {n}', { n: i + 1 })} disabled={!!busy} onclick={() => remove(p, i)} data-remove><Trash2 size={15} aria-hidden="true" /></button>
+            <button type="button" class="btn sm" aria-label={t('Remove page {n}', { n: i + 1 })} disabled={!!busy} onclick={() => remove(p, i)} data-remove><Trash2 size={16} aria-hidden="true" /></button>
           </span></span>
           <SortArrows {name} {i} n={pages.length} onstep={(d) => move(i, i + d)} />
         </li>

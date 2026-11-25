@@ -34,7 +34,7 @@
   {#if size === 'big'}
     <span class="tick" aria-hidden="true"><Check size={30} strokeWidth={2.5} /><span class="lot" use:lottie={doneAnim}></span></span>
   {:else}
-    <span class="tick" aria-hidden="true"><Check size={18} strokeWidth={2.5} /></span>
+    <span class="tick" aria-hidden="true"><Check size={20} strokeWidth={2.5} /></span>
   {/if}
   {#if size === 'big'}<h1 tabindex="-1" data-page-title>{title}</h1>{:else}<b>{title}</b>{/if}
   {#if text}<p>{text}</p>{/if}

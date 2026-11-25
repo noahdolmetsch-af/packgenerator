@@ -50,7 +50,7 @@
   <FaustCard />
 
   <label class="rg-find">
-    <Search size={18} aria-hidden="true" />
+    <Search size={20} aria-hidden="true" />
     <input class="inp" type="search" bind:value={q} placeholder={t('Search the rules, e.g. rain')} aria-label={t('Search the rules')} data-rule-search />
   </label>
   <p class="rg-count" role="status">{q.trim() ? tn(count, '{n} rule found', '{n} rules found') : trip ? t('«Fits now» refers to your next trip: {trip}', { trip: trip.title }) : t('No trip planned: «fits now» shows once a trip is planned.')}</p>
@@ -64,14 +64,14 @@
       <summary class="rg-sum">
         <span class="rg-st"><h2 id="rg-{g.key}-h">{t(g.title)}</h2><span class="ich-hs">{t(g.text)}</span></span>
         <span class="rg-n num">{tn(g.rules.length, '{n} rule', '{n} rules')}{#if fits}{' · '}<b>{tn(fits, '{n} fits now', '{n} fit now')}</b>{/if}</span>
-        <ChevronDown class="rg-chev" size={18} aria-hidden="true" />
+        <ChevronDown class="rg-chev" size={20} aria-hidden="true" />
       </summary>
       <ul class="card ich-list">
         {#each g.rules as r (r.id)}
           <li class="ich-row ich-wrap rg-row" class:off={r.on === false} data-rule={r.id}>
             <span class="ich-m">
               <b>{r.name}{#if r.active && r.on !== false}{' '}<i class="tp-badge hi" data-rule-active>{t('fits now')}</i>{/if}</b>
-              <small class="rg-when">{#if r.on === false}<ZapOff size={13} aria-hidden="true" />{t('Suggestion off')}{' · '}{:else if r.toggle}<Zap size={13} aria-hidden="true" />{/if}{r.when}</small>
+              <small class="rg-when">{#if r.on === false}<ZapOff size={14} aria-hidden="true" />{t('Suggestion off')}{' · '}{:else if r.toggle}<Zap size={14} aria-hidden="true" />{/if}{r.when}</small>
               <small>{r.source}</small>
             </span>
             <span class="rg-acts">
@@ -86,7 +86,7 @@
     <p class="rg-count">{t('No rule fits this search.')}</p>
   {/each}
   {#if status}<p class="rg-status" role="status">{status}</p>{/if}
-  <p class="ich-fine"><Info size={15} aria-hidden="true" /><span>{t('A rule only suggests: nothing is packed that you cannot take out again. In Pack, «Why?» next to a row shows the rule behind it.')}</span></p>
+  <p class="ich-fine"><Info size={16} aria-hidden="true" /><span>{t('A rule only suggests: nothing is packed that you cannot take out again. In Pack, «Why?» next to a row shows the rule behind it.')}</span></p>
 </div>
 
 <style>

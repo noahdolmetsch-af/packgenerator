@@ -21,7 +21,7 @@
 
 {#if show}
   <li class="qe" data-quiz-eve>
-    <a class="row" href="#/quiz/{encodeURIComponent(trip.id)}"><span class="ic" aria-hidden="true"><Brain size={18} /></span><span class="bt"><b>{t('Quiz the evening before · {n} questions', { n: PER_QUIZ })}</b><small>{t('About your gear and the route, only for fun')}</small></span><ChevronRight size={18} aria-hidden="true" /></a>
+    <a class="row" href="#/quiz/{encodeURIComponent(trip.id)}"><span class="ic" aria-hidden="true"><Brain size={20} /></span><span class="bt"><b>{t('Quiz the evening before · {n} questions', { n: PER_QUIZ })}</b><small>{t('About your gear and the route, only for fun')}</small></span><ChevronRight size={20} aria-hidden="true" /></a>
     <button type="button" class="x" aria-label={t('Put the quiz away for this trip')} onclick={hide} data-quiz-eve-hide><X size={16} aria-hidden="true" /></button>
   </li>
 {/if}

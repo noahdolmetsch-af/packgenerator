@@ -11,9 +11,11 @@ for (const hash of ['#/trips', '#/gear', '#/week', '#/flow', '#/auswerten']) {
     await page.goto('./' + hash);
     await page.locator('main h1').first().waitFor();
     const line = page.locator('[data-pathline]');
-    await expect(line).toBeVisible();
     // the title is read after the page is drawn: give the line a moment, then read it
     await page.waitForTimeout(800);
+    // «Navigation schlank» (Noah 24.11.2026): where the bar, the tabs and the chips already say the place, the tab and the page, the line stays away;
+    // when it shows, it never says a name twice
+    if (!(await line.count())) return;
     const names = (await line.locator('a, [aria-current="page"]').allInnerTexts()).map((x) => x.trim());
     expect(names.length).toBeGreaterThan(0);
     expect(new Set(names).size, names.join(' › ')).toBe(names.length);

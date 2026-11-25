@@ -10,6 +10,7 @@
  */
 import { linkPayload, putLink, CUT_KM } from '../spur/link.js';
 import { distKm } from '../spur/polyline.js';
+import { readLite } from '../actlite.js';
 
 /** How often the live page refreshes the link (ms). */
 export const LIVE_EVERY_MS = 5 * 60_000;
@@ -57,7 +58,7 @@ export async function refreshFamilyLink(trip, here, opts = {}) {
     if (!link?.id || !link?.key) return 'no-link';
     const { tourSpur } = await import('../spur/spur.js');
     const { activitiesForTrip } = await import('../training.js');
-    const [acts, book, rides, tracks, notes] = await Promise.all([db.activities.toArray(), db.kmBook.toArray(), db.rides.toArray(), db.tracks.where('tripId').equals(fresh.id).toArray(), db.notes.filter((x) => x.tripId === fresh.id).toArray()]);
+    const [acts, book, rides, tracks, notes] = await Promise.all([readLite(db, (T) => T.toArray()), db.kmBook.toArray(), db.rides.toArray(), db.tracks.where('tripId').equals(fresh.id).toArray(), db.notes.filter((x) => x.tripId === fresh.id).toArray()]);
     const spur = tourSpur(fresh, { acts: activitiesForTrip(fresh, acts, book), rides, tracks, notes });
     const o = link.opts ?? {};
     const cut = o.cut !== false;

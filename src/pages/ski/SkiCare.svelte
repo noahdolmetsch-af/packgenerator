@@ -82,7 +82,7 @@
               {#each p.list as r (r.x.id)}
                 <li class="tr" data-task={r.x.id}>
                   <button type="button" class="sk-tick" role="checkbox" aria-checked={r.s.state === 'ok'} onclick={() => tick(r)}>
-                    <span class="sk-box" aria-hidden="true">{#if r.s.state === 'ok'}<Check size={18} strokeWidth={3} />{/if}</span>
+                    <span class="sk-box" aria-hidden="true">{#if r.s.state === 'ok'}<Check size={20} strokeWidth={2.5} />{/if}</span>
                     <span class="sk-tt">
                       <b>{taskName(r.x)}</b>
                       {#if hint(r)}<small>{hint(r)}</small>{/if}

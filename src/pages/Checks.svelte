@@ -80,7 +80,7 @@
               <li class="ich-row" class:ich-wrap={!!link?.out}>
                 <span class="ich-ib" aria-hidden="true"><I size={18} /></span>
                 <span class="ich-m"><b>{t(r.label)}</b>{#if line}<small>{line}</small>{/if}</span>
-                {#if link?.out}<a class="lnk" href={link.href} target="_blank" rel="noopener noreferrer"><span class="pl">{t(link.label)}<ArrowUpRight size={13} aria-hidden="true" /></span></a>{/if}
+                {#if link?.out}<a class="lnk" href={link.href} target="_blank" rel="noopener noreferrer"><span class="pl">{t(link.label)}<ArrowUpRight size={14} aria-hidden="true" /></span></a>{/if}
               </li>
             {/each}
           </ul>
@@ -95,7 +95,7 @@
           <ul class="card ich-list">
             {#each missed.slice(0, 5) as m (m.name)}
               <li class="ich-row">
-                <span class="ich-ib" aria-hidden="true"><Plus size={18} /></span>
+                <span class="ich-ib" aria-hidden="true"><Plus size={20} /></span>
                 <span class="ich-m"><b>{t('Pack {name}', { name: m.name })}</b><small>{tn(m.n, 'missing {n} time · debrief of {day}', 'missing {n} times · last debrief {day}', { day: shortDay(m.at) })}</small></span>
                 <button type="button" class="btn" aria-label={t('{name}: to the evening-before check', { name: t('Pack {name}', { name: m.name }) })} onclick={() => take(m.name)}>{t('To the evening before')}</button>
               </li>
@@ -120,7 +120,7 @@
           {/each}
         </ul>
       </section>
-      <p class="ich-fine"><Info size={15} aria-hidden="true" /><span>{t('All are suggestions: every row can be removed, and a trip can have its own list.')}</span></p>
+      <p class="ich-fine"><Info size={16} aria-hidden="true" /><span>{t('All are suggestions: every row can be removed, and a trip can have its own list.')}</span></p>
     </div>
   </div>
 

@@ -20,7 +20,7 @@
 </script>
 
 <section class="rv-sec joy" aria-labelledby="joy-h" data-debrief-joy>
-  <div class="rv-h"><div><h2 id="joy-h"><Smile size={18} aria-hidden="true" />{t('What made it good?')}</h2><p class="rv-sub">{t('Four small scales, all optional. 1 = a little, 5 = a lot.')}</p></div></div>
+  <div class="rv-h"><div><h2 id="joy-h"><Smile size={20} aria-hidden="true" />{t('What made it good?')}</h2><p class="rv-sub">{t('Four small scales, all optional. 1 = a little, 5 = a lot.')}</p></div></div>
   <div class="rv-box pad jy">
     {#each JOY as j (j.key)}
       <div class="jr" role="group" aria-labelledby="joy-{j.key}">

@@ -111,11 +111,11 @@
 <RaceBox id="sleep-lists" title={t('Places to sleep from lists')} what="Loads a list of places to sleep from the organiser or other riders (GPX waypoints, KML, KMZ or CSV; a file or a link) as your own places. Your own spots of earlier races show too." why="Riders before you know the good bus stops and barns; with their list you find them at night." from="The file or link you choose. Everything stays on this device; nothing is shared.">
   <label class="rc-inline"><input type="checkbox" bind:checked={allSleep} data-sleep-all />{t('All places in the list are places to sleep')}</label>
   <div class="rc-acts">
-    <label class="btn"><Upload size={18} aria-hidden="true" />{busy ? t('Loading…') : t('Choose a file')}<input bind:this={input} hidden type="file" accept=".gpx,.kml,.kmz,.csv,.txt,application/gpx+xml,application/vnd.google-earth.kml+xml" onchange={fromFile} disabled={busy} data-sleep-file /></label>
+    <label class="btn"><Upload size={20} aria-hidden="true" />{busy ? t('Loading…') : t('Choose a file')}<input bind:this={input} hidden type="file" accept=".gpx,.kml,.kmz,.csv,.txt,application/gpx+xml,application/vnd.google-earth.kml+xml" onchange={fromFile} disabled={busy} data-sleep-file /></label>
   </div>
   <form class="rc-inline sll-link" onsubmit={fromLink}>
     <input class="inp" type="url" inputmode="url" placeholder="https://…" bind:value={link} aria-label={t('Link to a list')} data-sleep-link />
-    <button type="submit" class="btn" disabled={busy || !link.trim()} data-sleep-link-go><Link size={18} aria-hidden="true" />{t('Load')}</button>
+    <button type="submit" class="btn" disabled={busy || !link.trim()} data-sleep-link-go><Link size={20} aria-hidden="true" />{t('Load')}</button>
   </form>
   {#if msg}<p class={msg.bad ? 'rc-warn' : 'rc-ok'} role="status" data-sleep-list-msg>{msg.text}</p>{/if}
   {#if lists.length}
@@ -123,7 +123,7 @@
       {#each lists as s (s.src)}
         <li class="rc-row" data-sleep-src>
           <span class="rc-row-main"><input class="inp" value={s.src} aria-label={t('Name of the list')} onchange={(e) => { const to = e.currentTarget.value; if (srcOf(to) && srcOf(to) !== s.src) saveOwn((list) => renameSource(list, s.src, to)); }} data-sleep-src-name /><small>{t('{n} places, {m} of them near this route', { n: num(s.n), m: num(s.near) })}</small></span>
-          <button type="button" class="rc-icon" aria-label={t('Delete «{name}»?', { name: s.src })} onclick={() => drop(s)}><Trash2 size={18} aria-hidden="true" /></button>
+          <button type="button" class="rc-icon" aria-label={t('Delete «{name}»?', { name: s.src })} onclick={() => drop(s)}><Trash2 size={20} aria-hidden="true" /></button>
         </li>
       {/each}
     </ul>

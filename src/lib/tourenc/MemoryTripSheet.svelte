@@ -94,7 +94,7 @@
       {#if photo}
         <span class="ph"><img src={photo} alt={t('Photo of the trip')} /><button type="button" class="btn sm" onclick={() => (photo = null)}>{t('Remove photo')}</button></span>
       {:else}
-        <label class="btn pick"><ImagePlus size={18} aria-hidden="true" />{t('Choose a photo')}<input type="file" accept="image/*" onchange={pickPhoto} data-memory-photo /></label>
+        <label class="btn pick"><ImagePlus size={20} aria-hidden="true" />{t('Choose a photo')}<input type="file" accept="image/*" onchange={pickPhoto} data-memory-photo /></label>
       {/if}
     </div>
     {#if error}<p class="err" role="alert">{error}</p>{/if}

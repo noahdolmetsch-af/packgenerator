@@ -33,7 +33,7 @@
   import { comesOf, setStandard, setPlace, clearOptional, blockKind } from './comes.js';
   import { inStandard, isWorn } from '../blocks2026.js';
   import { alsoBagOf, setAlsoBag } from '../backpacks.js';
-  import { Warehouse, Zap, Wrench } from '@lucide/svelte';
+  import { Warehouse, Zap, Wrench, Star } from '@lucide/svelte';
   import PowerFields from './PowerFields.svelte'; // Paket P1 «Packen und Strom»: L1, L4
   import { powerLine } from '../strom.js';
   import { Check, Plus, UserRound, Briefcase, Info, Layers, Route, FileText, ChevronRight, MapPin, Package, CalendarClock, Scale, Sparkles, ArrowLeftRight, X, Undo2, Pencil, Ellipsis, Link2 } from '@lucide/svelte';
@@ -779,7 +779,7 @@
       {#if item.brand}<div><dt>{t('Brand')}</dt><dd>{item.brand}</dd></div>{/if}
       {#if item.model}<div><dt>{t('Model')}</dt><dd>{item.model}</dd></div>{/if}
       <div><dt>{t('Status')}</dt><dd>{t(OWNERSHIP[item.ownership] ?? '')}</dd></div>
-      {#if item.favorite}<div><dt>{t('Favourite')}</dt><dd>★ {item.favNote || t('Tested, one of my best items')}</dd></div>{/if}
+      {#if item.favorite}<div><dt>{t('Favourite')}</dt><dd><Star size={14} class="ic-in" aria-hidden="true" /> {item.favNote || t('Tested, one of my best items')}</dd></div>{/if}
       <div><dt>{t('Areas')}</dt><dd>{itemDomains(item).map((d) => t(domainName(d))).join(', ')}</dd></div>
       <!-- v0.36.0: the fields of the reviewed gear list (gear import), read only. -->
       {#if item.zone || item.layer}<div><dt>{t('Body zone')}</dt><dd>{[item.zone, item.layer].filter(Boolean).join(' · ')}</dd></div>{/if}
@@ -810,7 +810,7 @@
       <Field id="it-qty" label={t('Quantity')} example={t('pieces you own, e.g. 2')} error={errors.qty}>
         {#snippet children(f)}<input class="inp num" type="number" inputmode="numeric" min="1" {...f.attrs} bind:value={draft.qty} />{/snippet}
       </Field>
-      <label class="cb wide"><input type="checkbox" bind:checked={draft.favorite} /> ★ {t('Favourite (tested, one of my best items)')}</label>
+      <label class="cb wide"><input type="checkbox" bind:checked={draft.favorite} /> <Star size={14} class="ic-in" aria-hidden="true" /> {t('Favourite (tested, one of my best items)')}</label>
       {#if draft.favorite}
         <Field id="it-favnote" class="wide" label={t('Why it is a favourite')} optional example={t('e.g. Warm, packs small, never let me down')}>
           {#snippet children(f)}<input class="inp" {...f.attrs} bind:value={draft.favNote} />{/snippet}

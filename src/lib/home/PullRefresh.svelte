@@ -104,7 +104,7 @@
 {#if phase !== 'idle'}
   <div class="pr" class:busy={phase === 'busy'} class:done={phase === 'done'} class:drag style="--y:{pull}" data-pull-wheel={phase} role="status">
     <span class="bubble" aria-hidden="true">
-      {#if phase === 'done'}<Check size={22} />
+      {#if phase === 'done'}<Check size={24} />
       {:else}
         <svg class="wheel" viewBox="-14 -14 28 28" width="30" height="30" style="--turn:{pull * 4}deg">
           <g class="rot"><circle r="11" /><circle class="hub" r="1.6" /><path d="M0 -11V11M-11 0H11M-7.8 -7.8L7.8 7.8M7.8 -7.8L-7.8 7.8" /></g>

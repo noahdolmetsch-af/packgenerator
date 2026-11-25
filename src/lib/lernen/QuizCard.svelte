@@ -67,7 +67,7 @@
           <li>
             <button type="button" class="an" class:ok={picked != null && a.right} class:bad={picked === i && !a.right} disabled={picked != null && picked !== i && !a.right} aria-pressed={picked === i} onclick={() => pick(i)} data-quiz-a={a.right ? 'right' : 'wrong'}>
               <span>{a.text}</span>
-              {#if picked != null && a.right}<Check size={18} aria-hidden="true" />{:else if picked === i}<X size={18} aria-hidden="true" />{/if}
+              {#if picked != null && a.right}<Check size={20} aria-hidden="true" />{:else if picked === i}<X size={20} aria-hidden="true" />{/if}
             </button>
           </li>
         {/each}
@@ -86,7 +86,7 @@
     {/if}
     {#if picked != null}
       <p class="fb" class:ok={isRight} data-quiz-feedback={isRight ? 'right' : 'wrong'}>
-        {#if isRight}<Check size={18} aria-hidden="true" />{t('Right!')}{:else}<X size={18} aria-hidden="true" />{q.answers.length ? t('Not quite. Right is «{a}».', { a: q.answers.find((a) => a.right).text }) : t('Next time then.')}{/if}
+        {#if isRight}<Check size={20} aria-hidden="true" />{t('Right!')}{:else}<X size={20} aria-hidden="true" />{q.answers.length ? t('Not quite. Right is «{a}».', { a: q.answers.find((a) => a.right).text }) : t('Next time then.')}{/if}
       </p>
       {#if q.note}<p class="tp-muted tp-small note">{q.note}</p>{/if}
       <button type="button" class="btn hi nx" onclick={next} data-quiz-next>{at + 1 < questions.length ? t('Next|quiz') : t('See the result')}<ChevronRight size={16} aria-hidden="true" /></button>

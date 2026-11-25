@@ -162,7 +162,7 @@
 
       {#if best?.length}
         <details class="best">
-          <summary><Trophy size={18} aria-hidden="true" /><span><b>{t('Strava best times')}</b><small>{tn(best.length, '{n} segment · only your own times', '{n} segments · only your own times')}</small></span><ChevronDown size={18} aria-hidden="true" /></summary>
+          <summary><Trophy size={20} aria-hidden="true" /><span><b>{t('Strava best times')}</b><small>{tn(best.length, '{n} segment · only your own times', '{n} segments · only your own times')}</small></span><ChevronDown size={20} aria-hidden="true" /></summary>
           <ul>
             {#each best as b, i (i)}
               <li><span><b>{b.name}</b>{#if b.km != null}<small>{n1(b.km)} km{b.grade != null ? ` · ${num(b.grade)} %` : ''}</small>{/if}</span><span class="num">{b.s ? secs(b.s) : '–'}</span>{#if RANK[b.rank]}<span class="est">{t(RANK[b.rank])}</span>{/if}</li>

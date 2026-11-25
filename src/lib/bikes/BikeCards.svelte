@@ -110,8 +110,8 @@
   </section>
   {#if chosen}
     <ul class="vcard qrows" data-bike-quick-rows aria-label={t('Ride ledger and inspection of {name}', { name: chosen.name })}>
-      <li><a href={bikesHash({ tab: 'care', view: 'km', bike: chosen.id })} data-km-row><span class="ib"><BookOpen size={18} aria-hidden="true" /></span><span class="m"><b>{t('Ride ledger')}</b><small class="num">{t('Every km counts')}{chosen.km != null ? ` · ${num(chosen.km)} km` : ''}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
-      <li><a href={bikesHash({ tab: 'care', view: 'inspect', bike: chosen.id, level: 'quick' })} data-inspect-row><span class="ib"><ClipboardCheck size={18} aria-hidden="true" /></span><span class="m"><b>{t('Start inspection')}</b><small>{checkLine}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
+      <li><a href={bikesHash({ tab: 'care', view: 'km', bike: chosen.id })} data-km-row><span class="ib"><BookOpen size={20} aria-hidden="true" /></span><span class="m"><b>{t('Ride ledger')}</b><small class="num">{t('Every km counts')}{chosen.km != null ? ` · ${num(chosen.km)} km` : ''}</small></span><ChevronRight class="chev" size={20} aria-hidden="true" /></a></li>
+      <li><a href={bikesHash({ tab: 'care', view: 'inspect', bike: chosen.id, level: 'quick' })} data-inspect-row><span class="ib"><ClipboardCheck size={20} aria-hidden="true" /></span><span class="m"><b>{t('Start inspection')}</b><small>{checkLine}</small></span><ChevronRight class="chev" size={20} aria-hidden="true" /></a></li>
     </ul>
   {/if}
   {#if cards.length}

@@ -175,7 +175,7 @@
       {#if sub}<p>{sub}</p>{/if}
     </div>
     <span class="code" aria-hidden="true">{b.key}</span>
-    <button type="button" class="fold" aria-expanded={!shut} aria-label={shut ? t('Open {name}', { name: t(b.name) }) : t('Close {name}', { name: t(b.name) })} onclick={() => setView({ shut: toggled(view.shut, b.key) })}>{#if shut}<ChevronDown size={18} aria-hidden="true" />{:else}<ChevronUp size={18} aria-hidden="true" />{/if}</button>
+    <button type="button" class="fold" aria-expanded={!shut} aria-label={shut ? t('Open {name}', { name: t(b.name) }) : t('Close {name}', { name: t(b.name) })} onclick={() => setView({ shut: toggled(view.shut, b.key) })}>{#if shut}<ChevronDown size={20} aria-hidden="true" />{:else}<ChevronUp size={20} aria-hidden="true" />{/if}</button>
   </div>
 {/snippet}
 
@@ -397,7 +397,7 @@
     </div>
     <div class="izt">
       {#if tours && shownGroups.length}<button type="button" class="btn btn-link fall" data-fold-all onclick={() => setView({ open: anyOpen ? [] : shownGroups.map((g) => g.key) })}>{#if anyOpen}<ChevronsUp size={17} aria-hidden="true" />{t('Close all')}{:else}<ChevronsDown size={17} aria-hidden="true" />{t('Open all')}{/if}</button>{/if}
-      <button type="button" class="btn k" onclick={() => (pick = true)} aria-haspopup="dialog"><LayoutGrid size={17} aria-hidden="true" /><span class="kl">{t('Blocks')}</span></button>
+      <button type="button" class="btn k" onclick={() => (pick = true)} aria-haspopup="dialog"><LayoutGrid size={16} aria-hidden="true" /><span class="kl">{t('Blocks')}</span></button>
     </div>
   </div>
   {#if tours && shownGroups.length}

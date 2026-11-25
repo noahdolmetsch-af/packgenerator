@@ -13,7 +13,7 @@
 
 {#if bikes.length}
   <details class="retired" data-retired-list>
-    <summary><Archive size={18} aria-hidden="true" /><span>{tn(bikes.length, '{n} retired bike', '{n} retired bikes')}</span></summary>
+    <summary><Archive size={20} aria-hidden="true" /><span>{tn(bikes.length, '{n} retired bike', '{n} retired bikes')}</span></summary>
     <p class="note">{t('Their trips, km and services stay and still count in your reviews. They are not offered when you choose a bike.')}</p>
     <ul>
       {#each bikes as b (b.id)}

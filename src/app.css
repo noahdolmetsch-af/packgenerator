@@ -1424,6 +1424,7 @@ dialog.sheet {
   padding: 18px;
   width: min(520px, calc(100vw - 24px));
   max-height: calc(100vh - 24px);
+  max-height: calc(100dvh - 24px);
 }
 dialog.sheet::backdrop {
   background: var(--scrim);
@@ -1791,6 +1792,7 @@ details[open] > summary.lrow .chev {
     width: 100vw;
     max-width: 100vw;
     max-height: 94vh;
+    max-height: 94dvh; /* «Nie abgeschnitten»: dvh, so the window also fits under a phone's address bar */
     border-radius: 22px 22px 0 0;
     border-bottom: 0;
     padding-bottom: calc(18px + env(safe-area-inset-bottom));
@@ -2035,4 +2037,76 @@ html:root[data-contrast='high'][data-theme='dark'] {
 [data-anp-flex] {
   display: flex !important;
   flex-direction: column;
+}
+
+/* «Nie abgeschnitten» (Noah 24.11.2026 «a und b», docs/regeln.md Block 7): every window fits the screen. Head and foot with the
+   main button stay put, only the middle scrolls, and a soft edge shows that more follows. The guard is tests/fenster.test.js
+   (static) and tests/e2e/fenster.spec.js (390, 1440×800, 1440×900: the main button whole, no button cut at the edge).
+   --dlg-px / --dlg-pt / --dlg-pb are the window's own padding; head and foot reach into it, so they sit flush at the edge. */
+dialog.sheet,
+dialog.calm-sheet,
+dialog.fact-sheet {
+  --dlg-px: 18px;
+  --dlg-pt: 18px;
+  --dlg-pb: 18px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-padding-block: 72px 96px; /* a field you tab to stops clear of the fixed head and foot */
+}
+/* Every window that scrolls shows a soft shadow at the edge where more is hidden (no script: background-attachment). */
+dialog.sheet {
+  background:
+    linear-gradient(var(--paper) 30%, transparent) top / 100% 28px no-repeat local,
+    linear-gradient(transparent, var(--paper) 70%) bottom / 100% 28px no-repeat local,
+    radial-gradient(farthest-side at 50% 0, color-mix(in srgb, var(--shadow) 70%, transparent), transparent) top / 100% 10px no-repeat scroll,
+    radial-gradient(farthest-side at 50% 100%, color-mix(in srgb, var(--shadow) 70%, transparent), transparent) bottom / 100% 10px no-repeat scroll,
+    var(--paper);
+}
+dialog.sheet.vdlg {
+  --dlg-px: 20px;
+  --dlg-pt: 20px;
+  --dlg-pb: 18px;
+}
+@media (max-width: 719px) {
+  dialog.sheet.vdlg {
+    --dlg-px: 16px;
+    --dlg-pt: 18px;
+    --dlg-pb: 16px;
+  }
+}
+dialog.sheet.vdlg .vd-head {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  margin: calc(-1 * var(--dlg-pt)) calc(-1 * var(--dlg-px)) 0;
+  padding: var(--dlg-pt) var(--dlg-px) 14px;
+  background: var(--paper);
+}
+dialog.sheet.vdlg .vd-head::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 14px;
+  background: linear-gradient(var(--paper), transparent);
+  pointer-events: none;
+}
+dialog.sheet.vdlg .vd-foot {
+  position: sticky;
+  bottom: 0;
+  z-index: 3;
+  margin: 16px calc(-1 * var(--dlg-px)) calc(-1 * var(--dlg-pb));
+  padding: 12px var(--dlg-px) var(--dlg-pb);
+  background: var(--paper);
+}
+dialog.sheet.vdlg .vd-foot::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: 16px;
+  background: linear-gradient(transparent, var(--paper));
+  pointer-events: none;
 }

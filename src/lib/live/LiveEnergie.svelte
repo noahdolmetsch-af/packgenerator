@@ -44,7 +44,7 @@
 
 {#if hours >= 0.1}
   <p class="le-line" data-live-energy>
-    <Flame size={18} aria-hidden="true" />
+    <Flame size={20} aria-hidden="true" />
     <span>{t('So far about {kcal} kcal used.', { kcal: num(e.burn) })} <Nussgipfel kcal={e.burn} /> {t('Eat about {g} g carbohydrates and drink about {l} L per hour.', { g: num(valuesOf($fuelQ?.value).carbsGh), l: num(e.waterLh) })} <small>{t('A guess from your weight, time, km and climbing.')}</small></span>
   </p>
 {/if}

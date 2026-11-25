@@ -21,6 +21,7 @@
   import FormTeile from '../../lib/flow/form/FormTeile.svelte';
   import FormTour from '../../lib/flow/form/FormTour.svelte';
   import FormVergleich from '../../lib/flow/form/FormVergleich.svelte';
+  import TagesVorschlag from '../../lib/flow/form/TagesVorschlag.svelte';
   import FormAuffaellt from '../../lib/flow/form/FormAuffaellt.svelte';
   import MarkerCard from '../../lib/flow/MarkerCard.svelte';
   import { formQuery } from '../../lib/form-data.js';
@@ -65,6 +66,8 @@
         <span class="tx"><b>{t('Readiness')}</b><span>{t('Comes with your first activities from Strava or with Fitbit: then the app shows each morning what today suits.')}</span></span>
       {/if}
     </section>
+    <!-- Tagesvorschlag + next step (Noah 24.11.2026 «1-5a»): what fits to the answer -->
+    {#if r}<TagesVorschlag level={ans.level} />{/if}
 
     <!-- «Was auffällt» (Noah 21.11.2026, K3; 23.11.2026: all values, right under the answer) -->
     <Sec id="auffaellt-h" title={t('What stands out')} sub={t('resting pulse, HRV and sleep of the last days against your normal')}>
@@ -113,7 +116,7 @@
     {#if f.tour}
       <Sec id="tour-h" title={t('Tour readiness')} sub={t('before and during a tour of several days: the resting pulse per tour day')}>
         <div class="card tour" data-form-tours>
-          <p class="tl" data-tour-now><Mountain size={18} aria-hidden="true" /><span>{tourText(f.tour)}</span></p>
+          <p class="tl" data-tour-now><Mountain size={20} aria-hidden="true" /><span>{tourText(f.tour)}</span></p>
           <!-- «Diagramme zum Antippen» K4 (Noah 27.10.2026 «1-5 a»): one chart, day 1 = tour start, earlier tours on top -->
           <FormTour {f} {today} />
           <p class="hint">{t('A resting pulse rising day after day on a tour often means: more sleep, more food, an easier stage.')}</p>

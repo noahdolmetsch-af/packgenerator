@@ -15,7 +15,7 @@
 </script>
 
 {#if show}
-  <button type="button" class="ls-top" onclick={up} aria-label={t('Back to top')}><ArrowUp size={18} aria-hidden="true" /><span>{t('Back to top')}</span></button>
+  <button type="button" class="ls-top" onclick={up} aria-label={t('Back to top')}><ArrowUp size={20} aria-hidden="true" /><span>{t('Back to top')}</span></button>
 {/if}
 
 <style>

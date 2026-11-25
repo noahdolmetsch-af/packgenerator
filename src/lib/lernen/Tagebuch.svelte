@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../actlite.js';
   /**
    * Paket M «Tour-Tagebuch von selbst» (Noah 19.10.2026 «1a», Frage 1 «1b»): in the debrief of a trip.
    * The first time the debrief opens, a draft is written from the Strava rides of those days, uploaded
@@ -25,7 +26,7 @@
   const prefQ = liveQuery(() => db.settings.get(DIARY_KEY).then((r) => r ?? null)); // null = no record yet (on)
   const on = $derived($prefQ === undefined ? null : $prefQ?.value?.on !== false);
   const days = $derived(tripDays(trip));
-  const actsQ = $derived(days.length ? liveQuery(() => db.activities.where('day').between(days[0], days.at(-1), true, true).toArray()) : null);
+  const actsQ = $derived(days.length ? liveQuery(() => readLite(db, (T) => T.where('day').between(days[0], days.at(-1), true, true).toArray())) : null);
   const facts = $derived(diaryFacts({ trip, activities: $actsQ ?? [], rides, notes, evening: d?.evening ?? {}, parts: d?.eveningParts ?? {} }));
 
   let photos = $state([]);
@@ -131,7 +132,7 @@
   </section>
 {:else if on === true && d}
   <section class="rv-sec tb" aria-labelledby="tb-h" data-tagebuch>
-    <div class="rv-h"><div><h2 id="tb-h"><BookHeart size={18} aria-hidden="true" /> {t('Tour diary')}</h2><p class="rv-sub">{d.diary?.edited ? t('your text') : t('a draft from your rides, weather and notes · change anything')}</p></div></div>
+    <div class="rv-h"><div><h2 id="tb-h"><BookHeart size={20} aria-hidden="true" /> {t('Tour diary')}</h2><p class="rv-sub">{d.diary?.edited ? t('your text') : t('a draft from your rides, weather and notes · change anything')}</p></div></div>
     <div class="rv-box pad">
       <textarea bind:this={box} class="inp tb-text" rows="8" value={d.diary?.text ?? ''} oninput={edit} aria-label={t('Tour diary')}></textarea>
       {#if photos.length}
@@ -142,7 +143,7 @@
         </ul>
       {/if}
       <div class="rowacts tb-acts">
-        <label class="btn k tb-pick" aria-disabled={busy}><ImagePlus size={17} aria-hidden="true" /><span class="kl">{busy ? t('Adding …') : t('Photos of those days')}</span><input type="file" accept="image/*" multiple onchange={pick} disabled={busy} hidden /></label>
+        <label class="btn k tb-pick" aria-disabled={busy}><ImagePlus size={16} aria-hidden="true" /><span class="kl">{busy ? t('Adding …') : t('Photos of those days')}</span><input type="file" accept="image/*" multiple onchange={pick} disabled={busy} hidden /></label>
         <Btn icon={RefreshCw} label={t('New draft')} onclick={redraft} />
         <Btn icon={Copy} label={t('Copy')} onclick={copy} />
         {#if canShare}<Btn icon={Share2} label={t('Share')} onclick={share} />{/if}

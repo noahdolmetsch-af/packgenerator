@@ -252,17 +252,17 @@
       <Seg label={t('Show as')} value={v.view} options={[{ key: 'grams', name: t('Grams and litres') }, { key: 'products', name: t('My products') }]} onchange={(k) => setVal('view', k)} />
       {#if plan}
         <div class="sum">
-          <span><Clock size={18} aria-hidden="true" /><b class="num">{h(plan.totals.hours)}</b><small>{t('riding')}</small></span>
-          <span><Cookie size={18} aria-hidden="true" /><b class="num">{g(plan.totals.carbs)}</b><small>{t('carbohydrates')}</small></span>
-          <span><Droplet size={18} aria-hidden="true" /><b class="num">{l(plan.totals.waterL)}</b><small>{t('water')}</small></span>
-          {#if used}<span data-fuel-kcal><Flame size={18} aria-hidden="true" /><b class="num">{num(used.burn)}</b><small>{t('kcal used, about')}</small></span>{/if}
+          <span><Clock size={20} aria-hidden="true" /><b class="num">{h(plan.totals.hours)}</b><small>{t('riding')}</small></span>
+          <span><Cookie size={20} aria-hidden="true" /><b class="num">{g(plan.totals.carbs)}</b><small>{t('carbohydrates')}</small></span>
+          <span><Droplet size={20} aria-hidden="true" /><b class="num">{l(plan.totals.waterL)}</b><small>{t('water')}</small></span>
+          {#if used}<span data-fuel-kcal><Flame size={20} aria-hidden="true" /><b class="num">{num(used.burn)}</b><small>{t('kcal used, about')}</small></span>{/if}
         </div>
         {#if v.view === 'products'}<p class="note" data-fuel-pack>{t('In all: {list}', { list: packText(plan.totals.carbs) })}</p>{/if}
         <p class="note">{t('{km} km, {n} h riding a day with your pace; water {a}–{b} l per hour by temperature and climbing. Your bottles hold {cap}.', { km: kmOf(totalKm), n: num(rideH), a: num(v.coolLh), b: num(v.hotLh), cap: l(plan.capacityL) })}{#if plan.guessedTemp}{' '}{t('No forecast for some parts yet: 20 °C assumed there.')}{/if}{#if !trip.startDate}{' '}{t('Without a start day the app cannot check the weather and the opening hours.')}{/if}{#if used}{' '}<Nussgipfel kcal={used.burn} />{/if}</p>
       {:else if plain}
         <div class="sum">
-          <span><Clock size={18} aria-hidden="true" /><b class="num">{h(plain.hours)}</b><small>{t('riding')}</small></span>
-          <span><Cookie size={18} aria-hidden="true" /><b class="num">{carbsText(Math.round((plain.hours * v.carbsGh) / 5) * 5)}</b><small>{t('carbohydrates')}</small></span>
+          <span><Clock size={20} aria-hidden="true" /><b class="num">{h(plain.hours)}</b><small>{t('riding')}</small></span>
+          <span><Cookie size={20} aria-hidden="true" /><b class="num">{carbsText(Math.round((plain.hours * v.carbsGh) / 5) * 5)}</b><small>{t('carbohydrates')}</small></span>
         </div>
         <p class="note">{t('This trip has no route yet. With a GPX route the app splits it into sections between shops and adds water.')} <button type="button" class="text-button" onclick={() => { openTrip(trip.id); location.hash = '#/pack'; }}>{t('Add GPX route')}</button></p>
         <p class="note" data-fuel-gpxstops>{t('Stops as waypoints: with a route, the shops and the water go into one GPX for the Garmin or the Wahoo.')}</p>
@@ -360,7 +360,7 @@
             <input class="pn" type="text" maxlength="60" value={nameOf(p)} aria-label={t('Name')} onchange={(e) => rename(p, e.currentTarget.value)} />
             <label class="pg"><input class="num" type="number" min="0" max="500" step="1" inputmode="numeric" value={p.carbs} aria-label={t('Carbohydrates of {name} (g)', { name: nameOf(p) })} onchange={(e) => setCarbs(p, e.currentTarget.value)} /><span>g</span></label>
             {#if !phone.matches}<SortArrows name={nameOf(p)} {i} n={products.length} onstep={(dir) => step(i, dir)} />{/if}
-            <button type="button" class="icon" aria-label={t('Delete {name}', { name: nameOf(p) })} onclick={() => removeProduct(p)}><Trash2 size={18} aria-hidden="true" /></button>
+            <button type="button" class="icon" aria-label={t('Delete {name}', { name: nameOf(p) })} onclick={() => removeProduct(p)}><Trash2 size={20} aria-hidden="true" /></button>
           </li>
         {/each}
       </ul>

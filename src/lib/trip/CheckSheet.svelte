@@ -108,9 +108,9 @@
             <span class="tx"><span class="nm">{t(r.label)}</span>{#if hint}<small>{hint}</small>{/if}</span>
           </label>
           {#if link}
-            <a class="lnk" href={link.href} target={link.out ? '_blank' : undefined} rel={link.out ? 'noopener noreferrer' : undefined} onclick={() => !link.out && openTrip(trip.id)}><span class="pl">{t(link.label)}<ArrowUpRight size={13} aria-hidden="true" /></span></a>
+            <a class="lnk" href={link.href} target={link.out ? '_blank' : undefined} rel={link.out ? 'noopener noreferrer' : undefined} onclick={() => !link.out && openTrip(trip.id)}><span class="pl">{t(link.label)}<ArrowUpRight size={14} aria-hidden="true" /></span></a>
           {/if}
-          <span class="ckw"><input id="ck-{kind}-{r.id}" class="ck" type="checkbox" checked={r.done} onchange={() => tick(r.id)} /><Check class="ckm" size={15} strokeWidth={2.5} aria-hidden="true" /></span>
+          <span class="ckw"><input id="ck-{kind}-{r.id}" class="ck" type="checkbox" checked={r.done} onchange={() => tick(r.id)} /><Check class="ckm" size={16} strokeWidth={2.5} aria-hidden="true" /></span>
         </li>
       {/each}
     </ul>
@@ -120,17 +120,17 @@
 
   {#if learn}
     <div class="learn">
-      <span class="lib" aria-hidden="true"><BookOpen size={18} /></span>
+      <span class="lib" aria-hidden="true"><BookOpen size={20} /></span>
       <span class="tx"><span class="nm">{t('From your debrief of {day}', { day: shortDay(learn.at) })}</span><small>{learn.n > 1 ? tn(learn.n, '«{name}» was missing {n} time · add it as a row?', '«{name}» was missing {n} times · add it as a row?', { name: learn.name }) : t('«{name}» was missing · add it as a row?', { name: learn.name })}</small></span>
-      <button type="button" class="btn" onclick={() => takeLearn(learn.name)}><Plus size={15} aria-hidden="true" />{t('Add|row')}</button>
+      <button type="button" class="btn" onclick={() => takeLearn(learn.name)}><Plus size={16} aria-hidden="true" />{t('Add|row')}</button>
     </div>
   {/if}
   {#if outLinks.length}
-    <p class="hint"><TriangleAlert size={15} aria-hidden="true" /><span>{list.some((r) => r.id === 'bulletin') ? t('The app does not read the bulletin, it only opens the page.') : t('The app does not read these pages, it only opens them.')}</span></p>
+    <p class="hint"><TriangleAlert size={16} aria-hidden="true" /><span>{list.some((r) => r.id === 'bulletin') ? t('The app does not read the bulletin, it only opens the page.') : t('The app does not read these pages, it only opens them.')}</span></p>
   {/if}
 
   <div class="foot">
-    <button type="button" class="tp-link edit" onclick={edit}><Ellipsis size={15} aria-hidden="true" />{t('Adjust the list')}</button>
+    <button type="button" class="tp-link edit" onclick={edit}><Ellipsis size={16} aria-hidden="true" />{t('Adjust the list')}</button>
     <span class="bt">
       <button type="button" class="btn" onclick={close}>{t('Later')}</button>
       <button type="button" class="btn hi" onclick={done}>{kind === 'after' && debriefHref ? t('Done, to the debrief') : t('Done')}</button>

@@ -45,7 +45,7 @@
   <h3 id="gl-h-{bike.id}">{t('At a glance')}</h3>
   <div class="grid">
     <div class="tile chain" data-glance-chain={chain ? chain.state : 'none'}>
-      <span class="k"><Link2 size={15} aria-hidden="true" />{t('Chain')}{#if chain?.model}<span class="m">{' · '}{chain.model}</span>{/if}</span>
+      <span class="k"><Link2 size={16} aria-hidden="true" />{t('Chain')}{#if chain?.model}<span class="m">{' · '}{chain.model}</span>{/if}</span>
       {#if chain}
         <p class="big num">{t('{km} km done', { km: num(chain.km) })}</p>
         <div class="meter {tone}" role="img" aria-label={t('{km} of {life} km', { km: num(chain.km), life: num(chain.life) })}><i style:width="{pct}%"></i></div>
@@ -67,7 +67,7 @@
     </div>
 
     <div class="tile" data-glance-service={service ? service.kind : 'none'}>
-      <span class="k"><Wrench size={15} aria-hidden="true" />{service?.kind === 'visit' ? t('Last bike shop visit') : t('Last service|glance')}</span>
+      <span class="k"><Wrench size={16} aria-hidden="true" />{service?.kind === 'visit' ? t('Last bike shop visit') : t('Last service|glance')}</span>
       {#if service}
         <p class="v num">{dateOf(service.day)}</p>
         <p class="s">{[service.shop, service.chf != null ? chfText(service.chf) : '', service.km != null ? t('at {km} km', { km: num(service.km) }) : ''].filter(Boolean).join(' · ')}</p>
@@ -80,7 +80,7 @@
     </div>
 
     <div class="tile" data-glance-check={check ? 'done' : 'none'}>
-      <span class="k"><ClipboardCheck size={15} aria-hidden="true" />{t('Last check')}</span>
+      <span class="k"><ClipboardCheck size={16} aria-hidden="true" />{t('Last check')}</span>
       {#if check}
         <p class="v num">{dateOf(check.day)}</p>
         <p class="s">{levelName(check.level)} · {daysAgo(check.day) === 0 ? t('today') : tn(daysAgo(check.day), '{n} day ago|glance', '{n} days ago|glance')}{check.km != null ? ` · ${t('at {km} km', { km: num(check.km) })}` : ''}</p>
@@ -99,7 +99,7 @@
     </div>
 
     <div class="tile" data-glance-cost>
-      <span class="k"><Wallet size={15} aria-hidden="true" />{t('Costs {year}', { year: cost.year })}</span>
+      <span class="k"><Wallet size={16} aria-hidden="true" />{t('Costs {year}', { year: cost.year })}</span>
       {#if cost.total > 0}
         <p class="v num">{chfText(cost.total)}</p>
         <p class="s">{[cost.work > 0 ? t('Bike shop {chf}', { chf: chfText(cost.work) }) : '', cost.parts > 0 ? t('Parts {chf}', { chf: chfText(cost.parts) }) : ''].filter(Boolean).join(' · ')}{#if cost.top.length}{' ('}{cost.top.map((x) => `${x.name} ${num(Math.round(x.chf))}`).join(', ')}{')'}{/if}</p>

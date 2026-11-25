@@ -10,7 +10,7 @@
 
 {#if toast.v}
   <div class="toast" role="status">
-    <Check size={18} aria-hidden="true" />
+    <Check size={20} aria-hidden="true" />
     <span>{toast.v.text}</span>
     {#if toast.v.undo}<button type="button" class="undo" onclick={undo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>{/if}
   </div>

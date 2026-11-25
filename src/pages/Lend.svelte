@@ -126,7 +126,7 @@
 
 <div class="page lend">
   <PathHead crumbs={[{ label: t('Gear|place'), href: '#/gear' }]} title={t('Lent out')} sub={$lendsQ !== undefined ? tn(open.length, '{n} list open', '{n} lists open') : ''}>
-    {#if !form}<button type="button" class="btn hi" onclick={startForm}><Plus size={18} aria-hidden="true" /> {t('New lending list')}</button>{/if}
+    {#if !form}<button type="button" class="btn hi" onclick={startForm}><Plus size={20} aria-hidden="true" /> {t('New lending list')}</button>{/if}
   </PathHead>
   <p class="intro">{t('A guest needs a helmet or a sleeping bag? Choose the things, send the list as a link or PDF, and the app remembers who has what. On the return day a reminder comes, if you switch it on under Me › Reminders.')}</p>
   <AreaIntro place="lend" />

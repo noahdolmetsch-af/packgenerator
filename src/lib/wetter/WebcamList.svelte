@@ -148,7 +148,7 @@
   <input class="inp" type="text" bind:value={name} placeholder={t('Name, e.g. Lake at home')} aria-label={t('Name')} maxlength="60" data-webcam-name />
   <input class="inp" type="url" bind:value={url} placeholder="https://…" aria-label={t('Address of the webcam')} data-webcam-url />
   <label class="wc-home"><input type="checkbox" bind:checked={home} />{t('Home cam (small on Today)')}</label>
-  <button type="submit" class="btn" disabled={!url.trim()}><Plus size={18} aria-hidden="true" />{t('Add webcam')}</button>
+  <button type="submit" class="btn" disabled={!url.trim()}><Plus size={20} aria-hidden="true" />{t('Add webcam')}</button>
   {#if msg}<p class="rc-warn" role="alert">{msg}</p>{/if}
 </form>
 <p class="rc-note">{t('A webcam behind a login opens in the browser, where you sign in yourself; the app never keeps a password.')}</p>

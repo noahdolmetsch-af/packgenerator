@@ -123,14 +123,14 @@
       {/if}
       <span class="wb">{#if r.st.fill != null}<span class="bar {r.st.tone}" role="img" aria-label="{Math.round(r.st.fill * 100)} %"><i style="width:{Math.max(4, Math.round(r.st.fill * 100))}%"></i></span>{:else if r.last}<span class="bar empty" aria-hidden="true"></span>{/if}</span>
       <span class="nx" class:late={isDueState(r.st.state)}>{r.st.next || (r.last ? '' : '–')}{#if BADGE[r.st.state]}{' '}<i class="pill" class:act={isDueState(r.st.state)} class:warn={r.st.state === 'soon'} data-sign={isDueState(r.st.state) ? signFor('warn') : null}>{t(BADGE[r.st.state])}</i>{/if}</span>
-      <ChevronRight class="chev" size={18} aria-hidden="true" />
+      <ChevronRight class="chev" size={20} aria-hidden="true" />
     </button>
   </li>
 {/snippet}
 
 <section class="ptable" aria-labelledby="pt-h-{bike.id}">
   <div class="phead">
-    <h3 id="pt-h-{bike.id}" class="ph"><Wrench size={18} aria-hidden="true" />{t('Parts')} <span class="n num">{total}</span></h3>
+    <h3 id="pt-h-{bike.id}" class="ph"><Wrench size={20} aria-hidden="true" />{t('Parts')} <span class="n num">{total}</span></h3>
     {#if !compact}<div class="sorts"><Seg small full={false} label={t('Sort the parts')} value={sort} onchange={setSort} options={SORTS.map(([k, n]) => ({ key: k, name: t(n) }))} /></div>{/if}
   </div>
   {#if q1}<p class="sphint">{t('Start point = date and bike km at mounting. From it the app counts the km of every part, also across several bikes. To change: tap the part.')}</p>{/if}
@@ -146,11 +146,11 @@
     <ul class="plist">{#each flat.filter((r) => showRow(r.part.key)) as r (r.part.key)}{@render row(r)}{/each}</ul>
   {/if}
   {#if hiddenN > 0}
-    <button type="button" class="morebtn" onclick={() => (allRows = true)} data-parts-more><ChevronDown size={18} aria-hidden="true" /><span>{t('Show {n} more|list', { n: hiddenN })}</span></button>
+    <button type="button" class="morebtn" onclick={() => (allRows = true)} data-parts-more><ChevronDown size={20} aria-hidden="true" /><span>{t('Show {n} more|list', { n: hiddenN })}</span></button>
   {/if}
   {#if moreCount}
     <button type="button" class="morebtn" aria-expanded={moreOpen} onclick={() => (moreOpen = !moreOpen)}>
-      {#if moreOpen}<ChevronDown size={18} aria-hidden="true" />{:else}<ChevronRight size={18} aria-hidden="true" />{/if}
+      {#if moreOpen}<ChevronDown size={20} aria-hidden="true" />{:else}<ChevronRight size={20} aria-hidden="true" />{/if}
       <span>{t('More')}</span><span class="n">{groups.more.flatMap((g) => g.parts).slice(0, 4).map(partName).join(', ')}{moreCount > 4 ? ' …' : ''}</span>
     </button>
     {#if moreOpen}

@@ -10,7 +10,7 @@ import { homeTrips } from './heute.js';
 import { withStravaRides, bikeActs } from '../kmbook.js';
 
 /** The tables readSeries reads, for a transaction around it. */
-export const seriesTables = (d) => [d.flowLog, d.rides, d.kmBook, d.activities, d.trips, d.debriefs, d.settings].filter(Boolean);
+export const seriesTables = (d) => [d.flowLog, d.rides, d.kmBook, d.activities, d.activitiesLite, d.trips, d.debriefs, d.settings].filter(Boolean);
 
 /** The series of `today` from the database. → { s: seriesOf(...), trips: the trips of Today, debriefs } */
 export async function readSeries(d, today) {

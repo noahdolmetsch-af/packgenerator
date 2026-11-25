@@ -33,7 +33,7 @@
   const hm = (ms) => new Date(ms).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
 </script>
 
-{#if warn}<p class="lvf-alert lvf-bad" role="status" data-live-wx={warn.kind}><TriangleAlert size={18} aria-hidden="true" /><span>{t(WARN_TEXT[warn.kind], { at: hm(warn.at), v: num(warn.value) })}</span></p>{/if}
+{#if warn}<p class="lvf-alert lvf-bad" role="status" data-live-wx={warn.kind}><TriangleAlert size={20} aria-hidden="true" /><span>{t(WARN_TEXT[warn.kind], { at: hm(warn.at), v: num(warn.value) })}</span></p>{/if}
 
 <style>
   /* the same look as the other alerts of the live map (Live.svelte .lvf-alert .lvf-bad) */

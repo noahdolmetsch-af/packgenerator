@@ -67,7 +67,7 @@
 <div class="gp">
   <GriffHead {bikes} {bike} view="stock" title={t('Spare parts at home')} sub={t('What is in stock; every change you make yourself takes one away')} />
   <section class="gcard" aria-labelledby="st-h">
-    <h2 id="st-h"><Package size={18} aria-hidden="true" />{t('In stock')}</h2>
+    <h2 id="st-h"><Package size={20} aria-hidden="true" />{t('In stock')}</h2>
     <p class="quiet">{t('Choose the part a row follows: when you replace that part yourself, one goes away. A change by the bike shop does not count.')}</p>
     {#if rows.length}
       <ul class="list">

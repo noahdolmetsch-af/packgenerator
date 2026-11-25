@@ -19,7 +19,7 @@
       <a href={x.href}>
         <span class="tx"><b>{x.title}</b>{#if x.nick}<em class="nk">{x.nick}</em>{/if}<small>{x.sub}</small></span>
         <span class="pc num">{r.next ? `${Math.round(r.progress * 100)} %` : ''}</span>
-        <ChevronRight class="cv" size={18} aria-hidden="true" />
+        <ChevronRight class="cv" size={20} aria-hidden="true" />
         <span class="stars" role="img" aria-label={r.done ? t('All stars reached') : t('{n} of {m} stars reached, {p} percent to the next', { n: r.reached.length, m: r.steps.length, p: Math.round(r.progress * 100) })}>
           {#each r.steps as _, i (i)}
             {@const st = stateOf(r, i)}

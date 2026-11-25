@@ -40,7 +40,7 @@
 </script>
 
 <div class="rw" class:set={!!st}>
-  <span class="ri" aria-hidden="true"><Gift size={22} /></span>
+  <span class="ri" aria-hidden="true"><Gift size={24} /></span>
   <div class="rt">
     {#if st && item}
       <b>{msName(st.r.m)} · {t('Star {k} «{stage}» ({n})', { k: st.star, stage: stageName(st.star), n: val(st.threshold, st.r.m.unit) })}</b>

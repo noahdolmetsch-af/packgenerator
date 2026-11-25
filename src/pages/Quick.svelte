@@ -152,8 +152,8 @@
         {@const on = isPinned(s, f.id)}
         <li data-quick-fn={f.id}>
           <span class="ql-m"><b>{t(f.title)}</b><small>{t(f.text)}</small></span>
-          {#if on}<span class="ql-on"><Check size={15} aria-hidden="true" />{t('Pinned|quick')}</span>
-          {:else}<button type="button" class="btn sm" aria-label={t('Pin «{name}»', { name: t(f.title) })} onclick={() => pin(f)}><Plus size={15} aria-hidden="true" />{t('Pin|quick')}</button>{/if}
+          {#if on}<span class="ql-on"><Check size={16} aria-hidden="true" />{t('Pinned|quick')}</span>
+          {:else}<button type="button" class="btn sm" aria-label={t('Pin «{name}»', { name: t(f.title) })} onclick={() => pin(f)}><Plus size={16} aria-hidden="true" />{t('Pin|quick')}</button>{/if}
         </li>
       {/snippet}
       {#if q.trim()}
@@ -167,7 +167,7 @@
           </details>
         {/each}
       {/if}
-      <div class="tool-row"><button type="button" class="btn btn-link" onclick={() => (adding = false)}><X size={15} aria-hidden="true" />{t('Close')}</button></div>
+      <div class="tool-row"><button type="button" class="btn btn-link" onclick={() => (adding = false)}><X size={16} aria-hidden="true" />{t('Close')}</button></div>
     </section>
   {/if}
 
@@ -175,7 +175,7 @@
     <div class="ql-tip" role="status" data-quick-suggest={suggest.href}>
       <p>{t('You often open «{name}». Pin it here?', { name: suggest.title })}</p>
       <div class="tool-row">
-        <button type="button" class="btn sm hi" onclick={() => pinView(suggest)}><Plus size={15} aria-hidden="true" />{t('Pin|quick')}</button>
+        <button type="button" class="btn sm hi" onclick={() => pinView(suggest)}><Plus size={16} aria-hidden="true" />{t('Pin|quick')}</button>
         <button type="button" class="btn sm" onclick={() => noThanks(suggest)}>{t('No, thanks')}</button>
       </div>
     </div>
@@ -184,7 +184,7 @@
     <div class="ql-tip" role="status" data-quick-stale={stale.id}>
       <p>{t('You have not opened «{name}» for 30 days. Unpin it?', { name: pinLabel(stale, t) })}</p>
       <div class="tool-row">
-        <button type="button" class="btn sm" onclick={() => unpin(stale)}><Trash2 size={15} aria-hidden="true" />{t('Unpin|quick')}</button>
+        <button type="button" class="btn sm" onclick={() => unpin(stale)}><Trash2 size={16} aria-hidden="true" />{t('Unpin|quick')}</button>
         <button type="button" class="btn sm" onclick={() => keep(stale)}>{t('Keep|quick')}</button>
       </div>
     </div>
@@ -227,11 +227,11 @@
                 {#if editing}<SortGrip name={pinLabel(p, t)} onstep={(d) => move(gid, i, i + d)} />{/if}
                 <button type="button" class="ql-a" onclick={() => go(p)}>
                   <span class="ql-m"><b>{pinLabel(p, t)}</b>{#if p.note}<i data-quick-note>{p.note}</i>{/if}<small>{f ? (p.name ? t(f.title) : t(FEATURE_GROUPS.find((x) => x.key === f.group)?.label ?? '')) : p.name ? p.title : t('View with its filter')}</small></span>
-                  {#if !editing}<ChevronRight size={18} aria-hidden="true" />{/if}
+                  {#if !editing}<ChevronRight size={20} aria-hidden="true" />{/if}
                 </button>
                 {#if editing}
-                  <button type="button" class="btn sm" aria-label={t('Change name and note of «{name}»', { name: pinLabel(p, t) })} aria-expanded={open === p.id} onclick={() => (open = open === p.id ? null : p.id)}><Pencil size={15} aria-hidden="true" /></button>
-                  <button type="button" class="btn sm" aria-label={t('Unpin «{name}»', { name: pinLabel(p, t) })} onclick={() => unpin(p)}><Trash2 size={15} aria-hidden="true" /></button>
+                  <button type="button" class="btn sm" aria-label={t('Change name and note of «{name}»', { name: pinLabel(p, t) })} aria-expanded={open === p.id} onclick={() => (open = open === p.id ? null : p.id)}><Pencil size={16} aria-hidden="true" /></button>
+                  <button type="button" class="btn sm" aria-label={t('Unpin «{name}»', { name: pinLabel(p, t) })} onclick={() => unpin(p)}><Trash2 size={16} aria-hidden="true" /></button>
                   <SortArrows name={pinLabel(p, t)} {i} n={ps.length} onstep={(d) => move(gid, i, i + d)} />
                 {/if}
               </li>
@@ -275,10 +275,10 @@
       <span><b>{t('Pins on the cards')}</b><small>{t('A small pin at the top right of every card of a function in the app. A tap pins it here.')}</small></span>
       <input type="checkbox" role="switch" checked={marksOn} onchange={(e) => setMarks(e.currentTarget.checked)} />
     </label>
-    <button type="button" class="btn btn-link" data-quick-tour onclick={() => startTour('quick')}><Play size={15} aria-hidden="true" />{t('Tour of Quick Links')}</button>
+    <button type="button" class="btn btn-link" data-quick-tour onclick={() => startTour('quick')}><Play size={16} aria-hidden="true" />{t('Tour of Quick Links')}</button>
     <a href="#/features">{t('All {n} functions of the app', { n: FEATURES.length })} ›</a>
     {#if other && other.pins.length}
-      <button type="button" class="btn btn-link" data-quick-takeover onclick={takeOver}><ArrowRightLeft size={15} aria-hidden="true" />{tn(other.pins.length, 'Take over the pins of {device} ({n} pin)', 'Take over the pins of {device} ({n} pins)', { device: there })}</button>
+      <button type="button" class="btn btn-link" data-quick-takeover onclick={takeOver}><ArrowRightLeft size={16} aria-hidden="true" />{tn(other.pins.length, 'Take over the pins of {device} ({n} pin)', 'Take over the pins of {device} ({n} pins)', { device: there })}</button>
     {/if}
   </div>
 
@@ -289,8 +289,8 @@
         {#each recent as r (r.href)}
           <li class="ql-row">
             <a class="ql-a" href={r.href}><span class="ql-m"><b>{r.title}</b><small>{r.href.includes('?') ? t('View with its filter') : t('Page|quick')}</small></span></a>
-            {#if isViewPinned(s, r.href)}<span class="ql-on"><Check size={15} aria-hidden="true" />{t('Pinned|quick')}</span>
-            {:else}<button type="button" class="btn sm" aria-label={t('Pin «{name}»', { name: r.title })} onclick={() => pinView(r)}><Plus size={15} aria-hidden="true" />{t('Pin|quick')}</button>{/if}
+            {#if isViewPinned(s, r.href)}<span class="ql-on"><Check size={16} aria-hidden="true" />{t('Pinned|quick')}</span>
+            {:else}<button type="button" class="btn sm" aria-label={t('Pin «{name}»', { name: r.title })} onclick={() => pinView(r)}><Plus size={16} aria-hidden="true" />{t('Pin|quick')}</button>{/if}
           </li>
         {/each}
       </ul>

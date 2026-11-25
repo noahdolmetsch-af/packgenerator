@@ -220,6 +220,7 @@
     width: 100%;
     max-width: 100%;
     max-height: 85vh;
+    max-height: 85dvh;
     margin: 0;
     padding: 6px 0 calc(8px + env(safe-area-inset-bottom));
     box-sizing: border-box;

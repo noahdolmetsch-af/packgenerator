@@ -54,7 +54,7 @@
       <p class="ae-msg">{t('You can change the question here before you open a service.')}</p>
       <ul class="ae-list">
         {#each list as s, i (s.key)}
-          <li><a class={i === 0 ? 'btn hi sm ae-go ae-fav' : 'chip ae-go'} href={s.url(sendText)} target="_blank" rel="noopener noreferrer" title={t(s.what)} data-service={s.key} onclick={() => copyAlong(s)}>{i === 0 ? t('Ask {name}', { name: sname(s) }) : sname(s)}<ExternalLink size={12} aria-hidden="true" /></a></li>
+          <li><a class={i === 0 ? 'btn hi sm ae-go ae-fav' : 'chip ae-go'} href={s.url(sendText)} target="_blank" rel="noopener noreferrer" title={t(s.what)} data-service={s.key} onclick={() => copyAlong(s)}>{i === 0 ? t('Ask {name}', { name: sname(s) }) : sname(s)}<ExternalLink size={14} aria-hidden="true" /></a></li>
         {/each}
       </ul>
       {#if copiedTo}<p class="ae-msg" role="status" data-ask-copied>{t('{name} opens with your question. It is also copied: if it is missing there (e.g. after signing in), paste it.', { name: copiedTo })}</p>{/if}

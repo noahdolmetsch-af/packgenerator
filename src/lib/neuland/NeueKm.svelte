@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../actlite.js';
   /**
    * «Neue Kilometer» (Träume und Neuland N4, Noah 27.10.2026 «1-5 a»), on Touren › Rückblick › Neuland:
    * per year how many km ran on roads you rode for the first time (a bar for the share), and the last rides
@@ -16,7 +17,7 @@
   let { today } = $props();
   const dataQ = liveQuery(async () => {
     const [activities, rides, tracks] = await Promise.all([
-      db.activities ? db.activities.toArray() : [],
+      db.activities ? readLite(db, (T) => T.toArray()) : [],
       db.rides.toArray(),
       db.tracks ? db.tracks.where('kind').equals('rec').toArray() : [],
     ]);
@@ -56,7 +57,7 @@
             {/each}
           </ul>
         {/if}
-        <p class="nk-note"><Info size={15} aria-hidden="true" /><span>{t('A stretch counts as new when none of your earlier rides passed within {m} m. Rides from Strava, GPX files and your own recordings count.', { m: NEAR_M })}</span></p>
+        <p class="nk-note"><Info size={16} aria-hidden="true" /><span>{t('A stretch counts as new when none of your earlier rides passed within {m} m. Rides from Strava, GPX files and your own recordings count.', { m: NEAR_M })}</span></p>
       {/if}
     </div>
   </section>

@@ -22,10 +22,10 @@
   {#each phases as p, n (p.key)}
     <section class="ph {p.state}" data-pfad-phase={p.key} data-state={p.state}>
       <button type="button" class="ph-head" aria-expanded={isOpen(p)} onclick={() => (hand = { ...hand, [p.key]: !isOpen(p) })}>
-        <span class="no" aria-hidden="true">{#if p.state === 'done'}<Check size={14} strokeWidth={2.6} />{:else}{n + 1}{/if}</span>
+        <span class="no" aria-hidden="true">{#if p.state === 'done'}<Check size={14} strokeWidth={2.5} />{:else}{n + 1}{/if}</span>
         <span class="pt">{p.title}</span>
         {#if p.count}<small>{p.count}</small>{/if}
-        <ChevronDown class="chev" size={18} aria-hidden="true" />
+        <ChevronDown class="chev" size={20} aria-hidden="true" />
       </button>
       {#if isOpen(p)}
         <ul class="rows">

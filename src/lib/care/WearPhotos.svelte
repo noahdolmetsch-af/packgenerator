@@ -82,7 +82,7 @@
       {@const due = shotDue(bike, photos, key, every)}
       {@const pr = pair(key, list)}
       <section class="gcard" aria-labelledby="ws-{key}" data-shots={key}>
-        <h2 id="ws-{key}"><Camera size={18} aria-hidden="true" />{partName({ key })}</h2>
+        <h2 id="ws-{key}"><Camera size={20} aria-hidden="true" />{partName({ key })}</h2>
         {#if due?.due}<p class="warn" data-shot-due>{due.since == null ? t('No photo yet.') : t('New photo due: {km} km since the last one.', { km: num(due.since) })}</p>{/if}
         {#if list.length >= 2}
           <div class="cmp" style:--cut="{cut[key] ?? 50}%" data-shot-compare>

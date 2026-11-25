@@ -72,7 +72,7 @@
 
 {#if place && (s || asked)}
   <section class="card nt" aria-labelledby="nt-h" data-nacht>
-    <h2 id="nt-h" class="nt-h"><Moon size={18} aria-hidden="true" />{t('Night temperature')}</h2>
+    <h2 id="nt-h" class="nt-h"><Moon size={20} aria-hidden="true" />{t('Night temperature')}</h2>
     <p class="nt-where" data-nacht-where>{place.name ? `${shortPlace(place.name)} · ` : ''}{t('Lowest value 18 to 8 h')}</p>
     {#if s}
       <div class="nt-two">

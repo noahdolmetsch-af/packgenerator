@@ -15,7 +15,7 @@
 <ul class="msr card">
   {#each list as r (r.id)}
     <li data-ms={r.id} class:soon={r.soon}>
-      <span class="ib" aria-hidden="true"><Star size={18} /></span>
+      <span class="ib" aria-hidden="true"><Star size={20} /></span>
       <span class="tx"><b>{title(r)}</b><small>{r.next ? starLine(r.next) : t('all stars')}{#if label(r)}{' · '}{label(r)}{/if}</small></span>
       <span class="bar" role="img" aria-label={words(r)}><i style:width="{Math.round(r.progress * 100)}%"></i></span>
       <span class="v num">{words(r)}</span>

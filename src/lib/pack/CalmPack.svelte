@@ -373,7 +373,7 @@
   {:else if main.href === '#/pack?day'}<button class="btn hi go" onclick={toPack}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>
   {:else if main.kind === 'go'}<a class="btn hi go" href={main.href} onclick={() => actions.choose(trip.id)}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></a>{/if}
 {/snippet}
-{#snippet plus()}<button type="button" class="tp-icon-btn" aria-label={t('Add material')} onclick={() => show('add')} data-add-mat><Plus size={22} aria-hidden="true" /></button>{/snippet}
+{#snippet plus()}<button type="button" class="tp-icon-btn" aria-label={t('Add material')} onclick={() => show('add')} data-add-mat><Plus size={24} aria-hidden="true" /></button>{/snippet}
 
 <!-- «Vereinfachen ohne Verlust» step 2 (Noah 07.11.2026): the planning cards that used to stand beside and under the list, sorted into five groups -->
 {#snippet gWeather()}<DoorCard {trip} only={['planb']} />{/snippet}
@@ -431,11 +431,11 @@
         <section class="tp-card cond" aria-label={t('Trip conditions')}>
           <div class="cgrid" class:odd={oneDay && !routeText} class:three={oneDay && !!routeText}>
             <!-- TZ-2: a fixed trip shows its conditions to read only (a div, no tap) -->
-            {#if !oneDay}<svelte:element this={fixed ? 'div' : 'button'} class="cell" class:ro={fixed} {...cellAct(actions.edit)}><Clock3 size={18} aria-hidden="true" /><span><small>{t('Duration')}</small>{durationText}</span></svelte:element>
-            <svelte:element this={fixed ? 'div' : 'button'} class="cell" class:ro={fixed} {...cellAct(() => show('conditions'))}><Mountain size={18} aria-hidden="true" /><span><small>{t('Per day')}</small>{perDay}</span></svelte:element>
-            {:else if routeText}<svelte:element this={fixed ? 'div' : 'button'} class="cell" class:ro={fixed} {...cellAct(() => show('conditions'))}><Mountain size={18} aria-hidden="true" /><span><small>{t('Route')}</small>{routeText}</span></svelte:element>{/if}
-            <svelte:element this={fixed ? 'div' : 'button'} class="cell" class:ro={fixed} {...cellAct(() => show('conditions'))}><CloudSun size={18} aria-hidden="true" /><span><small>{t('Weather')}</small>{wxText}</span></svelte:element>
-            <a class="cell" href="#/pack/templates"><Layers size={18} aria-hidden="true" /><span><small>{t('Start with')}</small>{startText}</span><span class="sr"> · {t('Templates')}</span></a>
+            {#if !oneDay}<svelte:element this={fixed ? 'div' : 'button'} class="cell" class:ro={fixed} {...cellAct(actions.edit)}><Clock3 size={20} aria-hidden="true" /><span><small>{t('Duration')}</small>{durationText}</span></svelte:element>
+            <svelte:element this={fixed ? 'div' : 'button'} class="cell" class:ro={fixed} {...cellAct(() => show('conditions'))}><Mountain size={20} aria-hidden="true" /><span><small>{t('Per day')}</small>{perDay}</span></svelte:element>
+            {:else if routeText}<svelte:element this={fixed ? 'div' : 'button'} class="cell" class:ro={fixed} {...cellAct(() => show('conditions'))}><Mountain size={20} aria-hidden="true" /><span><small>{t('Route')}</small>{routeText}</span></svelte:element>{/if}
+            <svelte:element this={fixed ? 'div' : 'button'} class="cell" class:ro={fixed} {...cellAct(() => show('conditions'))}><CloudSun size={20} aria-hidden="true" /><span><small>{t('Weather')}</small>{wxText}</span></svelte:element>
+            <a class="cell" href="#/pack/templates"><Layers size={20} aria-hidden="true" /><span><small>{t('Start with')}</small>{startText}</span><span class="sr"> · {t('Templates')}</span></a>
           </div>
           <!-- v0.42.0 (Noah 2): the onion check, one quiet line under the weather -->
           {@render onion?.((item) => (swapping = { entry: null, item }))}
@@ -443,12 +443,12 @@
         <!-- L2: the open suggestions on top, marked as open work (below the whole list they got lost). -->
         <!-- v0.40.0 (design check): the weather in ONE place: the open suggestions are the first row
              of the card that shows what the weather brought (alone when it brought nothing yet). -->
-        {#snippet reviewRow()}<button type="button" class="tp-fold fold-btn detail-link" class:open-work={openLayers.length > 0} onclick={() => { review = true; window.scrollTo({ top: 0 }); }}><CloudSun size={20} aria-hidden="true" /><span>{t('Review weather suggestions')}</span><span class="r">{#if openLayers.length}<i class="tp-badge hi">{tn(openLayers.length, '{n} open', '{n} open')}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></button>{/snippet}
+        {#snippet reviewRow()}<button type="button" class="tp-fold fold-btn detail-link" class:open-work={openLayers.length > 0} onclick={() => { review = true; window.scrollTo({ top: 0 }); }}><CloudSun size={20} aria-hidden="true" /><span>{t('Review weather suggestions')}</span><span class="r">{#if openLayers.length}<i class="tp-badge hi">{tn(openLayers.length, '{n} open', '{n} open')}</i>{/if}<ChevronRight class="chev" size={20} aria-hidden="true" /></span></button>{/snippet}
         {#if bikeTrip && !edit && !fixed && !(wxRows.length || changeNote || ctxChanged)}{@render reviewRow()}{/if}
         <!-- Noah 4b: the weather changes the list by itself; here is what it brought, each with its reason. -->
         {#if wxRows.length || changeNote || ctxChanged || (bikeTrip && edit)}
           <section class="tp-card wxcard" aria-labelledby="wx-h">
-            <h2 id="wx-h"><CloudSun size={18} aria-hidden="true" />{t('Fitted to the weather')}<span class="r">{wxText}</span></h2>
+            <h2 id="wx-h"><CloudSun size={20} aria-hidden="true" />{t('Fitted to the weather')}<span class="r">{wxText}</span></h2>
             {#if source}<p class="wxsrc tp-muted tp-small" data-wx-source>{source}</p>{/if}
             {#if bikeTrip && edit}
               <!-- v0.47.1 (Noah c): one tap switches the range (the weather presets) or dry/rain; Undo as for every change. -->
@@ -483,9 +483,9 @@
           <h2>{t('Packing list')}</h2>
           <div class="list-toolbar">
             <label class="group-control"><select aria-label={t('Group packing list')} bind:value={grouping} onchange={(e) => keepChoice({ view: e.currentTarget.value })} data-pack-view><option value="steps">{t('Steps')}</option><option value="bags">{t('By bags')}</option><option value="category">{t('By category')}</option></select><ChevronDown size={16} aria-hidden="true" /></label>
-            {#if !fixed}<button class="tp-link add-mat" onclick={() => show('add')} data-add-mat><Plus size={18} aria-hidden="true" />{t('Add material')}</button>{/if}
+            {#if !fixed}<button class="tp-link add-mat" onclick={() => show('add')} data-add-mat><Plus size={20} aria-hidden="true" />{t('Add material')}</button>{/if}
             <!-- v0.27.0 (Noah 1a): Undo is announced when it appears (a live region). -->
-            <span class="undo-live" role="status" aria-live="polite">{#if canUndo}<button class="tp-link undo" onclick={actions.undo}><Undo2 size={18} aria-hidden="true" />{t('Undo')}</button>{/if}</span>
+            <span class="undo-live" role="status" aria-live="polite">{#if canUndo}<button class="tp-link undo" onclick={actions.undo}><Undo2 size={20} aria-hidden="true" />{t('Undo')}</button>{/if}</span>
             <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
             <details class="list-menu" bind:this={menuEl} use:away onkeydown={(e) => e.key === 'Escape' && closeMenu(e)}><summary aria-label={t('More: other trip, edit trip, templates, print')}><MoreHorizontal size={24} aria-hidden="true" /></summary>
               <div class="list-menu-content" use:inView>
@@ -535,7 +535,7 @@
               <button class="bag-heading" aria-expanded={isOpen} aria-controls={`calm-bag-${group.key}`} onclick={() => flip(group.key)}>
                 <Icon size={20} strokeWidth={1.8} aria-hidden="true" /><strong>{zoneTitle(group)}</strong>
                 <small class="num">{#if full}<i class="tp-badge">{t('over {cap} L', { cap: num(full.cap) })}</i> {/if}{tn(group.entries.length, '{n} item', '{n} items')}{group.entries.length ? ` · ${miss === group.entries.length ? t('not weighed') : (miss ? '~' : '') + formatWeight(g)}` : ''}</small>
-                {#if isOpen}<ChevronDown size={18} aria-hidden="true" />{:else}<ChevronRight size={18} aria-hidden="true" />{/if}
+                {#if isOpen}<ChevronDown size={20} aria-hidden="true" />{:else}<ChevronRight size={20} aria-hidden="true" />{/if}
               </button>
               {#if !isOpen && group.entries.length}<p class="preview">{preview(group)}</p>{/if}
               <!-- v0.37.0 (Noah 3a): a trip without a bike still on a general bag: a quiet way to the real one. -->
@@ -558,16 +558,16 @@
                            v0.44.1 (AP21): Escape closes the open row and the focus goes back to its button. -->
                       <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                       <li class="planning-row" class:open class:changed={!!ctx} class:has-why={!!why?.line} draggable={grouping === 'bags' && !phone.matches && !fixed} ondragstart={(e) => { e.dataTransfer.setData('text/plain', entry.itemId); e.dataTransfer.effectAllowed = 'copyMove'; }} onkeydown={(e) => { if (e.key === 'Escape' && open) { e.preventDefault(); itemMenu = null; e.currentTarget.querySelector('.row-main')?.focus(); } }}>
-                        <GripVertical class="drag-handle" size={18} aria-hidden="true" />
+                        <GripVertical class="drag-handle" size={20} aria-hidden="true" />
                         <!-- TZ-2: a fixed list: the row only to read (no amount, move or take out) -->
                         <svelte:element this={fixed ? 'div' : 'button'} class="row-main" class:ro={fixed} {...(fixed ? {} : { 'aria-label': t('Amount, move or take out: {name}', { name }), 'aria-describedby': why?.line || why?.note ? `calm-r-${entry.itemId} calm-w-${entry.itemId}` : `calm-w-${entry.itemId}`, 'aria-expanded': open, 'aria-controls': `calm-act-${entry.itemId}`, onclick: () => (itemMenu = open ? null : entry.itemId) })}>
                           <span class="item-name"><span>{name}</span>{#if qty > 1}{' '}<span class="item-qty">× {qty}</span>{/if}{#if why?.line || why?.note}<small class="carry-hint row-reason" id={`calm-r-${entry.itemId}`}>{why.line}{#if why.note}{#if why.line}<br />{/if}{t('Note: {text}', { text: why.note })}{/if}</small>{/if}{#if carry.has(entry.itemId)}<small class="carry-hint">{t('Buy {name} on the way?', { name })}</small>{/if}</span>
                           <span class="item-weight" id={`calm-w-${entry.itemId}`}>{#if item?.weightG == null}<i class="tp-badge">{t('not weighed')}</i>{:else}{formatWeight(item.weightG * qty)}{/if}</span>
-                          {#if !fixed}<ChevronDown class="row-chevron" size={18} aria-hidden="true" />{/if}
+                          {#if !fixed}<ChevronDown class="row-chevron" size={20} aria-hidden="true" />{/if}
                         </svelte:element>
                         <!-- P3 «Warum? und Regeln» (RG1, 2a: always visible): the rule behind the reason line -->
                         {#if why?.line}<button type="button" class="tp-link why-btn" aria-label={t('Why is {name} on the list?', { name })} aria-haspopup="dialog" onclick={() => (whyId = entry.itemId)} data-why={entry.itemId}>{t('Why?')}</button>{/if}
-                        {#if ctx && !fixed}<p class="row-ctx"><i class="tp-badge">{changedText(entry.itemId)}</i><button type="button" class="tp-link" aria-label={t('Undo for {name}', { name })} onclick={() => actions.undoRow(entry.itemId)}><Undo2 size={15} aria-hidden="true" />{t('Undo')}</button></p>{/if}
+                        {#if ctx && !fixed}<p class="row-ctx"><i class="tp-badge">{changedText(entry.itemId)}</i><button type="button" class="tp-link" aria-label={t('Undo for {name}', { name })} onclick={() => actions.undoRow(entry.itemId)}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button></p>{/if}
                         {#if open && !fixed}<div class="item-actions" id={`calm-act-${entry.itemId}`}>
                           <div class="amount" role="group" aria-label={t('Amount for {name}', { name })}><button aria-label={t('One less {name}', { name })} disabled={qty <= 1} onclick={() => actions.qty(entry.itemId, qty - 1)}><Minus size={16} /></button><span>{qty}</span><button aria-label={t('One more {name}', { name })} disabled={qty >= 20} onclick={() => actions.qty(entry.itemId, qty + 1)}><Plus size={16} /></button></div>
                           <label>{t('Move to')}<select class="sel" aria-label={t('Move {name} to', { name })} value={entry.slot} onchange={(e) => actions.move(entry.itemId, e.currentTarget.value)}>{#each targets as tg}<option value={tg.key}>{trip.purpose?.[tg.key] || t(tg.zone.name)}</option>{/each}{#if !targets.some(t => t.key === entry.slot)}<option value={entry.slot}>{entry.slot}</option>{/if}</select></label>
@@ -596,7 +596,7 @@
           {/each}
         </div>
         <div class="folds">
-          <details class="tp-fold weight-details"><summary><Weight size={20} aria-hidden="true" /><span>{t('Weight')}</span><span class="r num">{t('Base')} {stats.baseMissing ? '~' : ''}{kg(stats.baseG)}{#if stats.unweighed}<i class="tp-badge">{t('{n} not weighed', { n: stats.unweighed })}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
+          <details class="tp-fold weight-details"><summary><Weight size={20} aria-hidden="true" /><span>{t('Weight')}</span><span class="r num">{t('Base')} {stats.baseMissing ? '~' : ''}{kg(stats.baseG)}{#if stats.unweighed}<i class="tp-badge">{t('{n} not weighed', { n: stats.unweighed })}</i>{/if}<ChevronRight class="chev" size={20} aria-hidden="true" /></span></summary>
             <div class="in"><div class="weight-grid"><div><span>{t('Base')}</span><Sum g={stats.baseG} missing={stats.baseMissing} /></div><div><span>{t('On you')}</span><Sum g={stats.wornG} missing={stats.wornMissing} /></div><div><span>{t('Food and water')}</span><Sum g={stats.consumablesG} missing={stats.consumablesMissing} /></div><div><span>{t('Items')}</span><b>{stats.count}</b></div></div>{@render moreWeights?.()}{#if bikeTrip && stats.zones.some((z) => z.worn)}<p class="tp-muted tp-small">{t('Back and Hip count to On you, not to the bike or the wheels.')}</p>{/if}<p class="tp-muted tp-small">{stats.unweighed ? t('{n} weights missing · displayed weights are known values.', { n: stats.unweighed }) : t('All material weights are recorded.')}</p></div>
           </details>
         </div>

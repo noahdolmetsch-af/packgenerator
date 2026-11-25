@@ -193,7 +193,7 @@
           </div>
         </div>
       {:else}
-        <button type="button" class="btn hi om-go" disabled={plan.tooBig} onclick={() => start()} data-om-keep><Download size={18} aria-hidden="true" />{t('Keep for offline')}</button>
+        <button type="button" class="btn hi om-go" disabled={plan.tooBig} onclick={() => start()} data-om-keep><Download size={20} aria-hidden="true" />{t('Keep for offline')}</button>
       {/if}
     {/if}
     {#if msg}<p class={run?.state === 'done' ? 'rc-ok' : 'rc-note'} role="status" data-om-msg data-om-done={run?.state === 'done' ? '' : undefined}>{msg}</p>{/if}
@@ -215,10 +215,10 @@
               </small>
             </div>
             {#if !present.has(s.id) && s.ground}
-              <button type="button" class="rc-icon" aria-label={t('Load «{name}» again', { name: s.name })} disabled={busy || theLine.length < 2} onclick={() => start(s.ground, s.bufferKm || 1, s.name, s.id)} data-om-again={s.id}><RotateCw size={18} aria-hidden="true" /></button>
+              <button type="button" class="rc-icon" aria-label={t('Load «{name}» again', { name: s.name })} disabled={busy || theLine.length < 2} onclick={() => start(s.ground, s.bufferKm || 1, s.name, s.id)} data-om-again={s.id}><RotateCw size={20} aria-hidden="true" /></button>
             {/if}
-            <button type="button" class="rc-icon" aria-label={t('Rename «{name}»', { name: s.name })} onclick={() => (renaming = s)} data-om-rename={s.id}><Pencil size={18} aria-hidden="true" /></button>
-            <button type="button" class="rc-icon" aria-label={t('Delete «{name}»', { name: s.name })} onclick={() => del(s)} data-om-delete={s.id}><Trash2 size={18} aria-hidden="true" /></button>
+            <button type="button" class="rc-icon" aria-label={t('Rename «{name}»', { name: s.name })} onclick={() => (renaming = s)} data-om-rename={s.id}><Pencil size={20} aria-hidden="true" /></button>
+            <button type="button" class="rc-icon" aria-label={t('Delete «{name}»', { name: s.name })} onclick={() => del(s)} data-om-delete={s.id}><Trash2 size={20} aria-hidden="true" /></button>
           </li>
         {/each}
       </ul>

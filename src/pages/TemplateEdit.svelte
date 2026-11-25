@@ -256,7 +256,7 @@
               {/each}
               <p class="note">{t('Untick an item to leave it out of this template only.')} <a href="#/blocks">{t('Change the building block')}</a></p>
             </Fold>
-            <p class="shint"><Link2 size={15} aria-hidden="true" /><span>{t('Linked: change a building block and this template changes with it.')}</span></p>
+            <p class="shint"><Link2 size={16} aria-hidden="true" /><span>{t('Linked: change a building block and this template changes with it.')}</span></p>
           </div>
         </Section>
 
@@ -293,31 +293,31 @@
             {#if byBike}
               <li>
                 <button type="button" class="srow irow" aria-expanded={openMore === 'bike'} onclick={() => toggleMore('bike')}>
-                  <span class="sib" aria-hidden="true"><Bike size={18} /></span>
+                  <span class="sib" aria-hidden="true"><Bike size={20} /></span>
                   <span class="sm"><b>{bike ? bike.name : t('Without bike')}</b><small>{bike ? tn(Object.values(tpl.setup ?? {}).filter(Boolean).length, '{n} bag', '{n} bags') : t('chosen with the trip')}</small></span>
-                  <ChevronRight class="schev chev" size={18} aria-hidden="true" />
+                  <ChevronRight class="schev chev" size={20} aria-hidden="true" />
                 </button>
                 {#if openMore === 'bike'}<div class="inner"><BagSplit {tpl} {items} {setsValue} {bags} {bikes} onchange={edit} /></div>{/if}
               </li>
             {:else}
               <li class="srow">
-                <span class="sib" aria-hidden="true"><Backpack size={18} /></span>
+                <span class="sib" aria-hidden="true"><Backpack size={20} /></span>
                 <span class="sm"><b>{t('Bags')}</b><small>{(DOMAIN[tplDomain(tpl)]?.packs ?? []).map((p) => t(p.name)).join(', ')} · {t('chosen with the trip')}</small></span>
               </li>
             {/if}
             <li>
               <button type="button" class="srow irow" aria-expanded={openMore === 'days'} onclick={() => toggleMore('days')}>
-                <span class="sib" aria-hidden="true"><CalendarDays size={18} /></span>
+                <span class="sib" aria-hidden="true"><CalendarDays size={20} /></span>
                 <span class="sm"><b>{t('Days, overnight')}</b><small class="num">{daysLine}</small></span>
-                <ChevronRight class="schev chev" size={18} aria-hidden="true" />
+                <ChevronRight class="schev chev" size={20} aria-hidden="true" />
               </button>
               {#if openMore === 'days'}<div class="inner"><DaysFields {tpl} {byBike} onchange={edit} /></div>{/if}
             </li>
             <li>
               <button type="button" class="srow irow" aria-expanded={openMore === 'ready'} onclick={() => toggleMore('ready')}>
-                <span class="sib" aria-hidden="true"><ListChecks size={18} /></span>
+                <span class="sib" aria-hidden="true"><ListChecks size={20} /></span>
                 <span class="sm"><b>{t('Ready check')}</b><small>{(tpl.ready ?? []).length ? tn(tpl.ready.length, '{n} point', '{n} points') : t('usual')}</small></span>
-                <ChevronRight class="schev chev" size={18} aria-hidden="true" />
+                <ChevronRight class="schev chev" size={20} aria-hidden="true" />
               </button>
               {#if openMore === 'ready'}<div class="inner"><ReadyFields {tpl} onchange={edit} /></div>{/if}
             </li>
@@ -330,7 +330,7 @@
               <ul class="slist hl">
                 {#each hints as h (h.id)}
                   <li class="srow hint-row" data-hint={h.id}>
-                    <span class="sib rated" aria-hidden="true"><Star size={18} /></span>
+                    <span class="sib rated" aria-hidden="true"><Star size={20} /></span>
                     <span class="sm">
                       <b>{h.kind === 'out' ? t('Take {name} out of the template?', { name: h.name }) : t('Put {name} into the template?', { name: h.name })}</b>
                       <details class="src">
@@ -368,7 +368,7 @@
         </Section>
 
         <details class="used">
-          <summary><History size={15} aria-hidden="true" /><span>{t('Used|template')}: {use.n ? `${tn(use.n, '{n} trip', '{n} trips')}, ${t('last {name}', { name: lastTrip?.title ?? '' })}` : t('not used yet')}</span>{#if lastState}<TripState state={lastState} />{/if}</summary>
+          <summary><History size={16} aria-hidden="true" /><span>{t('Used|template')}: {use.n ? `${tn(use.n, '{n} trip', '{n} trips')}, ${t('last {name}', { name: lastTrip?.title ?? '' })}` : t('not used yet')}</span>{#if lastState}<TripState state={lastState} />{/if}</summary>
           {#if use.trips.length}
             <ul class="trips">{#each use.trips as tr (tr.id)}<li><span class="tt">{tr.title}</span> <small class="num">{day(tr.startDate)}</small></li>{/each}</ul>
           {/if}
@@ -383,7 +383,7 @@
   <li class="extra">
     <span class="t">{e.item ? nameOf(e.item) : e.itemId}</span>
     <span class="n num">{e.qty}×</span><span class="w num">{e.g == null ? '–' : formatWeight(e.g)}</span>
-    <button type="button" class="icb" aria-label={t('Change {name}', { name: e.item ? nameOf(e.item) : e.itemId })} aria-expanded={openExtra === e.itemId} onclick={() => (openExtra = openExtra === e.itemId ? null : e.itemId)}><ChevronRight class="chev" size={18} aria-hidden="true" /></button>
+    <button type="button" class="icb" aria-label={t('Change {name}', { name: e.item ? nameOf(e.item) : e.itemId })} aria-expanded={openExtra === e.itemId} onclick={() => (openExtra = openExtra === e.itemId ? null : e.itemId)}><ChevronRight class="chev" size={20} aria-hidden="true" /></button>
     {#if openExtra === e.itemId}
       <div class="ectl">
         <span class="qty" role="group" aria-label={t('Amount')}>
@@ -410,7 +410,7 @@
       <span class="gic" aria-hidden="true"><Icon size={18} /></span>
       <span class="ctitle">{name}</span>
       <span class="m num">{sub}</span>
-      <span class="cchev" aria-hidden="true"><ChevronRight size={18} /></span>
+      <span class="cchev" aria-hidden="true"><ChevronRight size={20} /></span>
     </button>
   </h3>
 {/snippet}

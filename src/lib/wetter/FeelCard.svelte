@@ -65,7 +65,7 @@
   {/if}
   {#if feel}
     <input class="inp" type="text" bind:value={wore} maxlength="200" placeholder={t('What you wore (optional), e.g. thin gloves')} aria-label={t('What you wore')} data-feel-wore />
-    <button type="button" class="btn" onclick={keep} disabled={!line} data-feel-save><Check size={18} aria-hidden="true" />{t('Keep the note')}</button>
+    <button type="button" class="btn" onclick={keep} disabled={!line} data-feel-save><Check size={20} aria-hidden="true" />{t('Keep the note')}</button>
   {/if}
   {#if saved}<p class="rc-note" role="status">{t('Kept. The app reminds you at a similar temperature.')}</p>{/if}
 {/if}

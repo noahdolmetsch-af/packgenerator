@@ -110,7 +110,7 @@
 
 {#if !on}
   <button type="button" class="imp-btn" data-no-improve data-improve onclick={start} aria-label={t('Improve|logbuch')}>
-    <NotebookPen size={18} aria-hidden="true" /><span>{t('Improve|logbuch')}</span>
+    <NotebookPen size={20} aria-hidden="true" /><span>{t('Improve|logbuch')}</span>
   </button>
 {:else}
   <div class="imp-bar" data-no-improve data-improve-bar role="status">

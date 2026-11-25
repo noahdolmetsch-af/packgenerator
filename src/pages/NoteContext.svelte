@@ -79,8 +79,8 @@
           {#each cards as n (n.id)}
             {@const c = cardOf(n)}
             <li><button type="button" class="mc" onclick={() => (shown = n)} data-card={n.id}>
-              {#if c.photo}<img src={c.photo} alt="" />{:else}<span class="mc-no"><Sparkles size={22} aria-hidden="true" /></span>{/if}
-              <span class="mc-t"><b>{c.title || t('Note')}</b><small>{#if c.voice}<Volume2 size={12} aria-hidden="true" />{/if}{#if c.place}<MapPin size={12} aria-hidden="true" />{c.place}{/if}</small></span>
+              {#if c.photo}<img src={c.photo} alt="" />{:else}<span class="mc-no"><Sparkles size={24} aria-hidden="true" /></span>{/if}
+              <span class="mc-t"><b>{c.title || t('Note')}</b><small>{#if c.voice}<Volume2 size={14} aria-hidden="true" />{/if}{#if c.place}<MapPin size={14} aria-hidden="true" />{c.place}{/if}</small></span>
             </button></li>
           {/each}
         </ul>

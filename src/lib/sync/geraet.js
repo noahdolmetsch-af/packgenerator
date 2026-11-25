@@ -25,6 +25,7 @@ export const TABELLEN_NUR_GERAET = {
   meta: 'Die Notizen des Abgleichs selbst und was dieses Gerät sich merkt (nie in einer Sicherung).',
   gEvents: 'Kopie der Google-Termine: Google hat das Original, beide Geräte holen sie selbst.',
   gTasks: 'Kopie der Google-Aufgaben: Google hat das Original, beide Geräte holen sie selbst.',
+  activitiesLite: 'Zusammenfassung der Aktivitäten ohne die Rohkurven: wird auf jedem Gerät aus den Aktivitäten selbst gebaut und nachgeführt (nie in einer Sicherung, nie im Abgleich).',
   logbuch: 'Verbesserungs-Logbuch: bleibt auf dem Gerät (Noah 21.11.2026), kommt in die Sicherung.',
 };
 

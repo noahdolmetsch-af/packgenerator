@@ -63,7 +63,7 @@
     </p>
   {:else}
     <button type="button" class="line" onclick={toggle} aria-expanded="false" id={`${id}-h`}>
-      <Info size={18} aria-hidden="true" /><span>{t('How it works|help')}</span><ChevronRight size={16} aria-hidden="true" />
+      <Info size={20} aria-hidden="true" /><span>{t('How it works|help')}</span><ChevronRight size={16} aria-hidden="true" />
     </button>
   {/if}
 </section>

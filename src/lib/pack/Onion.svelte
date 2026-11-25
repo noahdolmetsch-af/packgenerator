@@ -7,7 +7,7 @@
    * coldest riding hour: one tap adds its missing items. Every add goes through Pack's change()
    * (one Undo) and shows a toast with Undo. Rules: wardrobe.js onionCheck, chooseKit, kitPlan.
    */
-  import { Layers, Check, Circle, ChevronRight, ChevronDown, Plus, ArrowLeftRight } from '@lucide/svelte';
+  import { Layers, Check, Circle, ChevronRight, ChevronDown, Plus, ArrowLeftRight, Star } from '@lucide/svelte';
   import { t, tn, nameOf, locale } from '../i18n.svelte.js';
   import { tempRange, ZONES, LAYERS, WAIT_CHOICES } from '../wardrobe.js';
   import Seg from '../ui/Seg.svelte';
@@ -47,8 +47,8 @@
 {#if suggest.on.weather}
 <div class="onion">
   <button type="button" class="oline" aria-expanded={open} aria-controls="onion-rows" onclick={() => (open = !open)}>
-    <Layers size={18} aria-hidden="true" /><span class="s">{summary}</span>
-    {#if open}<ChevronDown size={18} aria-hidden="true" />{:else}<ChevronRight size={18} aria-hidden="true" />{/if}
+    <Layers size={20} aria-hidden="true" /><span class="s">{summary}</span>
+    {#if open}<ChevronDown size={20} aria-hidden="true" />{:else}<ChevronRight size={20} aria-hidden="true" />{/if}
   </button>
   {#if fixes.length && onadd}
     <button type="button" class="btn sm fill" data-onion-fill onclick={() => onadd(fixes.map((f) => f.id), fixes.map((f) => nameOf(f)).join(', '))}><Plus size={16} aria-hidden="true" />{tn(fixes.length, 'Fill the gap: {n} piece in', 'Fill the gaps: {n} pieces in')}</button>
@@ -58,13 +58,13 @@
       <ul class="orows">
         {#each check.rows as r (r.key)}
           <li class:fresh={r.items.some((i) => fresh.has(i.id))}>
-            <span class="ic" class:ok={r.ok}>{#if r.ok}<Check size={18} aria-label={t('covered')} />{:else}<Circle size={16} aria-label={t('gap')} />{/if}</span>
+            <span class="ic" class:ok={r.ok}>{#if r.ok}<Check size={20} aria-label={t('covered')} />{:else}<Circle size={16} aria-label={t('gap')} />{/if}</span>
             <b class="nm">{t(r.name)}</b>
             <span class="what">
               {#if r.ok}
                 {#if !r.items.length}{t('not needed')}{:else if onswap}
                   {#each r.items as i (i.id)}
-                    <span class="pc"><span class="pn">{nameOf(i)}{#if fresh.has(i.id)}<i class="badge">{t('new')}</i>{/if}</span><button type="button" class="swp" data-onion-swap={i.id} aria-label={t('Swap {name}', { name: nameOf(i) })} onclick={() => onswap(i)}><ArrowLeftRight size={18} aria-hidden="true" /></button></span>
+                    <span class="pc"><span class="pn">{nameOf(i)}{#if fresh.has(i.id)}<i class="badge">{t('new')}</i>{/if}</span><button type="button" class="swp" data-onion-swap={i.id} aria-label={t('Swap {name}', { name: nameOf(i) })} onclick={() => onswap(i)}><ArrowLeftRight size={20} aria-hidden="true" /></button></span>
                   {/each}
                 {:else}
                   {r.items.map((i) => nameOf(i)).join(' · ')}{#each r.items.filter((i) => fresh.has(i.id)) as i (i.id)}<i class="badge">{t('new')}</i>{/each}
@@ -72,7 +72,7 @@
               {:else}
                 <span class="gap">{gapText(r)}</span>
                 {#if onswap}{#each r.items as i (i.id)}<button type="button" class="btn sm add" data-onion-swap={i.id} onclick={() => onswap(i)}><ArrowLeftRight size={16} aria-hidden="true" />{t('Swap {name}', { name: nameOf(i) })}</button>{/each}{/if}
-                {#if r.fix}<button type="button" class="btn sm add" onclick={() => onadd([r.fix.id], nameOf(r.fix))}><Plus size={16} aria-hidden="true" />{t('{name} in', { name: nameOf(r.fix) })}</button>{#if r.fix.favorite}<small class="fav" data-onion-fav>★ {t('Your favourite')}</small>{/if}{/if}
+                {#if r.fix}<button type="button" class="btn sm add" onclick={() => onadd([r.fix.id], nameOf(r.fix))}><Plus size={16} aria-hidden="true" />{t('{name} in', { name: nameOf(r.fix) })}</button>{#if r.fix.favorite}<small class="fav" data-onion-fav><Star size={14} class="ic-in" aria-hidden="true" /> {t('Your favourite')}</small>{/if}{/if}
               {/if}
             </span>
           </li>

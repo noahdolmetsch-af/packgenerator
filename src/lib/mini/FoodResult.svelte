@@ -45,7 +45,7 @@
   {/if}
   {#if c.notes.length}
     <div class="fr-warn" role="note" data-fr-notes>
-      <TriangleAlert size={18} aria-hidden="true" />
+      <TriangleAlert size={20} aria-hidden="true" />
       <ul>{#each c.notes as x, i (i)}<li><b>{x.name || t('Without a name')}:</b> {x.other}</li>{/each}</ul>
     </div>
   {/if}
@@ -65,7 +65,7 @@
   </section>
 
   <section class="card fr-box" aria-labelledby="fr-shop-h" data-fr-shop>
-    <h2 id="fr-shop-h"><ShoppingCart size={18} aria-hidden="true" /> {t('Shopping list')}</h2>
+    <h2 id="fr-shop-h"><ShoppingCart size={20} aria-hidden="true" /> {t('Shopping list')}</h2>
     <div class="fr-menus" role="radiogroup" aria-label={t('Menu')}>
       {#each MENUS as m (m.key)}<button type="button" role="radio" class="fr-menu" class:on={menu.key === m.key} aria-checked={menu.key === m.key} onclick={() => setMenu(m.key)} data-fr-menu={m.key}>{t(m.label)}</button>{/each}
     </div>

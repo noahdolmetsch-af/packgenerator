@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../../lib/actlite.js';
   /**
    * «Trainingspläne» (Noah 19.10.2026 «1a 2 kann eingestellt werden 3 a und b und gefühlte Anstrengung 4 1-4»):
    * Aktiv › Training › Trainingspläne, loaded only when opened.
@@ -38,7 +39,7 @@
   const goalQ = setting(GOAL_KEY);
   const racesQ = setting(RACES_KEY); // Paket U «Rennen», read only
   const tripsQ = liveQuery(() => db.trips.toArray());
-  const actsQ = liveQuery(() => db.activities.toArray());
+  const actsQ = liveQuery(() => readLite(db, (T) => T.toArray()));
 
   const own = $derived(ownOf($ownQ));
   const hidden = $derived(Array.isArray($hideQ) ? $hideQ : []);
@@ -315,7 +316,7 @@
     <!-- the list -->
     {#if active && activePlan}
       <section class="card on" aria-labelledby="on-h" data-section="plan-active">
-        <span class="oi" aria-hidden="true"><CalendarRange size={22} /></span>
+        <span class="oi" aria-hidden="true"><CalendarRange size={24} /></span>
         <div class="oc">
           <h2 id="on-h" class="oh">{t('In use: {name}', { name: nameOf(activePlan) })}</h2>
           {#if activeRace}<p data-plan-for>{t('For: {race}', { race: activeRace.title || t('Race without a name') })}</p>{/if}
@@ -363,7 +364,7 @@
               <span class="pn"><b>{nameOf(p)}</b>{#if p.own}<small class="tag">{t('My plan')}</small>{/if}</span>
               <span class="pw">{t(p.who)}</span>
               <span class="pf num">{t('{w} weeks · {a}–{b} h per week', { w: p.weeks, a: num(p.lo), b: num(p.hi) })}</span>
-              <ChevronRight size={18} aria-hidden="true" />
+              <ChevronRight size={20} aria-hidden="true" />
             </a>
             <div class="pt">
               {#if p.own}

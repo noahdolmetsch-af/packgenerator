@@ -48,7 +48,7 @@
   <ul class="card ich-list">
     <li>
       <label class="ich-row tm-row">
-        <span class="ich-ib"><Gauge size={18} aria-hidden="true" /></span>
+        <span class="ich-ib"><Gauge size={20} aria-hidden="true" /></span>
         <span class="ich-m"><b>{t('Measure how fast the app feels')}</b><small>{t('Only on this device. Nothing is sent. Switch it on, use the app for a while (scroll Today), come back here.')}</small></span>
         <input type="checkbox" role="switch" checked={on} onchange={(e) => toggle(e.currentTarget.checked)} data-tempo-switch />
       </label>

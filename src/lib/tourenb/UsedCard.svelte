@@ -118,7 +118,7 @@
 
 {#if rows.length || bought.length || book}
   <section class="tp-card uc" aria-labelledby="uc-h" data-used>
-    <h2 id="uc-h"><Utensils size={18} aria-hidden="true" /> {book ? t('Book what was used') : t('Used up')}</h2>
+    <h2 id="uc-h"><Utensils size={20} aria-hidden="true" /> {book ? t('Book what was used') : t('Used up')}</h2>
     <p class="uc-sub">{t('What was used up or bought on the way. Food and supplies of this list.')}</p>
     {#if rows.length}
       <ul class="uc-list">
@@ -157,7 +157,7 @@
 
     {#if book}
       {#if booked}
-        <p class="uc-done" role="status"><Check size={16} aria-hidden="true" /><span>{t('Booked on {day}.', { day: shortDay(booked.at) })}</span><button type="button" class="tp-link" onclick={unbook} data-used-unbook><Undo2 size={15} aria-hidden="true" />{t('Undo')}</button></p>
+        <p class="uc-done" role="status"><Check size={16} aria-hidden="true" /><span>{t('Booked on {day}.', { day: shortDay(booked.at) })}</span><button type="button" class="tp-link" onclick={unbook} data-used-unbook><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button></p>
       {:else if rows.some((r) => r.used) || bought.length}
         <h3 class="uc-h3">{t('What booking does')}</h3>
         <p class="uc-sub">{t('A suggestion; switch off what you do not want.')}</p>

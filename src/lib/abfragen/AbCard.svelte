@@ -219,7 +219,7 @@
 {#if shown.length && !quiet}
   <dialog class="sheet vdlg from-below abm" bind:this={dialog} use:backClose={away} onclose={away} aria-labelledby="abc-h" data-section="abfragen" data-round={evening ? 'evening' : 'morning'}>
     <div class="vd-head">
-      <span class="ib"><ClipboardList size={18} aria-hidden="true" /></span>
+      <span class="ib"><ClipboardList size={20} aria-hidden="true" /></span>
       <div class="vd-t">
         <h2 id="abc-h">{evening ? t('Evening check') : part === 'rest' ? t('Still open from this morning') : t('Morning check')}</h2>
         <!-- Noah 21.10.2026 «immer das datum und die uhrzeit der befragung, damit wir testen können» -->

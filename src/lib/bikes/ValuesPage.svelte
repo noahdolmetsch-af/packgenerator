@@ -154,7 +154,7 @@
         <div class="srow">
           {#if r.own}
             <input class="inp oname" type="text" aria-label={t('Name of the own field')} value={r.label} onchange={(e) => saveFields(renameOwnField(stored, r.id, e.currentTarget.value))} />
-            <button type="button" class="icon" aria-label={t('Delete own field {name}', { name: r.label })} onclick={() => saveFields(removeOwnField(stored, r.id))}><Trash2 size={18} /></button>
+            <button type="button" class="icon" aria-label={t('Delete own field {name}', { name: r.label })} onclick={() => saveFields(removeOwnField(stored, r.id))}><Trash2 size={20} /></button>
           {:else}
             <span class="sl" class:off={r.hidden}>{t(r.label)}{#if r.hidden}<small>{t('hidden')}</small>{/if}</span>
           {/if}

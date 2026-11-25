@@ -62,8 +62,8 @@
                 </span>
               {/if}
             </span>
-            {#if p.phone}<a class="rc-icon" href="tel:{telOf(p.phone)}" onclick={() => ask(p, 'call')} aria-label={t('Call {name}', { name: nameOf(p) })} data-sleep-tel><Phone size={18} aria-hidden="true" /></a>{/if}
-            {#if p.mail}<a class="rc-icon" href="mailto:{p.mail}?subject={encodeURIComponent('Room tonight / Zimmer heute')}&body={encodeURIComponent(text)}" onclick={() => ask(p, 'mail')} aria-label={t('Write to {name}', { name: nameOf(p) })}><Mail size={18} aria-hidden="true" /></a>{/if}
+            {#if p.phone}<a class="rc-icon" href="tel:{telOf(p.phone)}" onclick={() => ask(p, 'call')} aria-label={t('Call {name}', { name: nameOf(p) })} data-sleep-tel><Phone size={20} aria-hidden="true" /></a>{/if}
+            {#if p.mail}<a class="rc-icon" href="mailto:{p.mail}?subject={encodeURIComponent('Room tonight / Zimmer heute')}&body={encodeURIComponent(text)}" onclick={() => ask(p, 'mail')} aria-label={t('Write to {name}', { name: nameOf(p) })}><Mail size={20} aria-hidden="true" /></a>{/if}
           </li>
         {/each}
       </ul>

@@ -99,7 +99,7 @@
 
   {#if marks.length}
     <section class="fz-box fz-soft" aria-labelledby="fzx-marks-h" data-marks>
-      <h2 id="fzx-marks-h" class="fz-h2"><Check size={18} aria-hidden="true" /> {t('For the next packing list')}</h2>
+      <h2 id="fzx-marks-h" class="fz-h2"><Check size={20} aria-hidden="true" /> {t('For the next packing list')}</h2>
       {#if target}
         <div class="fz-inline fzx-bar" data-take-bar>
           <label class="fz-lab fzx-trip">{t('Packing list of')}
@@ -120,10 +120,10 @@
           <li class="fz-row" data-mark={m.key}>
             <button type="button" class="fz-row-main" onclick={() => (edit = { row: m, ...m, reason: m.reason ?? '' })}><b>{lineOf(m)}</b>{#if m.reason}<small>{m.reason}</small>{/if}{#if target && onList(m)}<small data-mark-on>{t('Taken over to «{trip}»', { trip: tripLabel(target) })}</small>{/if}</button>
             {#if target && !onList(m)}
-              <button type="button" class="fz-icon" aria-label={t('Put «{name}» on the packing list', { name: lineOf(m) })} onclick={() => takeOver([m])} data-mark-take><ClipboardCheck size={18} aria-hidden="true" /></button>
+              <button type="button" class="fz-icon" aria-label={t('Put «{name}» on the packing list', { name: lineOf(m) })} onclick={() => takeOver([m])} data-mark-take><ClipboardCheck size={20} aria-hidden="true" /></button>
             {/if}
-            <button type="button" class="fz-icon" aria-label={t('Add «{name}» to your to-dos', { name: lineOf(m) })} onclick={() => toTodo(m)} data-mark-todo><ListTodo size={18} aria-hidden="true" /></button>
-            <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: m.name })} onclick={() => (edit = { row: m, ...m, reason: m.reason ?? '' })}><Pencil size={18} aria-hidden="true" /></button>
+            <button type="button" class="fz-icon" aria-label={t('Add «{name}» to your to-dos', { name: lineOf(m) })} onclick={() => toTodo(m)} data-mark-todo><ListTodo size={20} aria-hidden="true" /></button>
+            <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: m.name })} onclick={() => (edit = { row: m, ...m, reason: m.reason ?? '' })}><Pencil size={20} aria-hidden="true" /></button>
           </li>
         {/each}
       </ul>
@@ -133,7 +133,7 @@
   {#if loaded}
     {#if doneCount < 2}
       <section class="fz-box" data-next-empty>
-        <h2 class="fz-h2"><Repeat size={18} aria-hidden="true" /> {t('Still collecting')}</h2>
+        <h2 class="fz-h2"><Repeat size={20} aria-hidden="true" /> {t('Still collecting')}</h2>
         <p class="fz-text">{tn(doneCount, 'You have finished {n} debrief so far. From two on, the piles get interesting.', 'You have finished {n} debriefs so far. From two on, the piles get interesting.')}</p>
         <a class="btn" href="#/trips">{t('To the trips')}<ChevronRight size={16} aria-hidden="true" /></a>
       </section>

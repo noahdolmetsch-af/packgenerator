@@ -89,7 +89,7 @@
     <p class="fn-help"><Lock size={14} aria-hidden="true" /> {t('Only you can read the answers. They are locked on the other person’s device; the server cannot read them and deletes them after these days.')}</p>
   </section>
   {#if formErr}<p class="fn-err" role="alert" data-fn-err>{formErr}</p>{/if}
-  <div class="fn-acts"><button type="submit" class="btn hi" disabled={making} data-fn-make><Share2 size={18} aria-hidden="true" />{t('Make the link')}</button><a class="btn btn-link" href="#/me/mini">{t('Cancel')}</a></div>
+  <div class="fn-acts"><button type="submit" class="btn hi" disabled={making} data-fn-make><Share2 size={20} aria-hidden="true" />{t('Make the link')}</button><a class="btn btn-link" href="#/me/mini">{t('Cancel')}</a></div>
 </form>
 
 <style>

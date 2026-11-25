@@ -312,9 +312,9 @@
           <Seg options={rangeOpts} value={range} onchange={(r) => ((range = r), (back = 0), (picked = null))} label={t('Range|analyse')} full={false} />
           {#if range !== 'all'}
             <div class="pager">
-              <button type="button" class="nav" aria-label={t('Earlier|analyse')} data-back onclick={() => ((back += 1), (picked = null))}><ChevronLeft size={18} aria-hidden="true" /></button>
+              <button type="button" class="nav" aria-label={t('Earlier|analyse')} data-back onclick={() => ((back += 1), (picked = null))}><ChevronLeft size={20} aria-hidden="true" /></button>
               <b data-range-text>{rangeText}</b>
-              <button type="button" class="nav" aria-label={t('Later|analyse')} data-fwd disabled={back === 0} onclick={() => ((back = Math.max(0, back - 1)), (picked = null))}><ChevronRight size={18} aria-hidden="true" /></button>
+              <button type="button" class="nav" aria-label={t('Later|analyse')} data-fwd disabled={back === 0} onclick={() => ((back = Math.max(0, back - 1)), (picked = null))}><ChevronRight size={20} aria-hidden="true" /></button>
             </div>
           {/if}
         </div>
@@ -474,7 +474,7 @@
         <section class="card dayall" aria-labelledby="wv-day" data-day={picked}>
           <div class="ch">
             <h2 id="wv-day">{dfmt(picked, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</h2>
-            <button type="button" class="nav" aria-label={t('Close')} onclick={() => (picked = null)}><X size={18} aria-hidden="true" /></button>
+            <button type="button" class="nav" aria-label={t('Close')} onclick={() => (picked = null)}><X size={20} aria-hidden="true" /></button>
           </div>
           {#if tripOn(picked)}<p class="trip">{t('Trip|analyse')}: {tripOn(picked).title ?? tripOn(picked).name}</p>{/if}
           {#if weekly && weekPts}
@@ -1032,10 +1032,9 @@
     display: grid;
     min-width: 0;
   }
+  /* a long trip name breaks into a second line (the row grows) instead of ending in «…» with no way to read the rest */
   .tn b {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: break-word;
   }
   .tn small {
     color: var(--ink-3);

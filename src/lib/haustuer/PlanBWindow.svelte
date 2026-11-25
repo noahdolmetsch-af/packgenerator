@@ -72,7 +72,7 @@
 {#if win}
   <dialog class="sheet vdlg from-below hw" bind:this={dialog} use:backClose={closed} onclose={closed} aria-labelledby="pbw-h" data-window="planb">
     <div class="vd-head">
-      <span class="ib" aria-hidden="true"><CloudRain size={18} /></span>
+      <span class="ib" aria-hidden="true"><CloudRain size={20} /></span>
       <div class="vd-t">
         <h2 id="pbw-h">{t('Tomorrow: {what}', { what: badText(win.bad, t) })}</h2>
         <p class="vd-sub">{win.trip.title}</p>

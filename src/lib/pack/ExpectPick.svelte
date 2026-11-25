@@ -24,7 +24,7 @@
 
 {#if !fixed || now}
   <section class="ex card pad" aria-labelledby="ex-h" data-expect>
-    <h2 id="ex-h"><Gauge size={18} aria-hidden="true" />{t('How hard will it be?')}</h2>
+    <h2 id="ex-h"><Gauge size={20} aria-hidden="true" />{t('How hard will it be?')}</h2>
     {#if fixed}
       <p class="exs">{t('You guessed {n} of 10 before the ride.', { n: now })}</p>
     {:else}

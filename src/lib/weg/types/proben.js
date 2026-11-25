@@ -15,6 +15,7 @@
  * tests/weg-proben.test.js. Labels are English keys for t(); the German is in i18n/de/weg-proben.js.
  */
 import { timeline, shift } from '../weg.js';
+import { readLite } from '../../actlite.js';
 
 export const TYPE = 'proben';
 
@@ -66,7 +67,7 @@ export default {
   defaults: (goal) => MILESTONES.filter((m) => goal?.kind !== 'free' || m.km < 200).map((m) => ({ key: m.key, title: TITLE[m.key], offset: m.offset })),
   /** The bike rides from the activities (Strava). */
   async load(db) {
-    const acts = await db.activities.toArray();
+    const acts = await readLite(db, (T) => T.toArray());
     return { rides: acts.filter((a) => a.kind === 'bike' || a.kind === 'ride').map((a) => ({ day: a.day, km: a.km })) };
   },
   auto(goal, step, ctx = {}) {

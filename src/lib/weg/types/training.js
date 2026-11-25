@@ -31,6 +31,7 @@
 import { trainingPlan, longestByWeek, monday, addDay } from '../../race/race.js';
 import { dueOf } from '../weg.js';
 import { PLAN_KEY, planOf } from '../../training.js';
+import { readLite } from '../../actlite.js';
 
 /** Days before the start of the three suggested check points: 8, 4 and 2 weeks. */
 export const CHECK_OFFSETS = [[56, 'Training check, 8 weeks before', 'check8'], [28, 'Training check, 4 weeks before', 'check4'], [14, 'Training check, 2 weeks before', 'check2']];
@@ -125,7 +126,7 @@ export default {
   })),
   /** Reads what `auto` and the page need: the week plan, the activities (Strava) and the bike rides. */
   async load(db) {
-    const [plan, acts] = await Promise.all([db.settings.get(PLAN_KEY), db.activities.toArray()]);
+    const [plan, acts] = await Promise.all([db.settings.get(PLAN_KEY), readLite(db, (T) => T.toArray())]);
     const slim = acts.map((a) => ({ day: a.day, movingS: a.movingS, km: a.km, kind: a.kind }));
     return { sessions: planOf(plan?.value), acts: slim, rides: slim.filter((a) => a.kind === 'bike' || a.kind === 'ride') };
   },

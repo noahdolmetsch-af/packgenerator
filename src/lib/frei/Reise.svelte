@@ -133,7 +133,7 @@
   <p class="fz-note" data-reise-dreams-link><a href="#/trips/dreams">{t('Your dream tours are under Trips › Dreams.')}</a></p>
 
   <section class="fz-form" aria-labelledby="fzr-long-h" data-longing>
-    <h2 id="fzr-long-h" class="fz-h2"><Sparkles size={18} aria-hidden="true" /> {t('What I long for')}</h2>
+    <h2 id="fzr-long-h" class="fz-h2"><Sparkles size={20} aria-hidden="true" /> {t('What I long for')}</h2>
     {#if counts.length}<p class="fz-note" data-strongest>{t('Strongest right now: {name}', { name: lName(counts[0]) })} · {tn(counts[0].n, '{n} thought', '{n} thoughts')}</p>{/if}
     <div class="fz-chips" role="group" aria-label={t('What I long for')}>
       <button type="button" class="fz-chip" aria-pressed={!filter} onclick={() => (filter = '')}>{t('All')}</button>
@@ -143,7 +143,7 @@
     {#if manageLong}
       <div class="fz-box">
         <ul class="fz-list">
-          {#each longings as l (l.key)}<li class="fz-row"><span class="fz-row-main"><b>{lName(l)}</b></span><button type="button" class="fz-icon" aria-label={t('Delete {name}', { name: lName(l) })} onclick={() => removeLonging(l)}><X size={18} aria-hidden="true" /></button></li>{/each}
+          {#each longings as l (l.key)}<li class="fz-row"><span class="fz-row-main"><b>{lName(l)}</b></span><button type="button" class="fz-icon" aria-label={t('Delete {name}', { name: lName(l) })} onclick={() => removeLonging(l)}><X size={20} aria-hidden="true" /></button></li>{/each}
         </ul>
         <form class="fz-inline" onsubmit={addLonging}>
           <input class="inp" maxlength="40" bind:value={newLonging} aria-label={t('Your own longing')} placeholder={t('Your own longing, e.g. the sea')} />
@@ -175,14 +175,14 @@
   </section>
 
   <section class="fz-form" aria-labelledby="fzr-hope-h" data-hopes>
-    <h2 id="fzr-hope-h" class="fz-h2"><Plane size={18} aria-hidden="true" /> {t('What I want to bring home')}</h2>
+    <h2 id="fzr-hope-h" class="fz-h2"><Plane size={20} aria-hidden="true" /> {t('What I want to bring home')}</h2>
     <p class="fz-note">{t('Before the trip one wish that really matters. After it, what you really experienced, right beside it.')}</p>
     {#if !hopes.length}<p class="fz-empty">{t('No wish yet. Which trip is coming up?')}</p>{/if}
     {#each hopes as h (h.id)}
       <article class="fz-box" data-hope={h.id}>
         <div class="fz-row">
           <span class="fz-row-main"><b>{h.title}</b></span>
-          <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: h.title })} onclick={() => openHope(h)}><Pencil size={18} aria-hidden="true" /></button>
+          <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: h.title })} onclick={() => openHope(h)}><Pencil size={20} aria-hidden="true" /></button>
         </div>
         <div class="fz-grid">
           <div><span class="fz-kick">{t('I hope for')}</span><p class="fz-text">{h.hope}</p></div>
@@ -198,13 +198,13 @@
   </section>
 
   <section class="fz-form" aria-labelledby="fzr-day-h" data-dayplans>
-    <h2 id="fzr-day-h" class="fz-h2"><CalendarRange size={18} aria-hidden="true" /> {t('A day with room for surprises')}</h2>
+    <h2 id="fzr-day-h" class="fz-h2"><CalendarRange size={20} aria-hidden="true" /> {t('A day with room for surprises')}</h2>
     <p class="fz-note">{t('Two anchors, and room in between. Decide in advance where you want certainty and where you leave space.')}</p>
     {#each plans as p (p.id)}
       <article class="fz-box" data-dayplan={p.id}>
         <div class="fz-row">
           <span class="fz-row-main"><b>{p.title}</b></span>
-          <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: p.title })} onclick={() => openPlan(p)}><Pencil size={18} aria-hidden="true" /></button>
+          <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: p.title })} onclick={() => openPlan(p)}><Pencil size={20} aria-hidden="true" /></button>
         </div>
         <ol class="fzr-strip">
           <li><span class="fz-kick">{t('Fixed')}</span><span>{p.fix || '–'}</span></li>

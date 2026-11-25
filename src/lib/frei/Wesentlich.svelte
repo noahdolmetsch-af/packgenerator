@@ -109,7 +109,7 @@
   <p class="fz-intro">{t('A quiet page for the big things. Write when you feel like it; nothing here is checked, scored or shared.')}</p>
 
   <section class="fz-box fz-soft" aria-labelledby="fzw-h">
-    <h2 id="fzw-h" class="fz-h2"><Heart size={18} aria-hidden="true" /> {t('In this phase of my life what matters to me is …')}</h2>
+    <h2 id="fzw-h" class="fz-h2"><Heart size={20} aria-hidden="true" /> {t('In this phase of my life what matters to me is …')}</h2>
     <form class="fz-form" onsubmit={addEss}>
       <textarea class="inp" rows="3" maxlength="2000" bind:value={draft} aria-label={t('In this phase of my life what matters to me is …')} placeholder={t('e.g. more time outside with friends')} data-ess-draft></textarea>
       <div class="fz-acts"><button type="submit" class="btn hi" data-ess-save>{t('Keep it')}</button></div>
@@ -132,7 +132,7 @@
 
   {#if cmp}
     <section class="fz-box" aria-labelledby="fzw-cmp-h" data-ess-compare>
-      <h2 id="fzw-cmp-h" class="fz-h2"><GitCompareArrows size={18} aria-hidden="true" /> {t('Then and now')}</h2>
+      <h2 id="fzw-cmp-h" class="fz-h2"><GitCompareArrows size={20} aria-hidden="true" /> {t('Then and now')}</h2>
       <label class="fz-lab">{t('Compare with')}
         <select class="inp" value={earlier.id} onchange={(e) => (earlierId = e.currentTarget.value)} data-ess-earlier>
           {#each older as r (r.id)}<option value={r.id}>{fmtDay(r.day)}</option>{/each}
@@ -152,13 +152,13 @@
   {/if}
 
   <section class="fz-box" aria-labelledby="fzw-rem-h" data-ess-remind-box>
-    <h2 id="fzw-rem-h" class="fz-h2"><BellRing size={18} aria-hidden="true" /> {t('Look again every three months')}</h2>
+    <h2 id="fzw-rem-h" class="fz-h2"><BellRing size={20} aria-hidden="true" /> {t('Look again every three months')}</h2>
     <label class="fzw-check"><input type="checkbox" checked={remind} onchange={(e) => setRemind(e.currentTarget.checked)} data-ess-remind /> {t('Remind me on Today')}</label>
     <p class="fz-note">{remind ? t('Three months after your last entry a quiet line on Today asks you to look again. «Later» waits two weeks.') : t('Off. Nothing will ask you.')}</p>
   </section>
 
   <section class="fz-form" aria-labelledby="fzw-mb-h">
-    <h2 id="fzw-mb-h" class="fz-h2"><Compass size={18} aria-hidden="true" /> {t('My big maybe')}</h2>
+    <h2 id="fzw-mb-h" class="fz-h2"><Compass size={20} aria-hidden="true" /> {t('My big maybe')}</h2>
     <p class="fz-note">{t('The adventure that keeps popping up. Why it draws you, and exactly one next step to find out more.')}</p>
     {#if !maybes.length}<p class="fz-empty">{t('No big maybe yet. Which one would it be?')}</p>{/if}
     <ul class="fz-list fzw-mbs" use:sortable={{ onmove }}>
@@ -168,7 +168,7 @@
             <SortGrip name={m.title} onstep={(dir) => step(m.id, dir)} />
             <button type="button" class="fz-row-main" onclick={() => openEdit(m)}><b>{m.title}</b>{#if m.moment}<small>{m.moment}</small>{/if}</button>
             {#if !phone.matches}<SortArrows name={m.title} i={n} n={maybes.length} onstep={(dir) => step(m.id, dir)} />{/if}
-            <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: m.title })} onclick={() => openEdit(m)}><Pencil size={18} aria-hidden="true" /></button>
+            <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: m.title })} onclick={() => openEdit(m)}><Pencil size={20} aria-hidden="true" /></button>
           </div>
           {#if m.why}<p class="fz-text"><b>{t('Why it draws me:')}</b> {m.why}</p>{/if}
           {#if m.step}

@@ -238,9 +238,9 @@
                         {#each TILE_LINES as k (k)}<option value={k}>{t(TILE_LINE_NAMES[k])}</option>{/each}
                       </select>
                     </label>
-                    <button type="button" class="ib" disabled={i === 0} aria-label={t('Move {name} up', { name: tileName(a) })} onclick={() => moveTile(a, -1)}><ChevronUp size={18} aria-hidden="true" /></button>
-                    <button type="button" class="ib" disabled={i === favs.length - 1} aria-label={t('Move {name} down', { name: tileName(a) })} onclick={() => moveTile(a, 1)}><ChevronDown size={18} aria-hidden="true" /></button>
-                    <button type="button" class="ib" aria-label={t('Remove {name} from the tiles', { name: tileName(a) })} onclick={() => unfav(a)}><X size={18} aria-hidden="true" /></button>
+                    <button type="button" class="ib" disabled={i === 0} aria-label={t('Move {name} up', { name: tileName(a) })} onclick={() => moveTile(a, -1)}><ChevronUp size={20} aria-hidden="true" /></button>
+                    <button type="button" class="ib" disabled={i === favs.length - 1} aria-label={t('Move {name} down', { name: tileName(a) })} onclick={() => moveTile(a, 1)}><ChevronDown size={20} aria-hidden="true" /></button>
+                    <button type="button" class="ib" aria-label={t('Remove {name} from the tiles', { name: tileName(a) })} onclick={() => unfav(a)}><X size={20} aria-hidden="true" /></button>
                   </li>
                 {/each}
               </ul>
@@ -286,7 +286,7 @@
         <li data-sugg={s.id}>
           <span class="dot {ring}" aria-hidden="true"></span>
           <span class="sn"><b>{suggName(s)}</b>{#if s.min}<span class="sm">{s.id === 'cold' ? t('1 tip') : t('{n} min', { n: s.min })}</span>{/if}<small>{t('suggested:')} {t(s.key, s.vars)}</small></span>
-          <button type="button" class="ib" aria-label={t('Hide {name}', { name: suggName(s) })} onclick={() => hide(s)}><EyeOff size={18} aria-hidden="true" /></button>
+          <button type="button" class="ib" aria-label={t('Hide {name}', { name: suggName(s) })} onclick={() => hide(s)}><EyeOff size={20} aria-hidden="true" /></button>
           <button type="button" class="ib plus" aria-label={t('Tick {name}', { name: suggName(s) })} onclick={() => doSugg(s)}><Plus size={20} aria-hidden="true" /></button>
         </li>
       {/each}

@@ -43,7 +43,7 @@
   <section class="sky card" aria-label={t('Hints for this tour')} data-section="tour-sky">
     {#if light}
       <div class="sk-row" data-sky="light">
-        <span class="sk-ib" aria-hidden="true"><Moon size={18} /></span>
+        <span class="sk-ib" aria-hidden="true"><Moon size={20} /></span>
         <div class="sk-m">
           <p class="sk-t">{light.set ? t('You ride after sunset ({time}).', { time: light.set }) : t('You ride into the dark.')}</p>
           {@render wants(light.want)}
@@ -53,7 +53,7 @@
     {/if}
     {#if sun}
       <div class="sk-row" data-sky="sun">
-        <span class="sk-ib" aria-hidden="true"><Sun size={18} /></span>
+        <span class="sk-ib" aria-hidden="true"><Sun size={20} /></span>
         <div class="sk-m">
           <p class="sk-t">{sun.snow ? t('UV index up to {uv}, and the snow reflects.', { uv: sun.uv }) : t('UV index up to {uv}: high.', { uv: sun.uv })}</p>
           {@render wants(sun.want)}
@@ -63,7 +63,7 @@
     {/if}
     {#if wind}
       <div class="sk-row" data-sky="wind">
-        <span class="sk-ib" aria-hidden="true"><Wind size={18} /></span>
+        <span class="sk-ib" aria-hidden="true"><Wind size={20} /></span>
         <div class="sk-m">
           <p class="sk-t">{t('Wind from the {dir}, about {kmh} km/h.', { dir: t(compass(wind.windFrom)), kmh: wind.wind })}</p>
           <p class="sk-s">{wind.way === 'keep' ? t('Ride the round as planned: the tailwind comes on the way home.') : t('Ride the round the other way: then the tailwind comes on the way home.')}</p>

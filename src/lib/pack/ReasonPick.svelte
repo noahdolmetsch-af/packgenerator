@@ -39,7 +39,7 @@
 
 {#if kind && !away}
   <section class="why card pad" aria-labelledby="why-h" data-change-why={kind}>
-    <h2 id="why-h"><HelpCircle size={18} aria-hidden="true" />{answer && !change ? t('Noted: {reason}', { reason: reasonName(answer, t) }) : t(SAY[kind])}</h2>
+    <h2 id="why-h"><HelpCircle size={20} aria-hidden="true" />{answer && !change ? t('Noted: {reason}', { reason: reasonName(answer, t) }) : t(SAY[kind])}</h2>
     {#if km && !answer}<p class="ws">{t('You planned {a} km and rode {b} km.', { a: num(km.plan), b: num(km.real) })}</p>{/if}
     {#if !answer || change}
       <div class="chips" role="group" aria-labelledby="why-h">

@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../lib/actlite.js';
   /**
    * Paket S «Reise-Spur» (Noah 19.10.2026 «1a und b möglich 2a 3a 4a 5a»): one tour as a journey.
    * The zoomable map with the line of every day, the places, notes and photos (2a); day by day the
@@ -34,7 +35,7 @@
   let { id = '' } = $props();
   // svelte-ignore state_referenced_locally
   const tripQ = liveQuery(() => db.trips.get(id));
-  const actsQ = liveQuery(() => db.activities.toArray());
+  const actsQ = liveQuery(() => readLite(db, (T) => T.toArray()));
   const bookQ = liveQuery(() => db.kmBook.toArray());
   const ridesQ = liveQuery(() => db.rides.toArray());
   // svelte-ignore state_referenced_locally
@@ -223,7 +224,7 @@
         <TourMap lines={mapLines} points={mapPts} {focus} cells={neu?.fresh ?? null} height={440} onpick={(p) => (picked = p)} />
         <label class="neu"><input type="checkbox" bind:checked={showNeu} /> {t('Show Neuland: land none of your earlier rides passed')}{#if neu}<b class="num"> · {tn(neu.n, '{n} new square', '{n} new squares')}</b>{/if}</label>
       {:else}
-        <div class="card empty-map"><MapIcon size={28} aria-hidden="true" /><p>{t('No line yet. After the ride it comes from Strava or Garmin; on the way, «I am here» or «Record» add to it.')}</p></div>
+        <div class="card empty-map"><MapIcon size={24} aria-hidden="true" /><p>{t('No line yet. After the ride it comes from Strava or Garmin; on the way, «I am here» or «Record» add to it.')}</p></div>
       {/if}
       {#if picked}
         <div class="card pick" role="region" aria-label={t('Chosen on the map')}>
@@ -240,7 +241,7 @@
 
     {#if trip.startDate && today >= trip.startDate && !trip.finished}
       <div class="onway">
-        <button type="button" class="btn" onclick={() => (addPlace = true)}><MapPin size={18} aria-hidden="true" />{t('I am here')}</button>
+        <button type="button" class="btn" onclick={() => (addPlace = true)}><MapPin size={20} aria-hidden="true" />{t('I am here')}</button>
         <RecordButton {trip} />
       </div>
     {/if}
@@ -291,7 +292,7 @@
     </section>
 
     <section aria-labelledby="share-h">
-      <h2 id="share-h" class="sh"><Share2 size={18} aria-hidden="true" /> {t('Link for your family')}</h2>
+      <h2 id="share-h" class="sh"><Share2 size={20} aria-hidden="true" /> {t('Link for your family')}</h2>
       <p class="ssub">{t('Read only, no account needed. Sealed on this device; only who has the link can read it.')}</p>
       <div class="card">
         <fieldset class="opts">
@@ -305,14 +306,14 @@
         {#if link}
           <p class="url"><input class="inp" readonly value={linkUrl} aria-label={t('The link')} onfocus={(e) => e.currentTarget.select()} /></p>
           <div class="btns">
-            <button type="button" class="btn" onclick={copy}><Copy size={18} aria-hidden="true" />{t('Copy')}</button>
-            {#if typeof navigator !== 'undefined' && navigator.share}<button type="button" class="btn" onclick={send}><Share2 size={18} aria-hidden="true" />{t('Send')}</button>{/if}
-            <button type="button" class="btn" disabled={linkBusy} onclick={share}><RefreshCw size={18} aria-hidden="true" />{t('Update')}</button>
-            <button type="button" class="btn danger" disabled={linkBusy} onclick={unshare}><Trash2 size={18} aria-hidden="true" />{t('Delete link')}</button>
+            <button type="button" class="btn" onclick={copy}><Copy size={20} aria-hidden="true" />{t('Copy')}</button>
+            {#if typeof navigator !== 'undefined' && navigator.share}<button type="button" class="btn" onclick={send}><Share2 size={20} aria-hidden="true" />{t('Send')}</button>{/if}
+            <button type="button" class="btn" disabled={linkBusy} onclick={share}><RefreshCw size={20} aria-hidden="true" />{t('Update')}</button>
+            <button type="button" class="btn danger" disabled={linkBusy} onclick={unshare}><Trash2 size={20} aria-hidden="true" />{t('Delete link')}</button>
           </div>
           <p class="tp-small tp-muted">{t('Last updated {when}.', { when: new Date(link.at).toLocaleString(locale(), { dateStyle: 'medium', timeStyle: 'short' }) })} {t('The family sees the state of the last update.')}</p>
         {:else}
-          <button type="button" class="btn hi" disabled={linkBusy || !spur.hasLine && !spur.days.some((d) => d.places.length)} onclick={share}><Share2 size={18} aria-hidden="true" />{linkBusy ? t('Making the link …') : t('Make a link')}</button>
+          <button type="button" class="btn hi" disabled={linkBusy || !spur.hasLine && !spur.days.some((d) => d.places.length)} onclick={share}><Share2 size={20} aria-hidden="true" />{linkBusy ? t('Making the link …') : t('Make a link')}</button>
           {#if !spur.hasLine && !spur.days.some((d) => d.places.length)}<p class="tp-small tp-muted">{t('A link needs a line or a place first.')}</p>{/if}
         {/if}
         {#if linkErr}<p class="warn" role="alert">{linkErr}</p>{/if}
@@ -320,9 +321,9 @@
     </section>
 
     <section aria-labelledby="book-h">
-      <h2 id="book-h" class="sh"><FileDown size={18} aria-hidden="true" /> {t('Travel book')}</h2>
+      <h2 id="book-h" class="sh"><FileDown size={20} aria-hidden="true" /> {t('Travel book')}</h2>
       <p class="ssub">{t('A PDF with the whole line, then one page per day with its line, places, notes and photos.')}</p>
-      <div class="card"><button type="button" class="btn" disabled={bookBusy} onclick={book}><FileDown size={18} aria-hidden="true" />{bookBusy ? t('Making the book …') : t('Travel book as PDF')}</button></div>
+      <div class="card"><button type="button" class="btn" disabled={bookBusy} onclick={book}><FileDown size={20} aria-hidden="true" />{bookBusy ? t('Making the book …') : t('Travel book as PDF')}</button></div>
     </section>
   </div>
 {/if}

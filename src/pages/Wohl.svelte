@@ -365,7 +365,7 @@
   />
 
   {#if missing > 0}
-    <p class="wl-wait card" role="note" data-wohl-wait><Sparkles size={18} aria-hidden="true" /><span>{tn(missing, 'Still {n} day with a day score, then the first results show here.', 'Still {n} days with a day score, then the first results show here.')}</span></p>
+    <p class="wl-wait card" role="note" data-wohl-wait><Sparkles size={20} aria-hidden="true" /><span>{tn(missing, 'Still {n} day with a day score, then the first results show here.', 'Still {n} days with a day score, then the first results show here.')}</span></p>
   {/if}
 
   <div class="ich-cols">
@@ -374,7 +374,7 @@
         <!-- Idee 3: Rezept am Morgen -->
         <Section title={t('For your morning')} sub={t('Your battery is at {n}: one part of your good days', { n: f1(tip.akku) })}>
           <div class="card wl-box" data-wohl-morning>
-            <p class="wl-big"><Sunrise size={18} aria-hidden="true" /><b>{t(tip.text)}</b></p>
+            <p class="wl-big"><Sunrise size={20} aria-hidden="true" /><b>{t(tip.text)}</b></p>
             <Seg full={false} small label={t('Time')} value={tipMin} onchange={(v) => (tipMin = v)} options={MINUTES.map((m) => ({ key: m, name: t('{n} min', { n: m }) }))} />
             <p class="muted small">{t('Because your good days often had «{fact}». Only a suggestion.', { fact: fact(tip.fact) })}</p>
           </div>
@@ -389,7 +389,7 @@
           {:else}
             <p class="muted">{t('Still empty. Write a word at «What are you grateful for today?» or «What are you a tiny bit proud of today?» and it lands here.')}</p>
           {/each}
-          {#if jar.length > 3}<button type="button" class="btn wl-add" onclick={() => (seed = Math.random())} data-jar-again><Again size={18} aria-hidden="true" />{t('Show others')}</button>{/if}
+          {#if jar.length > 3}<button type="button" class="btn wl-add" onclick={() => (seed = Math.random())} data-jar-again><Again size={20} aria-hidden="true" />{t('Show others')}</button>{/if}
           {#if jar.length}<p class="muted small">{tn(jar.length, '{n} moment in the jar', '{n} moments in the jar')}</p>{/if}
         </div>
       </Section>
@@ -399,7 +399,7 @@
         <div class="card wl-box" data-wohl-exp>
           {#each running as r (r.x.id)}
             <div class="wl-exp" data-exp={r.x.id}>
-              <p class="wl-big"><FlaskConical size={18} aria-hidden="true" /><b>{expName(r.x)}</b></p>
+              <p class="wl-big"><FlaskConical size={20} aria-hidden="true" /><b>{expName(r.x)}</b></p>
               <p class="muted">{t('Day {d} of {n} · {k} done', { d: r.s.day, n: r.x.days, k: r.s.ticks })}</p>
               <label class="wl-switch"><input type="checkbox" checked={r.x.ticks.includes(today)} onchange={() => expSave((l) => tickExperiment(l, r.x.id, today))} /><span>{t('Done today')}</span></label>
               {#if r.x.fact}<p class="muted small">{t('The app also ticks a day by itself when it sees «{fact}».', { fact: fact(r.x.fact) })}</p>{/if}
@@ -412,11 +412,11 @@
           {#if !running.length}
             <p>{t('Suggestion for 7 days: {what}', { what: t(sugg.what) })}</p>
             <div class="wl-acts">
-              <button type="button" class="btn hi" onclick={() => openExp(sugg)} data-exp-suggest><FlaskConical size={18} aria-hidden="true" />{t('Try it')}</button>
-              <button type="button" class="btn" onclick={() => openExp()} data-exp-own><Plus size={18} aria-hidden="true" />{t('Own experiment')}</button>
+              <button type="button" class="btn hi" onclick={() => openExp(sugg)} data-exp-suggest><FlaskConical size={20} aria-hidden="true" />{t('Try it')}</button>
+              <button type="button" class="btn" onclick={() => openExp()} data-exp-own><Plus size={20} aria-hidden="true" />{t('Own experiment')}</button>
             </div>
           {:else}
-            <button type="button" class="btn wl-add" onclick={() => openExp()}><Plus size={18} aria-hidden="true" />{t('Another experiment')}</button>
+            <button type="button" class="btn wl-add" onclick={() => openExp()}><Plus size={20} aria-hidden="true" />{t('Another experiment')}</button>
           {/if}
           {#each finished as r (r.x.id)}
             <div class="wl-done" data-exp-done={r.x.id}>
@@ -433,7 +433,7 @@
       <Section title={t('Recipe of your day')} sub={t('What was there {day}', { day: recDay })}>
         <div class="card wl-box" data-wohl-recipe>
           {#if rec}
-            <p class="wl-big"><Sparkles size={18} aria-hidden="true" /><b>{rec.good ? t('A good day ({score} of 10).', { score: f1(rec.score) }) : t('Day score {score} of 10.', { score: f1(rec.score) })}</b></p>
+            <p class="wl-big"><Sparkles size={20} aria-hidden="true" /><b>{rec.good ? t('A good day ({score} of 10).', { score: f1(rec.score) }) : t('Day score {score} of 10.', { score: f1(rec.score) })}</b></p>
             {#if rec.parts.length}<p>{rec.good ? t('It had: {list}.', { list: rec.parts.map(fact).join(', ') }) : t('Was there anyway: {list}.', { list: rec.parts.map(fact).join(', ') })}</p>{:else}<p class="muted">{t('Nothing of your usual good parts was noted.')}</p>{/if}
           {:else}
             <p class="muted">{t('No day score for today or yesterday yet.')}</p>
@@ -452,7 +452,7 @@
         <ul class="card slist" data-wohl-routine>
           {#each carry as c (c.id)}
             <li class="srow wl-row" data-carry={c.id}>
-              <span class="sib {c.carries ? 'ok' : ''}"><Heart size={18} aria-hidden="true" /></span>
+              <span class="sib {c.carries ? 'ok' : ''}"><Heart size={20} aria-hidden="true" /></span>
               <span class="sm"><b>{routineName(c.item)}</b>
                 {#if c.withScore != null}<small>{c.carries ? t('carries your good days: {a} instead of {b}', { a: f1(c.withScore), b: f1(c.without) }) : t('day score {a} with it, {b} without', { a: f1(c.withScore), b: f1(c.without) })}</small>{/if}
                 {#if c.felt.n}<small data-felt-n={c.felt.n}>{t('did you good {yes} of {n} times, a little {little}×', { yes: c.felt.yes, n: c.felt.n, little: c.felt.little })}</small>{/if}
@@ -470,7 +470,7 @@
         <ul class="card slist" data-wohl-helps>
           {#each help as h (h.key)}
             <li class="srow wl-row">
-              <span class="sib ok"><HeartHandshake size={18} aria-hidden="true" /></span>
+              <span class="sib ok"><HeartHandshake size={20} aria-hidden="true" /></span>
               <span class="sm"><b>{t('Days with {fact}: {a} instead of {b}', { fact: fact(h.key), a: f1(h.with), b: f1(h.without) })}</b>
                 <details class="wl-how"><summary>{t('How does the app know?')}</summary><p>{t('From {n} days with a day score: {a} days with it, mean {x}; {b} days without it, mean {y}. Sources: {src}.', { n: h.nWith + h.nWithout, a: h.nWith, x: f1(h.with), b: h.nWithout, y: f1(h.without), src: srcOf([h.key]) })}</p></details>
               </span>
@@ -486,7 +486,7 @@
         <ul class="card slist" data-wohl-combos>
           {#each combo as c (c.keys.join('+'))}
             <li class="srow wl-row">
-              <span class="sib plan"><Puzzle size={18} aria-hidden="true" /></span>
+              <span class="sib plan"><Puzzle size={20} aria-hidden="true" /></span>
               <span class="sm"><b>{t('{a} + {b}: {x} instead of {y}', { a: fact(c.keys[0]), b: fact(c.keys[1]), x: f1(c.both), y: f1(c.rest) })}</b>
                 <details class="wl-how"><summary>{t('How does the app know?')}</summary><p>{t('{a} days with both, mean {x}; {b} days with one or none, mean {y}. Only shown when both together are better than each alone. Sources: {src}.', { a: c.nBoth, x: f1(c.both), b: c.nRest, y: f1(c.rest), src: srcOf(c.keys) })}</p></details>
               </span>
@@ -502,7 +502,7 @@
         <ul class="card slist" data-wohl-comfort>
           {#each zone as z (z.key)}
             <li class="srow wl-row">
-              <span class="sib info"><Gauge size={18} aria-hidden="true" /></span>
+              <span class="sib info"><Gauge size={20} aria-hidden="true" /></span>
               <span class="sm"><b>{t(z.label)}: {t(z.best.label)}</b><small>{t('mean {x} on {n} days, all days {y}', { x: f1(z.best.mean), n: z.best.n, y: f1(z.overall) })}</small>
                 <details class="wl-how"><summary>{t('How does the app know?')}</summary><p>{z.all.map((a) => `${t(a.label)}: ${f1(a.mean)} (${tn(a.n, '{n} day', '{n} days')})`).join(' · ')}</p></details>
               </span>
@@ -520,7 +520,7 @@
           {#if cfg.drains}
             {#each drain as d (d.key)}
               <!-- 21.11.2026: a div, not a p: a <details> inside a <p> makes the browser close the <p> early, the page's own structure then no longer fits and the page crashed («Illegal invocation») for everyone who switched «Show energy drains» on -->
-              <div class="wl-line"><BatteryLow size={18} aria-hidden="true" /><span><b>{t('Days with {fact}: {a} instead of {b}', { fact: fact(d.key), a: f1(d.with), b: f1(d.without) })}</b>
+              <div class="wl-line"><BatteryLow size={20} aria-hidden="true" /><span><b>{t('Days with {fact}: {a} instead of {b}', { fact: fact(d.key), a: f1(d.with), b: f1(d.without) })}</b>
                 <details class="wl-how"><summary>{t('How does the app know?')}</summary><span>{t('{a} days with it, {b} without. Sources: {src}.', { a: d.nWith, b: d.nWithout, src: srcOf([d.key]) })}</span></details></span></div>
             {:else}
               <p class="muted">{t('No clear energy drain in your days. That is fine too.')}</p>
@@ -535,7 +535,7 @@
           {#each phone.matches && !phasesAll ? phases.slice(0, 2) : phases as p (p.id)}
             {@const r = phRows[p.id]}
             <li class="srow wl-row" data-phase={p.id}>
-              <span class="sib purple"><Layers size={18} aria-hidden="true" /></span>
+              <span class="sib purple"><Layers size={20} aria-hidden="true" /></span>
               <span class="sm"><b>{p.name}</b><small>{dayLong(p.from)} – {dayLong(p.until)}</small>
                 <small>{r?.n ? t('Day score {m} · good days {g} % · {km} km', { m: f1(r.mean), g: r.goodShare, km: r.km }) : t('No day score in this time yet · {km} km', { km: r?.km ?? 0 })}{r?.top ? ` · ${t('often: {fact}', { fact: fact(r.top) })}` : ''}</small>
               </span>
@@ -547,14 +547,14 @@
           {/each}
         </ul>
         {#if phone.matches && !phasesAll && phases.length > 2}<button type="button" class="btn btn-link" onclick={() => (phasesAll = true)} data-phases-more>{t('Show all {n}', { n: phases.length })} ›</button>{/if}
-        <button type="button" class="btn wl-add" onclick={() => openPhase()} data-phase-add><Plus size={18} aria-hidden="true" />{t('Add phase')}</button>
+        <button type="button" class="btn wl-add" onclick={() => openPhase()} data-phase-add><Plus size={20} aria-hidden="true" />{t('Add phase')}</button>
       </Section>
 
       <!-- #252 Alleinsein, #257 Gutes Umplanen -->
       <Section title={t('Alone and replanned')} sub={t('From the evening questions, both can be switched off')}>
         <div class="card wl-box" data-wohl-alone>
-          <p class="wl-line"><User size={18} aria-hidden="true" /><span>{aloneN ? t('Time alone did you good: {m} of 10 on {n} days.', { m: f1(aloneMean), n: aloneN }) : t('Not answered yet: «Were you alone on purpose today?» comes in the evening check.')}{aloneLift ? ` ${t('Days alone: day score {a} instead of {b}.', { a: f1(aloneLift.with), b: f1(aloneLift.without) })}` : ''}</span></p>
-          <p class="wl-line"><Shuffle size={18} aria-hidden="true" /><span>{replans.length ? t('Replanning that was good:') : t('No good replanning noted yet. When it happens, it lands here.')}</span></p>
+          <p class="wl-line"><User size={20} aria-hidden="true" /><span>{aloneN ? t('Time alone did you good: {m} of 10 on {n} days.', { m: f1(aloneMean), n: aloneN }) : t('Not answered yet: «Were you alone on purpose today?» comes in the evening check.')}{aloneLift ? ` ${t('Days alone: day score {a} instead of {b}.', { a: f1(aloneLift.with), b: f1(aloneLift.without) })}` : ''}</span></p>
+          <p class="wl-line"><Shuffle size={20} aria-hidden="true" /><span>{replans.length ? t('Replanning that was good:') : t('No good replanning noted yet. When it happens, it lands here.')}</span></p>
           {#if replans.length}<ul class="wl-list">{#each replans as r (r.id)}<li><span>{dayLong(r.day)}{r.note ? ` · ${r.note}` : ''}</span></li>{/each}</ul>{/if}
           <a class="btn" href="#/me/abfragen">{t('Switch questions on or off')}</a>
         </div>
@@ -566,7 +566,7 @@
       <Section title={t('Weather and good days')} sub={t('The weather at home of the last 60 days next to your day score')}>
         <div class="card wl-box" data-wohl-weather>
           {#if wxRes.best}
-            <p class="wl-big"><Sun size={18} aria-hidden="true" /><b>{t('Your best days: {group} ({x} instead of {y})', { group: t(WX_LABEL[wxRes.best.key]), x: f1(wxRes.best.mean), y: f1(wxRes.all) })}</b></p>
+            <p class="wl-big"><Sun size={20} aria-hidden="true" /><b>{t('Your best days: {group} ({x} instead of {y})', { group: t(WX_LABEL[wxRes.best.key]), x: f1(wxRes.best.mean), y: f1(wxRes.all) })}</b></p>
             <details class="wl-how"><summary>{t('How does the app know?')}</summary><p>{wxRes.groups.map((g) => `${t(g.label)}: ${f1(g.mean)} (${tn(g.n, '{n} day', '{n} days')})`).join(' · ')}. {t('Weather: Open-Meteo for your home place, else your evening answer.')}</p></details>
           {:else if wxState === 'noplace' && !wxRes.n}
             <p class="muted">{t('Set your home place under Me, then the app fetches the weather by itself.')}</p>
@@ -580,7 +580,7 @@
       <Section title={t('Surprises this week')} sub={t('Far from your normal of the 30 days before')}>
         <ul class="card slist" data-wohl-surprises>
           {#each surp as s (s.qid)}
-            <li class="srow"><span class="sib warn"><CalendarSearch size={18} aria-hidden="true" /></span><span class="sm"><b>{qName(s.qid)}</b><small>{s.dir === 'up' ? t('higher than usual: {a} instead of {b}', { a: f1(s.week), b: f1(s.normal) }) : t('lower than usual: {a} instead of {b}', { a: f1(s.week), b: f1(s.normal) })}</small></span></li>
+            <li class="srow"><span class="sib warn"><CalendarSearch size={20} aria-hidden="true" /></span><span class="sm"><b>{qName(s.qid)}</b><small>{s.dir === 'up' ? t('higher than usual: {a} instead of {b}', { a: f1(s.week), b: f1(s.normal) }) : t('lower than usual: {a} instead of {b}', { a: f1(s.week), b: f1(s.normal) })}</small></span></li>
           {:else}
             <li class="srow"><span class="sm"><small>{t('No surprise this week: everything near your normal.')}</small></span></li>
           {/each}
@@ -608,7 +608,7 @@
           {/if}
           <!-- Paket P4 (mockup E5): wished and lived per area, − / + change the wish -->
           {#if bal}<MixBars cats={bal.cats} {wish} onwish={stepSave} />{/if}
-          <button type="button" class="btn" onclick={openWish} data-wish-edit><Target size={18} aria-hidden="true" />{Object.keys(wish).length ? t('Change wish') : t('Set wish')}</button>
+          <button type="button" class="btn" onclick={openWish} data-wish-edit><Target size={20} aria-hidden="true" />{Object.keys(wish).length ? t('Change wish') : t('Set wish')}</button>
         </div>
       </Section>
 
@@ -628,7 +628,7 @@
         <ul class="card slist" data-wohl-neuland>
           {#each neuShown as x (x.id)}
             <li class="srow">
-              <span class="sib done"><Compass size={18} aria-hidden="true" /></span>
+              <span class="sib done"><Compass size={20} aria-hidden="true" /></span>
               <span class="sm"><b>{x.name}</b><small>{neuNote(x)}{dayLong(x.day)}{x.from === 'evening' ? ` · ${t('from your evening answer')}` : ''}</small></span>
               {#if !x.auto}<span class="rowacts"><button type="button" class="btn ic" aria-label={t('Rename «{name}»', { name: x.name })} onclick={() => (nlEdit = { id: x.id, name: x.name })}><Pencil size={16} aria-hidden="true" /></button><button type="button" class="btn ic" aria-label={t('Delete «{name}»', { name: x.name })} onclick={() => delNeuland(x)}><Trash2 size={16} aria-hidden="true" /></button></span>{/if}
             </li>
@@ -637,7 +637,7 @@
           {/each}
         </ul>
         {#if neu.length > NEU_MAX}<button type="button" class="btn sm wl-add" onclick={() => (neuAll = !neuAll)} data-neuland-more>{neuAll ? t('Show fewer') : t('Show {n} more', { n: neu.length - NEU_MAX })}</button>{/if}
-        <button type="button" class="btn wl-add" onclick={() => (nlEdit = { name: '' })} data-neuland-add><Plus size={18} aria-hidden="true" />{t('Add Neuland')}</button>
+        <button type="button" class="btn wl-add" onclick={() => (nlEdit = { name: '' })} data-neuland-add><Plus size={20} aria-hidden="true" />{t('Add Neuland')}</button>
       </Section>
 
       <!-- #79 Fotoalbum -->
@@ -686,7 +686,7 @@
             {/each}
           </ul>
           <p class="muted small"><Check size={14} aria-hidden="true" /> {t('{a} of {b} done in {year}', { a: sDone.length, b: sList.items.length, year })}</p>
-          <button type="button" class="btn wl-add" onclick={() => (sEdit = { name: '' })} data-season-add><Plus size={18} aria-hidden="true" />{t('Add point')}</button>
+          <button type="button" class="btn wl-add" onclick={() => (sEdit = { name: '' })} data-season-add><Plus size={20} aria-hidden="true" />{t('Add point')}</button>
         </div>
       </Section>
     </div>

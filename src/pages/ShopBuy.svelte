@@ -65,7 +65,7 @@
       {:else if shop.account}
         <BillPreview account={shop.account} bill={{ no: orderMessage(placed.no), amount: placed.total, purpose: t('Order {no}', { no: orderMessage(placed.no) }), ref: ref.ref, refType: ref.type, ways: { qr: true } }} heading={t('Pay with your banking app')} />
       {/if}
-      <p class="sbuy-done" role="status"><Check size={18} aria-hidden="true" /> {t('You get a confirmation by mail from {name} once the money has arrived.', { name: shop.name })}</p>
+      <p class="sbuy-done" role="status"><Check size={20} aria-hidden="true" /> {t('You get a confirmation by mail from {name} once the money has arrived.', { name: shop.name })}</p>
     </div>
   {:else}
     <h1>{shop.name ? t('{name} · Shop', { name: shop.name }) : t('Shop')}</h1>
@@ -78,12 +78,12 @@
               <!-- sold out: the card says so -->
             {:else if qty[p.id] > 0}
               <span class="sbuy-qty" role="group" aria-label={t('How many {name}', { name: p.name })}>
-                <button class="btn sm" type="button" onclick={() => add(p, -1)} aria-label={t('One less')}><Minus size={15} aria-hidden="true" /></button>
+                <button class="btn sm" type="button" onclick={() => add(p, -1)} aria-label={t('One less')}><Minus size={16} aria-hidden="true" /></button>
                 <b class="num">{qty[p.id]}</b>
-                <button class="btn sm" type="button" disabled={qty[p.id] >= max(p)} onclick={() => add(p, 1)} aria-label={t('One more')}><Plus size={15} aria-hidden="true" /></button>
+                <button class="btn sm" type="button" disabled={qty[p.id] >= max(p)} onclick={() => add(p, 1)} aria-label={t('One more')}><Plus size={16} aria-hidden="true" /></button>
               </span>
             {:else}
-              <button class="btn sm sbuy-add" type="button" onclick={() => add(p, 1)}><ShoppingCart size={15} aria-hidden="true" />{t('Add to cart')}</button>
+              <button class="btn sm sbuy-add" type="button" onclick={() => add(p, 1)}><ShoppingCart size={16} aria-hidden="true" />{t('Add to cart')}</button>
             {/if}
           </ProductCard>
         {/each}

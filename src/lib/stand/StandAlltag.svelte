@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../actlite.js';
   /**
    * «Dein Stand in Zahlen» on Alltag (Noah 25.11.2026, after Velos und Material): the days in a row outdoors (the challenge
    * «Draussen», the same count as the card on Heute), the open points of the shopping list and the days to the next last day to
@@ -21,7 +22,7 @@
   const baseQ = alltagQuery(db);
   const outQ = liveQuery(async () => {
     const rec = outdoorOf((await db.settings.get(OUTDOOR_KEY))?.value);
-    const acts = rec?.from ? await db.activities.where('day').between(rec.from, rec.until, true, true).toArray() : [];
+    const acts = rec?.from ? await readLite(db, (T) => T.where('day').between(rec.from, rec.until, true, true).toArray()) : [];
     return { rec, acts };
   });
   const loaded = $derived($baseQ !== undefined && $outQ !== undefined);

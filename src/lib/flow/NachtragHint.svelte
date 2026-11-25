@@ -38,7 +38,7 @@
 
 {#if show}
   <section class="nh" data-nachtrag aria-label={t('A gentle hint')}>
-    <History size={18} aria-hidden="true" />
+    <History size={20} aria-hidden="true" />
     <div class="tx">
       <b data-nachtrag-title>{t('Yesterday nothing ticked off? Add it.')}</b>
       <span>{t('Only a hint. You can also add a day from «•••» on any tile.')}</span>

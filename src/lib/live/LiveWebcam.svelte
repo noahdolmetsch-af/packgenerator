@@ -77,6 +77,7 @@
   .lwc-img {
     width: 100%;
     max-height: 50vh;
+    max-height: 50dvh;
     object-fit: contain;
     border-radius: 8px;
     background: var(--paper-2);

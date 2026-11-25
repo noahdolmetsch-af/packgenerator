@@ -126,9 +126,9 @@
   {#if due}
     <p class="uw-due" role="alert"><BellRing size={20} aria-hidden="true" /> <b>{ns?.name ? t('Planned stop: {name}', { name: ns.name }) : t('Time to eat')}</b> <span>{ns?.name ? t('Eat something and fill up water.') : t('A bite now keeps the strength up.')}</span></p>
     <div class="uw-row acts">
-      <button type="button" class="btn hi" onclick={ate} data-eat-done><Check size={18} aria-hidden="true" />{t('Eaten')}</button>
-      <button type="button" class="btn" onclick={later}><Clock size={18} aria-hidden="true" />{t('In {n} minutes', { n: SNOOZE_MIN })}</button>
-      {#if ns?.name}<button type="button" class="btn" onclick={ate} data-eat-skip><SkipForward size={18} aria-hidden="true" />{t('Skip the stop')}</button>{/if}
+      <button type="button" class="btn hi" onclick={ate} data-eat-done><Check size={20} aria-hidden="true" />{t('Eaten')}</button>
+      <button type="button" class="btn" onclick={later}><Clock size={20} aria-hidden="true" />{t('In {n} minutes', { n: SNOOZE_MIN })}</button>
+      {#if ns?.name}<button type="button" class="btn" onclick={ate} data-eat-skip><SkipForward size={20} aria-hidden="true" />{t('Skip the stop')}</button>{/if}
     </div>
   {/if}
   {#if dayStops.length}
@@ -152,7 +152,7 @@
   <div class="uw-row acts">
     {#if !e}<button type="button" class="btn ink" onclick={start} data-eat-start>{t('Start eat reminder')}</button>
     {:else}
-      {#if !due}<button type="button" class="btn" onclick={ate}><Check size={18} aria-hidden="true" />{t('Just ate')}</button>{/if}
+      {#if !due}<button type="button" class="btn" onclick={ate}><Check size={20} aria-hidden="true" />{t('Just ate')}</button>{/if}
       <button type="button" class="btn" onclick={stop} data-eat-stop>{t('Stop')}</button>
     {/if}
   </div>

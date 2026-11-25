@@ -53,7 +53,10 @@
 
   let tours = $state(null); // the data loads with the page
   onMount(async () => {
-    tours = (await import('../lib/vorschlaege/data/netz.js')).default;
+    // the 200 first stages, the other stages and the day tours made of them (Noah 24.11.2026 «ziel 3 mal so viele touren»)
+    const [a, b, d] = await Promise.all([import('../lib/vorschlaege/data/netz.js'), import('../lib/vorschlaege/data/netz-mehr.js'), import('../lib/vorschlaege/tage.js')]);
+    const stages = [...a.default, ...b.default];
+    tours = [...stages, ...d.daysOf(stages)];
   });
 
   // ---- hash: the list or one tour (#/trips/vorschlaege/<id>)
@@ -443,6 +446,8 @@
   async function gpx(tour) {
     await saveGpx(gpxOf(tour), tour.title);
   }
+  /** «Uri · One way · 2 stages»: the day tours say how many stages they join. */
+  const kindLine = (tour) => `${regionName(tour.region)} · ${t(tourClass(tour))}${tour.days > 1 ? ' · ' + t('{n} stages', { n: tour.days }) : ''}`;
   const tourClass = (tour) => (tour.kind === 'descent' ? 'Downhill|tour' : tour.kind === 'oneway' ? 'One way|tour' : 'Round trip|tour');
 </script>
 
@@ -455,7 +460,7 @@
 
 <div class="ich-page vs" class:wide={!open && view === 'map'} data-page="vorschlaege">
   {#if open}
-    <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }, { label: t('Tour suggestions'), href: '#/trips/vorschlaege' }]} title={open.title} here={open.title} sub={`${regionName(open.region)} · ${t(tourClass(open))}`} />
+    <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }, { label: t('Tour suggestions'), href: '#/trips/vorschlaege' }]} title={open.title} here={open.title} sub={kindLine(open)} />
     {#if note && phone.matches}<p class="ok" role="status" data-vs-note><Check size={16} aria-hidden="true" />{note} <a href="#/trips/dreams">{t('Open Dreams')}</a></p>{/if}
     <div class="map" data-vs-map>
       {#await import('../lib/spur/TourMap.svelte') then m}<m.default lines={[{ id: open.id, pts: open.line, n: 1, src: 'gpx' }]} marker={mark} height={420} strong onmap={onMapTap} light={lit} {focus} old={oldRuns} spots={mapSpots} label={t('Map of «{name}»: drag to move, pinch or wheel to zoom', { name: open.title })} />{:catch}{/await}
@@ -479,7 +484,7 @@
 
     {#if warns.length}
       <section class="warn" role="note" data-vs-warn>
-        <TriangleAlert size={18} aria-hidden="true" />
+        <TriangleAlert size={20} aria-hidden="true" />
         <div>
           <b>{t('Please check before you ride')}</b>
           {#each warns as w (w.k)}
@@ -797,7 +802,7 @@
   {@const todayOk = level || win ? doableToday(tour, { level, win, pace, home, mode: flt.mode }) : null}
   <li class="tc card" class:grey data-vs-tour={tour.id}>
     <a class="tl" href={`#/trips/vorschlaege/${tour.id}`}>
-      <span class="th"><b>{tour.title}</b><small>{regionName(tour.region)} · {t(tourClass(tour))}</small></span>
+      <span class="th"><b>{tour.title}</b><small>{kindLine(tour)}</small></span>
       <span class="nums num"><span><Clock size={14} aria-hidden="true" />{hoursText(hoursOf(tour, pace))}</span><span>{num(tour.km)} km</span><span>+{num(tour.up)} m</span></span>
       {@render levels(tour)}
       {#if artsOf(tour).length}<span class="lv">{#each artsOf(tour) as k (k)}<span class="lvp">{t(ART_NAME[k])}</span>{/each}</span>{/if}
@@ -874,7 +879,8 @@
   .fsum { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); margin-bottom: var(--sp-3); }
   .fsum .fl { margin: 0; min-width: 0; overflow-wrap: break-word; }
   .fsum .btn { flex: none; }
-  .fsheet { position: fixed; inset: auto 0 0 0; width: 100%; max-width: 100%; max-height: 90vh; margin: 0; padding: 12px 10px calc(16px + env(safe-area-inset-bottom)); box-sizing: border-box; border: 0; border-radius: 22px 22px 0 0; background: var(--paper); color: var(--ink); box-shadow: 0 -10px 40px var(--shadow); overflow-y: auto; }
+  .fsheet { position: fixed; inset: auto 0 0 0; width: 100%; max-width: 100%; max-height: 90vh;
+    max-height: 90dvh; margin: 0; padding: 12px 10px calc(16px + env(safe-area-inset-bottom)); box-sizing: border-box; border: 0; border-radius: 22px 22px 0 0; background: var(--paper); color: var(--ink); box-shadow: 0 -10px 40px var(--shadow); overflow-y: auto; }
   .fsheet::backdrop { background: var(--scrim); }
   .fgrip { display: block; width: 40px; height: 5px; margin: 0 auto 8px; border-radius: 9px; background: var(--line); }
   .fsheet .filters { margin-bottom: var(--sp-3); border: 0; box-shadow: none; padding: var(--sp-2); }
