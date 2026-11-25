@@ -1,6 +1,6 @@
 # Wackel-Test PF16 (Backup-Rundlauf): Merk-Einträge von Heute zählen nicht als Zugang
 
-PR #PRNR · 25.11.2026 · Auftrag: Wackel-Wächter (Bündler, Vorrang: `pf.spec.js:940` war auch auf unverändertem main rot und hielt PR 1760 auf)
+PR #1766 · 25.11.2026 · Auftrag: Wackel-Wächter (Bündler, Vorrang: `pf.spec.js:940` war auch auf unverändertem main rot und hielt PR 1760 auf)
 
 ## Was ist neu
 - Nichts Sichtbares geändert, nur Test für `pf.spec.js` PF16 («Backup-Rundlauf»).
