@@ -13,7 +13,7 @@ Auftrag: Noah «1-5a» und «1-3a» (24.11.2026) im Thread «Suche, Hilfe und As
 - «Passt zu deiner Frage» steht nicht mehr, wenn die App schon geantwortet hat.
 
 ## Selbst entschieden
-- Wort «Assistent öffnen» statt «Gespräch öffnen» (Namen, `docs/namen.md` Zeile 51).
+- Wort «Assistent öffnen» statt «Gespräch öffnen» (Namen, `docs/namen.md` Zeile 52).
 - Hilfe-Zeile nur, wenn die Leiste ein «?» hat (Gast, Mini-Apps haben keines).
 - Test `assistent.spec.js`: erreicht den Assistenten jetzt über die Frage in der Suche statt über die Blase (Oberfläche mit Absicht geändert, Noah «1-3a»).
 - Keine Datenänderung, kein Backup, kein `api/`.
