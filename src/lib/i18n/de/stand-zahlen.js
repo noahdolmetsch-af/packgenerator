@@ -15,4 +15,15 @@ export default {
   'days|stand': 'Tage',
   'Kilometres per month, the last 12 months': 'Kilometer pro Monat, die letzten 12 Monate',
   'No ride in the last 12 months. Upload a ride or enter kilometres in the ride ledger.': 'Keine Fahrt in den letzten 12 Monaten. Lade eine Fahrt hoch oder trage Kilometer im Fahrten-Buch ein.',
+  // Alltag (Noah 25.11.2026): Tage in Folge draussen, offene Einkäufe, nächste Frist zum Kündigen
+  'in a row outdoors': 'in Folge draussen',
+  'no outdoor challenge running': 'keine Challenge «Draussen» am Laufen',
+  'shopping list is empty': 'Einkaufsliste ist leer',
+  'open on the shopping list': 'offen auf der Einkaufsliste',
+  'no deadline ahead': 'keine Frist in Sicht',
+  'next deadline': 'nächste Frist',
+  'to the next deadline': 'bis zur nächsten Frist',
+  'Minutes outdoors': 'Minuten draussen',
+  'Minutes outdoors per day, the last 14 days': 'Minuten draussen pro Tag, die letzten 14 Tage',
+  'No outdoor challenge is running. You can start «Outdoors» on Today or under Challenges.': 'Keine Challenge «Draussen» am Laufen. Du kannst sie auf Heute oder unter Challenges starten.',
 };

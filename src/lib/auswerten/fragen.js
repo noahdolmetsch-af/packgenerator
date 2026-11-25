@@ -6,5 +6,5 @@ export const QUESTIONS = [
   { key: 'ready', title: 'How ready am I?', text: 'Form, recovery and what today suits.', href: '#/flow/form' },
   { key: 'trained', title: 'What did I do?', text: 'Hours per sport and your rides.', href: '#/auswerten/woche' },
   { key: 'body', title: 'How do I sleep and recover?', text: 'Resting pulse, HRV and sleep, day by day.', href: '#/flow/stats/hr' },
-  { key: 'good', title: 'What does me good?', text: 'What your answers and your watch show.', href: '#/me/wohl' },
+  { key: 'good', title: 'What does me good?', text: 'What your data shows about your nights.', href: '#/auswerten/verlauf' },
 ];

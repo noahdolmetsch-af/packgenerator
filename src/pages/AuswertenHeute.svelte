@@ -110,6 +110,7 @@
             </li>
           {/each}
         </ul>
+        <a class="more" href="#/auswerten/verlauf" data-heute-years>{t('Your normal over the years')} <ChevronRight size={16} aria-hidden="true" /></a>
       {:else}
         <p class="det">{t('No values from your watch yet. They come with Fitbit.')}</p>
         <a class="more" href="#/auswerten/quellen">{t('Connect your data')} <ChevronRight size={16} aria-hidden="true" /></a>

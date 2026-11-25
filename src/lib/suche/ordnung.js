@@ -94,7 +94,7 @@ export const TOPICS = [
   { key: 'packing', label: 'Packing|topic', sub: 'Lists, bags, templates', rows: () => [{ title: 'Packing list', href: '#/pack' }, { title: 'Templates', href: '#/pack/templates' }, { title: 'Building blocks', href: '#/blocks' }, { title: 'Gear|place', href: '#/gear' }] },
   { key: 'trips', label: 'Trips|place', sub: 'Plan, suggestions, races', rows: () => tab('trips', 'overview', 'dreams', 'races', 'lookback') },
   { key: 'bike', label: 'Bike|topic', sub: 'Care, kilometres, parts', rows: () => tab('bikes', 'bikes', 'care', 'sets') },
-  { key: 'body', label: 'Body|topic', sub: 'Recovery, pulse, sleep', rows: () => subs('analysis', 'body') },
+  { key: 'body', label: 'Body|topic', sub: 'Recovery, pulse, sleep', rows: () => subs('analysis', 'verlauf') },
   { key: 'weather', label: 'Weather|place', sub: 'Now, windows, clothes', rows: () => [{ title: 'Weather|place', href: '#/wetter' }] },
   { key: 'app', label: 'App|topic', sub: 'Settings, backup, help', rows: () => [{ title: 'Appearance', href: '#/me/look' }, { title: 'Data and backup', href: '#/me/data' }, { title: 'Map of the app', href: '#/me/karte' }] },
 ];
