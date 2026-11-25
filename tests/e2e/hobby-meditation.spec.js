@@ -239,8 +239,8 @@ test('Meditation einfach: the short page, a new template, a session from «Mehr 
   const height = await page.evaluate(() => document.documentElement.scrollHeight);
   await info0.evaluate((el) => el.remove());
   info.annotations.push({ type: 'height', description: `Meditation page ${page.viewportSize().width} px: ${height} px high` });
-  // Seitenregeln Stufe 1 (21.11.2026, on purpose): the page title is --fs-page (32 px, was 23 px), so the page is a few px higher; Noah 26.10.2026 «keine Anforderung an eine Länge der Seite»: the limit moves from 1800 to 1840, it is no screen budget; Hilfen 3b (22.11.2026): with the tip line off the link «Tips for this page ›» stands at the page end, so the limit moves from 1840 to 1880
-  if (phone) expect(height, 'the phone page is about two screens at most').toBeLessThanOrEqual(1880);
+  // Seitenregeln Stufe 1 (21.11.2026, on purpose): the page title is --fs-page (32 px, was 23 px), so the page is a few px higher; Noah 26.10.2026 «keine Anforderung an eine Länge der Seite»: the limit moves from 1800 to 1840, it is no screen budget; Hilfen 3b (22.11.2026): with the tip line off the link «Tips for this page ›» stands at the page end, so the limit moves from 1840 to 1880; Meditation Starten zuerst (24.11.2026, on purpose): the row «Challenge: 30 Tage Meditation» sits under the durations, so the limit moves from 1880 to 2060
+  if (phone) expect(height, 'the phone page is about two screens at most').toBeLessThanOrEqual(2060);
   await fits(page, 'B Meditation kurz');
 
   // «+ neue»: «Neue Sitzung»; a mark set on the ring (5:00 of 20 min) and taken away (on a phone the ring

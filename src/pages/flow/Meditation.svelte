@@ -18,6 +18,7 @@
   import { ChevronRight, Play, Plus, Star, Ellipsis, Bell, Flower2, Clock } from '@lucide/svelte';
   import Face from '../../lib/timer/Face.svelte';
   import YogaCard from '../../lib/yoga/YogaCard.svelte';
+  import MedChallenge from '../../lib/challenges/MedChallenge.svelte';
   import { db } from '../../lib/db.js';
   import { medQuery, seedMed } from '../../lib/flow/data.svelte.js';
   import { actState, addDays } from '../../lib/flow.js';
@@ -142,7 +143,6 @@
       <section class="surf pad tcard" aria-labelledby="m-timer">
         <div class="hl"><h2 id="m-timer" class="h2">{t('Timer')}</h2>{#if main?.name}<p>{t('Template «{name}»', { name: main.name })}</p>{/if}</div>
         {#if main}
-          <div class="dial"><Face {face} sec={minutes * 60} frac={0} fmt="auto" size="m" sub={gong} label={t('{n} min', { n: minutes })} /></div>
           <button type="button" class="btn hi go" onclick={startMain} data-start={ls ? 'last' : 'first'}>
             <Play size={24} aria-hidden="true" />
             {#if running}{t('Open the running session')}{:else if mins != null && mins !== main.minutes}{t('Start · {n} min', { n: minutes })}{:else if ls}{t('Like last time · {n} min', { n: main.minutes })}{:else}{t('Start now · {n} min', { n: main.minutes })}{/if}
@@ -158,6 +158,11 @@
           {/each}
           <a class="tchip new" href="{base}/timer?new=1">{t('own|duration')}</a>
         </div>
+        <!-- Impeccable week F4 (Noah «1-5a»): the start sits on top, the challenge right under the duration, the clock below -->
+        {#if actId === 'meditation'}<MedChallenge {today} />{/if}
+        {#if main}
+          <div class="dial"><Face {face} sec={minutes * 60} frac={0} fmt="auto" size="m" sub={gong} label={t('{n} min', { n: minutes })} /></div>
+        {/if}
         <p class="cap">{t('Templates')}</p>
         <div class="tchips">
           {#each others as x (x.id)}
@@ -269,6 +274,9 @@
     align-items: baseline;
     gap: 8px;
     flex-wrap: wrap;
+  }
+  .tcard .hl {
+    margin-bottom: 10px;
   }
   .hl p {
     margin: 0;
