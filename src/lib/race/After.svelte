@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../actlite.js';
   /**
    * Paket U «Rennen» · Nach dem Rennen: section analysis (38), stop analysis (6), recovery (15), the bike
    * check after the race (22), the same race year by year (16) and the race report (24, Briefing.svelte
@@ -34,7 +35,7 @@
   const daysKey = $derived([...new Set([...days, ...years.flatMap(tripDays)])].join(','));
   const actsQ = $derived.by(() => {
     const ds = daysKey ? daysKey.split(',') : [];
-    return liveQuery(() => (ds.length ? db.activities.where('day').anyOf(ds).toArray() : []));
+    return liveQuery(() => (ds.length ? readLite(db, (T) => T.where('day').anyOf(ds).toArray()) : []));
   });
   const stops = $derived(stopAnalysis(rideTimes($ridesQ ?? [], $actsQ ?? [], days)));
   async function keepLearning() {

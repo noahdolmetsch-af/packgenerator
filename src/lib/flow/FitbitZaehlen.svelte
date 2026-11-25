@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../actlite.js';
   /**
    * «Zählen?» (Noah 21.11.2026, Klügere Auswertungen K4): in «Meine Sportarten», when the watch knows workouts (Tennis, Hockey,
    * treadmill …) that have no tick. Never silent: one tap on «Count» makes the tick with the minutes of the workout (source Fitbit),
@@ -19,7 +20,7 @@
 
   const today = localDay();
   const q = liveQuery(async () => {
-    const [health, acts, log, activities, handled] = await Promise.all([db.healthDays.toArray(), db.flowActs.toArray(), db.flowLog.toArray(), db.activities.toArray(), db.settings.get(HANDLED_KEY)]);
+    const [health, acts, log, activities, handled] = await Promise.all([db.healthDays.toArray(), db.flowActs.toArray(), db.flowLog.toArray(), readLite(db, (T) => T.toArray()), db.settings.get(HANDLED_KEY)]);
     return { health, acts, log, activities, handled: handled?.value ?? [] };
   });
   const d = $derived($q);

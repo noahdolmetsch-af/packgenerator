@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../actlite.js';
   /**
    * Paket C › Woher stammt ein Wert? (#/me/ruhig/herkunft; 996 Ideen UC-095-I2, UC-235-I1, UC-052-I1,
    * UC-075-I1): «Besondere Tage», «Gegenbeispiele», «Schlafplätze: selbst erlebt oder vermutet», «Wie
@@ -33,7 +34,7 @@
   const s = $derived(specialDaysOf($dQ));
   const saveS = (x) => saveSetting(DAYS_KEY, x);
   const sportQ = liveQuery(async () => {
-    const [km, log, acts] = await Promise.all([db.kmBook.toArray(), db.flowLog.toArray(), db.activities.toArray().catch(() => [])]);
+    const [km, log, acts] = await Promise.all([db.kmBook.toArray(), db.flowLog.toArray(), readLite(db, (T) => T.toArray()).catch(() => [])]);
     return [...new Set([...km.filter((e) => e?.date && Number(e.km) > 0 && e.state !== 'removed').map((e) => String(e.date).slice(0, 10)), ...log.map((l) => l?.day).filter(Boolean), ...acts.map((a) => a?.day).filter(Boolean)])];
   });
   const recent = $derived(recentDays(s, $sportQ ?? [], today, 14));

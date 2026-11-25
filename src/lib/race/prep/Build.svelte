@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../../actlite.js';
   /** Vorbereiten › Countdown and dress rehearsal (7), Training for the race (32). */
   import { liveQuery } from 'dexie';
   import RaceBox from '../RaceBox.svelte';
@@ -14,7 +15,7 @@
   const dayKm = $derived(days && ctx.route?.km ? ctx.route.km / days : 0);
   const dayUp = $derived(days && ctx.route?.gainM ? ctx.route.gainM / days : 0);
   const weeks = $derived(start && dayKm ? trainingPlan(start, ctx.today, dayKm) : []);
-  const actsQ = liveQuery(() => db.activities.where('kind').anyOf('bike', 'ride').toArray());
+  const actsQ = liveQuery(() => readLite(db, (T) => T.where('kind').anyOf('bike', 'ride').toArray()));
   const longest = $derived(longestByWeek($actsQ ?? []));
   const day = (d) => (d ? new Date(`${d}T12:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short' }) : '');
   const setProbe = (patch) => ctx.save((s) => ({ ...s, probe: { ...(s.probe ?? {}), ...patch } }));

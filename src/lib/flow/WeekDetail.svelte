@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../actlite.js';
   /**
    * «Verlauf und alle Zahlen» (Noah 02.11.2026 «1a 3a»): the detail page of ONE tile or sentence of the week review
    * (#/flow/review/tile?k=<value>&w=<Monday>): this week against the weeks before, every week written out as a bar
@@ -28,7 +29,7 @@
   const key = $derived(Object.hasOwn(COURSE, params.get('k') ?? '') ? params.get('k') : null);
 
   const q = liveQuery(async () => {
-    const [acts, health, log, flowActs, answers, checks, day, wt] = await Promise.all([db.activities.toArray(), db.healthDays.toArray(), db.flowLog.toArray(), db.flowActs.toArray(), db.abAnswers.where('qid').anyOf([SLEEP_Q, MOOD_Q]).toArray(), db.flowChecks.toArray(), loadDayData(db), db.settings.get(WEIGHT_KEY)]);
+    const [acts, health, log, flowActs, answers, checks, day, wt] = await Promise.all([readLite(db, (T) => T.toArray()), db.healthDays.toArray(), db.flowLog.toArray(), db.flowActs.toArray(), db.abAnswers.where('qid').anyOf([SLEEP_Q, MOOD_Q]).toArray(), db.flowChecks.toArray(), loadDayData(db), db.settings.get(WEIGHT_KEY)]);
     const more = await weekSources(db, today); // the shared week calculation (weekcalc.js)
     return { ...more, acts, health, log, flowActs: flowActs.map(normAct), answers, checks, weather: day.weather, weightEntries: entriesOf(wt?.value) };
   });

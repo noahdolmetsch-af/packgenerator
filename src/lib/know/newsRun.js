@@ -12,6 +12,7 @@ import { FEATURE } from '../features.js';
 import { PLAY_WISH } from '../play.js';
 import { openData } from '../nav.js';
 import { t } from '../i18n.svelte.js';
+import { readLite } from '../actlite.js';
 
 /** The button «Show it in the example» for a day of the example trip, or null. */
 const playGo = (day) =>
@@ -37,7 +38,7 @@ const playGo = (day) =>
  */
 async function goGhost(g, said, go) {
   const [{ db }, { ghostsOf }] = await Promise.all([import('../db.js'), import('../training/act/ghost.js')]);
-  const all = await db.activities.toArray();
+  const all = await readLite(db, (T) => T.toArray());
   const when = (a) => `${a.day} ${a.time ?? ''}`;
   const hit = all
     .filter((a) => a.kind === 'bike' && a.hrAvg > 0)

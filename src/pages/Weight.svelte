@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../lib/actlite.js';
   /**
    * TR6/TR6b «Gewicht» (Noah 13.10.2026 «a», 14.10.2026 «TR5–TR7 freigegeben»): Ich › Meine Daten ›
    * Gewicht (#/me/weight). Voluntary, only for watts per kg; stays on this device, never sent to Strava
@@ -30,7 +31,7 @@
   import { t, num, locale } from '../lib/i18n.svelte.js';
 
   const today = localDay();
-  const actsQ = liveQuery(() => db.activities.toArray());
+  const actsQ = liveQuery(() => readLite(db, (T) => T.toArray()));
   const entries = $derived(weight.entries);
   const last = $derived(latestOf(entries));
   const short = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', day: 'numeric', month: 'short' });

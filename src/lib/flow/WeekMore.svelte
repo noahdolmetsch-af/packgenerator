@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../actlite.js';
   /**
    * «Mehr Daten im Wochenrückblick» (Noah 01.11.2026 «3c»): tiles for the shown week from data the app already has:
    * body values (Fitbit), time in heart rate zones, km per bike, weather and appointments per day. Every value is
@@ -22,7 +23,7 @@
   let { monday, upto, today } = $props();
 
   const q = liveQuery(async () => {
-    const [acts, health, prefs, day, wt, log, trips, paused, azmRef] = await Promise.all([db.activities.toArray(), db.healthDays.toArray(), db.settings.get(PREFS_KEY), loadDayData(db), db.settings.get(WEIGHT_KEY), db.flowLog.toArray(), db.trips.toArray(), db.settings.get(PAUSE_KEY), db.settings.get(AZM_WEEK_KEY)]);
+    const [acts, health, prefs, day, wt, log, trips, paused, azmRef] = await Promise.all([readLite(db, (T) => T.toArray()), db.healthDays.toArray(), db.settings.get(PREFS_KEY), loadDayData(db), db.settings.get(WEIGHT_KEY), db.flowLog.toArray(), db.trips.toArray(), db.settings.get(PAUSE_KEY), db.settings.get(AZM_WEEK_KEY)]);
     return { acts, health, gear: prefs?.value?.gear ?? [], weather: day.weather, events: day.events, weights: entriesOf(wt?.value), log, trips: homeTrips(trips), pauses: pausesOf(paused?.value), azmRef: azmWeekOf(azmRef?.value) };
   });
   const body = $derived($q ? bodyTiles($q.health, monday, upto) : []);

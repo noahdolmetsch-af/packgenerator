@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../../lib/actlite.js';
   /**
    * «Wochenrückblick» (mockups W1–W6, Noah 15.10.2026 «1-5 a»): Aktiv › Heute › Woche › Wochenrückblick.
    *   #/flow/review           the week shown by default (weekreview.js defaultMonday: on a Monday the week
@@ -44,7 +45,7 @@
   // everything once (a person's data is small); the week only picks from it
   const q = liveQuery(async () => {
     const [acts, flowActs, log, checks, answers, plan, trips] = await Promise.all([
-      db.activities.toArray(),
+      readLite(db, (T) => T.toArray()),
       db.flowActs.toArray(),
       db.flowLog.toArray(),
       db.flowChecks.toArray(),

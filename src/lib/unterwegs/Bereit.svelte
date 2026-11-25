@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../actlite.js';
   /**
    * Paket K #280 «Bereit für heute?» + #206 «Hör-Tipp pro Tourart»: a calm card on the tour morning
    * (Unterwegs) and on every planned tour (Packen). From the night (Fitbit) and the last rides one line,
@@ -26,7 +27,7 @@
     return d.toISOString().slice(0, 10);
   })();
   const healthQ = liveQuery(() => db.healthDays.where('date').aboveOrEqual(from).sortBy('date'));
-  const actQ = liveQuery(() => db.activities.where('day').aboveOrEqual(from).toArray());
+  const actQ = liveQuery(() => readLite(db, (T) => T.where('day').aboveOrEqual(from).toArray()));
   const ridesQ = liveQuery(() => db.rides.toArray());
   const tipsQ = liveQuery(() => db.settings.get(LISTEN_KEY));
 

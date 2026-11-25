@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../../lib/actlite.js';
   /**
    * «Wochenplan» (Noah 09.11.2026, Thread «Prüfen: Trainingsplan Woche packbar», Auftrag «bau los»), part 2: the page.
    *   #/flow/wochenplan   the hours per week, the units with plus and minus, the week with times, what does not fit.
@@ -45,7 +46,7 @@
   // part 3: the ticks and the frozen weeks (undefined while read), and this week's Strava activities
   const logQ = liveQuery(async () => (await db.settings.get(WEEKLOG_KEY))?.value ?? null);
   const log = $derived($logQ === undefined ? null : logOf($logQ));
-  const actsQ = liveQuery(() => db.activities.where('day').between(realMonday, shiftDay(realMonday, 6), true, true).toArray().catch(() => []));
+  const actsQ = liveQuery(() => readLite(db, (T) => T.where('day').between(realMonday, shiftDay(realMonday, 6), true, true).toArray()).catch(() => []));
 
   let seasonPick = $state(isSummer(today) ? 'summer' : 'winter');
   let weekPick = $state(0); // 0 this week, 1 next week (only in the season of today)

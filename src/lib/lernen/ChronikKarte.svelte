@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../actlite.js';
   /**
    * Paket M «Aus Touren lernen», #1027 «Chronik-Karte statt Vor einem Jahr» (Noah «1b»): «Früher um diese
    * Zeit»: on this day in earlier years (the exact day first), else in this month, the trips (title, year,
@@ -20,7 +21,7 @@
   let { trips = [], debriefs = [], today, isnew = false, rides = null, activities = null, size = 'w', frame = 'tile', max = null, more = true } = $props();
   // the rides and Strava activities, read here when the page does not pass them (Heute passes trips and debriefs only)
   const ridesQ = liveQuery(() => db.rides.toArray());
-  const actsQ = liveQuery(() => db.activities.toArray());
+  const actsQ = liveQuery(() => readLite(db, (T) => T.toArray()));
   const c = $derived(chronik({ trips, debriefs, rides: rides ?? $ridesQ ?? [], activities: activities ?? $actsQ ?? [], today }));
   let mode = $state(null); // null: the day when it has something, else the month
   const view = $derived(chronikView(c, mode));

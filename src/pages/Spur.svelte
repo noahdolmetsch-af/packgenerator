@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../lib/actlite.js';
   /**
    * Paket S «Reise-Spur» (Noah 19.10.2026 «1a und b möglich 2a 3a 4a 5a»): one tour as a journey.
    * The zoomable map with the line of every day, the places, notes and photos (2a); day by day the
@@ -34,7 +35,7 @@
   let { id = '' } = $props();
   // svelte-ignore state_referenced_locally
   const tripQ = liveQuery(() => db.trips.get(id));
-  const actsQ = liveQuery(() => db.activities.toArray());
+  const actsQ = liveQuery(() => readLite(db, (T) => T.toArray()));
   const bookQ = liveQuery(() => db.kmBook.toArray());
   const ridesQ = liveQuery(() => db.rides.toArray());
   // svelte-ignore state_referenced_locally

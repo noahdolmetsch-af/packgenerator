@@ -144,6 +144,21 @@ describe('building and reading', () => {
     expect(rows.map((r) => r.id)).toEqual(['1']);
     expect(rows[0].ser).toBeUndefined();
   });
+  it('a row that came in past the app (raw IndexedDB) makes liteTable answer from the full table and build the summary again', async () => {
+    await db.activities.bulkPut([act(1)]);
+    await buildLite(db, { breath: async () => {} });
+    expect(await liteTable(db)).toBe(db.activitiesLite);
+    await new Promise((ok, bad) => {
+      const tx = db.backendDB().transaction('activities', 'readwrite');
+      tx.objectStore('activities').put(act(2));
+      tx.oncomplete = ok;
+      tx.onerror = () => bad(tx.error);
+    });
+    expect(await liteTable(db)).toBe(db.activities); // the counts differ: never a stale answer
+    await buildLite(db, { breath: async () => {} });
+    expect(await liteTable(db)).toBe(db.activitiesLite);
+    expect(await db.activitiesLite.count()).toBe(2);
+  });
   it('a database without the summary (a stub in a test) reads activities', async () => {
     const stub = { activities: { name: 'activities' } };
     expect(await liteTable(stub)).toBe(stub.activities);

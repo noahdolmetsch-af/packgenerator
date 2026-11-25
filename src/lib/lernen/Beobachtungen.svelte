@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../actlite.js';
   /**
    * Paket M «3 Beobachtungen pro Woche» (#294, #14, #247) on the week review (#/flow/review): three cards,
    * each a plain sentence and a small chart (bars or two groups side by side), worked out on the device from
@@ -24,7 +25,7 @@
 
   const q = liveQuery(async () => {
     const [acts, rides, trips, health, answers, checks, log, flowActs, rec] = await Promise.all([
-      db.activities.toArray(),
+      readLite(db, (T) => T.toArray()),
       db.rides.toArray(),
       db.trips.toArray(),
       db.healthDays.toArray(),

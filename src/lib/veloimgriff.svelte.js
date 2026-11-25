@@ -8,6 +8,7 @@
 import { liveQuery } from 'dexie';
 import { PART_TEMPLATES, normTemplates } from './bikekind.js';
 import { hourSeries } from './bikehours.js';
+import { readLite } from './actlite.js';
 
 export const vig = $state({ tpl: normTemplates(null), hours: {} });
 
@@ -22,7 +23,7 @@ export function watchVeloImGriff(db) {
   subs = [
     liveQuery(() => db.settings.get(PART_TEMPLATES)).subscribe({ next: (row) => useTemplates(row?.value), error: () => {} }),
     liveQuery(async () => {
-      const [bikes, entries, acts] = await Promise.all([db.bikes.toArray(), db.kmBook.toArray(), db.activities.where('kind').equals('bike').toArray()]);
+      const [bikes, entries, acts] = await Promise.all([db.bikes.toArray(), db.kmBook.toArray(), readLite(db, (T) => T.where('kind').equals('bike').toArray())]);
       // only what the hours need (the activities carry much more)
       const slim = acts.map((a) => ({ id: a.id, movingS: a.movingS, km: a.km }));
       return Object.fromEntries(bikes.map((b) => [b.id, hourSeries(b, entries, slim)]));

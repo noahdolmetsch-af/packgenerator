@@ -9,6 +9,7 @@ import { CFG_KEY } from '../sportsbase.js';
 import { HOME_PLACE, HOME_FORECAST, usable } from '../know.js';
 import { SPORT_BIKES } from '../sports.js';
 import { BAGS_KEY, bagsOf } from '../flowbag.js';
+import { readLite } from '../actlite.js';
 
 export function sportsQuery() {
   return liveQuery(async () => {
@@ -17,7 +18,7 @@ export function sportsQuery() {
       db.flowLog.toArray(),
       db.trips.toArray(),
       db.sportItems.toArray(),
-      db.activities.toArray(),
+      readLite(db, (T) => T.toArray()),
       db.settings.get(CFG_KEY),
       db.settings.get(HOME_PLACE),
       db.meta.get(HOME_FORECAST),

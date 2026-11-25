@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../../actlite.js';
   /**
    * «Tour-Auswertung» (Noah 20.10.2026 «3a und b»): on the tour page under «Werte», what the Garmin shows
    * beyond the values above: the stops, NP and the best 1, 2, 5, 10 and 20 minutes of power and heart
@@ -30,7 +31,7 @@
 
   const vals = $derived(tourValues(d?.acts ?? []));
   const healthQ = liveQuery(() => db.healthDays.toArray().catch(() => []));
-  const actsQ = liveQuery(() => db.activities.toArray().catch(() => []));
+  const actsQ = liveQuery(() => readLite(db, (T) => T.toArray()).catch(() => []));
   const rest = $derived($healthQ ? restOfTour($healthQ, d?.row?.day, d?.row?.endDay ?? d?.row?.day) : null);
   const dotsOf = $derived($healthQ && $actsQ ? restDots($actsQ, $healthQ) : { mode: 'hr', dots: [] });
   const r = $derived(corrOf(dotsOf.dots));

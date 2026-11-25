@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../../lib/actlite.js';
   /**
    * «Geschafft» (Noah 19.11.2026 «1-5a», Thread «Training erfassen vereinfachen», T1): the one page after a tick.
    *   #/flow/geschafft?e=<entry id>   what you did, how often this week, the week in hours and days, the weekly goals still
@@ -56,7 +57,7 @@
     let stale = false;
     (async () => {
       const [goal, weekplan, weeklog, plan] = await Promise.all([db.settings.get(GOAL_KEY), db.settings.get(WEEKPLAN_KEY), db.settings.get(WEEKLOG_KEY), db.settings.get(PLAN_KEY)]);
-            const activities = e.stravaId ? await db.activities.toArray().catch(() => []) : [];
+            const activities = e.stravaId ? await readLite(db, (T) => T.toArray()).catch(() => []) : [];
       const stars = await db.flowStars.toArray().catch(() => []);
       if (!stale) more = { goal: goal?.value ?? null, weekplan: weekplan?.value ?? null, weeklog: weeklog?.value ?? null, plan: plan?.value ?? null, activities, stars };
     })();

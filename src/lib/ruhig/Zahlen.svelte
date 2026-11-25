@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../actlite.js';
   /**
    * Paket C › Zahlen, die verständlich bleiben (#/me/ruhig/zahlen; 996 Ideen UC-218-I2, UC-242-I2, UC-223-I3):
    * «Eine Fahrt, zwei Rollen», «Was eine Skala meinte», «Gespräch über Körperwerte vorbereiten».
@@ -27,7 +28,7 @@
 
   /* Eine Fahrt, zwei Rollen */
   const rQ = settingQ(ROLES_KEY);
-  const actsQ = liveQuery(() => db.activities.toArray().catch(() => []));
+  const actsQ = liveQuery(() => readLite(db, (T) => T.toArray()).catch(() => []));
   const r = $derived(rolesOf($rQ));
   const saveR = (x) => saveSetting(ROLES_KEY, x);
   let span = $state(30);

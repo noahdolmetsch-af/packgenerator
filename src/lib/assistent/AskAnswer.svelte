@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../actlite.js';
   /*
    * «Frag die App» (Noah 15.10.2026 «1 beides 2a und b 3 a und b»): the free answer from your own data,
    * as one card. Used in the search (above the actions) and on the page «Assistent». Reads what it needs
@@ -24,7 +25,7 @@
   let { q = '', onlink = () => {}, tools = false, fallback = false, here = false, autoread = false, onadopt = null, onreading = () => {}, onclose = null, onresult = () => {}, ondone = null } = $props();
   const today = localDay();
   const src = liveQuery(async () => {
-    const [book, trips, items, bikes, visits, tasks, learnings, acts] = await Promise.all([db.kmBook.toArray(), db.trips.toArray(), db.items.toArray(), db.bikes.toArray(), db.visits.toArray(), db.maintenance.toArray(), db.learnings.toArray(), db.activities.toArray()]);
+    const [book, trips, items, bikes, visits, tasks, learnings, acts] = await Promise.all([db.kmBook.toArray(), db.trips.toArray(), db.items.toArray(), db.bikes.toArray(), db.visits.toArray(), db.maintenance.toArray(), db.learnings.toArray(), readLite(db, (T) => T.toArray())]);
     const live = bikes.filter((b) => !b.archived && !b.gone && b.status !== 'sold');
     const care = live.map((b) => bikeCare(withVisits(b, visits), { tasks, visits, today })).filter(Boolean);
     // Klick-Rundgang H25: the wear of each part (chain, cassette, pads, tyres) for «Wann muss ich die Kette wechseln?»

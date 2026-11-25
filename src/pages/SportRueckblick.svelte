@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../lib/actlite.js';
   /**
    * «Rückblick pro Sportart» (Noah 21.11.2026 «ich möchte alle entwürfe 1-3 umsetzen», S4, Entwurf 2):
    * #/auswerten/sportjahr/<sport>. One sport of the Sportjahr alone: time, units, average duration and distance
@@ -41,7 +42,7 @@
     }
   })();
   const q = liveQuery(async () => {
-    const [log, activities, acts, usual, ticks] = await Promise.all([db.flowLog.toArray(), db.activities.toArray(), db.flowActs.toArray(), db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY)]);
+    const [log, activities, acts, usual, ticks] = await Promise.all([db.flowLog.toArray(), readLite(db, (T) => T.toArray()), db.flowActs.toArray(), db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY)]);
     return { log, activities, acts, usual: usualMap(usual?.value), map: prefsOf(ticks?.value).map };
   });
   const d = $derived($q);

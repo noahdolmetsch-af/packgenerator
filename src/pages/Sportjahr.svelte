@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../lib/actlite.js';
   /**
    * «Sportjahr» (Noah 21.11.2026 «1 a dann b», Thread «Sportjahr», S3): #/auswerten/sportjahr. Everything you did,
    * all sports together, in hours: Woche, Monat, Jahr, Alles (the switch of Auswerten), the hours per month by sport
@@ -42,7 +43,7 @@
   enterPage('sportjahr');
   const today = localDay();
   const q = liveQuery(async () => {
-    const [log, activities, acts, usual, ticks, goal] = await Promise.all([db.flowLog.toArray(), db.activities.toArray(), db.flowActs.toArray(), db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY), db.settings.get(GOAL_KEY)]);
+    const [log, activities, acts, usual, ticks, goal] = await Promise.all([db.flowLog.toArray(), readLite(db, (T) => T.toArray()), db.flowActs.toArray(), db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY), db.settings.get(GOAL_KEY)]);
     return { log, activities, acts, usual: usualMap(usual?.value), map: prefsOf(ticks?.value).map, goal: goalOf(goal?.value) };
   });
   const d = $derived($q);
