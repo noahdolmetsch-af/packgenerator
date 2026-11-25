@@ -13,10 +13,10 @@ const addDays = (day, n) => {
   return d.toISOString().slice(0, 10);
 };
 
-async function open(page, context, hash) {
+async function open(page, context, hash, at = D0) {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
-  await page.clock.install({ time: new Date(D0) });
+  await page.clock.install({ time: new Date(at) });
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto(`./${hash}`);
@@ -352,5 +352,38 @@ test('Mein Tag: a free dry window for the daily goal of the challenge, planned o
   await page.getByRole('button', { name: T('Undo') }).click();
   await expect(planned).toHaveCount(0);
   await expect(page.locator('[data-draussen]')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('Mein Tag: in the evening a closed line counts what is open; tick off, to tomorrow, drop, all to tomorrow, each with Undo', async ({ page, context }) => {
+  const errors = await open(page, context, '#/day', `${TODAY}T19:30:00+02:00`);
+  await page.waitForSelector('h1');
+  await put(page, { settings: [{ key: 'week.items', value: ITEMS }] });
+  await page.reload();
+  const line = page.locator('[data-evening]');
+  // the dentist (12:00), the shopping (17:30) and the call without a time are open; the dinner is tomorrow
+  await expect(line.locator('summary')).toContainText(`3 ${T('{n} things are still open|evening').replace('{n} ', '')}`);
+  await line.locator('summary').click();
+  await expect(line.locator('[data-evening-entry]')).toHaveCount(3);
+  // tick off: the point leaves the list, Undo brings it back
+  await line.locator('li', { hasText: 'Garage anrufen' }).locator('[data-evening-done]').click();
+  await expect(line.locator('[data-evening-entry]')).toHaveCount(2);
+  await page.getByRole('button', { name: T('Undo') }).last().click(); // the newest offer: an older one may still be showing
+  await expect(line.locator('[data-evening-entry]')).toHaveCount(3);
+  // to tomorrow
+  await line.locator('li', { hasText: 'Zahnarzt' }).locator('[data-evening-later]').click();
+  await expect(line.locator('[data-evening-entry]')).toHaveCount(2);
+  // drop with Undo
+  await line.locator('li', { hasText: 'Einkaufen' }).locator('[data-evening-drop]').click();
+  await expect(line.locator('[data-evening-entry]')).toHaveCount(1);
+  await page.getByRole('button', { name: T('Undo') }).last().click(); // the newest offer: an older one may still be showing
+  await expect(line.locator('[data-evening-entry]')).toHaveCount(2);
+  // all to tomorrow: the line is gone, tomorrow holds them
+  await line.locator('[data-evening-all]').click();
+  await expect(page.locator('[data-evening]')).toHaveCount(0);
+  await page.locator(`[data-day="${addDays(TODAY, 1)}"]`).click();
+  await expect(page.locator('[data-entry="wi1"]')).toContainText('Zahnarzt');
+  await expect(page.locator('[data-entry="wi2"]')).toContainText('Einkaufen');
+  await expect(page.locator('[data-evening]')).toHaveCount(0); // tomorrow has no review
   expect(errors).toEqual([]);
 });

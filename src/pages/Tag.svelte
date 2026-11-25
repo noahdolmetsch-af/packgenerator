@@ -32,6 +32,7 @@
   import { loadCore, atLocal } from '../lib/wetter/kern.js';
   import { OUTDOOR_KEY, outdoorOf, dayOf as outdoorDay } from '../lib/outdoor.js';
   import { outdoorWindow, needOf, planRef } from '../lib/tag/draussen.js';
+  import { eveningRows, laterDay } from '../lib/tag/abend.js';
 
   let { sub = '' } = $props();
   const today = localDay();
@@ -236,8 +237,8 @@
     if (fields.mins == null) delete next.mins;
     await saveItems(old ? items().map((x) => (x.id === old.id ? next : x)) : [...items(), next]);
   }
-  function deleteEntry() {
-    const gone = editing.item;
+  const deleteEntry = () => removeItem(editing.item);
+  function removeItem(gone) {
     return deleteWithUndo({
       run: () => saveItems(items().filter((x) => x.id !== gone.id)),
       undo: () => saveItems([...items().filter((x) => x.id !== gone.id), gone]),
@@ -245,6 +246,17 @@
       name: gone.title,
       item: { store: ITEMS_KEY, row: gone, kind: 'plan' },
     });
+  }
+  // «Evening review» (Noah 25.11.2026 «1-3», idea 2): from 18:00 on today and on earlier days, a closed line counts what is still open
+  const later = $derived(laterDay(day, today, shiftDay));
+  const open = $derived(tab === 'day' ? eveningRows(split.entries, { day, today, now: now ?? 0, isOwn }) : []);
+  const openOwn = $derived(open.filter((r) => r.own));
+  const itemOf = (e) => items().find((x) => x.id === e.id);
+  async function moveAll() {
+    const before = items();
+    const ids = new Set(openOwn.map((r) => r.e.id));
+    await saveItems(before.map((x) => (ids.has(x.id) ? cleanItem({ ...x, day: later }) : x)));
+    offerDone(t('{n} entries moved to {day}.', { n: ids.size, day: dayName(later) }), () => saveItems(before));
   }
 </script>
 
@@ -308,6 +320,32 @@
     </section>
   {/if}
 
+  <!-- the evening review: what is still open, one line, closed (Noah 25.11.2026) -->
+  {#if open.length}
+    <details class="evening" data-evening>
+      <summary>{tn(open.length, '{n} thing is still open|evening', '{n} things are still open|evening')}</summary>
+      <ul>
+        {#each open as r (r.e.id)}
+          <li>
+            <a class="what" href={href(r.e)} data-evening-entry={r.e.id} onclick={(ev) => openEntry(r.e, ev)}><b>{titleOf(r.e)}</b><small>{subOf(r.e) || t(KIND_NAMES[r.e.kind] ?? 'Other|kind')}</small></a>
+            {#if r.own}
+              <span class="acts">
+                <button type="button" data-evening-done onclick={() => tickItem(itemOf(r.e))}>{t('Done|evening')}</button>
+                <button type="button" data-evening-later onclick={() => change(itemOf(r.e), { day: later })}>{day < today ? t('To today|evening') : t('To tomorrow|evening')}</button>
+                <button type="button" data-evening-drop onclick={() => removeItem(itemOf(r.e))}>{t('Drop|evening')}</button>
+              </span>
+            {:else}
+              <a class="acts tick" href="#/day/abhaken">{t('Tick off ›|evening')}</a>
+            {/if}
+          </li>
+        {/each}
+      </ul>
+      {#if openOwn.length > 1}
+        <button type="button" class="all" data-evening-all onclick={moveAll}>{day < today ? t('All to today|evening') : t('All to tomorrow|evening')}</button>
+      {/if}
+    </details>
+  {/if}
+
   <!-- a suggestion of the app that only looks like a session of your imported plan: one closed line, nothing is deleted (Noah 24.11.2026) -->
   {#if split.folded.length}
     <details class="similar" data-similar>
@@ -354,7 +392,7 @@
     {/each}
     {#if outdoor?.win}
       {@const g = outdoor.win}
-      <div class="ghost" data-draussen style="top: {top(g.s)}px; height: {Math.max(44, top(g.e) - top(g.s) - 2)}px">
+      <div class="ghost" data-draussen style="top: {top(g.s)}px; height: {Math.max(52, top(g.e) - top(g.s) - 2)}px">
         <span class="gt"><b>{outName}</b><small class="num">{fmtMin(g.s)}–{fmtMin(g.e)} · {g.temp != null ? t('Dry, {temp} °C', { temp: g.temp }) : t('Dry|weather')}</small></span>
         <button type="button" class="plan" data-draussen-plan onclick={planOutdoor}>{t('Plan it')}</button>
       </div>
@@ -577,6 +615,74 @@
     font-weight: 600;
     color: var(--ink);
   }
+  .evening {
+    margin: 0 0 12px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-3);
+    background: var(--paper);
+    font-size: var(--fs-small);
+  }
+  .evening summary {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .evening ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .evening li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 10px;
+    padding: 6px 0;
+    border-top: 1px solid var(--line);
+  }
+  .evening .what {
+    flex: 1 1 140px;
+    display: grid;
+    min-height: 44px;
+    align-content: center;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .evening small {
+    color: var(--ink-2);
+  }
+  .evening .acts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .evening button,
+  .evening .tick {
+    min-height: 44px;
+    padding: 0 12px;
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--line);
+    border-radius: var(--r-pill);
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    font-size: var(--fs-small);
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .evening button[data-evening-done] {
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
+    font-weight: 600;
+  }
+  .evening .all {
+    margin: 4px 0 10px;
+  }
   .untimed {
     margin: 0 0 12px;
     padding: 10px 12px;
@@ -697,7 +803,7 @@
   }
   .ghost .plan {
     flex: none;
-    min-height: 36px;
+    min-height: 44px;
     padding: 0 12px;
     border: 0;
     border-radius: var(--r-pill);

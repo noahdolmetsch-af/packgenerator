@@ -95,4 +95,13 @@ export default {
   '«{name}» set for {time}.': '«{name}» auf {time} gelegt.',
   'No free dry window of {n} min on this day.': 'An diesem Tag ist kein freies, trockenes Fenster von {n} Min.',
   'Longest free and dry stretch: {from}–{to}.': 'Längstes freies, trockenes Stück: {from}–{to}.',
+  '{n} thing is still open|evening': '{n} Punkt ist noch offen',
+  '{n} things are still open|evening': '{n} Punkte sind noch offen',
+  'Done|evening': 'Erledigt',
+  'To tomorrow|evening': 'Auf morgen',
+  'To today|evening': 'Auf heute',
+  'Drop|evening': 'Weg',
+  'Tick off ›|evening': 'Abhaken ›',
+  'All to tomorrow|evening': 'Alles auf morgen',
+  'All to today|evening': 'Alles auf heute',
 };
