@@ -1,6 +1,6 @@
 # Lange Wörter in Rennnamen und Notfallkarte
 
-PR #<Nummer> · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 3, Befunde E3-004 und E3-005; Thread «Durchklicken Etappe 3: Unterwegs und Wetter»)
+PR #1783 · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 3, Befunde E3-004 und E3-005; Thread «Durchklicken Etappe 3: Unterwegs und Wetter»)
 
 ## Was ist neu
 - Touren › Rennen › ein Rennen öffnen: Ein Rennname aus einem sehr langen Wort (ohne Leerzeichen) machte die Seite um ein Mehrfaches breiter als den Bildschirm. Der Titel bricht jetzt am Rand um.

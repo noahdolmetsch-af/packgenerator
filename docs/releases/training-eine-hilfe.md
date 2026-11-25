@@ -1,6 +1,6 @@
 # Training: eine Hilfe-Zeile
 
-PR #<Nummer> · 17.11.2026 · Auftrag: Noah «alle umsetzen 1-10» (Thread «UI-Test der Seite Flow Training», Fund 2)
+PR #1783 · 17.11.2026 · Auftrag: Noah «alle umsetzen 1-10» (Thread «UI-Test der Seite Flow Training», Fund 2)
 
 ## Was ist neu
 - Auf Training steht nach dem Einklappen der Einstiegskarte nur noch die Zeile «Was du hier tun kannst». Vorher stand darunter eine zweite Zeile «So geht's», beide öffneten Hilfe. Am Handy rückt alles darunter um eine Zeile nach oben.

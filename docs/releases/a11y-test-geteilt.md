@@ -1,6 +1,6 @@
 # Test «Seitwärts scrollen»: ein Test pro Breite
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Noah «beheben» (Thread «Wackel-Tests zuverlässig machen»; blockierte die PRs 1595 und 1596)
+PR #1783 · 23.11.2026 · Auftrag: Noah «beheben» (Thread «Wackel-Tests zuverlässig machen»; blockierte die PRs 1595 und 1596)
 
 ## Was ist neu
 - Nichts in der App. Nur der Test `tests/e2e/a11y.spec.js` («no core view scrolls sideways at 320 and 390 px», Handy) war in der CI rot, oft auch im zweiten Versuch, bei PR 1595 und 1596.

@@ -1,6 +1,6 @@
 # Hinweis mit zwei Tasten: auf dem Handy nicht mehr eine schmale Säule
 
-PR #<Nummer> · 24.11.2026 · Reparatur eines Fehlers aus «Aktionen 3» (#1673), beim Live-Test auf dem Handy gefunden. Auftrag: Noah «1-5a» (Prüfung «Aktionen in Auswerten»); Regel: main-Fehler zuerst.
+PR #1783 · 24.11.2026 · Reparatur eines Fehlers aus «Aktionen 3» (#1673), beim Live-Test auf dem Handy gefunden. Auftrag: Noah «1-5a» (Prüfung «Aktionen in Auswerten»); Regel: main-Fehler zuerst.
 
 Ziele von Noah (23.11.2026): **Klarheit** (der Hinweis ist lesbar) und **Auffindbarkeit** («Rückgängig» und «Ansehen» sind sichtbar und gut zu treffen). Leitfaden: «Eine App, die mich im Alltag unterstützt».
 

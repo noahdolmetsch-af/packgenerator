@@ -1,6 +1,6 @@
 # Velopflege: Ein langer Velo-Name passt auf den Bildschirm
 
-PR #<Nummer> · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 4, Thread «Durchklicken Etappe 4: Velos und Alltag»), Befund E4-001
+PR #1783 · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 4, Thread «Durchklicken Etappe 4: Velos und Alltag»), Befund E4-001
 
 ## Was ist neu
 - Velopflege (Handy): Hat ein Velo einen langen Namen (zum Beispiel 70 Zeichen mit Leerzeichen), wurde die ganze Seite breiter als der Bildschirm (651 statt 390 px). Der Name stand in der Problemliste in einer Marke, die nicht umbrach, und in der Auswahl «Alle Velos» passte sich das Feld dem längsten Namen an. Jetzt brechen Marke und Velo-Knöpfe den Namen um, das Auswahlfeld bleibt auf Bildschirmbreite.

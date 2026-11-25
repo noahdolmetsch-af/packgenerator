@@ -1,6 +1,6 @@
 # Ein aufgeräumter Katalog
 
-PR #<Nummer> · 27.10.2026 · Auftrag: Noah «1a 2a 3a», hier Frage 3 (Thread «332 Use Cases sichtbar machen»)
+PR #1783 · 27.10.2026 · Auftrag: Noah «1a 2a 3a», hier Frage 3 (Thread «332 Use Cases sichtbar machen»)
 
 ## Was ist neu
 - Vier Funktionen, die bewusst weggelassen sind, stehen nicht mehr in «Was die App alles kann»: Shop ohne Gebühren, Rechnungen mit QR-Rechnung und TWINT, Rechnungen zu zahlen, Angebote.

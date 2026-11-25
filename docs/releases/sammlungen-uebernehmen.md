@@ -1,6 +1,6 @@
 # Sammlungen: «In meine Sammlungen übernehmen»
 
-PR #<Nummer> · 07.11.2026 · Auftrag: Noah «a» (Thread «Bauen: Freie Zeit Teil 1»), Rest aus «Sammlungen: teilen, drucken, Tour»
+PR #1783 · 07.11.2026 · Auftrag: Noah «a» (Thread «Bauen: Freie Zeit Teil 1»), Rest aus «Sammlungen: teilen, drucken, Tour»
 
 ## Was ist neu
 - Auf der geteilten Seite (`#/share/sammlung/…`) steht «In meine Sammlungen übernehmen». Ein Tippen legt die Sammlung als eigene Sammlung an (Typ «Eigene Sammlung», Name wie geteilt) mit allen Einträgen. Die ausgefüllten Felder stehen als Zeilen «Feld: Text» im Textfeld des Eintrags.

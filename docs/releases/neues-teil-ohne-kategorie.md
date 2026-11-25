@@ -1,6 +1,6 @@
 # Neues Teil ohne Kategorie: die Meldung nennt den Ort
 
-PR #<Nummer> · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 2, Thread «Durchklicken Etappe 2: Touren und Material»), Befund E2-002
+PR #1783 · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 2, Thread «Durchklicken Etappe 2: Touren und Material»), Befund E2-002
 
 ## Was ist neu
 - Material › Teil hinzufügen: Wer nur einen Namen tippt und das Fenster schliesst, bekam die Meldung ««Name» ist gespeichert. Du findest es unter .» (der Ort fehlte). Jetzt steht dort «unter Ohne Kategorie». Das Teil lag schon immer dort; nur der Satz war unvollständig.

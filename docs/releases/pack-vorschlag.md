@@ -1,6 +1,6 @@
 # Dein Vorschlag und «Vorschlag in einer Minute»
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Noah «1b», «5a» (Warteliste 4, Baustein 1; baut auf «Packen in Schritten» und «Pack-Karten» auf)
+PR #1783 · 23.11.2026 · Auftrag: Noah «1b», «5a» (Warteliste 4, Baustein 1; baut auf «Packen in Schritten» und «Pack-Karten» auf)
 
 ## Was ist neu
 - Die Seite **Dein Vorschlag** (`#/pack/vorschlag`, `src/pages/PackVorschlag.svelte`, Regeln `src/lib/pack/vorschlag.js`): die Liste der offenen (sonst der nächsten) Tour als Angebot. Oben «n Teile · x kg» und «Liste übernehmen» (öffnet die Packliste in Schritten); darunter die Schritte mit Teilen, Gewicht und «Ändern» (öffnet die Packliste beim Schritt).

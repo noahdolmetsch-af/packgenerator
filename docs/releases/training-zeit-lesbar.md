@@ -1,6 +1,6 @@
 # Lesbare Zeit bei einer Aktivität
 
-PR #<Nummer> · 17.11.2026 · Auftrag: Noah «alle umsetzen 1-10» (Thread «UI-Test der Seite Flow Training», Fund 9)
+PR #1783 · 17.11.2026 · Auftrag: Noah «alle umsetzen 1-10» (Thread «UI-Test der Seite Flow Training», Fund 9)
 
 ## Was ist neu
 - Auf der Aktivitätsseite von Training stehen «Zeit verstrichen» und «Pausen» als «1:48:20» und «0:06:00» (vorher «00:01:48:20» und «00:00:06:00»). Ab 24 Stunden bleibt es «01:02:15:00» (Tage:Stunden:Minuten:Sekunden).

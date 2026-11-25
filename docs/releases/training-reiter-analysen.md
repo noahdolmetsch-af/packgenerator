@@ -1,6 +1,6 @@
 # Training: ein Reiter für die Analysen
 
-PR #<Nummer> · 17.11.2026 · Auftrag: Noah «alle umsetzen 1-10» (Thread «UI-Test der Seite Flow Training», Fund 4)
+PR #1783 · 17.11.2026 · Auftrag: Noah «alle umsetzen 1-10» (Thread «UI-Test der Seite Flow Training», Fund 4)
 
 ## Was ist neu
 - Training hat drei Reiter: «Woche», «Aktivitäten» und neu «Analysen». Im Reiter «Analysen» stehen die Auswertungen über die Wochen (Fitness/Form, Monat gegen Monat, Jahr gegen Jahr, FTP …), die Pulszonen und die FTP. Vorher standen sie unter dem Wochenplan; die Seite war am Computer 3 345 px, am Handy 4 550 px hoch.

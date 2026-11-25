@@ -1,6 +1,6 @@
 # Ein Vorschlag lässt deine TrainingPeaks-Einheiten stehen
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Noah «5a» (Thread «Wochenplan-Vorschläge verlässlich machen»)
+PR #1783 · 23.11.2026 · Auftrag: Noah «5a» (Thread «Wochenplan-Vorschläge verlässlich machen»)
 
 ## Was ist neu
 - «Woche vorschlagen › Übernehmen» ersetzt nur noch die eigenen Einheiten und alten Vorschläge ab heute. Einheiten aus TrainingPeaks bleiben an ihrem Tag (`planAfterSuggestion` in `src/lib/training/suggest.js`).

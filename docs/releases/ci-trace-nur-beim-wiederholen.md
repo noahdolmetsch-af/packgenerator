@@ -1,6 +1,6 @@
 # CI: Aufzeichnung nur noch beim Wiederholen eines Tests
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Noah «1 2 3 4 5», Punkt 5 «Schnellere Tests» (Thread «Tests schneller machen»)
+PR #1783 · 24.11.2026 · Auftrag: Noah «1 2 3 4 5», Punkt 5 «Schnellere Tests» (Thread «Tests schneller machen»)
 
 ## Was ist neu
 - In der CI nimmt Playwright den Ablauf (Trace) nur noch auf, wenn ein Test fehlschlägt und ein zweites Mal läuft (`trace: 'on-first-retry'`). Vorher wurde jeder Test aufgenommen und die Aufnahme bei Erfolg verworfen.

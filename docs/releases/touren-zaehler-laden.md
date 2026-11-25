@@ -1,6 +1,6 @@
 # Touren: Die Zähler fangen nicht mehr bei null an
 
-PR #<Nummer> · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 2, Thread «Durchklicken Etappe 2: Touren und Material»), Befund E2-003
+PR #1783 · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 2, Thread «Durchklicken Etappe 2: Touren und Material»), Befund E2-003
 
 ## Was ist neu
 - Touren › Übersicht: Die Zeile «N geplant · N gefahren in 12 Monaten» las beim Öffnen kurz «0 gefahren» und sprang dann auf die echte Zahl. Mit grossen Datenmengen dauerte das 1 bis 2 Sekunden. Jetzt erscheint die Zeile erst, wenn die Zahlen stimmen. Auf dem Handy gilt dasselbe für die Zeile «Mit Packliste» («0 Touren»).

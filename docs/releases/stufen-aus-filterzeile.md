@@ -1,6 +1,6 @@
 # Aktionen in Auswerten: «Stufen ändern» nicht mehr in der Filterzeile der Meilensteine
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Noah «1-5a» (Prüfung «Aktionen in Auswerten», Entscheid 5a), Teil 5 von 5
+PR #1783 · 24.11.2026 · Auftrag: Noah «1-5a» (Prüfung «Aktionen in Auswerten», Entscheid 5a), Teil 5 von 5
 
 Ziele von Noah (23.11.2026 18:09): **Klarheit** (die Filterzeile zeigt nur Filter, kein Werkzeug) und **Auffindbarkeit** (der Weg zu den Zahlen bleibt am Seitenende und in der Hilfe). Leitfaden `docs/leitfaden.md`: Meilensteine, Fitness-Daten.
 

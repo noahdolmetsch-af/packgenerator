@@ -1,6 +1,6 @@
 # Fürs nächste Mal: Notizen direkt auf die Packliste
 
-PR #<Nummer> · 05.11.2026 · Auftrag: Noah «8b» (Thread «Bauen: Freie Zeit Teil 2»), Idee «Fürs nächste Mal – Knopf «In Packliste übernehmen» bei der nächsten Tour»
+PR #1783 · 05.11.2026 · Auftrag: Noah «8b» (Thread «Bauen: Freie Zeit Teil 2»), Idee «Fürs nächste Mal – Knopf «In Packliste übernehmen» bei der nächsten Tour»
 
 ## Was ist neu
 - Auf Freie Zeit › Fürs nächste Mal steht über den gemerkten Notizen eine Auswahl «Packliste von» (vorgewählt: die nächste Tour) und der Knopf «Alles auf die Packliste». Neben jeder Notiz gibt es ein Listen-Zeichen für nur diese eine.

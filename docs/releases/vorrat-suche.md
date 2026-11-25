@@ -1,6 +1,6 @@
 # Vorrat: Teil mit Suchfeld auswählen
 
-PR #<Nummer> · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 2, Antwort «4a» und Design «b»)
+PR #1783 · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 2, Antwort «4a» und Design «b»)
 
 ## Was ist neu
 - Material › Vorrat › «Auch als Vorrat führen»: Die Auswahl aller Teile, die noch kein Vorrat sind, hat bei vielen Teilen ein Suchfeld («Alle Teile durchsuchen»). Die Liste zeigt nur, was zu den Wörtern passt (Umlaute und Akzente spielen keine Rolle). Findet nichts, steht «Kein Teil gefunden». Das gewählte Teil bleibt in der Liste.

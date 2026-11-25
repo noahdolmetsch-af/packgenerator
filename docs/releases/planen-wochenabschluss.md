@@ -1,6 +1,6 @@
 # Wochen-Abschluss am Sonntag
 
-PR #<Nummer> · 05.11.2026 · Auftrag: Noah «Planen 2b» (Thread «Bauen: Planen 2a und 2b», Ideen-Doc «Ideen für alle Bereiche»)
+PR #1783 · 05.11.2026 · Auftrag: Noah «Planen 2b» (Thread «Bauen: Planen 2a und 2b», Ideen-Doc «Ideen für alle Bereiche»)
 
 ## Was ist neu
 - Planen › Woche zeigt am Sonntag eine Karte «Wochen-Abschluss» mit drei Zeilen: **Erledigt**, **Noch offen**, **Rutscht in die nächste Woche** (`src/lib/woche/abschluss.js`, `WeekClose.svelte`).

@@ -1,6 +1,6 @@
 # Einstellungen und Pflege erklären sich jetzt auch (Wegweiser 26a)
 
-PR #<Nummer> · 03.11.2026 · Auftrag: Noah «speichere schritt 1-26 als geplant … freigabe» (01.11.2026), «freigabe bitte fortfahren» (03.11.2026), Thread «Entdeckbarkeit versteckter Funktionen planen»
+PR #1783 · 03.11.2026 · Auftrag: Noah «speichere schritt 1-26 als geplant … freigabe» (01.11.2026), «freigabe bitte fortfahren» (03.11.2026), Thread «Entdeckbarkeit versteckter Funktionen planen»
 
 ## Was ist neu
 - Die Karte «Was du hier tun kannst» steht jetzt auch auf Ich › Daten und Backup, Aussehen, Verbindungen, Erinnerungen aufs Handy, auf Velos › Pflege und auf dem Timer.

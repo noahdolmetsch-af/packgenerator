@@ -1,6 +1,6 @@
 # Zusammenlegen: Die Suche findet auch die Vorschläge
 
-PR #<Nummer> · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 2, Antwort «3a»)
+PR #1783 · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 2, Antwort «3a»)
 
 ## Was ist neu
 - Im Fenster «Zusammenlegen mit …» liess die Suche die Vorschläge aus. Tippte man den Namen eines vorgeschlagenen Teils, stand darunter «Kein Teil gefunden», obwohl der Vorschlag darüber das Wort enthielt. Jetzt kommt ein Vorschlag, der zur Suche passt, auch in die Treffer, mit dem Hinweis «Vorschlag».

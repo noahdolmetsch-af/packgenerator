@@ -1,6 +1,6 @@
 # Meine Sportarten baut etwas schneller auf
 
-PR #<Nummer> · 05.11.2026 · Auftrag: Noah «a: Schwerste Reiter einzeln» (Thread «Beheben: Verzögerung bei Eingaben und Tabs»)
+PR #1783 · 05.11.2026 · Auftrag: Noah «a: Schwerste Reiter einzeln» (Thread «Beheben: Verzögerung bei Eingaben und Tabs»)
 
 ## Was ist neu
 - Aktiv › Meine Sportarten: Das Feld «Alle Sportarten auf einen Blick» (die Quadrate pro Tag) steht zugeklappt am Seitenende. Bisher wurden alle Quadrate trotzdem beim Öffnen der Seite gebaut (jede Sportart × 14 Tage). Jetzt entstehen sie erst, wenn du das Feld öffnest.

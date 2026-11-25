@@ -1,6 +1,6 @@
 # Wackel-Tests: die Test-Uhr stimmt auch nach einem anderen Spec im selben Arbeiter
 
-PR #<Nummer> · 21.11.2026 · Auftrag: Koordinator (rote e2e-Tests auf main blockieren #1297 und #1301), Thread «Wackel-Tests auf main reparieren»
+PR #1783 · 21.11.2026 · Auftrag: Koordinator (rote e2e-Tests auf main blockieren #1297 und #1301), Thread «Wackel-Tests auf main reparieren»
 
 ## Was ist neu
 - Nichts in der App. Nur Testcode: `tests/e2e/clock.js` und der Wächter `tests/clock-fixture.test.js`.

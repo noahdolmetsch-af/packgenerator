@@ -1,6 +1,6 @@
 # Eishockey kommt aus Spielerplus
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Noah «1a» (Thread «Wochenplan-Vorschläge verlässlich machen»), Schritt 2 von 6
+PR #1783 · 23.11.2026 · Auftrag: Noah «1a» (Thread «Wochenplan-Vorschläge verlässlich machen»), Schritt 2 von 6
 
 ## Was ist neu
 - Ist ein Spielerplus-Kalender der Sportart Eishockey an und wurde einmal geholt, sind seine Termine (Training und Spiel) das Eishockey der Woche. Der Wochenplan setzt keine eigene Eishockey-Einheit (bisher fix Sonntag 8:00) dazu; eine Woche ohne Termin hat keins. Unter den Stunden steht ein Satz dazu.

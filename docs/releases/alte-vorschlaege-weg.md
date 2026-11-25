@@ -1,6 +1,6 @@
 # Alte Vorschläge entfernen
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Noah «a ★ Ja» (Thread «Wochenplan-Vorschläge verlässlich machen»), Schritt 7
+PR #1783 · 24.11.2026 · Auftrag: Noah «a ★ Ja» (Thread «Wochenplan-Vorschläge verlässlich machen»), Schritt 7
 
 ## Was ist neu
 - Im Wochenplan steht eine ruhige Zeile «2 alte Vorschläge aus «Woche vorschlagen» liegen noch in deiner Woche.» mit «Entfernen». Es nimmt nur Einheiten heraus, die der ältere Vorschlag gesetzt hat (`src: 'sug'`), ab heute und noch nicht abgehakt (`oldSuggestions`, `withoutOldSuggestions` in `src/lib/training/suggest.js`). Eigene Einheiten, TrainingPeaks und Trainingspläne bleiben. Danach «… entfernt» mit «Rückgängig».

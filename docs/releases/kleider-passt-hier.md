@@ -1,6 +1,6 @@
 # Kleider: der Weg zum Einrichten steht unten
 
-PR #<Nummer> · 22.11.2026 · Regel «Inhalt zuerst» (Noah 21.11.2026 «5a»), Korrektur zu «Kleiderschrank einrichten»
+PR #1783 · 22.11.2026 · Regel «Inhalt zuerst» (Noah 21.11.2026 «5a»), Korrektur zu «Kleiderschrank einrichten»
 
 ## Was ist neu
 - Der Weg zu «Kleiderschrank einrichten» steht jetzt am Ende des Kleiderschranks unter «Passt hier» (zusammen mit «Kleider in der Wäsche»).

@@ -1,6 +1,6 @@
 # Aktionen in Auswerten: «Rückgängig» 8 Sekunden
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Noah «1-5a» (Prüfung «Aktionen in Auswerten», Entscheid 3a), Teil 1 von 5
+PR #1783 · 23.11.2026 · Auftrag: Noah «1-5a» (Prüfung «Aktionen in Auswerten», Entscheid 3a), Teil 1 von 5
 
 Ziele von Noah (23.11.2026 18:09): **Klarheit** (man sieht, was passiert ist, und kann es lesen, bevor es weg ist) und **Auffindbarkeit** (der Weg zurück bleibt lang genug da).
 

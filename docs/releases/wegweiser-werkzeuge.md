@@ -1,6 +1,6 @@
 # Der Werkzeugkasten erklärt sich selbst (Wegweiser, nach der Schlussmessung)
 
-PR #<Nummer> · 03.11.2026 · Auftrag: Noah «a» auf die Frage nach der Schlussmessung (03.11.2026), Thread «Entdeckbarkeit versteckter Funktionen planen»
+PR #1783 · 03.11.2026 · Auftrag: Noah «a» auf die Frage nach der Schlussmessung (03.11.2026), Thread «Entdeckbarkeit versteckter Funktionen planen»
 
 ## Was ist neu
 - Touren › Werkzeugkasten hat die Karte «Was du hier tun kannst», zugeklappt als eine Zeile (`FOLDED_FIRST`).

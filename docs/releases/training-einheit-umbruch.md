@@ -1,6 +1,6 @@
 # Lange Einheiten-Namen brechen um
 
-PR #<Nummer> · 17.11.2026 · Auftrag: Noah «alle umsetzen 1-10» (Thread «UI-Test der Seite Flow Training», Fund 7)
+PR #1783 · 17.11.2026 · Auftrag: Noah «alle umsetzen 1-10» (Thread «UI-Test der Seite Flow Training», Fund 7)
 
 ## Was ist neu
 - In der Woche von Training (geplante und gemachte Einheiten) endet ein langer Name nicht mehr mit «…», sondern bricht auf eine zweite Zeile um. Der Knopf wird dann zweizeilig.

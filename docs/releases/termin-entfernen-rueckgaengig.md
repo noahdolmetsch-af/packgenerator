@@ -1,6 +1,6 @@
 # Woche: Einen Termin entfernen lässt sich zurücknehmen
 
-PR #<Nummer> · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 4, Thread «Durchklicken Etappe 4: Velos und Alltag»), Befund E4-005
+PR #1783 · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 4, Thread «Durchklicken Etappe 4: Velos und Alltag»), Befund E4-005
 
 ## Was ist neu
 - Planen › Woche: Das × bei einem eigenen Termin oder einer Aufgabe löschte sofort und ohne Meldung. Jetzt steht ««Name» gelöscht.» mit «Rückgängig» (4 Sekunden), wie überall sonst in der App. Rückgängig legt nur diesen Eintrag zurück und lässt andere Änderungen in der Zwischenzeit stehen.

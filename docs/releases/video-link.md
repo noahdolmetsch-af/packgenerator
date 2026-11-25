@@ -1,6 +1,6 @@
 # Einen Link zu einem Video behalten
 
-PR #<Nummer> · 29.10.2026 · Auftrag: Noah «1a 2a 3a 4a» (Thread «Videos in der App einschätzen», Schritt 3 von 6)
+PR #1783 · 29.10.2026 · Auftrag: Noah «1a 2a 3a 4a» (Thread «Videos in der App einschätzen», Schritt 3 von 6)
 
 ## Was ist neu
 - Ein Link zu einer Videoseite (YouTube, Vimeo, Dailymotion, TikTok oder eine Adresse mit /video) in einer Notiz zeigt ein Abspiel-Symbol und «Video-Link: das Video bleibt, wo es ist». Andere Links bleiben wie bisher.

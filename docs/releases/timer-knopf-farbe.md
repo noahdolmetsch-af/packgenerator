@@ -1,6 +1,6 @@
 # Timer: Knöpfe gut lesbar
 
-PR #<Nummer> · 19.11.2026 · Auftrag: Noah «mache einen kompletten test der website … behebe dabei kleine fehler direkt» (Thread «Ganze Website testen und Fehler beheben»)
+PR #1783 · 19.11.2026 · Auftrag: Noah «mache einen kompletten test der website … behebe dabei kleine fehler direkt» (Thread «Ganze Website testen und Fehler beheben»)
 
 ## Was ist neu
 - Timer: Der grüne Knopf «Start» neben der getippten Zeit, «Abhaken» (Aktivität) und im Timer-Log «Speichern» hatten dunkelgrauen Text auf Grün (Kontrast 1,8 : 1, im dunklen Modus 1,3 : 1). Ursache: eine Regel `.sm` für kleine graue Sätze (`<p class="sm">`) traf auch die Knöpfe mit der Klasse `sm`. Die Regel gilt jetzt nur für `p.sm` (`Timer.svelte`, `TimerLog.svelte`). Die Knöpfe haben wieder die Farben von `.btn.hi`; der Aussenabstand der Regel fällt bei ihnen auch weg. Das Tastatur-Symbol vor dem Feld bleibt grau, das Start-Symbol im Knopf ist jetzt weiss (`.typed > svg`).

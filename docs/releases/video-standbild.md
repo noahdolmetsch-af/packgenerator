@@ -1,6 +1,6 @@
 # Ein Bild aus deinem Video
 
-PR #<Nummer> · 29.10.2026 · Auftrag: Noah «1a 2a 3a 4a» (Thread «Videos in der App einschätzen», Schritt 2 von 6)
+PR #1783 · 29.10.2026 · Auftrag: Noah «1a 2a 3a 4a» (Thread «Videos in der App einschätzen», Schritt 2 von 6)
 
 ## Was ist neu
 - Ein Video in einer Notiz öffnen: neuer Knopf «Dieses Bild behalten». Das Bild, das gerade zu sehen ist, wird ein Foto der Notiz (JPEG, lange Seite höchstens 1200 px). Das Video bleibt wie es ist.

@@ -1,6 +1,6 @@
 # Fachwörter erklärt
 
-PR #<Nummer> · 08.11.2026 · Auftrag: Noah «1-3 ok» (Thread «Cardio-Belastung: Ideen A–F bauen», Vorschlag 3)
+PR #1783 · 08.11.2026 · Auftrag: Noah «1-3 ok» (Thread «Cardio-Belastung: Ideen A–F bauen», Vorschlag 3)
 
 ## Was ist neu
 - Auf der Seite Analyse › Cardio-Belastung steht unter dem Titel die Zeile «Was heissen «Punkte», «hart» und «Spitze»?» mit einem «?». Ein Tipp zeigt zwei kurze Absätze: was die Punkte sind (Minuten im Pulsbereich, Minuten in höheren Zonen zählen mehr, keine Note) und was die vier Zonen leicht, mittel, hart und Spitze bedeuten.

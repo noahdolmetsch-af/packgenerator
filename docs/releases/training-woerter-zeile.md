@@ -1,6 +1,6 @@
 # Klarere Wörter am Seitenende
 
-PR #<Nummer> · 17.11.2026 · Auftrag: Noah «alle umsetzen 1-10» (Thread «UI-Test der Seite Flow Training», Fund 5)
+PR #1783 · 17.11.2026 · Auftrag: Noah «alle umsetzen 1-10» (Thread «UI-Test der Seite Flow Training», Fund 5)
 
 ## Was ist neu
 - Der Klappteil am Ende einer Seite hiess «Nur in der passenden Lage · 1» und sagte nicht, was drin steht. Er heisst jetzt «Kommt später, wenn es passt · 1». Der Inhalt (Funktion mit «Erscheint, wenn …») bleibt gleich.

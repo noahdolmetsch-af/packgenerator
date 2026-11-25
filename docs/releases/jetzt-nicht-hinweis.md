@@ -1,6 +1,6 @@
 # Aktionen in Auswerten: «Jetzt nicht» bei den Tipps sagt es und hat «Rückgängig»
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Noah «1-5a» (Prüfung «Aktionen in Auswerten», Entscheid 1a), Teil 2 von 5
+PR #1783 · 24.11.2026 · Auftrag: Noah «1-5a» (Prüfung «Aktionen in Auswerten», Entscheid 1a), Teil 2 von 5
 
 Ziele von Noah (23.11.2026 18:09): **Klarheit** (die App sagt, was sie getan hat) und **Auffindbarkeit** (der Tipp ist mit einem Tipp wieder da). Leitfaden `docs/leitfaden.md`: «Eine App, die mich im Alltag unterstützt» (nichts geht still verloren).
 

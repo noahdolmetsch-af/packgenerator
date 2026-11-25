@@ -1,6 +1,6 @@
 # Ein Vorschlag für die Woche: dein Wochenplan
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Noah «3a» (Thread «Wochenplan-Vorschläge verlässlich machen»), Schritt 4 von 6
+PR #1783 · 23.11.2026 · Auftrag: Noah «3a» (Thread «Wochenplan-Vorschläge verlässlich machen»), Schritt 4 von 6
 
 ## Was ist neu
 - Mit gespeichertem Wochenplan ist «Woche vorschlagen» (Training › Woche, erste Reihe) ein Link zum Wochenplan. Das ist jetzt der eine Vorschlag der Woche, mit TrainingPeaks und Spielplan (Schritte 1 und 2; das Stundenziel mit TrainingPeaks folgt als Schritt 3). Leichter, Härter, Regenwoche und Skitour-Woche bleiben als Schalter in derselben Reihe.

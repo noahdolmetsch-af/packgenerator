@@ -1,6 +1,6 @@
 # Dein Trainingsplan im Wochenplan
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Noah «5a» (Thread «Wochenplan-Vorschläge verlässlich machen»), Schritt 6 von 6
+PR #1783 · 24.11.2026 · Auftrag: Noah «5a» (Thread «Wochenplan-Vorschläge verlässlich machen»), Schritt 6 von 6
 
 ## Was ist neu
 - Die Einheiten eines Trainingsplans in Gebrauch (Training › Trainingspläne, gespeichert als `src: 'tpl:<id>'` in `training.plan`) stehen im Wochenplan fest an ihrem Tag und zählen auf die Wochenstunden, genau wie die aus TrainingPeaks (`tpWeek` in `src/lib/training/wochenplan.js`). Der Planer lässt so viele eigene Einheiten der gleichen Sportart weg, wie der Plan deckt.

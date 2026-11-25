@@ -1,6 +1,6 @@
 # Touren und weitere Seiten erklären sich selbst (Wegweiser 26b)
 
-PR #<Nummer> · 02.11.2026 · Auftrag: Noah «speichere schritt 1-26 als geplant … freigabe» (01.11.2026), «fortfahren» (02.11.2026), Thread «Entdeckbarkeit versteckter Funktionen planen»
+PR #1783 · 02.11.2026 · Auftrag: Noah «speichere schritt 1-26 als geplant … freigabe» (01.11.2026), «fortfahren» (02.11.2026), Thread «Entdeckbarkeit versteckter Funktionen planen»
 
 ## Was ist neu
 - Die Karte «Was du hier tun kannst» mit «Gut zu wissen» steht jetzt auch auf 9 Seiten, die in der Roboter-Prüfung vom 02.11.2026 gar keinen Inhalt zeigten: Touren, Verpflegung und Wasser, Neuland, Freie Zeit, Meine Sammlungen, Ruhiger › Woher ein Wert kommt, Ruhiger › Zahlen, die klar bleiben, Skitouren, Rennen im Detail planen.

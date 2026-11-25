@@ -1,6 +1,6 @@
 # Kleider-Frage im Rückblick: Prüfungen angepasst
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Bündler (zwei E2E-Prüfungen auf main rot nach dem Merge von «Zwiebel für Morgen und Mittag»)
+PR #1783 · 23.11.2026 · Auftrag: Bündler (zwei E2E-Prüfungen auf main rot nach dem Merge von «Zwiebel für Morgen und Mittag»)
 
 ## Was ist neu
 - nichts Sichtbares. Zwei Prüfungen (`tabs.spec.js`, `areas.spec.js`) erwarteten noch vier Antwort-Gruppen unter «Wie war es?», mit «Kleidung» an zweiter Stelle. Seit dem letzten PR steht «Wie war die Kleidung?» als eigener Abschnitt rechts; unter «Wie war es?» bleiben drei Gruppen (Wetter, Essen, Taschen).

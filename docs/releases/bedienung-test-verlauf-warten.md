@@ -1,6 +1,6 @@
 # Test «Tastenkürzel»: «n» wartet, bis das geschlossene Fenster seinen Verlaufsschritt abgegeben hat
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Regel 3 (Thread «Wackel-Tests zuverlässig machen»; `bedienung.spec.js:31`, am Computer 1 von 3 rot: «n» öffnet «Neu» nicht)
+PR #1783 · 24.11.2026 · Auftrag: Regel 3 (Thread «Wackel-Tests zuverlässig machen»; `bedienung.spec.js:31`, am Computer 1 von 3 rot: «n» öffnet «Neu» nicht)
 
 ## Was ist neu
 - Nichts Sichtbares geändert, nur Test für die Tastenkürzel. Nach «Esc» im Fenster «Tastenkürzel» nimmt das Fenster seinen Verlaufsschritt eine Aufgabe später zurück (`backclose.js`). Drückte der Test «n» genau dazwischen, öffnete sich «Neu» und wurde vom Zurück-Schritt gleich wieder geschlossen. Ein Mensch ist dafür zu langsam.

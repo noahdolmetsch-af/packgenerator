@@ -1,6 +1,6 @@
 # Impulse ziehen nach Freie Zeit um
 
-PR #<Nummer> · 21.11.2026 · Auftrag: Noah «2a» (Thread «App-Landkarte»)
+PR #1783 · 21.11.2026 · Auftrag: Noah «2a» (Thread «App-Landkarte»)
 
 ## Was ist neu
 - Die Seite «Impulse» steht jetzt unter Planen › Alltag, als Chip neben «Freie Zeit» (eine der acht Seiten von Freie Zeit). Die Adresse `#/flow/impulse` bleibt und öffnet die Seite dort.

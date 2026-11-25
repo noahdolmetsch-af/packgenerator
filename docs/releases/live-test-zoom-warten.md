@@ -1,6 +1,6 @@
 # Live-Karte: der Zoom-Test wartet, bis die Pins neu gesetzt sind
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Noah «beheben» (Thread «Wackel-Tests zuverlässig machen», `live.spec.js:62` Computer, 3 von 3 rot auf main)
+PR #1783 · 24.11.2026 · Auftrag: Noah «beheben» (Thread «Wackel-Tests zuverlässig machen», `live.spec.js:62` Computer, 3 von 3 rot auf main)
 
 ## Was ist neu
 - Nichts in der App. Nur der Test. Er stellt die App auf 130 % und liest sofort, ob die Seite zur Seite schiebt. Die Pin-Knöpfe («In Quick Links anheften», `PinMarks.svelte`) setzen sich aber ein Bild nach einer Grössenänderung neu; im ersten Bild stand der Pin noch dort, wo er ohne Zoom war, und schob die Seite um 177 px. Das ist seit den Pins auf der Live-Seite rot und trat nicht in der App auf, nur im Test, weil er den Zoom per Skript setzt und sofort misst.

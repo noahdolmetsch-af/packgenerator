@@ -1,6 +1,6 @@
 # Schneehinweis nur, wenn Schnee wahrscheinlich ist
 
-PR #<Nummer> · 08.11.2026 · Auftrag: Noah «heute schnee möglich, obwohl es sonnig war und wir einen herrlichen milden 10 grad warmen tag hatten?» (Thread «Prüfen: Schnee bei dir möglich trotz mildem Tag»)
+PR #1783 · 08.11.2026 · Auftrag: Noah «heute schnee möglich, obwohl es sonnig war und wir einen herrlichen milden 10 grad warmen tag hatten?» (Thread «Prüfen: Schnee bei dir möglich trotz mildem Tag»)
 
 ## Was ist neu
 - Der rote Hinweis «Schnee bei dir möglich» (Heute und Wetter › «Heute») erscheint nur noch, wenn **in derselben Stunde** alles zutrifft: die Schneefallgrenze liegt auf deiner Höhe (Ort oder eigene Höhe, wie bisher mit 100 m Spielraum), Niederschlag ist zu erwarten (Regenchance ab 50 % oder 0,3 mm, die Regel des Wetterkerns) und die Temperatur beim Ort ist höchstens 2 °C.

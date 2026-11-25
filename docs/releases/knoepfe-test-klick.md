@@ -1,6 +1,6 @@
 # Test «Knöpfe»: Klick neben das offene Menü
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Noah «ja» (Thread «Wackel-Tests zuverlässig machen»)
+PR #1783 · 23.11.2026 · Auftrag: Noah «ja» (Thread «Wackel-Tests zuverlässig machen»)
 
 ## Was ist neu
 - Nichts in der App. Nur der Test `tests/e2e/knoepfe.spec.js` (Computer, «die Blase beim Darüberfahren …») war im Nachtlauf rot, auch im zweiten Versuch (lokal 2 von 4 Läufen).

@@ -1,6 +1,6 @@
 # Verschleiss: der Test nimmt das «Rückgängig» des Entfernens, nicht das des Speicherns
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Noah «beheben» (Thread «Wackel-Tests zuverlässig machen», `verschleiss.spec.js:106`, auf main 5 von 6 rot)
+PR #1783 · 24.11.2026 · Auftrag: Noah «beheben» (Thread «Wackel-Tests zuverlässig machen», `verschleiss.spec.js:106`, auf main 5 von 6 rot)
 
 ## Was ist neu
 - Nichts in der App. Nur der Test. Nach «Besuch entfernen» liegt der Besuch erst im Papierkorb (PR 1629), dann erscheint der Hinweis «… entfernt · Rückgängig». Der Test las die Datenbank (Besuch weg) und klickte sofort «Rückgängig»; da stand noch der Hinweis «Werkstattbesuch gespeichert» obenauf, dessen «Rückgängig» nichts mehr bewirkt. Der Zähler blieb bei 1800 statt 2600.

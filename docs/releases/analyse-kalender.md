@@ -1,6 +1,6 @@
 # Analyse: Kalender und Achsen aufgeräumt
 
-PR #<Nummer> · 07.11.2026 · Auftrag: Noah «6 ja» (Thread «UI-Test Analyse-Seite: Design und Verständlichkeit»)
+PR #1783 · 07.11.2026 · Auftrag: Noah «6 ja» (Thread «UI-Test Analyse-Seite: Design und Verständlichkeit»)
 
 ## Was ist neu
 - **Kalender «Jeder Tag ein Feld»:** alle Felder gleich gross (24 bis 40 Pixel, so gross, wie die Breite erlaubt). Vorher waren die Spalten über die ganze Karte gezogen, mit grossen Lücken bei 30 Tagen, und die Wochentage standen neben den falschen Zeilen.

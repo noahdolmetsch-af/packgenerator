@@ -1,6 +1,6 @@
 # Live-Seite ruhiger: «Bereit für unterwegs?» klappt zu
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Noah, Wahl «a) Vor der Fahrt zuklappen» (Thread «Live-Navigation», Vorschlag zur Live-Seite)
+PR #1783 · 23.11.2026 · Auftrag: Noah, Wahl «a) Vor der Fahrt zuklappen» (Thread «Live-Navigation», Vorschlag zur Live-Seite)
 
 ## Was ist neu
 - Die Karte «Bereit für unterwegs?» vor dem Start ist eine Zeile («Karte und Sprache sind bereit.»), sobald die Karte entlang der Strecke auf dem Handy ist und die Sprache an. Ein Tipp auf die Zeile öffnet sie wieder.

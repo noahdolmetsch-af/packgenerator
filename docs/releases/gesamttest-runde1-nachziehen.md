@@ -1,6 +1,6 @@
 # Gesamttest Runde 1: drei Prüfungen an die neuen Seiten angepasst
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Nacht-Lauf 24.11. (Thread «Wackel-Tests zuverlässig machen»; vier echte Fehlschläge nach den Umbauten «Material aufräumen» und «Velos aufräumen»)
+PR #1783 · 24.11.2026 · Auftrag: Nacht-Lauf 24.11. (Thread «Wackel-Tests zuverlässig machen»; vier echte Fehlschläge nach den Umbauten «Material aufräumen» und «Velos aufräumen»)
 
 ## Was ist neu
 - Nichts in der App. Drei Gesamttest-Prüfungen suchten Bedienelemente an ihrem alten Platz:

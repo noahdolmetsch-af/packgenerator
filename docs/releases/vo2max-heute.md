@@ -1,6 +1,6 @@
 # VO2max auf Heute
 
-PR #<Nummer> · 28.10.2026 · Auftrag: Noah «2 a und b» (VO2max in Analyse/Körperwerte und als Kachel auf Heute; Thread «Geräte und Datenquellen», gebaut im Thread «Heute ruhiger»)
+PR #1783 · 28.10.2026 · Auftrag: Noah «2 a und b» (VO2max in Analyse/Körperwerte und als Kachel auf Heute; Thread «Geräte und Datenquellen», gebaut im Thread «Heute ruhiger»)
 
 ## Was ist neu
 - Neue Kachel «VO2max» im Bereich «Dein Körper» auf Heute: der letzte Wert (ml/kg/min) von Fitbit oder Apple Health, sein Tag und die Veränderung zum Wert von etwa vier Wochen davor.

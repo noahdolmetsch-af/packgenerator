@@ -1,6 +1,6 @@
 # Was ist neu: «Beispiele anpassen» sagt, wann die Zeile da ist
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Noah «beheben» (Thread «Wackel-Tests zuverlässig machen», Test «Ausprobieren» rot, Zeile 0.1188.0)
+PR #1783 · 24.11.2026 · Auftrag: Noah «beheben» (Thread «Wackel-Tests zuverlässig machen», Test «Ausprobieren» rot, Zeile 0.1188.0)
 
 ## Was ist neu
 - Die Zeile «Die Wahl, was dich interessiert, liegt jetzt unter Ich › Daten und Backup › «Beispiele anpassen»» in «Was ist neu» (erster-start-ein-fenster) führt weiter zur Seite «Daten und Backup». Die Zeile «Beispiele anpassen» steht dort aber nur, solange ein Teil der Beispiele fehlt. Wer alle Beispiele schon hat, sah beim Antippen nichts leuchten.

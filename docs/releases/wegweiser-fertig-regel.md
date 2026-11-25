@@ -1,6 +1,6 @@
 # Fertig-Regel für neue Funktionen (Wegweiser 25)
 
-PR #<Nummer> · 02.11.2026 · Auftrag: Noah «speichere schritt 1-26 als geplant, ich möchte alle umsetzen, freigabe» (Thread «Entdeckbarkeit versteckter Funktionen planen»)
+PR #1783 · 02.11.2026 · Auftrag: Noah «speichere schritt 1-26 als geplant, ich möchte alle umsetzen, freigabe» (Thread «Entdeckbarkeit versteckter Funktionen planen»)
 
 ## Was ist neu
 - Neue Arbeitsregel in `CLAUDE.md` («Every PR») und `docs/arbeitsweise.md` (Punkt 13): Eine neue Funktion ist erst fertig, wenn sie fünf Teile hat: Seite (Katalog mit Anleitung und Beispiel), Absprung dort, wo man sie braucht, Inhalt («Gut zu wissen»), einen leeren Zustand, der erklärt und weiterführt, und einen nächsten Schritt nach der Haupthandlung.

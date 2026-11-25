@@ -1,6 +1,6 @@
 # Aktionen in Auswerten: die Löschen-Regel (Regeländerung)
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Noah «1-5a» (Prüfung «Aktionen in Auswerten», Entscheid 4a), Teil 4 von 5
+PR #1783 · 24.11.2026 · Auftrag: Noah «1-5a» (Prüfung «Aktionen in Auswerten», Entscheid 4a), Teil 4 von 5
 
 **Regeländerung in `CLAUDE.md` (und `docs/arbeitsweise.md`)**, ausdrücklich und mit Noahs Wort als Beleg: «4a», 23.11.2026 19:49 (Quelle: `docs/decisions/loeschen-rueckgaengig.md`). Die Regel «Löschen fragt zuerst und bietet Rückgängig» wird ersetzt durch:
 

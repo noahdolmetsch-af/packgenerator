@@ -1,6 +1,6 @@
 # Pack-Karten auf Touren
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Noah «4a» (Warteliste 4, Baustein 3)
+PR #1783 · 23.11.2026 · Auftrag: Noah «4a» (Warteliste 4, Baustein 3)
 
 ## Was ist neu
 - Auf **Touren** stehen unter dem Titel die nächsten Touren als Karten (höchstens drei): Ring mit «% gepackt», «heute / morgen / in n Tagen» mit Datum, der Knopf **«Weiter mit Kleider»** (der erste Schritt mit Ungepacktem, in deiner Reihenfolge) oder «Packliste starten» (noch keine Liste) und «Öffnen».

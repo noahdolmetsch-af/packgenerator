@@ -1,6 +1,6 @@
 # Nachtlauf: Morgenmeldung, Start am Abend, Teil 1 nicht mehr zu gross; «Ausprobieren» im PR kürzer
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Noah «a-c alle», Punkt c «Nachtlauf» (Thread «Tests schneller machen»), dazu die Meldung des Wackel-Threads über Teil 1
+PR #1783 · 24.11.2026 · Auftrag: Noah «a-c alle», Punkt c «Nachtlauf» (Thread «Tests schneller machen»), dazu die Meldung des Wackel-Threads über Teil 1
 
 ## Was ist neu
 - Der Nachtlauf (`volle-pruefung.yml`: alle Browser-Tests auf Handy und Computer plus Gesamttest, jede Nacht auf main) schreibt am Ende **eine Zeile** in ein dauerhaftes Issue «Nacht-Meldung …» (Label `nacht-meldung`). Der Titel sagt «alles grün» oder «ROT» mit Datum. Der Text nennt bei Rot die roten Tests (die neuen zuerst, höchstens fünf), die Wackel-Tests, das Ergebnis des Rundgangs und den Link zum Lauf (`scripts/nacht-meldung.mjs`).

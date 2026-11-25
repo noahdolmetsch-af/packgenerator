@@ -1,6 +1,6 @@
 # Anprobe
 
-PR #<Nummer> · 22.11.2026 · Auftrag: Noah «1-5a 4b» (Thread «Kleiderschrank wieder ins Zentrum rücken», Weg A)
+PR #1783 · 22.11.2026 · Auftrag: Noah «1-5a 4b» (Thread «Kleiderschrank wieder ins Zentrum rücken», Weg A)
 
 ## Was ist neu
 - Neue Seite «Anprobe» (`#/wardrobe/tryon`, unter Kleider): eine Temperatur wählen (heute am Wohnort, die nächste Tour oder eine eigene, mit Regler und «Regen unterwegs») und sehen, welches Teil des Kleiderschranks die Zwiebel für jede Stelle nimmt. Dazu das Gewicht und die Lücken (mit dem Grund, wie bei «Was ziehe ich heute an?»).

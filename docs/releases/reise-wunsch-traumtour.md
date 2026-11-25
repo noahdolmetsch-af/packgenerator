@@ -1,6 +1,6 @@
 # Reise-Wünsche: Wunsch zur Traumtour machen, passende Jahreszeit
 
-PR #<Nummer> · 05.11.2026 · Auftrag: Noah «6a» (Thread «Bauen: Freie Zeit Teil 2»), Idee «Reise-Wünsche – Wunsch direkt in eine Traumtour verwandeln; passende Jahreszeit anzeigen»
+PR #1783 · 05.11.2026 · Auftrag: Noah «6a» (Thread «Bauen: Freie Zeit Teil 2»), Idee «Reise-Wünsche – Wunsch direkt in eine Traumtour verwandeln; passende Jahreszeit anzeigen»
 
 ## Was ist neu
 - Bei jedem Wunsch (Gedanke oder Bild) in Freie Zeit › Reise-Wünsche steht «Zur Traumtour machen». Ein Tippen legt die Traumtour zuoberst bei Touren › Träume an (Name = der Ort, sonst der erste Satz; Notiz = dein Gedanke) und merkt sich den Zusammenhang. Danach steht dort «Bei deinen Traumtouren» als Link. Mit «Rückgängig».

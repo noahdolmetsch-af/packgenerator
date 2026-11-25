@@ -1,6 +1,6 @@
 # «Was ist neu»: Tag, Uhrzeit und Bild
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Noah «1b», «2a und Uhrzeit», «3a», «4a», «5a» (Warteliste 3)
+PR #1783 · 23.11.2026 · Auftrag: Noah «1b», «2a und Uhrzeit», «3a», «4a», «5a» (Warteliste 3)
 
 ## Was ist neu
 - **Datum:** Jeder Eintrag in Ich › Was ist neu zeigt den Tag mit Wochentag und Jahr («Sa., 21. Nov. 2026»), auch die alten. Wo der Zeitpunkt des Merge bekannt ist (alle Einträge seit der Versionsvergabe beim Merge), steht die Uhrzeit dahinter («, 14:32», Zürich). `scripts/news.mjs` liest sie aus dem Commit.

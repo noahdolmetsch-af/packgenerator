@@ -1,6 +1,6 @@
 # Test-Uhr: nur Specs mit der festen Uhr lesen den Testtag
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Noah «ja» (Thread «Wackel-Tests zuverlässig machen», Gesamtlösung zum Uhr-Fehler)
+PR #1783 · 23.11.2026 · Auftrag: Noah «ja» (Thread «Wackel-Tests zuverlässig machen», Gesamtlösung zum Uhr-Fehler)
 
 ## Was ist neu
 - Nichts in der App. Nur die Test-Uhr `tests/e2e/clock.js`.

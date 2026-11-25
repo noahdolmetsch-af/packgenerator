@@ -1,6 +1,6 @@
 # Lieblingsteile zuerst
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Noah «2a» (Thread «Packen nach Taschen am Bike ausbauen»)
+PR #1783 · 23.11.2026 · Auftrag: Noah «2a» (Thread «Packen nach Taschen am Bike ausbauen»)
 
 ## Was ist neu
 - Ein Teil mit Stern (★) kommt bei gleicher Eignung zuerst: bei «Lücken füllen» der Zwiebel, beim Tauschen eines getragenen Teils und bei «Was ziehe ich heute an?» (Heute, Anprobe).

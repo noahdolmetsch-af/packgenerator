@@ -1,6 +1,6 @@
 # Lange Wörter brechen überall um
 
-PR #<Nummer> · 05.11.2026 · Auftrag: Noah («2a» zu Frage 2 im Bericht Etappe 3; Thread «Durchklicken Etappe 3: Unterwegs und Wetter»)
+PR #1783 · 05.11.2026 · Auftrag: Noah («2a» zu Frage 2 im Bericht Etappe 3; Thread «Durchklicken Etappe 3: Unterwegs und Wetter»)
 
 ## Was ist neu
 - Eine Regel für alle Seiten: `overflow-wrap: break-word` steht jetzt auf `body` in `src/app.css`. Die Eigenschaft wird vererbt. Ein sehr langes Wort (Name, Notiz) bricht damit am Rand um und schiebt keine Seite mehr zur Seite, auch auf Seiten, die niemand einzeln angepasst hat.

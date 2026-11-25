@@ -1,6 +1,6 @@
 # Dein Stundenziel hält mit TrainingPeaks
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Noah «2a und b» (Thread «Wochenplan-Vorschläge verlässlich machen»), Schritt 3 von 6
+PR #1783 · 23.11.2026 · Auftrag: Noah «2a und b» (Thread «Wochenplan-Vorschläge verlässlich machen»), Schritt 3 von 6
 
 ## Was ist neu
 - 2a: Das Ziel pro Woche gilt für alles. TrainingPeaks und Spieltermine zählen voll mit; ist die Woche darüber, lässt der Plan zuerst das Unwichtigste weg: Mini-Workout, Laufen drinnen, das zweite Gym, Laufen draussen, Velo. Tennis, Yoga, Eishockey, das erste Gym und die Sauna bleiben. In einer Skitour-Woche gilt das nicht (die Tour ist der Plan). `fitToHours` in `src/lib/training/wochenplan.js`.

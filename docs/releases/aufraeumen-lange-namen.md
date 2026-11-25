@@ -1,6 +1,6 @@
 # Packliste aufräumen: lange Namen passen auf den Bildschirm
 
-PR #<Nummer> · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 2, Thread «Durchklicken Etappe 2: Touren und Material»), Befund E2-001
+PR #1783 · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 2, Thread «Durchklicken Etappe 2: Touren und Material»), Befund E2-001
 
 ## Was ist neu
 - Bausteine › Packliste aufräumen: Hat ein Teil einen langen Namen (zum Beispiel eine Geldbörse mit Aufzählung in Klammern), wurde die ganze Seite auf dem Handy etwa 20 px breiter als der Bildschirm und der Text am rechten Rand war abgeschnitten. Jetzt bricht der Name in seiner Zeile um; Pfeile und × bleiben rechts.

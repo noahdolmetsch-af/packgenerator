@@ -1,6 +1,6 @@
 # Namensliste: verlorene Zeilen wieder da
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Hinweis des Packen-Threads (über den Bündler); Fehler aus «Gleiche Namen überall»
+PR #1783 · 23.11.2026 · Auftrag: Hinweis des Packen-Threads (über den Bündler); Fehler aus «Gleiche Namen überall»
 
 ## Was ist neu
 - `docs/namen.md` hat die Zeilen «Mein Tag» (jetzt Zeile 42) und «Weitere Fragen» (jetzt Zeile 43) wieder. Sie waren mit «Gleiche Namen überall» (Nr. 1562) verschwunden, weil dieser PR die Datei von einem älteren Stand übernommen hatte.

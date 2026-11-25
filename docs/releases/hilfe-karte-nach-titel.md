@@ -1,6 +1,6 @@
 # Hilfe-Karte nach dem Titel
 
-PR #<Nummer> · 08.11.2026 · Auftrag: Noah «A, Hilfe-Karte nach dem Titel» und «1-5 a» (UX-Test Impeccable, Befunde 1-01 und 2b-01), Thread «Hilfe-Karte nach dem Titel setzen»
+PR #1783 · 08.11.2026 · Auftrag: Noah «A, Hilfe-Karte nach dem Titel» und «1-5 a» (UX-Test Impeccable, Befunde 1-01 und 2b-01), Thread «Hilfe-Karte nach dem Titel setzen»
 
 ## Was ist neu
 - Die Karte «Was du hier tun kannst» steht auf allen 132 Seiten, die sie zeigen (`ON_PAGES`), **hinter dem Seitentitel** (samt Untertitel oder Knopfzeile) und nicht mehr davor. Der Titel ist wieder das Erste, was man sieht.

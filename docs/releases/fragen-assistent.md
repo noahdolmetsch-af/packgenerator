@@ -1,6 +1,6 @@
 # Fragen-Bereich: Assistent von den Fragen aus
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Noah «1-5a» (Prüfung «Fragen-Bereich», Entscheid 5a); Bündler gab die Reihenfolge
+PR #1783 · 23.11.2026 · Auftrag: Noah «1-5a» (Prüfung «Fragen-Bereich», Entscheid 5a); Bündler gab die Reihenfolge
 
 Ziele von Noah (23.11.2026 18:09): **Klarheit** (man sieht, wo man ist: «Auswerten» bleibt markiert, ein Link führt zurück) und **Auffindbarkeit** (die sechs Fragen sind im Assistenten sofort als Knöpfe da).
 

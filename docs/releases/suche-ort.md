@@ -1,6 +1,6 @@
 # Suche am Ort: Ich, Touren und Auswerten
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Noah «2a» und «3b» (Warteliste 1, Vorschlag V2). Baut auf dem PR «Suche findet mehr» auf.
+PR #1783 · 23.11.2026 · Auftrag: Noah «2a» und «3b» (Warteliste 1, Vorschlag V2). Baut auf dem PR «Suche findet mehr» auf.
 
 ## Was ist neu
 - **Ich:** Hinter dem Titel steht ein Suchfeld «Einstellung suchen». Es findet die Funktionen unter Ich; ein Tipp führt hin. «Überall suchen nach «…»» öffnet die grosse Suche mit dem Wort.

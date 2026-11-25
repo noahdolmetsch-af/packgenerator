@@ -1,6 +1,6 @@
 # Erst die Video-Grösse ausprobieren
 
-PR #<Nummer> · 28.10.2026 · Auftrag: Noah «bauen» (Thread «Ideen einzeln», Idee 10) und «1a 2a 3a 4a» (Thread «Videos in der App einschätzen»)
+PR #1783 · 28.10.2026 · Auftrag: Noah «bauen» (Thread «Ideen einzeln», Idee 10) und «1a 2a 3a 4a» (Thread «Videos in der App einschätzen»)
 
 ## Was ist neu
 - Ich › Werkzeugkasten › Video verkleinern: Nach dem Wählen eines Videos gibt es zwei Knöpfe. «Zuerst 5 Sekunden ansehen» rechnet nur 5 Sekunden aus der Mitte des Videos, spielt sie ab und nennt die Grösse des ganzen Videos (Schätzung). «Ganzes Video verkleinern» macht wie bisher alles.

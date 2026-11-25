@@ -1,6 +1,6 @@
 # Wege-Wächter: Pfad, Sackgassen und Zurück auf jeder Seite prüfen
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Noah «ja» (Thread «Navigation ohne Sackgassen»)
+PR #1783 · 23.11.2026 · Auftrag: Noah «ja» (Thread «Navigation ohne Sackgassen»)
 
 ## Was ist neu
 - Nichts in der App. Neuer Test `tests/e2e/wege-waechter.spec.js` (nur Computer, rund 5 Minuten): Ein Roboter öffnet jede der rund 250 Adressen aus dem Code und prüft:

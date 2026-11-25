@@ -1,6 +1,6 @@
 # Heute: «n Dinge dran» springt zur Liste; kleine Knöpfe leichter zu treffen
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Noah «4a» und «1a» (Warteliste 2, Durchklick-Funde 4 und 1)
+PR #1783 · 23.11.2026 · Auftrag: Noah «4a» und «1a» (Warteliste 2, Durchklick-Funde 4 und 1)
 
 ## Was ist neu
 - **Fund 4a (beim Zusammenführen mit main 23.11.: Die gleiche Funktion kam inzwischen mit dem Haken-Block (#1616); dessen Version gilt, meine eigene Umsetzung ist weg, nur der Sprung geschieht sofort statt weich (ein Bild später noch einmal), weil nachladende Karten darüber den Sprung sonst neben die Überschrift enden lassen, der Test `heute-dinge-springt.spec.js` prüft weiter beide Seiten):** Der Satz «Heute sind 8 Dinge dran.» unter dem Gruss ist tippbar (mit «↓») und springt zur Liste «Jetzt dran». Nur die Zeile wird tippbar; die ersten drei Dinge direkt darunter kommen nicht (Noah «4a»).

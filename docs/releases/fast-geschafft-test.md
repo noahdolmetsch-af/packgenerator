@@ -1,6 +1,6 @@
 # Test «Fast geschafft»: prüft jetzt wirklich, dass keine Zeile kommt
 
-PR #<Nummer> · 24.11.2026 · Reparatur von main (Auftrag: Koordinator, «Main-Fixes haben Vorrang»). Nichts Sichtbares in der App, nur ein Test.
+PR #1783 · 24.11.2026 · Reparatur von main (Auftrag: Koordinator, «Main-Fixes haben Vorrang»). Nichts Sichtbares in der App, nur ein Test.
 
 Ziele von Noah (23.11.2026): **Klarheit** und **Auffindbarkeit** bleiben unberührt; der Test schützt, dass die Zeile «Fast geschafft» nur kommt, wenn ein Stern wirklich nah ist. Leitfaden: «Eine App, die mich im Alltag unterstützt».
 

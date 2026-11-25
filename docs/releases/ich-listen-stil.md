@@ -1,6 +1,6 @@
 # Listen sehen bei jedem Besuch gleich aus
 
-PR #<Nummer> · 19.11.2026 · Auftrag: Noah «mache einen kompletten test der website … behebe dabei kleine fehler direkt» (Thread «Ganze Website testen und Fehler beheben»)
+PR #1783 · 19.11.2026 · Auftrag: Noah «mache einen kompletten test der website … behebe dabei kleine fehler direkt» (Thread «Ganze Website testen und Fehler beheben»)
 
 ## Was ist neu
 - Ich › Mini-Tools: Die Liste der sieben Werkzeuge war nach dem Neuladen (oder über einen angepinnten Link) blosser Text mit Aufzählungspunkten und unterstrichenen Titeln; Titel und Beschreibung klebten aneinander («Termin findenWelcher Tag passt allen?»).

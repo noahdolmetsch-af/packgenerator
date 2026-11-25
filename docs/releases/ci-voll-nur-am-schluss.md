@@ -1,6 +1,6 @@
 # CI: schwere PRs laufen nur am Schluss voll
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Noah «a» (Thread «Tests schneller machen», Stau-Regel 5)
+PR #1783 · 24.11.2026 · Auftrag: Noah «a» (Thread «Tests schneller machen», Stau-Regel 5)
 
 ## Was ist neu
 - PRs, die Daten, Backup, Sync, Speicher, `api/`, Build- oder Workflow-Dateien (oder etwas nicht Erkanntes) ändern, heissen in der CI «schwer» (`scripts/ci-scope.mjs`, Ausgabe `schwer=yes`).

@@ -1,6 +1,6 @@
 # Zurück an dieselbe Stelle, Link auf einen Abschnitt
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Noah «ja» (Thread «Navigation ohne Sackgassen», Punkte 4 und 5)
+PR #1783 · 23.11.2026 · Auftrag: Noah «ja» (Thread «Navigation ohne Sackgassen», Punkte 4 und 5)
 
 ## Was ist neu
 - **Position merken:** Nach «Zurück» (Taste am Handy, Zurück im Browser) steht eine lange Seite dort, wo du sie verlassen hast. Vorher sprang die App bei jedem Adresswechsel nach oben, auch zurück auf eine lange Liste. Ein Schritt vorwärts (ein Link) öffnet weiter oben an der Spitze. Die Positionen gelten nur in diesem Fenster (Sitzung) und für die letzten 60 Adressen (`src/lib/nav/scrollmem.js`, `sessionStorage`, nichts wird gesendet).

@@ -1,6 +1,6 @@
 # Pfad über der Seite: kein Name doppelt
 
-PR #<Nummer> · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 2, Antwort «2a»)
+PR #1783 · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 2, Antwort «2a»)
 
 ## Was ist neu
 - Die kleine Pfadzeile über dem Seitentitel (`PathLine.svelte`) hängt den Titel der Seite nur noch an, wenn kein Schritt des Pfads schon so heisst. Vorher stand «Touren › Übersicht › Touren», «Material › Alles › Material», «Aktiv › Heute › Aktiv», «Auswerten › Übersicht › Auswerten». Jetzt steht «Touren › Übersicht»; der letzte Schritt ist die Seite selbst (kein Link).

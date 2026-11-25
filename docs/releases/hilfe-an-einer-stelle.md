@@ -1,6 +1,6 @@
 # Hilfe an einer Stelle: das «?»
 
-PR #<Nummer> · 09.11.2026 · Auftrag: Noah «ja, 1-3» zu den Durchklick-Funden vom 08.11.2026 abends (Fund 1: «?» auf 132 von 155 Adressen leer, zwei Hilfe-Systeme), Thread «Hilfe-Karte nach dem Titel setzen»
+PR #1783 · 09.11.2026 · Auftrag: Noah «ja, 1-3» zu den Durchklick-Funden vom 08.11.2026 abends (Fund 1: «?» auf 132 von 155 Adressen leer, zwei Hilfe-Systeme), Thread «Hilfe-Karte nach dem Titel setzen»
 
 ## Was ist neu
 - Das «?» oben ist die **eine Hilfe-Stelle** jeder Seite. Es zeigt jetzt auch den Inhalt der bisherigen Karte «Was du hier tun kannst»: jede Funktion der Seite mit «wofür», «Gut zu wissen» und «So geht's» (Schritte und Beispiel), die ersten vier und «Alle n zeigen». Vorher war das «?» auf 132 von 155 Adressen leer («Diese Seite hat noch keine eigene Hilfe»).

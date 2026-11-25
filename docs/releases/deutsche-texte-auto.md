@@ -1,6 +1,6 @@
 # Hinter den Kulissen: weniger Konflikte
 
-PR #<Nummer> · 28.10.2026 · Auftrag: Bündler «Mein Überblick» (Thread «Konflikte in de/index.js beenden»)
+PR #1783 · 28.10.2026 · Auftrag: Bündler «Mein Überblick» (Thread «Konflikte in de/index.js beenden»)
 
 ## Was ist neu
 - `src/lib/i18n/de/index.js`: die deutschen Textdateien stehen als Liste mit je einer Zeile pro Datei. Alle weiteren Dateien im Ordner `de/` werden von selbst geladen (`import.meta.glob`), nach der Liste, alphabetisch.

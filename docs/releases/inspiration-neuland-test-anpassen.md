@@ -1,6 +1,6 @@
 # Tests «Inspiration», «Neuland» und «TrainingPeaks zählt»: drei Fehlschläge auf main behoben
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Nacht-Lauf 24.11. (Thread «Wackel-Tests zuverlässig machen»; `inspiration.spec.js:74`, `neuland.spec.js:48`, `wochenplan-tp-zaehlung.spec.js:56`)
+PR #1783 · 24.11.2026 · Auftrag: Nacht-Lauf 24.11. (Thread «Wackel-Tests zuverlässig machen»; `inspiration.spec.js:74`, `neuland.spec.js:48`, `wochenplan-tp-zaehlung.spec.js:56`)
 
 ## Was ist neu
 - Nichts in der App.

@@ -1,6 +1,6 @@
 # Vorlagen mit Feldern
 
-PR #<Nummer> · 27.10.2026 · Auftrag: Noah «1a 2a 3b 4a 5a» und 19:18 «ca. 20 Vorlagen, von denen ich im Frontend auswählen kann» (Thread «Klären Sprachnotiz in Rückblick und Notizvorlagen»)
+PR #1783 · 27.10.2026 · Auftrag: Noah «1a 2a 3b 4a 5a» und 19:18 «ca. 20 Vorlagen, von denen ich im Frontend auswählen kann» (Thread «Klären Sprachnotiz in Rückblick und Notizvorlagen»)
 
 ## Was ist neu
 - 22 Notizvorlagen mit echten Feldern: kurzer oder langer Text, Zahl mit Einheit, Skala 1 bis 5, Auswahl, Checkliste, Datum.

@@ -1,6 +1,6 @@
 # Seite nicht gefunden
 
-PR #<Nummer> · 21.11.2026 · Auftrag: Noah «a» auf die Frage im Gesamttest (Thread «Ganze Website testen und Fehler beheben»)
+PR #1783 · 21.11.2026 · Auftrag: Noah «a» auf die Frage im Gesamttest (Thread «Ganze Website testen und Fehler beheben»)
 
 ## Was ist neu
 - Eine Adresse, die keine Seite kennt (zum Beispiel `#/does-not-exist`), zeigt die Karte «Seite nicht gefunden» mit dem Knopf «Zu Heute». Vorher zeigte die App ohne ein Wort Heute.

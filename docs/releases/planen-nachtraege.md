@@ -1,6 +1,6 @@
 # Pflanzen und Vorgänge, einen Schritt weiter
 
-PR #<Nummer> · 27.10.2026 · Auftrag: Noah «1b 2b 3a» (Thread «Einzelideen Planen»)
+PR #1783 · 27.10.2026 · Auftrag: Noah «1b 2b 3a» (Thread «Einzelideen Planen»)
 
 ## Was ist neu
 - Pflanzenpass: Unter dem Hinweis («Hier trocknet sie schnell aus …») steht ein Knopf «Alle N Tage giessen». Ein Tipp ändert den Giess-Rhythmus der Pflanze, «Rückgängig» nimmt es zurück.

@@ -1,6 +1,6 @@
 # Tauschen in der Zwiebel
 
-PR #<Nummer> · 22.11.2026 · Auftrag: Noah «4b» (Thread «Kleiderschrank wieder ins Zentrum rücken», Weg B, zweiter Schritt)
+PR #1783 · 22.11.2026 · Auftrag: Noah «4b» (Thread «Kleiderschrank wieder ins Zentrum rücken», Weg B, zweiter Schritt)
 
 ## Was ist neu
 - In der Zwiebel der Packliste (aufgeklappt unter dem Wetter) hat jedes Teil einer Zeile einen Tausch-Knopf. Er öffnet das Fenster «Tauschen»: die anderen Teile derselben Körperstelle und Schicht, das passendste zuerst. Ein Tipp tauscht, «Rückgängig» bringt das erste Teil zurück.

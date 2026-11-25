@@ -1,6 +1,6 @@
 # Nach der Inspektion: wohin die Punkte gingen
 
-PR #<Nummer> · 21.11.2026 · Auftrag: Noah (Festlegung «Kontrolle zur Werkstatt», Thread «Training erfassen»; Landkarte-Thread)
+PR #1783 · 21.11.2026 · Auftrag: Noah (Festlegung «Kontrolle zur Werkstatt», Thread «Training erfassen»; Landkarte-Thread)
 
 ## Was ist neu
 - Nach «Fertig» bei einer Inspektion (Velos › Pflege › Velo › Inspektion) steht oben auf der Seite die Karte «Wohin es ging».

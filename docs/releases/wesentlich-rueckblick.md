@@ -1,6 +1,6 @@
 # Was mir wesentlich ist: Quartals-Erinnerung und Vergleich mit früher
 
-PR #<Nummer> · 05.11.2026 · Auftrag: Noah «8b» (Thread «Bauen: Freie Zeit Teil 2»), Idee «Was mir wesentlich ist – einmal pro Quartal eine Erinnerung, die Antworten neu anzusehen; Vergleich mit früher»
+PR #1783 · 05.11.2026 · Auftrag: Noah «8b» (Thread «Bauen: Freie Zeit Teil 2»), Idee «Was mir wesentlich ist – einmal pro Quartal eine Erinnerung, die Antworten neu anzusehen; Vergleich mit früher»
 
 ## Was ist neu
 - Drei Monate (91 Tage) nach dem letzten Eintrag zeigt Heute eine ruhige Zeile: «Seit 3 Monaten hast du nicht mehr aufgeschrieben, was dir wesentlich ist. Schaust du es dir wieder an?» mit «Ansehen» und «Später» (wartet 14 Tage). Sie erscheint wie der Impuls des Tages nur, wenn sonst nichts Dringendes ansteht.

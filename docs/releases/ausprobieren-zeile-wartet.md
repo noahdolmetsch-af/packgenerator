@@ -1,6 +1,6 @@
 # Ausprobieren-Test: jede Zeile wartet auf ihre eigene «Neu hier»-Zeile
 
-PR #<Nummer> · 21.11.2026 · Auftrag: Hinweis aus dem Thread «Training erfassen» (PR 1345 blieb dreimal an `ausprobieren.spec.js` «part 15» hängen), Thread «Wackel-Tests auf main reparieren»
+PR #1783 · 21.11.2026 · Auftrag: Hinweis aus dem Thread «Training erfassen» (PR 1345 blieb dreimal an `ausprobieren.spec.js` «part 15» hängen), Thread «Wackel-Tests auf main reparieren»
 
 ## Was ist neu
 - Nichts in der App; nur Testcode (`tests/e2e/ausprobieren.spec.js`).

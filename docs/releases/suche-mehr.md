@@ -1,6 +1,6 @@
 # Die Suche findet mehr (V1) und zeigt Treffer lesbarer (V4)
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Noah «1a 2a 4a 5a» und «3b» (Warteliste 1, Thread «Warteliste fertig bauen, online später»)
+PR #1783 · 23.11.2026 · Auftrag: Noah «1a 2a 4a 5a» und «3b» (Warteliste 1, Thread «Warteliste fertig bauen, online später»)
 
 ## Was ist neu
 - Die Suche oben findet zusätzlich: **Fahrten** (Strava-Fahrten und Fahrten aus dem km-Buch ohne Strava: Titel, Datum, Velo), **Orte** (Gipfelbuch), **Erkenntnisse**, **Velopflege** (Werkstattbesuche), **Training** (geplante Einheiten), **Aufgaben** (eigene To-dos und Google-Aufgaben) und die **Funktionen unter Ich** (Einstellungen, Werkzeuge, Verbindungen).

@@ -1,6 +1,6 @@
 # Pfad-Zeile: Seite stürzt nicht mehr ab, wenn zwei Schritte dieselbe Adresse haben
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Noah «ja» (Thread «Wackel-Tests zuverlässig machen»)
+PR #1783 · 23.11.2026 · Auftrag: Noah «ja» (Thread «Wackel-Tests zuverlässig machen»)
 
 ## Was ist neu
 - Ein echter Fehler, den der Test `rundgang.spec.js` («Meine Sportarten» nach Velos) gezeigt hat: Die Pfad-Zeile über dem Titel der Aktiv-Seiten (`src/lib/flow/kit/Crumb.svelte`) nummerierte ihre Schritte nach der Adresse. Der Ort «Velos und Material» und sein erster Reiter teilen die Adresse `#/bikes`. Beim Seitenwechsel zeichnet die Zeile kurz noch mit der alten Adresse, bekam dann zweimal denselben Schlüssel, und die ganze Seite zeigte «Hier ist etwas schiefgelaufen». Lokal in 3 von 8 Läufen am Computer, in der Nacht und in der CI mehrfach.

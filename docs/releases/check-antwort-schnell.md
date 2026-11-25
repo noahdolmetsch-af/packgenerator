@@ -1,6 +1,6 @@
 # Check-Antworten ohne Ruckeln
 
-PR #<Nummer> · 05.11.2026 · Auftrag: Noah «a: Gemessenes gleich beheben» (Thread «Beheben: Verzögerung bei Eingaben und Tabs»)
+PR #1783 · 05.11.2026 · Auftrag: Noah «a: Gemessenes gleich beheben» (Thread «Beheben: Verzögerung bei Eingaben und Tabs»)
 
 ## Was ist neu
 - Morgen-Check und Abendrückblick: Jede Antwort wird gespeichert. Bisher las die Seite danach 12 Tabellen komplett neu (gemessen 23–27 Datenbank-Zugriffe pro Tippen, 0,15–0,5 s Ruckeln bei 4× langsamem Prozessor). Jetzt liest sie nur noch die Check-Zeilen der letzten 30 Tage neu.

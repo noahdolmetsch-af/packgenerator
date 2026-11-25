@@ -1,6 +1,6 @@
 # Auswerten › Fahrten: «Challenges» neben «Meilensteine», «Erkenntnisse» weiter vorn
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Noah «K1–K9 …» (Sitemap, 24.11.2026 01:06), Punkte K4 und K5, Teil «Auswerten»
+PR #1783 · 24.11.2026 · Auftrag: Noah «K1–K9 …» (Sitemap, 24.11.2026 01:06), Punkte K4 und K5, Teil «Auswerten»
 
 Ziele von Noah (23.11.2026): **Klarheit** (die Tagesziele stehen dort, wo man auswertet) und **Auffindbarkeit** (Challenges und Erkenntnisse sind früher erreichbar). Leitfaden `docs/leitfaden.md`: «Eine App, die mich im Alltag unterstützt».
 

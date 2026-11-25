@@ -1,6 +1,6 @@
 # Zurück am Eingang
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Noah «ja» (Thread «Navigation ohne Sackgassen», «Zurück führt nie aus der App hinaus»)
+PR #1783 · 23.11.2026 · Auftrag: Noah «ja» (Thread «Navigation ohne Sackgassen», «Zurück führt nie aus der App hinaus»)
 
 ## Was ist neu
 - Wer die App mit einer Adresse tief in der App öffnet (Lesezeichen, Link aus einer Nachricht, geteilte Tour), hat vor der Seite sonst nur die Seite davor, oft eine andere App. Beim ersten Tipp auf die Seite legt die App jetzt einmal Heute darunter (`src/lib/nav/eingang.js`, ein Aufruf in `src/App.svelte`): Zurück führt auf Heute.

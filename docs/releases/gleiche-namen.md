@@ -1,6 +1,6 @@
 # Gleiche Namen überall
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Noah «ja» (Thread «Navigation ohne Sackgassen», «es heisst einmal «Aktiv» und einmal «Woche > Training»»); Wahl: «Woche überall, Seite «Heute abhaken»»
+PR #1783 · 23.11.2026 · Auftrag: Noah «ja» (Thread «Navigation ohne Sackgassen», «es heisst einmal «Aktiv» und einmal «Woche > Training»»); Wahl: «Woche überall, Seite «Heute abhaken»»
 
 ## Was ist neu
 - Alle deutschen Texte der App (Handbuch, Hilfe, Hinweise, Rundgang, Meldungen) schreiben den Weg wie die Seitenleiste: «Woche › Training › …» statt «Aktiv › …». Meditation steht unter «Woche › Alltag › Meditation», Meilensteine und Gipfelbuch unter «Auswerten › Fahrten».

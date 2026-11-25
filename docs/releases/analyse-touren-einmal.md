@@ -1,6 +1,6 @@
 # Touren nur einmal
 
-PR #<Nummer> · 08.11.2026 · Auftrag: Noah «ja 1-3» (Thread «Cardio-Belastung: Ideen A–F bauen», Vorschlag 1)
+PR #1783 · 08.11.2026 · Auftrag: Noah «ja 1-3» (Thread «Cardio-Belastung: Ideen A–F bauen», Vorschlag 1)
 
 ## Was ist neu
 - Auf der Seite eines Werts in der Analyse stehen die Touren des Zeitraums nur noch einmal: in der Karte «Touren in diesem Zeitraum» unter dem Verlauf (mit Schnitt, abgeschlossene Touren führen zur Tour-Seite).

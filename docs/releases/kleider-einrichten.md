@@ -1,6 +1,6 @@
 # Kleiderschrank einrichten
 
-PR #<Nummer> · 21.11.2026 · Auftrag: Noah «1-5a 4b» (Thread «Kleiderschrank wieder ins Zentrum rücken», Weg C)
+PR #1783 · 21.11.2026 · Auftrag: Noah «1-5a 4b» (Thread «Kleiderschrank wieder ins Zentrum rücken», Weg C)
 
 ## Was ist neu
 - Neue Seite `#/wardrobe/setup` «Kleiderschrank einrichten»: ein Kleidungsstück nach dem anderen, in einem Tipp die Temperatur (fünf Stufen Warm, Mild, Kühl, Kalt, Frost; eine oder zwei nebeneinander), dazu Schicht und Körperstelle. Der Vorschlag aus dem Namen (oder der Klasse des Imports) ist schon gewählt, «Speichern und weiter» ist ein Tipp.

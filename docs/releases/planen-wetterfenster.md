@@ -1,6 +1,6 @@
 # Das beste Ausfahrt-Fenster der Woche
 
-PR #<Nummer> · 05.11.2026 · Auftrag: Noah «Planen 2a» (Thread «Bauen: Planen 2a und 2b», Ideen-Doc «Ideen für alle Bereiche»)
+PR #1783 · 05.11.2026 · Auftrag: Noah «Planen 2a» (Thread «Bauen: Planen 2a und 2b», Ideen-Doc «Ideen für alle Bereiche»)
 
 ## Was ist neu
 - Planen › Woche sucht das beste freie, trockene Fenster der gezeigten Woche (auch «Nächste Woche»), nicht mehr nur die nächsten 3 Tage (`src/lib/freiezeit/slots.js`, `weekSlot`).

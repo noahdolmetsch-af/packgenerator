@@ -1,6 +1,6 @@
 # Test «Ausprobieren»: kleinere Teile
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Bündler (hielt PR 1614 in Teil 1 auf); Thread «Wackel-Tests zuverlässig machen»
+PR #1783 · 24.11.2026 · Auftrag: Bündler (hielt PR 1614 in Teil 1 auf); Thread «Wackel-Tests zuverlässig machen»
 
 ## Was ist neu
 - Nichts in der App. Nur der Test `tests/e2e/ausprobieren.spec.js` («every line of What is new goes to its exact place, part N»).

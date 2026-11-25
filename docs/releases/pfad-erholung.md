@@ -1,6 +1,6 @@
 # Pfad nennt auch die Seite unter dem Reiter
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Fix nach «Pfad aus einer Quelle» (Thread «Navigation ohne Sackgassen»); main war rot (`tests/e2e/routinen-erholung.spec.js`)
+PR #1783 · 23.11.2026 · Auftrag: Fix nach «Pfad aus einer Quelle» (Thread «Navigation ohne Sackgassen»); main war rot (`tests/e2e/routinen-erholung.spec.js`)
 
 ## Was ist neu
 - Der Pfad beginnt mit dem Ort und dem Reiter der Seitenleiste. Liegt die Seite unter einem Reiter mit mehreren Seiten (Training: Plan, Sport, Erholung …), nennt er jetzt auch diese Seite: «Woche › Training › Erholung». Vorher fiel dieser Schritt weg, weil er als «Reiter» galt (`trailOf` in `src/lib/nav/wege.js`, mit `subOf` aus der Karte der App).

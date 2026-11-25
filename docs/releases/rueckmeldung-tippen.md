@@ -1,6 +1,6 @@
 # Rückmeldung beim Tippen
 
-PR #<Nummer> · 25.11.2026 · Auftrag: Noah «1-5a» (Thread «Rückmeldung beim Tippen prüfen»)
+PR #1783 · 25.11.2026 · Auftrag: Noah «1-5a» (Thread «Rückmeldung beim Tippen prüfen»)
 
 ## Was ist neu
 - Abhaken in «Heute abhaken» (Heute, Training, Plan), bei den Gewohnheiten-Karten, bei To-dos und bei «+30 Min» der Challenge: kurzes Vibrieren und ein weicher grüner Ring um die Kachel. Zurücknehmen bleibt still.

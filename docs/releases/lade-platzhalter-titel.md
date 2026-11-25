@@ -1,6 +1,6 @@
 # Seiten laden: Name und Ladeanzeige sofort
 
-PR #<Nummer> · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 2, Antwort «5a»)
+PR #1783 · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 2, Antwort «5a»)
 
 ## Was ist neu
 - Mit meinem echten Backup (nur lokal gemessen) war der Bereich unter dem Pfad bei einigen Seiten 0,5 bis 0,8 Sekunden leer (Vorrat, Vorlagen, Garderobe, Ausrüstung), bei hoher Last bis etwa 2 Sekunden: Der Code der Seite lädt beim ersten Besuch, und der graue Platzhalter kam erst nach 0,3 Sekunden.

@@ -1,6 +1,6 @@
 # Fahrten aus der Tour-Liste
 
-PR #<Nummer> · 08.11.2026 · Auftrag: Noah «1-3 ok» (Thread «Cardio-Belastung: Ideen A–F bauen», Vorschlag 2)
+PR #1783 · 08.11.2026 · Auftrag: Noah «1-3 ok» (Thread «Cardio-Belastung: Ideen A–F bauen», Vorschlag 2)
 
 ## Was ist neu
 - In der Karte «Touren in diesem Zeitraum» (Analyse › ein Wert) hat eine abgeschlossene Tour, zu der du Fahrten gespeichert hast, rechts einen zweiten Tipp «Fahrten ›». Er öffnet die Liste deiner gespeicherten Fahrten.

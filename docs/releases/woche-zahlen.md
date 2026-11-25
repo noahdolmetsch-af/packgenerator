@@ -1,6 +1,6 @@
 # Was die Woche wirklich hält
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Noah «4a» (Thread «Wochenplan-Vorschläge verlässlich machen»), Schritt 5 von 6
+PR #1783 · 24.11.2026 · Auftrag: Noah «4a» (Thread «Wochenplan-Vorschläge verlässlich machen»), Schritt 5 von 6
 
 ## Was ist neu
 - Training › Woche: die Zeile bei den Wochenpfeilen («geplant 19:20 von 15:00 Std.») zählt jetzt alles: eigene Einheiten, TrainingPeaks, die Vorschläge des Wochenplans und die Termine des Teams. Das Ziel ist das des Wochenplans; in einer Woche mit TrainingPeaks oder Teamterminen das eigene Ziel dafür (Schritt 3), sonst das Ziel pro Woche. Ohne Wochenplan zählt wie bisher «Meine Wochenziele».

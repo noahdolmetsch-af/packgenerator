@@ -1,6 +1,6 @@
 # «Weitere Orte» deckt keinen Ort zu
 
-PR #<Nummer> · 17.11.2026 · Auftrag: Noah «alle umsetzen 1-10» (Thread «UI-Test der Seite Flow Training», Fund 10)
+PR #1783 · 17.11.2026 · Auftrag: Noah «alle umsetzen 1-10» (Thread «UI-Test der Seite Flow Training», Fund 10)
 
 ## Was ist neu
 - Am Computer mit niedrigem Fenster (900 px und weniger) schwebte der Knopf «Weitere Orte» über dem letzten Ort der Seitenleiste («Quick Links») und verdeckte ihn. Jetzt steht er in einer eigenen Zeile unter der Liste. Ein Tipp scrollt die Liste weiter wie bisher.

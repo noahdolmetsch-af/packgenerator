@@ -1,6 +1,6 @@
 # Gewicht in Stufen
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Noah «1a 4a 5b» (Thread «Packen nach Taschen am Bike ausbauen») und «5a» beim Finden-Thread (Knopf «Taschen wiegen»)
+PR #1783 · 23.11.2026 · Auftrag: Noah «1a 4a 5b» (Thread «Packen nach Taschen am Bike ausbauen») und «5a» beim Finden-Thread (Knopf «Taschen wiegen»)
 
 ## Was ist neu
 - Die Karte «Gewicht» auf der Packliste hat unten den Block «Gesamtgewicht»: **Nur die Teile**, **Mit Taschen**, **Mit Velo**, **Mit dir**. Jede Zeile nennt, was sie dazu bringt («+ 1.2 kg»). Fehlt irgendwo ein Gewicht, steht «~» davor und ein Satz erklärt es.
