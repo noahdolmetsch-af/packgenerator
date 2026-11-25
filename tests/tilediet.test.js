@@ -33,6 +33,21 @@ describe('tilediet', () => {
     expect(r).toMatchObject({ gone: 1, failed: 1 });
     expect(Object.keys(c.entries)).toEqual(['b']);
   });
+  it('drops kept error pages («no tile here», 400 outside the swisstopo map) and does not stop at them', async () => {
+    // before: five of them in a row stopped the run at every start, so the tiles after them never became small
+    const entries = Object.fromEntries([...Array.from({ length: 8 }, (_, i) => [`bad${i}`, { type: 'opaque' }]), ['good', { type: 'opaque' }]]);
+    const c = mkCache(entries);
+    const r = await slimTiles({ store: store({ 'swisstopo-tiles': c }), fetchFn: async (u) => (u.startsWith('bad') ? { ok: false, status: 400 } : ok()), pauseMs: 0, concurrency: 1 });
+    expect(r).toMatchObject({ total: 9, gone: 8, done: 1, failed: 0, stopped: false });
+    expect(Object.keys(c.entries)).toEqual(['good']);
+    expect(c.entries.good.type).toBe('cors');
+  });
+  it('keeps tiles on a busy or blocking server (403, 429, 5xx) and stops after five in a row', async () => {
+    const c = mkCache(Object.fromEntries(Array.from({ length: 8 }, (_, i) => [`t${i}`, { type: 'opaque' }])));
+    const r = await slimTiles({ store: store({ 'osm-tiles': c }), fetchFn: async () => ({ ok: false, status: 429 }), pauseMs: 0, concurrency: 1 });
+    expect(r).toMatchObject({ gone: 0, failed: 5, stopped: true });
+    expect(Object.keys(c.entries)).toHaveLength(8);
+  });
   it('stops when offline and loses nothing', async () => {
     const c = mkCache({ a: { type: 'opaque' }, b: { type: 'opaque' } });
     const r = await slimTiles({ store: store({ 'osm-tiles': c }), fetchFn: async () => ok(), online: () => false, pauseMs: 0 });
