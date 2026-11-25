@@ -10,6 +10,7 @@ import { TEMPLATES_KEY } from '../templates.js';
 import { SETS_KEY } from '../sets.js';
 import { standardZones, tempoRides, paceGrid } from './werte.js';
 import { ZONES_KEY as STRAVA_ZONES_KEY, OWN_ZONES_KEY, ownOf, boundsOfStrava, validBounds as trainingBounds } from '../training.js';
+import { readLite } from '../actlite.js';
 
 /**
  * The older settings key of your own zone bounds { bounds: [Z1–Z4 upper bpm], at }. Still read; saving now goes
@@ -129,7 +130,15 @@ export function actOf(a) {
 }
 
 /** SN4+: the activities in the shape of actOf, or [] without the table. */
-export const loadPastActs = async (db) => (await loadActs(db)).map(actOf);
+// the columns need desc, hist and the small values only, never a curve: the summary is enough (actlite.js)
+export const loadPastActs = async (db) => {
+  if (!hasActivities(db)) return [];
+  try {
+    return (await readLite(db, (T) => T.toArray())).map(actOf);
+  } catch {
+    return [];
+  }
+};
 
 /**
  * SN4+ «Kommentar laden»: fetch these activities once from Strava (Training's loadDetail brings the comment with
