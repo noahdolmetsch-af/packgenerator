@@ -1,6 +1,6 @@
 # Wackel-Wächter: Liste und Ablauf für zufällig rote Tests
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Noah «a-c alle» 24.11.2026 22:19 (Thread «Wackel-Tests zuverlässig machen»; Punkt b)
+PR #1745 · 24.11.2026 · Auftrag: Noah «a-c alle» 24.11.2026 22:19 (Thread «Wackel-Tests zuverlässig machen»; Punkt b)
 
 ## Was ist neu
 - Nichts Sichtbares geändert, nur Regel und Liste. Neue Datei `docs/wackelliste.md` (Test, Gerät, Ursache, Fix, Stand) und ein neuer Absatz «Wackel-Wächter» in Block 7 von `docs/regeln.md`.
