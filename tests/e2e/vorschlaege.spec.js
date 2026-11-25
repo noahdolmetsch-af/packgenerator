@@ -341,6 +341,8 @@ test('Tour suggestions: new ground (filter, grey line, passes and peaks, goal of
       { id: '9102', day: '2026-10-10', kind: 'bike', type: 'MountainBikeRide', name: 'Testfahrt B', km: 20, line: encodePolyline(part(B, 0.6)) },
     ],
   );
+  // the rows went straight into IndexedDB (not through the app), so the app starts again and checks its summary table, as after a restart
+  await page.reload();
   await page.goto('./#/trips/vorschlaege');
   await ready(page);
   await page.locator('[data-vs-view="list"]').click();
