@@ -1,6 +1,6 @@
 <script>
   /** Vorbereiten › Total weight along the route (36), Spares for the surface (34), Tool fits the bike (39). */
-  import { CloudDownload } from '@lucide/svelte';
+  import { CloudDownload, Check } from '@lucide/svelte';
   import RaceBox from '../RaceBox.svelte';
   import LineChart from '../../charts/LineChart.svelte';
   import ChartSheet from '../../charts/ChartSheet.svelte';
@@ -106,8 +106,8 @@
   <ChartSheet kicker={t('Total weight along the route')} title={`${num(x.km)} km`} onclose={() => (sel = null)} onprev={sel > 0 ? () => sel-- : null} onnext={sel < wchart.pts.length - 1 ? () => sel++ : null} prevLabel={t('Earlier stretch')} nextLabel={t('Later stretch')}>
     <ul class="shl" data-race-weight-sheet>
       <li><span>{t('Weight')}</span><b class="num">{num(x.kg)} kg</b></li>
-      {#if x.km === along.max.km}<li><span>{t('Heaviest point')}</span><b class="num">✓</b></li>{/if}
-      {#if x.km === along.min.km}<li><span>{t('Lightest point')}</span><b class="num">✓</b></li>{/if}
+      {#if x.km === along.max.km}<li><span>{t('Heaviest point')}</span><b class="num"><Check size={14} class="ic-in" aria-hidden="true" /></b></li>{/if}
+      {#if x.km === along.min.km}<li><span>{t('Lightest point')}</span><b class="num"><Check size={14} class="ic-in" aria-hidden="true" /></b></li>{/if}
     </ul>
   </ChartSheet>
 {/if}
@@ -151,7 +151,7 @@
   {#if check.missing.length || check.ok.length}
     <ul class="rc-chips" data-race-toolcheck>
       {#each check.missing as s (s)}<li class="rc-chip rc-warn">{t('Missing: {size}', { size: size(s) })}</li>{/each}
-      {#each check.ok as s (s)}<li class="rc-chip rc-ok">{size(s)} ✓</li>{/each}
+      {#each check.ok as s (s)}<li class="rc-chip rc-ok">{size(s)} <Check size={14} class="ic-in" aria-hidden="true" /></li>{/each}
     </ul>
     {#if !check.missing.length}<p class="rc-ok">{t('Your tool fits every bolt you listed.')}</p>{/if}
   {/if}

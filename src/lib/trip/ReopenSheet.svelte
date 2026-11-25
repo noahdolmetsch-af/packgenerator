@@ -31,7 +31,7 @@
 <dialog class="sheet reopensheet" bind:this={dialog} use:backClose onclose={() => onclose?.()} aria-labelledby="reopen-h">
   <div class="hd">
     <h2 id="reopen-h">{t('Reopen this trip?')}</h2>
-    <button type="button" class="x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={18} aria-hidden="true" /></button>
+    <button type="button" class="x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
   </div>
   <p class="lead">{t('It becomes Planned again: the packing list, date and bike can be changed.')} {rated ? t('Your debrief stays saved.') : ''}</p>
   <div class="acts">

@@ -24,7 +24,7 @@
 
 {#if hint && shown.length && !hidden}
   <section class="fz-box kt" aria-labelledby="kt-h" data-ko-training>
-    <h2 class="fz-h2" id="kt-h"><Bike size={18} aria-hidden="true" />{hint.day === 'today' ? t('You rode {km} km today', { km: hint.km }) : t('You rode {km} km yesterday', { km: hint.km })}</h2>
+    <h2 class="fz-h2" id="kt-h"><Bike size={20} aria-hidden="true" />{hint.day === 'today' ? t('You rode {km} km today', { km: hint.km }) : t('You rode {km} km yesterday', { km: hint.km })}</h2>
     <p class="fz-note">{t('After a ride, protein and carbs help. Just a suggestion:')}</p>
     <div class="fz-chips">
       {#each shown as g (g.id)}

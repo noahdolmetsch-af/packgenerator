@@ -51,7 +51,7 @@
 </section>
 
 <section class="card lr-box" aria-labelledby="lr-in-h">
-  <h2 id="lr-in-h"><Users size={18} aria-hidden="true" /> {t('Signed up')}</h2>
+  <h2 id="lr-in-h"><Users size={20} aria-hidden="true" /> {t('Signed up')}</h2>
   {#if !s.yes.length}
     <p class="lr-help" data-lr-empty>{t('Nobody yet. Share the link, then look for new answers.')}</p>
   {:else}
@@ -69,7 +69,7 @@
 
 {#if s.wait.length}
   <section class="card lr-box" aria-labelledby="lr-wait-h">
-    <h2 id="lr-wait-h"><Clock size={18} aria-hidden="true" /> {t('Waiting list')}</h2>
+    <h2 id="lr-wait-h"><Clock size={20} aria-hidden="true" /> {t('Waiting list')}</h2>
     <p class="lr-help">{t('When someone signs off or you take someone off, the first one here moves up by itself.')}</p>
     <ol class="lr-list" data-lr-wait>
       {#each s.wait as r, i (r.a)}

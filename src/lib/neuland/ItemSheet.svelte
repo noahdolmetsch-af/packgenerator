@@ -40,7 +40,7 @@
 
   {#if visit}
     <div class="st ok">
-      <Check size={18} aria-hidden="true" />
+      <Check size={20} aria-hidden="true" />
       <div>
         <p><b>{t('First time: {day}', { day: dayLong(visit.day) })}</b></p>
         {#if visit.tripId}<p><a href="#/debrief/{visit.tripId}">{trip ? t('On the trip «{name}»', { name: trip }) : t('Open the trip')}</a></p>{/if}

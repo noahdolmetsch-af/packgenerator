@@ -147,7 +147,7 @@
       </section>{/if}
       <section aria-labelledby="sk-a-h">
         <div class="vh"><h2 id="sk-a-h">{t('Rather automatic?')}</h2></div>
-        <a class="card orow" href={STRAVA_HASH}><span class="ib"><Lightbulb size={18} aria-hidden="true" /></span><span class="m"><b>{t('The app assigns by ride type')}</b><small>{t('in the Strava settings › change «Ride without a bike»')}</small></span><ChevronRight size={18} aria-hidden="true" /></a>
+        <a class="card orow" href={STRAVA_HASH}><span class="ib"><Lightbulb size={20} aria-hidden="true" /></span><span class="m"><b>{t('The app assigns by ride type')}</b><small>{t('in the Strava settings › change «Ride without a bike»')}</small></span><ChevronRight size={20} aria-hidden="true" /></a>
       </section>
     </aside>
   </div>

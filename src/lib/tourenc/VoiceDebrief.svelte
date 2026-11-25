@@ -101,7 +101,7 @@
 
 <section class="rv-sec" aria-labelledby="vd-h" data-voice-debrief>
   <details class="vd" open={!!points}>
-    <summary class="rv-h"><div><h2 id="vd-h"><Mic size={18} aria-hidden="true" /> {t('Speak your look back')}</h2><p class="rv-sub">{t('Up to a minute; the app makes key points you confirm')}</p></div></summary>
+    <summary class="rv-h"><div><h2 id="vd-h"><Mic size={20} aria-hidden="true" /> {t('Speak your look back')}</h2><p class="rv-sub">{t('Up to a minute; the app makes key points you confirm')}</p></div></summary>
     <div class="rv-box pad">
       {#if !points}
         <textarea class="inp" rows="4" bind:value={text} maxlength={MAX_TEXT} placeholder={t('e.g. The rain jacket was too warm, the stove was never used, I missed a second rear light …')} aria-label={t('What you tell about the trip')} data-voice-text></textarea>
@@ -116,7 +116,7 @@
             <button type="button" class="btn sm" onclick={() => (recOpen = true)} data-voice-rec><Play size={16} aria-hidden="true" />{t('Record the sound (1 min)')}</button>
           {/if}
         {/if}
-        <p class="acts"><button type="button" class="btn hi" disabled={busy || text.trim().length < 6} onclick={sort} data-voice-sort><Sparkles size={18} aria-hidden="true" />{busy ? t('Sorting …') : t('Make key points')}</button>
+        <p class="acts"><button type="button" class="btn hi" disabled={busy || text.trim().length < 6} onclick={sort} data-voice-sort><Sparkles size={20} aria-hidden="true" />{busy ? t('Sorting …') : t('Make key points')}</button>
           <button type="button" class="btn" disabled={busy || text.trim().length < 6} onclick={sortGemini} data-voice-gemini>{t('Sort with Gemini')}</button>
           <button type="button" class="btn" disabled={!text.trim()} onclick={asNote} data-voice-note>{t('Only save as a note')}</button></p>
         <p class="tp-small tp-muted">{t('The app goes through the text sentence by sentence. Nothing is kept without your tap.')}</p>

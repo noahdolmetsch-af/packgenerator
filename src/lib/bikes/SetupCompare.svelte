@@ -47,7 +47,7 @@
     <label class="ab"><span class="lt a" aria-hidden="true">A</span><span class="vh">{t('Setup A')}</span>
       <select class="sel" value={firstId} onchange={(e) => go(e.currentTarget.value, e.currentTarget.value === secondId ? firstId : secondId)}>{#each setups as s (s.id)}<option value={s.id}>{nm(s)} · {sub(s)}</option>{/each}</select>
     </label>
-    <button type="button" class="btn swp" aria-label={t('Swap A and B')} onclick={() => go(secondId, firstId)}><ArrowLeftRight size={18} aria-hidden="true" /></button>
+    <button type="button" class="btn swp" aria-label={t('Swap A and B')} onclick={() => go(secondId, firstId)}><ArrowLeftRight size={20} aria-hidden="true" /></button>
     <label class="ab"><span class="lt b" aria-hidden="true">B</span><span class="vh">{t('Setup B')}</span>
       <select class="sel" value={secondId} onchange={(e) => go(e.currentTarget.value === firstId ? secondId : firstId, e.currentTarget.value)}>{#each setups as s (s.id)}<option value={s.id}>{nm(s)} · {sub(s)}</option>{/each}</select>
     </label>

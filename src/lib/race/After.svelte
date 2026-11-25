@@ -6,7 +6,7 @@
    * brake pads first.
    */
   import { liveQuery } from 'dexie';
-  import { FileText, Lightbulb, Image as ImageIcon } from '@lucide/svelte';
+  import { FileText, Lightbulb, Image as ImageIcon, Check } from '@lucide/svelte';
   import RaceBox from './RaceBox.svelte';
   import EditList from './EditList.svelte';
   import { db } from '../db.js';
@@ -127,7 +127,7 @@
         <table class="rc-table">
           <thead><tr><th>{t('Day')}</th><th class="num">{t('Resting pulse')}</th><th class="num">{t('HRV')}</th><th>{t('Normal')}</th></tr></thead>
           <tbody>
-            {#each rec.after as d (d.date)}<tr><td>{dateOf(d.date)}</td><td class="num">{d.restingHr ?? '–'}</td><td class="num">{d.hrvMs ?? '–'}</td><td>{d.back ? '✓' : ''}</td></tr>{/each}
+            {#each rec.after as d (d.date)}<tr><td>{dateOf(d.date)}</td><td class="num">{d.restingHr ?? '–'}</td><td class="num">{d.hrvMs ?? '–'}</td><td>{#if d.back}<Check size={14} class="ic-in" aria-hidden="true" />{/if}</td></tr>{/each}
           </tbody>
         </table>
       </div>

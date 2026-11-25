@@ -51,7 +51,7 @@
     </span>
     {#if onpick}<button type="button" class="pen" aria-label={t('Choose other habits')} title={t('Choose other habits')} onclick={onpick} data-habit-pick><Pencil size={16} aria-hidden="true" /></button>{/if}
     <span class="dots" role="img" aria-label={t('{n} of 7 days', { n: week.filter((g) => g.on).length })}>
-      {#each week as g (g.day)}<span><i class:ok={g.on} aria-hidden="true">{#if g.on}<Check size={11} strokeWidth={3} />{/if}</i>{wd(g.day)}</span>{/each}
+      {#each week as g (g.day)}<span><i class:ok={g.on} aria-hidden="true">{#if g.on}<Check size={14} strokeWidth={2.5} />{/if}</i>{wd(g.day)}</span>{/each}
     </span>
     {#if str.now}<span class="ser">{tn(str.now, '{n} day in a row', '{n} days in a row')}</span>{/if}
     <span class="acts">

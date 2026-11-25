@@ -42,7 +42,7 @@
 </script>
 
 <section class="card fr" aria-labelledby="fr-h" data-faust>
-    <h2 id="fr-h"><Lightbulb size={18} aria-hidden="true" />{t('Rules of thumb from your debriefs')}</h2>
+    <h2 id="fr-h"><Lightbulb size={20} aria-hidden="true" />{t('Rules of thumb from your debriefs')}</h2>
     <p class="quiet">{t('Your finished trips show a pattern. A rule is only a suggestion in Packen; you can change it any time on Blocks.')}</p>
     {#if !list.length}<p class="quiet" data-faust-none>{t('No pattern yet. With an own block and four finished trips, the app can suggest a rule here.')}</p>{/if}
     <ul>

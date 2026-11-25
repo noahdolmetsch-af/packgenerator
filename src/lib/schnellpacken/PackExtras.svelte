@@ -100,7 +100,7 @@
 
     {#if on('two')}
     <details class="fold" data-two open={isOpen('two')} ontoggle={toggle('two')}>
-      <summary><Users size={18} aria-hidden="true" /><span class="lab">{t('Packing for two')}</span><span class="r tp-small tp-muted">{two?.name ? t('with {name}', { name: two.name }) : t('not set')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
+      <summary><Users size={20} aria-hidden="true" /><span class="lab">{t('Packing for two')}</span><span class="r tp-small tp-muted">{two?.name ? t('with {name}', { name: two.name }) : t('not set')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
       {#if isOpen('two')}
       <div class="body">
         {#if !two?.name}
@@ -126,7 +126,7 @@
 
     {#if on('wash')}
     <details class="fold" data-wash open={isOpen('wash')} ontoggle={toggle('wash')}>
-      <summary><Shirt size={18} aria-hidden="true" /><span class="lab">{t('In the wash')}</span><span class="r tp-small tp-muted">{washing.length ? tn(washing.length, '{n} piece', '{n} pieces') : t('nothing')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
+      <summary><Shirt size={20} aria-hidden="true" /><span class="lab">{t('In the wash')}</span><span class="r tp-small tp-muted">{washing.length ? tn(washing.length, '{n} piece', '{n} pieces') : t('nothing')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
       {#if isOpen('wash')}
       <div class="body">
         <p class="tp-small tp-muted">{t('Tap the clothes still in the wash. Two days before the trip a reminder comes in Merken.')}</p>
@@ -140,7 +140,7 @@
 
     {#if on('morning')}
     <details class="fold" data-morning open={isOpen('morning')} ontoggle={toggle('morning')}>
-      <summary><Sunrise size={18} aria-hidden="true" /><span class="lab">{t('Only on the morning')}</span><span class="r tp-small tp-muted">{morning.length ? tn(morning.length, '{n} item', '{n} items') : t('nothing')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
+      <summary><Sunrise size={20} aria-hidden="true" /><span class="lab">{t('Only on the morning')}</span><span class="r tp-small tp-muted">{morning.length ? tn(morning.length, '{n} item', '{n} items') : t('nothing')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
       {#if isOpen('morning')}
       <div class="body">
         <p class="tp-small tp-muted">{t('Phone, food from the fridge, filled bottles: tap what goes in only on the departure morning. On that morning On the way shows them as a short list. The mark stays with the item for every trip.')}</p>
@@ -152,7 +152,7 @@
 
     {#if !on('time')}{:else if !timeOff}
       <details class="fold" data-packtime open={isOpen('time') || !!pt.start} ontoggle={toggle('time')}>
-        <summary><Timer size={18} aria-hidden="true" /><span class="lab">{t('Packing time')}</span><span class="r tp-small tp-muted">{pt.start ? t('running · {n} min', { n: running }) : pt.ms ? t('{n} min', { n: minutesOf(pt.ms) }) : t('not measured')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
+        <summary><Timer size={20} aria-hidden="true" /><span class="lab">{t('Packing time')}</span><span class="r tp-small tp-muted">{pt.start ? t('running · {n} min', { n: running }) : pt.ms ? t('{n} min', { n: minutesOf(pt.ms) }) : t('not measured')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
         <div class="body">
           {#if pt.start}
             <button type="button" class="btn hi" onclick={stop} data-pack-stop><Square size={16} aria-hidden="true" />{t('Done packing')}</button>

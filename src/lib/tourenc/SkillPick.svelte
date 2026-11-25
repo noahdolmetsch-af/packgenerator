@@ -22,7 +22,7 @@
 </script>
 
 <section class="rv-sec skl" aria-labelledby="skl-h" data-debrief-skills>
-  <div class="rv-h"><div><h2 id="skl-h"><Bike size={18} aria-hidden="true" />{t('What did you practise?')}</h2><p class="rv-sub">{t('Tick the riding techniques you worked on. All optional.')}</p></div></div>
+  <div class="rv-h"><div><h2 id="skl-h"><Bike size={20} aria-hidden="true" />{t('What did you practise?')}</h2><p class="rv-sub">{t('Tick the riding techniques you worked on. All optional.')}</p></div></div>
   <div class="rv-box pad sk">
     <div class="techs" role="group" aria-labelledby="skl-h">
       {#each list as e (e.id)}

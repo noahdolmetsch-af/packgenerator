@@ -89,7 +89,7 @@
     <div class="grab" aria-hidden="true"></div>
     <div class="hd">
       <h2 id="timer-h" class="title">{t('Stopwatch')}</h2>
-      <button type="button" class="round" onclick={small} aria-label={running ? t('Make small, it keeps running') : t('Close')}><ChevronDown size={22} aria-hidden="true" /></button>
+      <button type="button" class="round" onclick={small} aria-label={running ? t('Make small, it keeps running') : t('Close')}><ChevronDown size={24} aria-hidden="true" /></button>
     </div>
 
     {#if !running}
@@ -114,18 +114,18 @@
         </span>
       </div>
     </div>
-    {#if running}<p class="bl"><Bell size={15} aria-hidden="true" /> {bowlLine}</p>{/if}
+    {#if running}<p class="bl"><Bell size={16} aria-hidden="true" /> {bowlLine}</p>{/if}
 
     {#if !running}
       <p class="lbl" id="t-min">{t('Target time')}</p>
       <Seg full={false} small labelledby="t-min" value={minutes} onchange={(m) => (minutes = m)} options={DURATIONS.map((m) => ({ key: m, name: `${m}` }))} />
       <div class="acts">
-        <button type="button" class="btn hi big" onclick={start} disabled={!pick}><Timer size={18} aria-hidden="true" />{t('Start')}</button>
+        <button type="button" class="btn hi big" onclick={start} disabled={!pick}><Timer size={20} aria-hidden="true" />{t('Start')}</button>
       </div>
       <details class="bowl">
         <summary>{t('Singing bowl')} <span class="quiet">{bowlLine}</span></summary>
         <label class="sw-row">
-          <span class="ico"><Bell size={18} aria-hidden="true" /></span>
+          <span class="ico"><Bell size={20} aria-hidden="true" /></span>
           <span class="tx"><b>{t('Singing bowl at the start and the end')}</b><small>{t('a soft bowl, generated in the app')}</small></span>
           <input type="checkbox" class="switch" bind:checked={bowl.ends} />
         </label>
@@ -143,7 +143,7 @@
     {:else}
       <div class="acts">
         {#if !done}
-          <button type="button" class="btn big" onclick={togglePause}>{#if tm.pausedAt}<Play size={18} aria-hidden="true" />{t('Continue')}{:else}<Pause size={18} aria-hidden="true" />{t('Pause')}{/if}</button>
+          <button type="button" class="btn big" onclick={togglePause}>{#if tm.pausedAt}<Play size={20} aria-hidden="true" />{t('Continue')}{:else}<Pause size={20} aria-hidden="true" />{t('Pause')}{/if}</button>
         {/if}
         <button type="button" class="btn hi big grow" onclick={() => finishClock(states)}>{t('Done · tick off')}</button>
       </div>

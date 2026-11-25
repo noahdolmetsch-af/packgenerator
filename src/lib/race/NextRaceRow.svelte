@@ -21,7 +21,7 @@
 {#if next}
   {@const d = daysBetween(today, next.startDate)}
   <a class="race-top" href={raceHref(next.id)} data-next-race-top>
-    <Flag size={18} aria-hidden="true" />
+    <Flag size={20} aria-hidden="true" />
     <span>{t('Your race: {name} · {when}', { name: next.title, when: d === 0 ? t('today') : tn(d, 'in {n} day', 'in {n} days') })}</span>
     <ChevronRight size={16} aria-hidden="true" />
   </a>

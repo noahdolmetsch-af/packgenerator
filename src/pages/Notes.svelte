@@ -313,9 +313,9 @@
       <label class="capt"><span class="sr">{t('New note')}</span><textarea class="inp" rows={checkMode ? 4 : 1} bind:value={text} placeholder={t('Thought, link, photo …')}></textarea></label>
       <div class="tools">
         <CameraButton onchange={addPhoto} icon />
-        <label class="tb" aria-label={t('Add a photo')}><ImageIcon size={18} aria-hidden="true" /><input type="file" accept="image/*" hidden onchange={addPhoto} /></label>
-        <button type="button" class="tb" aria-pressed={linkOpen} aria-label={t('Add a link')} onclick={() => (linkOpen = !linkOpen)}><Link2 size={18} aria-hidden="true" /></button>
-        <button type="button" class="tb" aria-pressed={checkMode} aria-label={t('Checklist')} onclick={startList}><ListChecks size={18} aria-hidden="true" /></button>
+        <label class="tb" aria-label={t('Add a photo')}><ImageIcon size={20} aria-hidden="true" /><input type="file" accept="image/*" hidden onchange={addPhoto} /></label>
+        <button type="button" class="tb" aria-pressed={linkOpen} aria-label={t('Add a link')} onclick={() => (linkOpen = !linkOpen)}><Link2 size={20} aria-hidden="true" /></button>
+        <button type="button" class="tb" aria-pressed={checkMode} aria-label={t('Checklist')} onclick={startList}><ListChecks size={20} aria-hidden="true" /></button>
         <label class="tb" aria-label={t('Scan a QR code')} data-scan-qr><QrCode size={18} aria-hidden="true" /><input type="file" accept="image/*" capture="environment" hidden onchange={scanQr} /></label>
         <SpeakButton icon answer bar={dictBar} onsaid={spoken} />
         <button type="submit" class="btn hi save">{t('Save')}</button>
@@ -348,7 +348,7 @@
           <b>{noteTitle(n) || t('Note')}</b>
           <small>{[dayShort(n.editedAt ?? n.at), p.total ? `${t('Checklist')} · ${t('{done} of {total} done', p)}` : n.link?.url ? t('Link') : n.photo ? t('Photo') : '', `${t('Topic')} ${topicText(noteTopic(n), t)}`, n.bikeId && names[n.bikeId] ? names[n.bikeId] : '', ...tagsOf(n.text).map((tg) => `#${tg}`)].filter(Boolean).join(' · ')}</small>
         </span>
-        <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+        <ChevronRight class="ich-chev" size={20} aria-hidden="true" />
       </button>
       </SwipeRow>
     </li>
@@ -417,13 +417,13 @@
       {#if todoHits.length}
         <section class="ich-sec" aria-labelledby="todo-h" data-note-todo-hits>
           <div class="ich-h"><div><h2 id="todo-h"><ListChecks size={16} aria-hidden="true" /> {t('To-dos')} <small class="n num">{todoHits.length}</small></h2><p class="ich-hs">{t('Found in Calendar › Remember.')}</p></div></div>
-          <ul class="card ich-list">{#each todoHits as x (x.id)}<li><a class="ich-row open" href="#/calendar"><span class="ich-ib"><ListChecks size={18} aria-hidden="true" /></span><span class="ich-m"><b>{x.text}</b><small>{x.due ? dayShort(x.due) : t('Without date')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>{/each}</ul>
+          <ul class="card ich-list">{#each todoHits as x (x.id)}<li><a class="ich-row open" href="#/calendar"><span class="ich-ib"><ListChecks size={20} aria-hidden="true" /></span><span class="ich-m"><b>{x.text}</b><small>{x.due ? dayShort(x.due) : t('Without date')}</small></span><ChevronRight class="ich-chev" size={20} aria-hidden="true" /></a></li>{/each}</ul>
         </section>
       {/if}
       {/if}
       <!-- «Tagebuch» (Noah 20.10.2026): one tap from the notes to the diary, also with no notes yet -->
       <ul class="card ich-list diary" data-notes-diary-list>
-        <li><a class="ich-row" href="#/tagebuch" data-notes-diary><span class="ich-ib"><BookHeart size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Diary')}</b><small>{t('Write or speak, with photos and a question of the day')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>
+        <li><a class="ich-row" href="#/tagebuch" data-notes-diary><span class="ich-ib"><BookHeart size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('Diary')}</b><small>{t('Write or speak, with photos and a question of the day')}</small></span><ChevronRight class="ich-chev" size={20} aria-hidden="true" /></a></li>
       </ul>
     </div>
 
@@ -431,7 +431,7 @@
     <div class="ich-side">
       <div class="card ich-body srch">
         <label class="search">
-          <Search size={18} aria-hidden="true" />
+          <Search size={20} aria-hidden="true" />
           <span class="sr">{t('Search the notes')}</span>
           <input class="inp" type="search" bind:value={query} placeholder={t('Search: text, link, checklist')} />
         </label>
@@ -490,8 +490,8 @@
       <section class="ich-sec" aria-labelledby="nmore-h">
         <div class="ich-h"><div><h2 id="nmore-h">{t('More')}</h2></div></div>
         <ul class="card ich-list">
-          <li><a class="ich-row" href="#/inbox"><span class="ich-ib"><Inbox size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Inbox')}</b><small>{tn(inboxN, '{n} to file', '{n} to file')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>
-          <li><a class="ich-row" href="#/notes/zusammenhang" data-notes-context><span class="ich-ib"><Network size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Notes in context')}</b><small>{t('Links with a meaning, reminders after an event, memory cards')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>
+          <li><a class="ich-row" href="#/inbox"><span class="ich-ib"><Inbox size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('Inbox')}</b><small>{tn(inboxN, '{n} to file', '{n} to file')}</small></span><ChevronRight class="ich-chev" size={20} aria-hidden="true" /></a></li>
+          <li><a class="ich-row" href="#/notes/zusammenhang" data-notes-context><span class="ich-ib"><Network size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Notes in context')}</b><small>{t('Links with a meaning, reminders after an event, memory cards')}</small></span><ChevronRight class="ich-chev" size={20} aria-hidden="true" /></a></li>
           <li>
             <label class="ich-row keepin" data-keep-import>
               <span class="ich-ib"><FileInput size={18} aria-hidden="true" /></span>
@@ -500,8 +500,8 @@
             </label>
             {#if keepMsg}<p class="ich-help" role="status">{keepMsg}</p>{/if}
           </li>
-          <li><button type="button" class="ich-row" onclick={() => (trashOpen = true)} data-notes-trash><span class="ich-ib"><Trash2 size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Trash')}</b><small>{$trashQ ? tn($trashQ, '{n} note · {days} days, then it goes', '{n} notes · {days} days, then they go', { days: TRASH_DAYS }) : t('Deleted notes wait here {n} days.', { n: TRASH_DAYS })}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
-          {#if counts.all}<li><button type="button" class="ich-row" onclick={exportMd}><span class="ich-ib"><Download size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Export as Markdown')}</b><small>{t('The notes are also in the normal backup.')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>{/if}
+          <li><button type="button" class="ich-row" onclick={() => (trashOpen = true)} data-notes-trash><span class="ich-ib"><Trash2 size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Trash')}</b><small>{$trashQ ? tn($trashQ, '{n} note · {days} days, then it goes', '{n} notes · {days} days, then they go', { days: TRASH_DAYS }) : t('Deleted notes wait here {n} days.', { n: TRASH_DAYS })}</small></span><ChevronRight class="ich-chev" size={20} aria-hidden="true" /></button></li>
+          {#if counts.all}<li><button type="button" class="ich-row" onclick={exportMd}><span class="ich-ib"><Download size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('Export as Markdown')}</b><small>{t('The notes are also in the normal backup.')}</small></span><ChevronRight class="ich-chev" size={20} aria-hidden="true" /></button></li>{/if}
         </ul>
       </section>
     </div>
@@ -513,7 +513,7 @@
   {#key open}<NoteSheet note={openNote} {bikes} {notes} pinnedCount={counts.pinned} onopen={(id) => (open = id)} onclose={() => (open = null)} onmade={() => ((made = t('Made from the note; the note links to it.')), setTimeout(() => (made = ''), 5000))} />{/key}
 {/if}
 {#if trashOpen}<NoteTrash onclose={() => (trashOpen = false)} />{/if}
-{#if made}<div class="toast" role="status"><Check size={18} aria-hidden="true" /><span>{made}</span></div>{/if}
+{#if made}<div class="toast" role="status"><Check size={20} aria-hidden="true" /><span>{made}</span></div>{/if}
 
 
 {#if fillForm}<FormSheet form={fillForm} onsave={(r) => ((text = r.text), (pendingForm = r.record), (checkMode = /(^|\n)- /.test(r.text)))} onclose={() => (fillForm = null)} />{/if}

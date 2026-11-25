@@ -67,7 +67,7 @@
 
   {#if pending}
     <!-- Noah 13.10.2026 (answer 1 b): all 7 places are full, so first: which tile goes? -->
-    <p class="sk-info" data-sk-choose><Info size={18} aria-hidden="true" /><span>{t('All {n} places are taken. Which tile should make room? It goes to «Hidden» and can come back.', { n: MAX_TILES })}</span></p>
+    <p class="sk-info" data-sk-choose><Info size={20} aria-hidden="true" /><span>{t('All {n} places are taken. Which tile should make room? It goes to «Hidden» and can come back.', { n: MAX_TILES })}</span></p>
     <ul class="sk-list">
       {#each arr.shown as d (d.id)}
         <li><button type="button" class="sk-pick" data-sk-goes={d.id} onclick={() => goes(d.id)}>{@render row(d)}</button></li>
@@ -76,7 +76,7 @@
     <div class="sk-foot"><button type="button" class="btn" onclick={() => (pending = null)}>{t('Cancel')}</button></div>
   {:else}
     {#if mode === 'add' && full}
-      <p class="sk-info"><Info size={18} aria-hidden="true" /><span>{t('{n} of {n} places taken. If you add a tile, the app first asks which one should make room.', { n: MAX_TILES })}</span></p>
+      <p class="sk-info"><Info size={20} aria-hidden="true" /><span>{t('{n} of {n} places taken. If you add a tile, the app first asks which one should make room.', { n: MAX_TILES })}</span></p>
     {/if}
 
     {#snippet addSec()}
@@ -98,7 +98,7 @@
       {/if}
       <h3>{t('Own link')}</h3>
       <ul class="sk-list">
-        <li class="sk-ownrow"><span class="sk-ic" aria-hidden="true"><LinkIc size={18} /></span><span class="sk-m"><span class="sk-n">{t('Own link')}</span><span class="sk-s">{t('A page of your choice as a tile, e.g. your bike club. Stays on this device only.')}</span></span><button type="button" class="btn sk-act" data-sk-ownadd onclick={() => (ownOpen = true)}><Plus size={16} aria-hidden="true" />{t('Enter|link')}</button></li>
+        <li class="sk-ownrow"><span class="sk-ic" aria-hidden="true"><LinkIc size={20} /></span><span class="sk-m"><span class="sk-n">{t('Own link')}</span><span class="sk-s">{t('A page of your choice as a tile, e.g. your bike club. Stays on this device only.')}</span></span><button type="button" class="btn sk-act" data-sk-ownadd onclick={() => (ownOpen = true)}><Plus size={16} aria-hidden="true" />{t('Enter|link')}</button></li>
       </ul>
     {/snippet}
 
@@ -108,8 +108,8 @@
           <li data-sk-row={d.id} data-sort-id={d.id} class:sk-over={i >= MAX_TILES}>
             <SortGrip name={label(d)} onstep={(dir) => move(d.id, dir)} />
             <span class="sk-mv">
-              <button type="button" class="sk-ib" aria-label={t('Move {name} up', { name: label(d) })} disabled={i === 0} onclick={() => move(d.id, -1)}><ChevronUp size={18} aria-hidden="true" /></button>
-              <button type="button" class="sk-ib" aria-label={t('Move {name} down', { name: label(d) })} disabled={i === arr.sorted.length - 1} onclick={() => move(d.id, 1)}><ChevronDown size={18} aria-hidden="true" /></button>
+              <button type="button" class="sk-ib" aria-label={t('Move {name} up', { name: label(d) })} disabled={i === 0} onclick={() => move(d.id, -1)}><ChevronUp size={20} aria-hidden="true" /></button>
+              <button type="button" class="sk-ib" aria-label={t('Move {name} down', { name: label(d) })} disabled={i === arr.sorted.length - 1} onclick={() => move(d.id, 1)}><ChevronDown size={20} aria-hidden="true" /></button>
             </span>
             {#snippet pinMark()}{#if pinned(d.id)}<button type="button" class="sk-pin" aria-label={t('Pinned · let {name} sort by use again', { name: label(d) })} title={t('Pinned|tile')} onclick={() => onchange((s) => unpin(s, d.id))}><Pin size={14} aria-hidden="true" /></button>{/if}{/snippet}
             {@render row(d, pinMark, i >= MAX_TILES)}

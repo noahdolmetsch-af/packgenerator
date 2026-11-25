@@ -18,7 +18,7 @@
     <details>
       <summary>
         <span class="sm"><b>{ASK[q.key]()}</b><small data-frage-braucht>{need(q.key, a)}</small></span>
-        <ChevronDown size={18} aria-hidden="true" />
+        <ChevronDown size={20} aria-hidden="true" />
       </summary>
       <div class="sb">
         <p class="ans few" data-frage-antwort>{sentence(q.key, a)}</p>

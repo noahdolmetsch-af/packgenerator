@@ -1252,7 +1252,7 @@
             <button type="button" class="btn hi main" onclick={() => allGood()}>{t('All good')}</button>
             <a class="btn" href={focus.href} onclick={() => openTrip(shown.id)}>{t(focus.label)}</a>
           {:else if stepNow}
-            <a class="btn hi main" href={stepNow.href} onclick={() => openTrip(shown.id)} data-step={sched.next.key}>{stepNow.button}<ChevronRight size={18} aria-hidden="true" /></a>
+            <a class="btn hi main" href={stepNow.href} onclick={() => openTrip(shown.id)} data-step={sched.next.key}>{stepNow.button}<ChevronRight size={20} aria-hidden="true" /></a>
             {#each stepNow.links.slice(0, 1) as l (l.href)}<a class="btn" href={l.href} onclick={() => openTrip(shown.id)}>{l.label}</a>{/each}
             {#if stepNow.href !== stepHere(shown).href}<a class="btn" href={stepHere(shown).href} onclick={() => openTrip(shown.id)}>{t('Open the trip')}</a>{/if}
           {:else if focus && isLead}
@@ -1295,7 +1295,7 @@
 <!-- one row of «Up now» and of «Good to know» -->
 {#snippet upRow(r, line = false)}
     <li class="row {r.tone}" data-row={r.key.split(':')[0]}>
-      {#if r.tone === 'party'}<PartyPopper size={18} aria-hidden="true" />{:else if r.ic}<span class="rico" aria-hidden="true"><r.ic size={18} /></span>{:else}<span class="dot" aria-hidden="true"></span>{/if}
+      {#if r.tone === 'party'}<PartyPopper size={20} aria-hidden="true" />{:else if r.ic}<span class="rico" aria-hidden="true"><r.ic size={18} /></span>{:else}<span class="dot" aria-hidden="true"></span>{/if}
       {#if r.key === 'tests' && cleanAsk}
         <span class="tx">{tn(tests.length, 'Archive {n} test trip? It stays in your data, Today leaves it out.', 'Archive {n} test trips? They stay in your data, Today leaves them out.')}</span>
         <span class="ra"><button type="button" class="btn sm" onclick={cleanTests}>{t('Archive')}</button><button type="button" class="lkb" onclick={() => (cleanAsk = false)}>{t('Cancel')}</button></span>

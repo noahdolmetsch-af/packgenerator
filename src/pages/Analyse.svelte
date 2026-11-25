@@ -200,7 +200,7 @@
   {#if filters.length}
     <section class="card pick" aria-label={t('Choose what you see')}>
       <button type="button" class="pk-sum" aria-expanded={filterOpen} aria-controls="an-pick-body" data-filter-toggle onclick={() => (filterOpen = !filterOpen)}>
-        <span>{filterLine}</span><ChevronDown size={18} aria-hidden="true" />
+        <span>{filterLine}</span><ChevronDown size={20} aria-hidden="true" />
       </button>
       <div class="pk-body" class:open={filterOpen} id="an-pick-body">
         {#if filters.includes('src')}

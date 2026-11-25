@@ -183,8 +183,8 @@
       </section>
       <!-- Impeccable 20.10.2026 P5: the two things you do most come right under «Due now» (they were at the end under «More») -->
       <div class="ovacts" data-care-acts>
-        <button type="button" class="btn" onclick={() => openNew('problem')}><TriangleAlert size={18} aria-hidden="true" />{t('Report a problem')}</button>
-        <button type="button" class="btn" onclick={onwork}><Wrench size={18} aria-hidden="true" />{t('Record work')}</button>
+        <button type="button" class="btn" onclick={() => openNew('problem')}><TriangleAlert size={20} aria-hidden="true" />{t('Report a problem')}</button>
+        <button type="button" class="btn" onclick={onwork}><Wrench size={20} aria-hidden="true" />{t('Record work')}</button>
       </div>
       <SeasonNow {today} />
       <!-- Gesamttest 20.10.2026: the tip of the day right under «Due now» -->
@@ -197,13 +197,13 @@
             {@const n = c.care.rows.length}
             <li>
               <button type="button" class="ring" onclick={() => onopen(c.bike.id)} aria-label={ring.score == null ? t('{bike}: no data yet', { bike: c.bike.name }) : t('{bike}: {score} of 100', { bike: c.bike.name, score: ring.score })}>
-                <span class="ib"><Bike size={18} aria-hidden="true" /></span>
+                <span class="ib"><Bike size={20} aria-hidden="true" /></span>
                 <span class="m">
                   <b class="bn">{c.bike.name}</b>
                   <small class="num">{[c.bike.km != null ? `${num(c.bike.km)} km` : t('km not set'), n ? tn(n, '{n} due', '{n} due') : ring.score == null ? t('no data') : t('nothing due'), km ? t('{km} km since the check', { km: num(km.since) }) : ''].filter(Boolean).join(' · ')}</small>
                 </span>
                 <span class="mb {ringTone(ring.score)}" aria-hidden="true">{#if km}<i style:width="{Math.max(4, Math.min(100, Math.round((km.since / km.every) * 100)))}%" class:late={km.since >= km.every}></i>{/if}</span>
-                <ChevronRight class="chev" size={18} aria-hidden="true" />
+                <ChevronRight class="chev" size={20} aria-hidden="true" />
               </button>
             </li>
           {/each}
@@ -224,9 +224,9 @@
             {#each orders as c (c.bike.id)}
               <li>
                 <button type="button" class="orow" onclick={() => onorder(c.bike.id)}>
-                  <span class="ib"><Package size={18} aria-hidden="true" /></span>
+                  <span class="ib"><Package size={20} aria-hidden="true" /></span>
                   <span class="m"><b>{t('Order for {bike}', { bike: short(c.bike.name) })}</b><small>{c.order.rows.slice(0, 3).map((r) => r.name).join(', ')}{c.order.rows.length > 3 ? ` + ${c.order.rows.length - 3}` : ''}</small></span>
-                  <ChevronRight class="chev" size={18} aria-hidden="true" />
+                  <ChevronRight class="chev" size={20} aria-hidden="true" />
                 </button>
               </li>
             {/each}
@@ -256,7 +256,7 @@
         <div class="vh"><div class="vh-t"><h2 id="ovmore-h">{t('More')}</h2></div></div>
         <div class="card vlist">
           <details class="dfold" bind:open={diaryOpen}>
-            <summary class="orow"><span class="ib"><BookOpen size={18} aria-hidden="true" /></span><span class="m"><b id="diary-h">{t('Bike diary')}</b><small>{t('everything that was done')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+            <summary class="orow"><span class="ib"><BookOpen size={20} aria-hidden="true" /></span><span class="m"><b id="diary-h">{t('Bike diary')}</b><small>{t('everything that was done')}</small></span><ChevronRight class="chev" size={20} aria-hidden="true" /></summary>
             {#if log.length}
               <ol class="diary" aria-labelledby="diary-h">
                 {#each log as h, n (n)}
@@ -276,16 +276,16 @@
             {/if}
           </details>
           <!-- v0.116.0 «Strava-Verbindung»: rides with their bike from Strava -->
-          <a class="orow" href={bikesHash({ tab: 'care', view: 'strava' })}><span class="ib"><RefreshCw size={18} aria-hidden="true" /></span><span class="m"><b>Strava</b><small>{t('Rides with their bike, fetched by themselves')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
+          <a class="orow" href={bikesHash({ tab: 'care', view: 'strava' })}><span class="ib"><RefreshCw size={20} aria-hidden="true" /></span><span class="m"><b>Strava</b><small>{t('Rides with their bike, fetched by themselves')}</small></span><ChevronRight class="chev" size={20} aria-hidden="true" /></a>
           <!-- «Werte messen» 2b: measure the chain, record the pressure -->
-          <button type="button" class="orow" onclick={() => (messen = 'chain')}><span class="ib"><Ruler size={18} aria-hidden="true" /></span><span class="m"><b>{t('Measure the chain')}</b><small>{t('With the chain checker, with a forecast')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></button>
-          <button type="button" class="orow" onclick={() => (messen = 'pressure')}><span class="ib"><Gauge size={18} aria-hidden="true" /></span><span class="m"><b>{t('Record the pressure')}</b><small>{t('Front and rear, with a hint when a tyre loses air')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></button>
+          <button type="button" class="orow" onclick={() => (messen = 'chain')}><span class="ib"><Ruler size={20} aria-hidden="true" /></span><span class="m"><b>{t('Measure the chain')}</b><small>{t('With the chain checker, with a forecast')}</small></span><ChevronRight class="chev" size={20} aria-hidden="true" /></button>
+          <button type="button" class="orow" onclick={() => (messen = 'pressure')}><span class="ib"><Gauge size={20} aria-hidden="true" /></span><span class="m"><b>{t('Record the pressure')}</b><small>{t('Front and rear, with a hint when a tyre loses air')}</small></span><ChevronRight class="chev" size={20} aria-hidden="true" /></button>
           <!-- «Velo-FAQ» (Noah 19.10.2026): questions on care, breakdowns, wear and myths -->
-          <a class="orow" href={bikesHash({ tab: 'care', view: 'faq' })} data-link-faq><span class="ib"><MessageCircleQuestion size={18} aria-hidden="true" /></span><span class="m"><b>{t('Bike FAQ')}</b><small>{t('Care, breakdowns and myths, with a wink')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
-          <a class="orow" href={bikesHash({ tab: 'shop' })}><span class="ib"><ImageIcon size={18} aria-hidden="true" /></span><span class="m"><b>{t('Workshop & receipts')}</b></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
+          <a class="orow" href={bikesHash({ tab: 'care', view: 'faq' })} data-link-faq><span class="ib"><MessageCircleQuestion size={20} aria-hidden="true" /></span><span class="m"><b>{t('Bike FAQ')}</b><small>{t('Care, breakdowns and myths, with a wink')}</small></span><ChevronRight class="chev" size={20} aria-hidden="true" /></a>
+          <a class="orow" href={bikesHash({ tab: 'shop' })}><span class="ib"><ImageIcon size={20} aria-hidden="true" /></span><span class="m"><b>{t('Workshop & receipts')}</b></span><ChevronRight class="chev" size={20} aria-hidden="true" /></a>
           <!-- Impeccable (18.10.2026, Velopflege 2): the booking link, entered once for all bikes -->
           {#if bookOn}
-            <button type="button" class="orow" data-sk-link="x15" onclick={() => (bookEdit = true)}><span class="ib"><CalendarCheck size={18} aria-hidden="true" /></span><span class="m"><b>{t('Workshop booking')}</b><small>{booking ? [booking.name, t('your link for all bikes')].filter(Boolean).join(' · ') : t('your link for all bikes · enter')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></button>
+            <button type="button" class="orow" data-sk-link="x15" onclick={() => (bookEdit = true)}><span class="ib"><CalendarCheck size={18} aria-hidden="true" /></span><span class="m"><b>{t('Workshop booking')}</b><small>{booking ? [booking.name, t('your link for all bikes')].filter(Boolean).join(' · ') : t('your link for all bikes · enter')}</small></span><ChevronRight class="chev" size={20} aria-hidden="true" /></button>
           {/if}
         </div>
       </section>

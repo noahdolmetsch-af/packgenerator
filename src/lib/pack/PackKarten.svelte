@@ -55,7 +55,7 @@
         </div>
       </article>
     {/each}
-    <button type="button" class="pk-new" onclick={() => openNew('list')} data-pack-new><span class="pk-plus" aria-hidden="true"><Plus size={18} /></span><span><b>{t('New trip')}</b><small>{t('Sport, day and bike: then the list is ready')}</small></span></button>
+    <button type="button" class="pk-new" onclick={() => openNew('list')} data-pack-new><span class="pk-plus" aria-hidden="true"><Plus size={20} /></span><span><b>{t('New trip')}</b><small>{t('Sport, day and bike: then the list is ready')}</small></span></button>
   </section>
 {/if}
 

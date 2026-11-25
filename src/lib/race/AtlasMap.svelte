@@ -180,8 +180,8 @@
     {#if main}
       <span class="mp-chip" data-atlas-zoomname>{t('Zoom {n}', { n: l })} · {NAMES[l]}</span>
       <div class="mp-zoom">
-        <button type="button" class="mp-zb" aria-label={t('Zoom in')} disabled={level >= 3} onclick={() => (level = Math.min(3, level + 1))} data-atlas-zoom-in><Plus size={18} aria-hidden="true" /></button>
-        <button type="button" class="mp-zb" aria-label={t('Zoom out')} disabled={level <= 1} onclick={() => (level = Math.max(1, level - 1))} data-atlas-zoom-out><Minus size={18} aria-hidden="true" /></button>
+        <button type="button" class="mp-zb" aria-label={t('Zoom in')} disabled={level >= 3} onclick={() => (level = Math.min(3, level + 1))} data-atlas-zoom-in><Plus size={20} aria-hidden="true" /></button>
+        <button type="button" class="mp-zb" aria-label={t('Zoom out')} disabled={level <= 1} onclick={() => (level = Math.max(1, level - 1))} data-atlas-zoom-out><Minus size={20} aria-hidden="true" /></button>
       </div>
     {:else}
       <button type="button" class="mp-chip" onclick={() => (level = l)} data-atlas-zoom-pick={l}>{t('Zoom {n}', { n: l })} · {NAMES[l]}</button>

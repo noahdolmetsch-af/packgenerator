@@ -41,7 +41,7 @@
 </script>
 
 {#if sport.bike}
-  <a class="srow" href="#/bikes?tab=care" data-bike-care><Bike size={18} aria-hidden="true" /><span class="t"><b>{t('Bike care')}</b><small>{t('Parts, service by km, hours or date, the workshop')}</small></span><ChevronRight size={18} aria-hidden="true" /></a>
+  <a class="srow" href="#/bikes?tab=care" data-bike-care><Bike size={20} aria-hidden="true" /><span class="t"><b>{t('Bike care')}</b><small>{t('Parts, service by km, hours or date, the workshop')}</small></span><ChevronRight size={20} aria-hidden="true" /></a>
 {/if}
 
 {#if due.length}

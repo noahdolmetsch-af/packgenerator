@@ -21,7 +21,7 @@
 
 {#if list.length && !(fixed && !chosen)}
   <section class="rp card pad" aria-labelledby="rp-h" data-recipe-pick>
-    <h2 id="rp-h"><ChefHat size={18} aria-hidden="true" />{t('A recipe that worked')}</h2>
+    <h2 id="rp-h"><ChefHat size={20} aria-hidden="true" />{t('A recipe that worked')}</h2>
     {#if !fixed}
       <p class="ws">{t('Put one of your own recipes next to this tour. Only if you want.')}</p>
       <div class="chips" role="group" aria-labelledby="rp-h">

@@ -176,7 +176,7 @@
   </ul>
 
   <section class="vg-own" aria-labelledby="vg-own-h">
-    <h2 id="vg-own-h" class="rh-sub"><FolderKanban size={18} aria-hidden="true" /> {t('Your matters')} {#if cases.length}<span class="rh-tag">{cases.length}</span>{/if}</h2>
+    <h2 id="vg-own-h" class="rh-sub"><FolderKanban size={20} aria-hidden="true" /> {t('Your matters')} {#if cases.length}<span class="rh-tag">{cases.length}</span>{/if}</h2>
     {#if !cases.length}<p class="rh-empty">{t('No matter yet. Take a suggestion above or add one here.')}</p>{/if}
     <ul class="rh-cards" use:sortable={{ onmove: (from, to) => saveCases(move(cases, from, to)) }} data-cases>
       {#each cases as c, i (c.id)}

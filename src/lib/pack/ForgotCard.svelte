@@ -63,21 +63,21 @@
         {@const it = itemOf(m.key)}
         <li data-forgot-row={m.name}>
           <span class="fg-m">
-            <b>{m.name}{#if m.pinned}{' '}<Pin size={13} aria-label={t('pinned')} />{/if}</b>
+            <b>{m.name}{#if m.pinned}{' '}<Pin size={14} aria-label={t('pinned')} />{/if}</b>
             <small>{tn(m.n, 'missing {n} time · debrief of {day}', 'missing {n} times · last debrief {day}', { day: shortDay(m.at) })}</small>
           </span>
           <span class="fg-acts">
-            {#if it && onList.has(it.id)}<span class="fg-done"><Check size={15} aria-hidden="true" />{t('on the list')}</span>
+            {#if it && onList.has(it.id)}<span class="fg-done"><Check size={16} aria-hidden="true" />{t('on the list')}</span>
             {:else if it && onadd}<button type="button" class="btn sm" onclick={() => onadd(it.id)} data-forgot-add>{t('Onto the list')}</button>
-            {:else if inCheck(m.name)}<span class="fg-done"><Check size={15} aria-hidden="true" />{t('in the evening-before check')}</span>
-            {:else}<button type="button" class="btn sm" onclick={() => toCheck(m.name)} data-forgot-check><Plus size={15} aria-hidden="true" />{t('To the evening before')}</button>{/if}
-            <button type="button" class="fg-ib" aria-pressed={m.pinned} aria-label={m.pinned ? t('Unpin {name}', { name: m.name }) : t('Pin {name}', { name: m.name })} onclick={() => pin(m)} data-forgot-pin>{#if m.pinned}<PinOff size={17} aria-hidden="true" />{:else}<Pin size={17} aria-hidden="true" />{/if}</button>
-            <button type="button" class="fg-ib" aria-label={t('Take {name} out of this list', { name: m.name })} onclick={() => hide(m)} data-forgot-hide><X size={17} aria-hidden="true" /></button>
+            {:else if inCheck(m.name)}<span class="fg-done"><Check size={16} aria-hidden="true" />{t('in the evening-before check')}</span>
+            {:else}<button type="button" class="btn sm" onclick={() => toCheck(m.name)} data-forgot-check><Plus size={16} aria-hidden="true" />{t('To the evening before')}</button>{/if}
+            <button type="button" class="fg-ib" aria-pressed={m.pinned} aria-label={m.pinned ? t('Unpin {name}', { name: m.name }) : t('Pin {name}', { name: m.name })} onclick={() => pin(m)} data-forgot-pin>{#if m.pinned}<PinOff size={16} aria-hidden="true" />{:else}<Pin size={16} aria-hidden="true" />{/if}</button>
+            <button type="button" class="fg-ib" aria-label={t('Take {name} out of this list', { name: m.name })} onclick={() => hide(m)} data-forgot-hide><X size={16} aria-hidden="true" /></button>
           </span>
         </li>
       {/each}
     </ul>
-    {#if undo}<p class="fg-undo" role="status"><span>{t('«{name}» is no longer shown.', { name: undo.name })}</span><button type="button" class="tp-link" onclick={back} data-forgot-undo><Undo2 size={15} aria-hidden="true" />{t('Undo')}</button></p>{/if}
+    {#if undo}<p class="fg-undo" role="status"><span>{t('«{name}» is no longer shown.', { name: undo.name })}</span><button type="button" class="tp-link" onclick={back} data-forgot-undo><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button></p>{/if}
   </section>
 {/if}
 

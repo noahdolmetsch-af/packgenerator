@@ -143,7 +143,7 @@
     <Empty text={wanted ? t('This tick is gone, perhaps it was taken back.') : t('Nothing ticked yet. Tick something on Active and this page shows what it brought.')} action={{ label: t('Back to Active'), href: '#/flow' }} />
   {:else}
     <section class="head" data-geschafft-head>
-      <span class="check" aria-hidden="true"><Check size={22} strokeWidth={2.5} /></span>
+      <span class="check" aria-hidden="true"><Check size={24} strokeWidth={2.5} /></span>
       <div class="ht">
         <h1 tabindex="-1" data-page-title>{t('Done page: {name}', { name: actName(act) })}{#if amount || entry.feel}{' '}<span class="amt">· {[amount, entry.feel ? t(FEEL_TEXT[entry.feel]) : ''].filter(Boolean).join(' · ')}</span>{/if}</h1>
         <p class="src" data-geschafft-source>{when} · {t(SOURCE[sourceKey(entry)])}</p>
@@ -227,7 +227,7 @@
           {/if}
           <div class="days" data-geschafft-days>
             {#each week.days as d, i (d)}
-              <span class:today={d === entry.day}>{dayShort(d)}<b class:y={week.done[i]} aria-hidden="true">{#if week.done[i]}✓{/if}</b><span class="vh">{fmt(d, { weekday: 'long' })}: {week.done[i] ? t('trained|day') : t('nothing ticked')}</span></span>
+              <span class:today={d === entry.day}>{dayShort(d)}<b class:y={week.done[i]} aria-hidden="true">{#if week.done[i]}<Check size={14} class="ic-in" aria-hidden="true" />{/if}</b><span class="vh">{fmt(d, { weekday: 'long' })}: {week.done[i] ? t('trained|day') : t('nothing ticked')}</span></span>
             {/each}
           </div>
           <small>{tn(week.daysDone, '{n} day with training this week', '{n} days with training this week')}</small>

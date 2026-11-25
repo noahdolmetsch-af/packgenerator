@@ -35,8 +35,8 @@
         <span class="tx">
           <b>{nameOf(r.item)}</b>
           <small>
-            {#if r.source === 'linked'}<Link2 size={13} aria-hidden="true" /> {t('For {names}', { names: names(r) })}
-            {:else}<Sparkles size={13} aria-hidden="true" /> {t('Always with {names} on your last {n} trips', { names: names(r), n: r.of })}{/if}
+            {#if r.source === 'linked'}<Link2 size={14} aria-hidden="true" /> {t('For {names}', { names: names(r) })}
+            {:else}<Sparkles size={14} aria-hidden="true" /> {t('Always with {names} on your last {n} trips', { names: names(r), n: r.of })}{/if}
           </small>
         </span>
         <span class="btns">

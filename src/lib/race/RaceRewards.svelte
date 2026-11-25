@@ -22,7 +22,7 @@
 </script>
 
 <section class="rc-box" aria-labelledby="rw-h" data-race-rewards>
-  <h2 id="rw-h" class="rc-h2"><Gift size={18} aria-hidden="true" /> {t('A reward every hour')}</h2>
+  <h2 id="rw-h" class="rc-h2"><Gift size={20} aria-hidden="true" /> {t('A reward every hour')}</h2>
   <p class="rc-note">{t('Small things to look forward to. In race mode the next one stands on top, at every full hour one after the other.')}</p>
   {#if !rows.length}
     <div class="rw-empty" data-rewards-empty>

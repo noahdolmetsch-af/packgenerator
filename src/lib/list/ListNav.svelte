@@ -17,7 +17,7 @@
 {#if groups.length > 1}
   {#if mode === 'toc'}
     <nav class="card ls-toc" aria-label={head}>
-      <b class="ls-tt"><ArrowDown size={15} aria-hidden="true" />{head}</b>
+      <b class="ls-tt"><ArrowDown size={16} aria-hidden="true" />{head}</b>
       <ol>
         {#each groups as g, i (g.id)}
           <li><button type="button" class:on={on(g.id, i)} aria-current={on(g.id, i) ? 'true' : undefined} data-jump={g.id} onclick={() => onjump(g.id)}><span>{g.label}</span><em class="num">{g.n}</em></button></li>

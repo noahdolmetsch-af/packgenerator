@@ -84,7 +84,7 @@
       explanation is the quiet help line «ⓘ So geht's ›» under it instead of an ⓘ next to the title -->
     <h1 class="rc-h1" tabindex="-1" data-page-title>{t('Races')}</h1>
     {#if tab !== 'list'}<p class="rc-intro">{t('Bikepacking races and ultra rides: plan the strategy, know the route, ride with a calm head and learn afterwards.')}</p>{/if}
-    <button type="button" class="help-line" aria-expanded={info} data-race-help onclick={() => (info = !info)}><Info size={18} aria-hidden="true" /><span>{t('How it works|help')}</span><ChevronRight class="hl-chev" size={16} aria-hidden="true" /></button>
+    <button type="button" class="help-line" aria-expanded={info} data-race-help onclick={() => (info = !info)}><Info size={20} aria-hidden="true" /><span>{t('How it works|help')}</span><ChevronRight class="hl-chev" size={16} aria-hidden="true" /></button>
     {#if info}
       <div class="rc-info" data-race-explain="hub">
         <p>{t('A race is one of your trips. Here it gets five parts: strategy, prepare, along the route, race mode and after the race.')}</p>
@@ -108,7 +108,7 @@
       {#if tab === 'coming'}
         {#if !list.coming.length && !list.past.length}
           <section class="rc-box rc-soft" data-race-empty>
-            <h2 class="rc-h2"><Flag size={18} aria-hidden="true" /> {t('No race yet')}</h2>
+            <h2 class="rc-h2"><Flag size={20} aria-hidden="true" /> {t('No race yet')}</h2>
             <p class="rc-text">{t('Create a race, or make one of your trips a race. Then load the route files and the stops of the organiser.')}</p>
             <div class="rc-acts"><button type="button" class="btn" onclick={() => (tab = 'list')} data-race-to-list>{t('Open the race atlas')}</button></div>
           </section>
@@ -123,9 +123,9 @@
                 {@const cd = countdown(tr.startDate, today)}
                 <li>
                   <a class="lrow" href={raceHref(tr.id)} data-race-row={tr.id}>
-                    <span class="ic" aria-hidden="true"><Flag size={18} /></span>
+                    <span class="ic" aria-hidden="true"><Flag size={20} /></span>
                     <span class="m"><span class="t">{tr.title}</span><span class="s">{dateOf(tr.startDate)}{#if cd && cd.days > 0}{' '}· {tn(cd.days, 'in {n} day', 'in {n} days')}{/if}</span></span>
-                    <ChevronRight class="chev" size={18} aria-hidden="true" />
+                    <ChevronRight class="chev" size={20} aria-hidden="true" />
                   </a>
                 </li>
               {/each}

@@ -108,7 +108,7 @@
   </div>
   <div class="ev-acts">
     <label class="ev-fld ev-grow"><span>{t('Thing')}</span><input type="text" bind:value={name} maxlength="40" placeholder={t('e.g. chain oil')} onkeydown={(e) => e.key === 'Enter' && add()} data-event-item-name /></label>
-    <button type="button" class="btn" onclick={add} disabled={!canSend || !name.trim()} data-event-item-add><Plus size={18} aria-hidden="true" />{t('Add')}</button>
+    <button type="button" class="btn" onclick={add} disabled={!canSend || !name.trim()} data-event-item-add><Plus size={20} aria-hidden="true" />{t('Add')}</button>
   </div>
   {#if suggest.length}
     <div><button type="button" class="btn sm" aria-expanded={showSuggest} onclick={() => (showSuggest = !showSuggest)} data-event-item-suggest>{t('From my packing list')}</button></div>

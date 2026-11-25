@@ -135,7 +135,7 @@
 <section class="band trip-band" class:compact aria-label={t('Trip')}>
   <div class="who">
     <div class="crumbline">
-      <nav class="crumb" aria-label={t('Where you are')}><a href="#/trips"><ChevronLeft size={18} aria-hidden="true" />{t('Trips|place')}</a>{#if !phone.matches}<span class="here" aria-hidden="true"><ChevronRight size={14} />{trip.title}</span>{/if}</nav>
+      <nav class="crumb" aria-label={t('Where you are')}><a href="#/trips"><ChevronLeft size={20} aria-hidden="true" />{t('Trips|place')}</a>{#if !phone.matches}<span class="here" aria-hidden="true"><ChevronRight size={14} />{trip.title}</span>{/if}</nav>
       <!-- «Tour-Pfad» (Noah 08.11.2026 «1 go A»): the way into the path of the tour, on the crumb line (no extra height), on a phone too --><a class="pfad" href={`#/trips/pfad?t=${encodeURIComponent(trip.id)}`} data-pfad-link>{t('Tour path')}<ChevronRight size={14} aria-hidden="true" /></a>
     </div>
     <div class="kline">
@@ -148,7 +148,7 @@
       <input class="rename" use:selectAll bind:this={nameEl} bind:value={nameDraft} onkeydown={nameKey} onblur={saveName} aria-label={t('Trip name')} enterkeyhint="done" />
     {:else}
       <!-- v0.45.0 (acceptance follow-up 5): focusable from code, so a new trip announces its name. -->
-      <h1 tabindex="-1" data-trip-title><button type="button" class="name" title={t('Rename trip')} onclick={startRename}>{trip.title}<Pencil class="pen" size={18} aria-hidden="true" /></button></h1>
+      <h1 tabindex="-1" data-trip-title><button type="button" class="name" title={t('Rename trip')} onclick={startRename}>{trip.title}<Pencil class="pen" size={20} aria-hidden="true" /></button></h1>
     {/if}
     <p class="meta">
       {#if edit}

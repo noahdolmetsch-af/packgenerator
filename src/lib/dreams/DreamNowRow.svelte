@@ -29,7 +29,7 @@
 
 {#if now.length}
   <a class="dream-now" href="#/trips/dreams" data-dream-now>
-    <Sparkles size={18} aria-hidden="true" />
+    <Sparkles size={20} aria-hidden="true" />
     <span>{now.length === 1 ? t('A dream that fits now: {name}', { name: now[0].title }) : tn(now.length - 1, 'A dream that fits now: {name} and one more', 'A dream that fits now: {name} and {n} more', { name: now[0].title })}{#if win}{' · '}<span class="wx" data-dream-now-wx>{t('dry {days}', { days: dayRange(win, locale()) })}</span>{/if}</span>
     <ChevronRight size={16} aria-hidden="true" />
   </a>

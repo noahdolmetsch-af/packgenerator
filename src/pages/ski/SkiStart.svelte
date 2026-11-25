@@ -92,7 +92,7 @@
         <li data-check={c.id}>
           <div class="cr">
             <button type="button" class="sk-tick" role="checkbox" aria-checked={!!ready[c.id]?.done} onclick={() => setCheck(trip.id, c.id)}>
-              <span class="sk-box big" aria-hidden="true">{#if ready[c.id]?.done}<Check size={22} strokeWidth={3} />{/if}</span>
+              <span class="sk-box big" aria-hidden="true">{#if ready[c.id]?.done}<Check size={24} strokeWidth={2.5} />{/if}</span>
               <span class="sk-tt"><b>{t(c.label)}</b>{#if SUB[c.id]}<small>{t(SUB[c.id])}</small>{/if}{#if c.id === 'turn' && turnAt}<small class="num">{t('Turn around at {time}', { time: turnAt })}</small>{/if}</span>
             </button>
             {#if c.id === 'battery'}

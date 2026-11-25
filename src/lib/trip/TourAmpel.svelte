@@ -30,7 +30,7 @@
         {/each}
       </span>
       <span class="state">{t(head)}</span>
-      <ChevronDown class="chev" size={18} aria-hidden="true" />
+      <ChevronDown class="chev" size={20} aria-hidden="true" />
     </summary>
     {#if todo.length}
       <ul>

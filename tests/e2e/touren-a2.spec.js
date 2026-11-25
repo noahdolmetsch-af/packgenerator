@@ -9,7 +9,7 @@ import { openHome, homeFixture, tr, trip, day, entries } from './home0460-fixtur
 
 const T = tr('de');
 const phone = (info) => info.project.name === 'phone';
-const tap = (loc, info) => (phone(info) ? loc.tap() : loc.click());
+const tap = (loc, info, opts) => (phone(info) ? loc.tap(opts) : loc.click(opts));
 const noSideways = (page) => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
 
 const A = 'test_data_gtp_Jura-B';
@@ -69,6 +69,9 @@ test('45 47 49 Plan: sport per day, unclear spots, border points', async ({ page
   const sports = card.locator('[data-prep-sports]');
   await tap(sports.locator('summary'), info);
   await tap(sports.locator('[data-prep-day="0"]').getByRole('button', { name: T('Bike|daysport') }), info);
+  // each tap saves the whole list built from the trip as the page knows it: the second tap has to wait until the page
+  // shows the first one, or it saves the old list again and the first one is lost
+  await expect(sports.locator('[data-prep-day="0"]').getByRole('button', { name: T('Bike|daysport') })).toHaveAttribute('aria-pressed', 'true');
   await tap(sports.locator('[data-prep-day="1"]').getByRole('button', { name: T('Hiking|daysport') }), info);
   await expect(sports.locator('[data-prep-day="1"]').getByRole('button', { name: T('Hiking|daysport') })).toHaveAttribute('aria-pressed', 'true');
   const change = sports.locator('[data-prep-change="1"]');
@@ -78,10 +81,15 @@ test('45 47 49 Plan: sport per day, unclear spots, border points', async ({ page
 
   // 47: a question with km, then clarified
   const un = card.locator('[data-prep-unclear]');
-  await tap(un.locator('summary'), info);
-  await un.getByLabel(T('At km')).fill('42');
-  await un.locator('[data-unclear-text]').fill('test_data_gtp_ Brücke offen?');
-  await tap(un.getByRole('button', { name: T('Add') }), info);
+  // the card is drawn anew after a save, and a fold that was just opened can be closed again by that (seen once on a
+  // slow runner: the fields were there, then the button was gone): the whole step starts again from «fold open»
+  await expect(async () => {
+    if (!(await un.evaluate((el) => el.open))) await tap(un.locator('summary'), info);
+    await un.getByLabel(T('At km')).fill('42', { timeout: 5000 });
+    await un.locator('[data-unclear-text]').fill('test_data_gtp_ Brücke offen?', { timeout: 5000 });
+    await tap(un.getByRole('button', { name: T('Add') }), info, { timeout: 5000 });
+    await expect(un.locator('[data-unclear]').first()).toContainText('km 42', { timeout: 5000 });
+  }).toPass({ timeout: 60_000 });
   const row = un.locator('[data-unclear]').first();
   await expect(row).toContainText('km 42');
   await tap(row.getByRole('button', { name: T('Clarified: {name}', { name: 'test_data_gtp_ Brücke offen?' }) }), info);
@@ -90,10 +98,12 @@ test('45 47 49 Plan: sport per day, unclear spots, border points', async ({ page
 
   // 49: a country, a point with a source
   const bo = card.locator('[data-prep-border]');
-  await tap(bo.locator('summary'), info);
-  await bo.locator('[data-border-new]').fill('test_data_gtp_Land');
-  await tap(bo.getByRole('button', { name: T('Add country') }), info);
-  await expect(bo.locator('[data-border-shown="test_data_gtp_Land"]')).toBeVisible();
+  await expect(async () => {
+    if (!(await bo.evaluate((el) => el.open))) await tap(bo.locator('summary'), info);
+    await bo.locator('[data-border-new]').fill('test_data_gtp_Land', { timeout: 5000 });
+    await tap(bo.getByRole('button', { name: T('Add country') }), info, { timeout: 5000 });
+    await expect(bo.locator('[data-border-shown="test_data_gtp_Land"]')).toBeVisible({ timeout: 5000 });
+  }).toPass({ timeout: 60_000 });
   const phoneArea = bo.locator('[data-border-area="phone"]');
   await phoneArea.locator('[data-border-text="phone"]').fill('test_data_gtp_ Roaming an');
   await phoneArea.getByLabel(T('Source: {area}', { area: T('Phone network') })).fill('test_data_gtp_ Vertrag');

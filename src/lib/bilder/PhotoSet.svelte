@@ -90,9 +90,9 @@
         <li>
           <button type="button" class="th" onclick={() => (shown = i)} aria-label={t('Open photo {n}', { n: i + 1 })}><img {src} alt="" /></button>
           <span class="ta">
-            <button type="button" class="tb" aria-label={t('Cut photo {n}', { n: i + 1 })} title={t('Cut the edges')} onclick={() => (cropAt = i)} data-photo-crop><Crop size={15} aria-hidden="true" /></button>
+            <button type="button" class="tb" aria-label={t('Cut photo {n}', { n: i + 1 })} title={t('Cut the edges')} onclick={() => (cropAt = i)} data-photo-crop><Crop size={16} aria-hidden="true" /></button>
             <DrawOn {src} list={photos} {inks} icon cls="tb" onsave={({ list, inks: next }) => set(list, next)} data-photo-draw />
-            <button type="button" class="tb" aria-label={t('Take away photo {n}', { n: i + 1 })} title={t('Take away')} onclick={() => drop(i)} data-photo-drop><X size={15} aria-hidden="true" /></button>
+            <button type="button" class="tb" aria-label={t('Take away photo {n}', { n: i + 1 })} title={t('Take away')} onclick={() => drop(i)} data-photo-drop><X size={16} aria-hidden="true" /></button>
           </span>
         </li>
       {/each}

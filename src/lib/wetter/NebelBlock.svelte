@@ -50,7 +50,7 @@
 {#if s}
   <div class="nb" data-fogline>
     <p class="nb-main">
-      <CloudFog size={18} aria-hidden="true" />
+      <CloudFog size={20} aria-hidden="true" />
       <span>
         {#if s.now.top != null}
           <b data-fogline-now>{s.above === 'sun' ? t('Fog line about {m} m above sea level, sun above', { m: num(s.now.top) }) : s.above === 'cloud' ? t('Fog line about {m} m above sea level, clouds above', { m: num(s.now.top) }) : t('Fog line about {m} m above sea level', { m: num(s.now.top) })}</b>

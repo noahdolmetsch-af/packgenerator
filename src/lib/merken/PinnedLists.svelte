@@ -21,7 +21,7 @@
     {#each lists as l (l.id)}
       <div class="card plist">
         <div class="ph">
-          <ListChecks size={18} aria-hidden="true" />
+          <ListChecks size={20} aria-hidden="true" />
           <h2>{l.name}</h2>
           <span class="n">{t('{n} open', { n: openCount(l) })}</span>
           <a class="open" href={`#/calendar/list/${l.id}`}>{t('Open')}<ChevronRight size={16} aria-hidden="true" /></a>

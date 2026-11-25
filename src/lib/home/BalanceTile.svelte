@@ -122,7 +122,7 @@
     <h2 id="bl-h">{t('Your balance')}</h2>
     <span class="sd">{t('last 7 days')}</span>
     {#if isnew}<span class="nw">{t('new|tile')}</span>{/if}
-    {#if !bare}<a class="go" href="#/flow" aria-hidden="true" tabindex="-1" title={t('Open')}><ChevronRight size={16} strokeWidth={2.4} /></a>{/if}
+    {#if !bare}<a class="go" href="#/flow" aria-hidden="true" tabindex="-1" title={t('Open')}><ChevronRight size={16} strokeWidth={2.5} /></a>{/if}
   </div>
   {#if b && !empty && big}
     <div class="bigw" data-balance-big>

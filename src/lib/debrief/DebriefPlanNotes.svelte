@@ -38,7 +38,7 @@
     <ul class="rv-box">
       {#each notes as n (n.id)}
         <li class="rv-row dpn" data-plan-note={n.id}>
-          <span class="rv-ic" aria-hidden="true"><NotebookPen size={18} /></span>
+          <span class="rv-ic" aria-hidden="true"><NotebookPen size={20} /></span>
           <span class="rv-m"><span class="rv-t">{n.text}</span>{#if n.made}<span class="rv-s">{t(MADE_WORD[n.made.kind])}</span>{/if}</span>
           <span class="dpn-acts" role="group" aria-label={t('Did «{text}» help?', { text: n.text })}>
             <button type="button" class="btn sm" aria-pressed={n.helped === true} onclick={() => helped(n, true)}>{t('Yes|helped')}</button>

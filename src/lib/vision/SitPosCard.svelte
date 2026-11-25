@@ -16,12 +16,12 @@
 
 <section class="spc" aria-labelledby="spc-h-{bike.id}">
   <a class="spc-row" {href} data-sitpos-measure>
-    <span class="spc-ib" aria-hidden="true"><PersonStanding size={18} /></span>
+    <span class="spc-ib" aria-hidden="true"><PersonStanding size={20} /></span>
     <span class="spc-m">
       <b id="spc-h-{bike.id}">{t('Sitting position')}</b>
       <small>{rows.length ? t('Measure again with a photo or video') : t('Measure knee and back angles with a photo or video')}</small>
     </span>
-    <ChevronRight size={18} aria-hidden="true" />
+    <ChevronRight size={20} aria-hidden="true" />
   </a>
   {#if rows.length}
     <SitPosList {bike} limit={open ? 0 : 1} />

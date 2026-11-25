@@ -73,7 +73,7 @@
     </div>
   </section>
   <label class="hb-find">
-    <Search size={18} aria-hidden="true" />
+    <Search size={20} aria-hidden="true" />
     <span class="sr">{t('Search the handbook')}</span>
     <input class="inp" type="search" bind:value={q} placeholder={t('How do I …? e.g. «chain», «backup»')} autocomplete="off" />
   </label>
@@ -90,7 +90,7 @@
             {@const h = handbookOf(x.id)}
             <li data-hb={x.id}>
               <details open={x.id === wantId || (!!words.length && hitN <= 5)}>
-                <summary><span class="hb-t">{t(x.title)}</span><ChevronRight class="hb-chev" size={18} aria-hidden="true" /></summary>
+                <summary><span class="hb-t">{t(x.title)}</span><ChevronRight class="hb-chev" size={20} aria-hidden="true" /></summary>
                 <div class="hb-body">
                   <p class="hb-what">{t(x.text)}</p>
                   <p><b>{t('Switch on:')}</b> {h.on ? t(h.on) : t('Always there, nothing to do.')}</p>

@@ -55,9 +55,9 @@
 {#if info.n > 0}
   <section class="nsc" aria-labelledby="nsc-h" data-neu-seit>
     <div class="top">
-      <span class="ic" aria-hidden="true"><Sparkles size={18} /></span>
+      <span class="ic" aria-hidden="true"><Sparkles size={20} /></span>
       <h2 id="nsc-h">{when ? tn(info.n, '{n} news item since {when}', '{n} news items since {when}', { when }) : tn(info.n, '{n} news item|card', '{n} news items|card')}</h2>
-      <button type="button" class="x" aria-label={t('Close the hint')} onclick={seen} data-neu-seit-close><X size={18} aria-hidden="true" /></button>
+      <button type="button" class="x" aria-label={t('Close the hint')} onclick={seen} data-neu-seit-close><X size={20} aria-hidden="true" /></button>
     </div>
     {#if pics.length}
       <button type="button" class="strip" onclick={view} aria-label={t('See the news by place')}>

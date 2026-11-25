@@ -35,13 +35,13 @@
 
 {#if moved}
   <div class="card eo" role="status" data-eve-offer>
-    <span class="eo-ib" aria-hidden="true"><Clock size={18} /></span>
+    <span class="eo-ib" aria-hidden="true"><Clock size={20} /></span>
     <p class="eo-t">{t('The evening reminder now comes at {time}.', { time: timeText(moved.to) })}</p>
     <button type="button" class="btn" onclick={undo}>{t('Undo')}</button>
   </div>
 {:else if offer}
   <div class="card eo" data-eve-offer>
-    <span class="eo-ib" aria-hidden="true"><Clock size={18} /></span>
+    <span class="eo-ib" aria-hidden="true"><Clock size={20} /></span>
     <p class="eo-t">{t('You usually do the evening check at {usual}. Move the reminder to {at}?', { usual: timeText(offer.usual), at: timeText(offer.at) })}</p>
     <span class="eo-acts">
       <button type="button" class="btn hi" onclick={take}>{t('Move it')}</button>

@@ -99,8 +99,8 @@
       <ul class="rh-list" data-checks>
         {#each openChecks as c (c.id)}
           <li class="rh-chk"><span class="rh-grow"><span class="rh-tag warn">{t('{from} · {day} · still to check', { from: c.from, day: dmy(c.day) })}</span>{#if c.q}<small>{c.q}</small>{/if}<span class="rh-ct">{c.text}</span></span>
-            <button type="button" class="rh-x" aria-label={t('Take')} onclick={() => take(c)}><Check size={18} /></button>
-            <button type="button" class="rh-x" aria-label={t('Drop')} onclick={() => saveChecks(setCheck(checks, c.id, 'dropped'))}><X size={18} /></button>
+            <button type="button" class="rh-x" aria-label={t('Take')} onclick={() => take(c)}><Check size={20} /></button>
+            <button type="button" class="rh-x" aria-label={t('Drop')} onclick={() => saveChecks(setCheck(checks, c.id, 'dropped'))}><X size={20} /></button>
           </li>
         {/each}
       </ul>

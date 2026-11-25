@@ -130,7 +130,7 @@
   {#if STEPS.length > 1}
     <ol class="steps" aria-label={t('Steps')}>
       {#each STEPS as s, i (s)}
-        <li class:done={STEPS.indexOf(step) > i} class:now={step === s}><i></i><span>{STEPS.indexOf(step) > i ? '✓ ' : ''}{t(stepNames[s])}</span></li>
+        <li class:done={STEPS.indexOf(step) > i} class:now={step === s}><i></i><span>{#if STEPS.indexOf(step) > i}<Check size={14} class="ic-in" aria-hidden="true" />{' '}{/if}{t(stepNames[s])}</span></li>
       {/each}
     </ol>
   {/if}
@@ -149,7 +149,7 @@
     <button type="button" class="lnk" onclick={() => ((value = ''), next())}>{t('Not measured, skip')}</button>
   {:else if step === 'decide'}
     {#if val != null}
-      <p class="verdict"><Check size={18} aria-hidden="true" />{worn ? t('{value}: replace {part}', { value: fmt(val), part: name }) : t('{value}: still good', { value: fmt(val) })}</p>
+      <p class="verdict"><Check size={20} aria-hidden="true" />{worn ? t('{value}: replace {part}', { value: fmt(val), part: name }) : t('{value}: still good', { value: fmt(val) })}</p>
       {#if !worn}
         <div class="chips" role="group" aria-label={t('What now?')}>
           <button type="button" class="chip" aria-pressed={replace} onclick={() => (replace = true)}>{t('Replace anyway')}</button>
@@ -198,7 +198,7 @@
     <p class="err" role="alert">{error}</p>
     <button type="button" class="btn hi wide" onclick={saveReplace}>{t('Replace {part}', { part: name })}</button>
   {:else if step === 'done'}
-    <p class="okmark" aria-hidden="true"><Check size={28} /></p>
+    <p class="okmark" aria-hidden="true"><Check size={24} /></p>
     <p class="verdict center">{saved?.replaced ? t('{part} replaced', { part: name }) : t('Measurement saved')}</p>
     {#if saved?.replaced}<p class="hint center">{[saved.old != null ? t('Old part: {km} km', { km: num(saved.old) }) : '', saved.val != null ? fmt(saved.val) : ''].filter(Boolean).join(', ')}</p>{/if}
     {#if nextUp.length && saved?.replaced}

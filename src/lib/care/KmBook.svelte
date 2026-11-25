@@ -253,7 +253,7 @@
       {@const mrows = open ? (wide[m.key] || filter !== 'all' ? m.entries : shownList(m.entries)) : []}
       <div class="mg" class:open data-group={m.key} id="km-{bike.id}-{m.key}">
         <button type="button" class="mh" aria-expanded={open} onclick={() => (opened = { ...opened, [m.key]: !open })}>
-          {#if open}<ChevronDown size={18} aria-hidden="true" />{:else}<ChevronRight size={18} aria-hidden="true" />{/if}
+          {#if open}<ChevronDown size={20} aria-hidden="true" />{:else}<ChevronRight size={20} aria-hidden="true" />{/if}
           <b>{monthName(m.key)}</b>
           <span class="mn num">{tn(m.entries.length, '{n} entry', '{n} entries')}</span>
           <span class="mk num">{num(monthKm(m.entries))} km</span>
@@ -310,7 +310,7 @@
       <span class="s"><KmChips source={r.source} kind={r.kind} sure={r.kind === 'ride' ? r.sure : null} /></span>
       <span class="a num">{r.after != null ? `${num(Math.round(r.after))} km` : '–'}</span>
       <span class="m">
-        <button type="button" class="more" aria-expanded={editing === r.id} aria-label={t('Change or leave out: {what}', { what: entryTitle(r) })} onclick={() => edit(r)}><MoreHorizontal size={18} aria-hidden="true" /></button>
+        <button type="button" class="more" aria-expanded={editing === r.id} aria-label={t('Change or leave out: {what}', { what: entryTitle(r) })} onclick={() => edit(r)}><MoreHorizontal size={20} aria-hidden="true" /></button>
       </span>
       {#if editing === r.id}
         <div class="ed">

@@ -61,7 +61,7 @@
         <li class="card pa-card" data-for-you-pkg={p.key}>
           <span class="pa-n num">{i + 1}</span>
           <span class="pa-m"><b>{t('«{name}» is built and parked', { name: p.name })}</b><small>{p.version ? t('Version {version} goes online after your OK.', { version: p.version }) : t('It goes online after your OK.')}</small></span>
-          <PackageCheck size={18} aria-hidden="true" />
+          <PackageCheck size={20} aria-hidden="true" />
         </li>
       {/each}
     </ul>
@@ -75,8 +75,8 @@
           {#if editing === x.id}
             <form class="pa-form" onsubmit={saveEdit}>
               <input class="inp" maxlength="140" bind:value={editText} aria-label={t('Point')} data-for-you-edit-text />
-              <button type="submit" class="pa-ib" aria-label={t('Save')}><Check size={18} aria-hidden="true" /></button>
-              <button type="button" class="pa-ib" aria-label={t('Cancel')} onclick={() => (editing = null)}><X size={18} aria-hidden="true" /></button>
+              <button type="submit" class="pa-ib" aria-label={t('Save')}><Check size={20} aria-hidden="true" /></button>
+              <button type="button" class="pa-ib" aria-label={t('Cancel')} onclick={() => (editing = null)}><X size={20} aria-hidden="true" /></button>
             </form>
           {:else}
             <span class="pa-m"><b>{x.text}</b></span>

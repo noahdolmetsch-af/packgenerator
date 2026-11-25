@@ -31,16 +31,16 @@
     <button type="button" class="sv-opt" aria-pressed={pick === 'standard'} onclick={() => (pick = 'standard')}>
       <span class="sv-oi"><Star size={20} aria-hidden="true" /></span>
       <span class="sv-ot"><b>{t('Always the standard bike')}</b><small>{t('Today: {name} · you choose it on the bike page', { name: standard?.name ?? '' })}</small></span>
-      <span class="sv-om">{#if pick === 'standard'}<Check size={18} aria-hidden="true" />{/if}</span>
+      <span class="sv-om">{#if pick === 'standard'}<Check size={20} aria-hidden="true" />{/if}</span>
     </button>
     <button type="button" class="sv-opt" aria-pressed={pick === 'last'} onclick={() => (pick = 'last')}>
       <span class="sv-oi"><RotateCcw size={20} aria-hidden="true" /></span>
       <span class="sv-ot"><b>{t('The bike ridden last')}</b><small>{t('The bike of your last trip or ride')}</small></span>
-      <span class="sv-om">{#if pick === 'last'}<Check size={18} aria-hidden="true" />{/if}</span>
+      <span class="sv-om">{#if pick === 'last'}<Check size={20} aria-hidden="true" />{/if}</span>
     </button>
   </div>
   <p class="sv-hint">{t('You can change this any time under Bikes › Standard bike and order.')}</p>
   <div class="vd-foot">
-    <button type="button" class="btn hi" onclick={done}><Check size={17} aria-hidden="true" />{t('Apply')}</button>
+    <button type="button" class="btn hi" onclick={done}><Check size={16} aria-hidden="true" />{t('Apply')}</button>
   </div>
 </dialog>

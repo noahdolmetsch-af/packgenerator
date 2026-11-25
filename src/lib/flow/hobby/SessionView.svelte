@@ -178,7 +178,7 @@
           </div>
         {:else}
           <div class="acts three">
-            <button type="button" class="rb" aria-pressed={quiet} onclick={() => sessionVolume(quiet ? 0.8 : 0.3)}><span class="rc">{#if quiet}<Volume2 size={22} aria-hidden="true" />{:else}<Volume1 size={22} aria-hidden="true" />{/if}</span>{quiet ? t('louder|sound') : t('quieter|sound')}</button>
+            <button type="button" class="rb" aria-pressed={quiet} onclick={() => sessionVolume(quiet ? 0.8 : 0.3)}><span class="rc">{#if quiet}<Volume2 size={24} aria-hidden="true" />{:else}<Volume1 size={24} aria-hidden="true" />{/if}</span>{quiet ? t('louder|sound') : t('quieter|sound')}</button>
             <button type="button" class="rb main" onclick={togglePause}><span class="rc">{#if tm.pausedAt}<Play size={30} aria-hidden="true" />{:else}<Pause size={30} aria-hidden="true" />{/if}</span>{tm.pausedAt ? t('Continue') : t('Pause')}</button>
             <button type="button" class="rb stop" onclick={end} data-end-session><span class="rc"><Square size={20} aria-hidden="true" /></span>{t('End|session')}</button>
           </div>
@@ -189,13 +189,13 @@
       {#if setOpen}
         <section class="surf during">
           <h3 class="zlabel">{t('During the session')}</h3>
-          <div class="row"><Smartphone size={18} aria-hidden="true" /><span><b>{screen.held ? t('The screen stays on') : t('The screen may go dark')}</b><small>{screen.held ? t('until the end or a pause') : t('this browser cannot keep it on; the time stays right')}</small></span></div>
-          <div class="row"><Lock size={18} aria-hidden="true" /><span><b>{t('Locking the screen is fine')}</b><small>{t('Android: the gongs come anyway. iPhone: sounds in between only with the screen open; the end gong comes when you unlock.')}</small></span></div>
-          <div class="row vol"><Volume2 size={18} aria-hidden="true" /><label><b>{t('Gong volume')}</b><span class="vr"><small>{t('soft')}</small><input type="range" min="0" max="1" step="0.05" value={vol} oninput={(e) => sessionVolume(Number(e.currentTarget.value))} /><small>{t('loud')}</small></span></label></div>
+          <div class="row"><Smartphone size={20} aria-hidden="true" /><span><b>{screen.held ? t('The screen stays on') : t('The screen may go dark')}</b><small>{screen.held ? t('until the end or a pause') : t('this browser cannot keep it on; the time stays right')}</small></span></div>
+          <div class="row"><Lock size={20} aria-hidden="true" /><span><b>{t('Locking the screen is fine')}</b><small>{t('Android: the gongs come anyway. iPhone: sounds in between only with the screen open; the end gong comes when you unlock.')}</small></span></div>
+          <div class="row vol"><Volume2 size={20} aria-hidden="true" /><label><b>{t('Gong volume')}</b><span class="vr"><small>{t('soft')}</small><input type="range" min="0" max="1" step="0.05" value={vol} oninput={(e) => sessionVolume(Number(e.currentTarget.value))} /><small>{t('loud')}</small></span></label></div>
           {#if perm === 'none'}
-            <div class="row"><BellRing size={18} aria-hidden="true" /><span><b>{t('End gong as a notification')}</b><small>{t('This browser cannot show notifications. Keep the screen open for the end gong.')}</small></span></div>
+            <div class="row"><BellRing size={20} aria-hidden="true" /><span><b>{t('End gong as a notification')}</b><small>{t('This browser cannot show notifications. Keep the screen open for the end gong.')}</small></span></div>
           {:else}
-            <label class="row swr"><BellRing size={18} aria-hidden="true" /><span><b>{t('End gong as a notification')}</b><small>{perm === 'denied' ? t('Notifications are blocked in this browser.') : t('if the sound cannot play on a locked phone')}</small></span><input type="checkbox" class="switch" checked={notify && perm !== 'denied'} disabled={perm === 'denied'} onchange={toggleNotify} /></label>
+            <label class="row swr"><BellRing size={20} aria-hidden="true" /><span><b>{t('End gong as a notification')}</b><small>{perm === 'denied' ? t('Notifications are blocked in this browser.') : t('if the sound cannot play on a locked phone')}</small></span><input type="checkbox" class="switch" checked={notify && perm !== 'denied'} disabled={perm === 'denied'} onchange={toggleNotify} /></label>
           {/if}
           {#if tm.marks?.some((m) => m.sound === 'vibrate') && !canVibrate()}<p class="hint">{t('Vibration only works on Android; an iPhone cannot vibrate from a web page.')}</p>{/if}
           <p class="hint">{t('Pause stops the clock. End saves what ran, without asking.')}</p>

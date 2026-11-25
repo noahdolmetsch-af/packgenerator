@@ -12,9 +12,9 @@
 
 {#if sport.bike}
   <a class="srow" href={bike ? `#/bikes?bike=${encodeURIComponent(bike.id)}` : '#/bikes'} data-sport-bike>
-    <Bike size={18} aria-hidden="true" />
+    <Bike size={20} aria-hidden="true" />
     <span class="t"><b>{bike ? bike.name : t('Bikes|place')}</b><small>{bike ? t('Standard bike for this sport') : t('Add your bikes under Bikes.')}</small></span>
-    <ChevronRight size={18} aria-hidden="true" />
+    <ChevronRight size={20} aria-hidden="true" />
   </a>
 {/if}
 {#if gearRows.length}

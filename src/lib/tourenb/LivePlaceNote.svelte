@@ -37,7 +37,7 @@
 
 {#if top}
   <div class="lvf-alert lpn" role="alert" data-live-place-note>
-    <NotebookPen size={18} aria-hidden="true" />
+    <NotebookPen size={20} aria-hidden="true" />
     <span class="lpn-t"><b>{top.m > 50 ? t('In {m} m: your note', { m: num(Math.round(top.m / 10) * 10) }) : t('Here: your note')}</b><small>{top.note.text}</small></span>
     <button type="button" class="btn sm" onclick={() => patch({ done: true })} data-place-note-done>{t('Done|placenote')}</button>
     <button type="button" class="btn sm" onclick={() => patch({ later: Date.now() + LATER_MIN * 60000 })}>{t('Later again')}</button>

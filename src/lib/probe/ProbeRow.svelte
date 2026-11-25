@@ -32,9 +32,9 @@
 
 {#if show && sum}
   {#if card}
-    <a class="card pbc" href={betweenHref(trip, kind)} data-probe-row={kind}><span class="ic" aria-hidden="true"><ClipboardCheck size={18} /></span><span class="bt"><b>{t('Dress rehearsal')}</b><small class="num">{sub}</small></span><ChevronRight size={18} aria-hidden="true" /></a>
+    <a class="card pbc" href={betweenHref(trip, kind)} data-probe-row={kind}><span class="ic" aria-hidden="true"><ClipboardCheck size={20} /></span><span class="bt"><b>{t('Dress rehearsal')}</b><small class="num">{sub}</small></span><ChevronRight size={20} aria-hidden="true" /></a>
   {:else}
-    <li><a class="row pbr" href={betweenHref(trip, kind)} data-probe-row={kind}><span class="ic" aria-hidden="true">{#if kind === 'heim'}<House size={18} />{:else}<ClipboardCheck size={18} />{/if}</span><span class="bt"><b>{kind === 'heim' ? t('Arrive well') : t('Dress rehearsal')}</b><small class="num">{sub}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li>
+    <li><a class="row pbr" href={betweenHref(trip, kind)} data-probe-row={kind}><span class="ic" aria-hidden="true">{#if kind === 'heim'}<House size={20} />{:else}<ClipboardCheck size={20} />{/if}</span><span class="bt"><b>{kind === 'heim' ? t('Arrive well') : t('Dress rehearsal')}</b><small class="num">{sub}</small></span><ChevronRight size={20} aria-hidden="true" /></a></li>
   {/if}
 {/if}
 

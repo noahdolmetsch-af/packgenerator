@@ -155,7 +155,7 @@
       </span>
       {#if st.phase === 'running'}
         <span class="now" data-outdoor-now>
-          {#if st.today.done}<Check size={16} strokeWidth={3} aria-hidden="true" /> {t('Done today: {min} of {goal} min', { min: st.today.total, goal: live.goalMin })}
+          {#if st.today.done}<Check size={16} strokeWidth={2.5} aria-hidden="true" /> {t('Done today: {min} of {goal} min', { min: st.today.total, goal: live.goalMin })}
           {:else}<b>{t('{min} of {goal} min today', { min: st.today.total, goal: live.goalMin })}</b> · {t('{n} min to go', { n: st.today.left })}{/if}
         </span>
         {#if st.today.strava > 0}<small data-outdoor-strava>{t('of that {n} min from Strava', { n: st.today.strava })}{#if st.today.hand > 0}, {t('{n} min from you', { n: st.today.hand })}{/if}</small>{/if}

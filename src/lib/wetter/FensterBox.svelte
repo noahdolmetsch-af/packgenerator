@@ -28,7 +28,7 @@
 <section class="card wx-fb" aria-labelledby="wx-fb-{id}" data-wx-window={id}>
   <h2 id="wx-fb-{id}" class="wx-fb-h">
     <button type="button" class="wx-fb-toggle" aria-expanded={open} onclick={() => (open = !open)} data-wx-window-toggle={id}>
-      <span>{title}</span><ChevronDown size={18} aria-hidden="true" class={open ? 'up' : ''} />
+      <span>{title}</span><ChevronDown size={20} aria-hidden="true" class={open ? 'up' : ''} />
     </button>
   </h2>
   {#if why}<p class="rc-note">{why}</p>{/if}

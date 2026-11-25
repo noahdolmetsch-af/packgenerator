@@ -66,7 +66,7 @@
     <Crumb path={[{ href: '#/trips', label: t('Trips|place') }]} here={t('Plan races in detail')} />
     <h1 class="rc-h1" tabindex="-1" data-page-title>{t('Plan races in detail')}</h1>
     <p class="rc-intro">{t('All your coming races, each with its race check: packing from A to Z, target setup, basic list, sleep and one night.')}</p>
-    <button type="button" class="help-line" aria-expanded={info} data-racecheck-help onclick={() => (info = !info)}><Info size={18} aria-hidden="true" /><span>{t('How it works|help')}</span><ChevronRight class="hl-chev" size={16} aria-hidden="true" /></button>
+    <button type="button" class="help-line" aria-expanded={info} data-racecheck-help onclick={() => (info = !info)}><Info size={20} aria-hidden="true" /><span>{t('How it works|help')}</span><ChevronRight class="hl-chev" size={16} aria-hidden="true" /></button>
     {#if info}
       <div class="rc-info">
         <p>{t('Tap a race and fill in its check, sheet by sheet. Everything saves by itself and is in the backup.')}</p>
@@ -85,12 +85,12 @@
                 {@const f = total(($racesQ ?? {})[tr.id]?.check)}
                 <li>
                   <a class="lrow" href="#/racecheck/{encodeURIComponent(tr.id)}" data-racecheck-row={tr.id}>
-                    <span class="ic" aria-hidden="true"><Flag size={18} /></span>
+                    <span class="ic" aria-hidden="true"><Flag size={20} /></span>
                     <span class="m">
                       <span class="t">{tr.title}</span>
                       <span class="s">{dateOf(tr.startDate)}{#if cd && cd.days > 0}{' '}· {tn(cd.days, 'in {n} day', 'in {n} days')}{/if} · {f.done ? t('check: {n} fields filled', { n: f.done }) : t('check not started')}</span>
                     </span>
-                    <ChevronRight class="chev" size={18} aria-hidden="true" />
+                    <ChevronRight class="chev" size={20} aria-hidden="true" />
                   </a>
                 </li>
               {/each}
@@ -100,7 +100,7 @@
       {/each}
       {#if !list.coming.length && !list.past.length}
         <section class="rc-box rc-soft" data-racecheck-empty>
-          <h2 class="rc-h2"><Flag size={18} aria-hidden="true" /> {t('No race yet')}</h2>
+          <h2 class="rc-h2"><Flag size={20} aria-hidden="true" /> {t('No race yet')}</h2>
           <p class="rc-text">{t('Create a race under Trips › Races. It shows up here with its check.')}</p>
         </section>
       {/if}

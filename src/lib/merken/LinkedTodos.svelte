@@ -32,7 +32,7 @@
 {#if rows.length}
   <section class="lt card" aria-label={t('To-dos that belong here')} data-linked-todos={kind}>
     <div class="ph">
-      <ListChecks size={18} aria-hidden="true" />
+      <ListChecks size={20} aria-hidden="true" />
       <h2>{t('To-dos that belong here')}</h2>
       <span class="n">{t('{n} open', { n: rows.length })}</span>
       <a class="open" href="#/calendar">{t('Open')}<ChevronRight size={16} aria-hidden="true" /></a>

@@ -108,7 +108,7 @@
       {#each rows as s (s.key)}
         <li data-step={s.key} data-r={s.r ?? 'open'}>
           <div class="row">
-            <span class="ic {s.r ?? 'open'}" aria-hidden="true">{#if s.r === 'ok'}<Check size={18} />{:else if s.r === 'gap'}<CircleAlert size={18} />{:else if s.r === 'skip'}<Minus size={18} />{:else}<Circle size={18} />{/if}</span>
+            <span class="ic {s.r ?? 'open'}" aria-hidden="true">{#if s.r === 'ok'}<Check size={20} />{:else if s.r === 'gap'}<CircleAlert size={20} />{:else if s.r === 'skip'}<Minus size={20} />{:else}<Circle size={20} />{/if}</span>
             {#if editing === s.key}
               <form class="bt edit" onsubmit={(e) => rename(e, s.key)}>
                 <!-- svelte-ignore a11y_autofocus -->
@@ -118,7 +118,7 @@
               </form>
             {:else if s.href}
               <a class="bt lnk" href={hrefOf(s)} onclick={() => s.trip && openTrip(trip.id)}><b>{s.own ? s.name : t(s.name)}</b>{#if s.sub}<small>{t(s.sub)}</small>{/if}{#if s.auto}<small class="auto">{t('Ticked by itself')}</small>{/if}</a>
-              <ChevronRight size={18} aria-hidden="true" />
+              <ChevronRight size={20} aria-hidden="true" />
             {:else}
               <span class="bt"><b>{s.own ? s.name : t(s.name)}</b>{#if s.sub}<small>{t(s.sub)}</small>{/if}{#if s.auto}<small class="auto">{t('Ticked by itself')}</small>{/if}</span>
             {/if}

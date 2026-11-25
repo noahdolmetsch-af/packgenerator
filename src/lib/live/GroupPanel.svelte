@@ -206,7 +206,7 @@
 </script>
 
 <section class="grp" aria-labelledby="grp-h" data-group-panel>
-  <h2 id="grp-h" class="lv-grp-h"><Users size={18} aria-hidden="true" />{t('Group ride')}</h2>
+  <h2 id="grp-h" class="lv-grp-h"><Users size={20} aria-hidden="true" />{t('Group ride')}</h2>
   {#if group === undefined}
     <p class="rc-note">{t('Loading…')}</p>
   {:else if !group}
@@ -229,12 +229,12 @@
       <input type="text" bind:value={name} maxlength="40" autocomplete="given-name" data-group-myname />
     </label>
     <label class="chk"><input type="checkbox" bind:checked={shareMe} data-group-shareme /> {t('Share my location too')}</label>
-    <button type="button" class="btn hi" onclick={make} disabled={busy} data-group-invite><Users size={18} aria-hidden="true" />{busy ? t('Loading…') : t('Invite the group')}</button>
+    <button type="button" class="btn hi" onclick={make} disabled={busy} data-group-invite><Users size={20} aria-hidden="true" />{busy ? t('Loading…') : t('Invite the group')}</button>
   {:else}
     <EventHelp {calls} show="alerts" {now} />
     <p class="rc-note">{Number(group.days) > 1 ? t('Send the link to your friends. Ends by itself {when}, or with «End the group».', { when: endTime }) : t('Send the link to your friends. Ends by itself {when}, or when you stop the ride.', { when: endTime })}</p>
     {#if night}<p class="rc-note" role="status" data-group-night-on>{t('Night pause: your location is not sent until {to}.', { to: nightTo2 })}</p>{/if}
-    <a class="btn hi" href="#/gruppenfahrt" data-group-open-event>{t('Open the group ride')}<ChevronRight size={18} aria-hidden="true" /></a>
+    <a class="btn hi" href="#/gruppenfahrt" data-group-open-event>{t('Open the group ride')}<ChevronRight size={20} aria-hidden="true" /></a>
     <p class="rc-note">{t('Help, ready, meeting points, who has what and split costs are on the page of the group ride.')}</p>
     <label class="fld">
       <span>{t('The invite link')}</span>

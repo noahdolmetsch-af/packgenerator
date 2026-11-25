@@ -26,7 +26,7 @@
       <a class="row" href="#/flow/bags?b={encodeURIComponent(r.bag.id)}" data-bag-reminder={r.bag.id}>
         <ShoppingBag size={20} aria-hidden="true" />
         <span class="tx"><b>{t('Tomorrow {name} {time}: pack the bag', { name: bagName(r.bag), time: r.time })}</b><small>{t('{n} of {m} in the bag', { n: r.n, m: r.of })}</small></span>
-        <ChevronRight size={18} aria-hidden="true" />
+        <ChevronRight size={20} aria-hidden="true" />
       </a>
     {/each}
   </div>

@@ -287,7 +287,7 @@
 <div class="lists ich-page" class:one={open}>
   {#if !open}
     <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Lists and types')} sub={t('The choice lists of the app. You can rename, add your own, hide and change the order.')} />
-    <p class="info card"><Lightbulb size={18} aria-hidden="true" /><span>{t('Standard = how the app comes. Adapted = you changed something. Every list can go back to Standard.')}</span></p>
+    <p class="info card"><Lightbulb size={20} aria-hidden="true" /><span>{t('Standard = how the app comes. Adapted = you changed something. Every list can go back to Standard.')}</span></p>
     <AreaIntro place="lists" />
 
     <div class="grid">
@@ -303,7 +303,7 @@
                   <span class="ich-ib"><I size={18} aria-hidden="true" /></span>
                   <span class="ich-m"><b>{t(STANDARD_LIST[key].name)}</b><small>{lineOf(key)}</small></span>
                   <span class="badge" class:mine>{mine ? t('Adapted') : t('Standard')}</span>
-                  <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+                  <ChevronRight class="ich-chev" size={20} aria-hidden="true" />
                 </a>
               </li>
             {/each}
@@ -315,36 +315,36 @@
         <ul class="ich-list">
           <li>
             <a class="ich-row" href="#/me/lists?domains">
-              <span class="ich-ib"><Mountain size={18} aria-hidden="true" /></span>
+              <span class="ich-ib"><Mountain size={20} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t(STANDARD_LIST.domains.name)}</b><small>{lineOf('domains')}</small></span>
               <span class="badge" class:mine={isChanged(all.domains)}>{isChanged(all.domains) ? t('Adapted') : t('Standard')}</span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+              <ChevronRight class="ich-chev" size={20} aria-hidden="true" />
             </a>
           </li>
           <li>
             <a class="ich-row" href="#/me/lists?tripSports">
-              <span class="ich-ib"><Bike size={18} aria-hidden="true" /></span>
+              <span class="ich-ib"><Bike size={20} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t(STANDARD_LIST.tripSports.name)}</b><small>{lineOf('tripSports')}</small></span>
               <span class="badge" class:mine={isChanged(all.tripSports)}>{isChanged(all.tripSports) ? t('Adapted') : t('Standard')}</span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+              <ChevronRight class="ich-chev" size={20} aria-hidden="true" />
             </a>
           </li>
           <li>
             <a class="ich-row" href="#/me/checks">
-              <span class="ich-ib"><ListChecks size={18} aria-hidden="true" /></span>
+              <span class="ich-ib"><ListChecks size={20} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Checks per trip type')}</b><small>{t('The evening before and after the trip')}</small></span>
               <span class="badge" class:mine={checksOwn}>{checksOwn ? t('Adapted') : t('Standard')}</span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+              <ChevronRight class="ich-chev" size={20} aria-hidden="true" />
             </a>
           </li>
         </ul>
       </section>
     </div>
-    <p class="ich-fine"><Info size={15} aria-hidden="true" /><span>{t('The questions of «Your questions» and of the daily check are changed on their own pages.')}</span></p>
+    <p class="ich-fine"><Info size={16} aria-hidden="true" /><span>{t('The questions of «Your questions» and of the daily check are changed on their own pages.')}</span></p>
   {:else}
     <VeloHead crumbs={[{ label: t('Lists and types'), href: '#/me/lists' }]} title={t(STANDARD_LIST[KEY].name)} sub={t(K.sub)} />
     {#if changedAt(value)}
-      <p class="ich-fine" data-list-changed><Info size={15} aria-hidden="true" /><span>{t('Last changed by you: {date}', { date: new Date(changedAt(value)).toLocaleDateString(locale(), { day: 'numeric', month: 'long', year: 'numeric' }) })}</span></p>
+      <p class="ich-fine" data-list-changed><Info size={16} aria-hidden="true" /><span>{t('Last changed by you: {date}', { date: new Date(changedAt(value)).toLocaleDateString(locale(), { day: 'numeric', month: 'long', year: 'numeric' }) })}</span></p>
     {/if}
     {#if marked}
       <div class="fchips" role="group" aria-label={t('Show')} data-list-filter>
@@ -352,7 +352,7 @@
           {#if k === 'all' || k === 'std' || counts[k] > 0}<button type="button" class="fchip" aria-pressed={filter === k} data-filter={k} onclick={() => (filter = k)}>{t(label)} · {counts[k]}</button>{/if}
         {/each}
       </div>
-      {#if !sorting}<p class="ich-fine"><Info size={15} aria-hidden="true" /><span>{t('Reordering works in the view «All».')}</span></p>{/if}
+      {#if !sorting}<p class="ich-fine"><Info size={16} aria-hidden="true" /><span>{t('Reordering works in the view «All».')}</span></p>{/if}
     {/if}
     <div class="card box">
       <ul class="ich-list rows" aria-label={t(STANDARD_LIST[KEY].name)} use:sortable={{ onmove: (from, to) => sorting && save(moveTo(value, list, list[from].id, to)) }}>
@@ -370,20 +370,20 @@
             <button type="button" class="edit" aria-haspopup="dialog" aria-label={t('Edit: {name}', { name: shown(e) })} onclick={() => (sheet = { entry: e })}>
               <span class="ich-m"><b>{shown(e)}</b><small>{sub(e)}</small>{#if only(e)}<small>{only(e)}</small>{/if}</span>
               {#if e.own}<span class="badge own">{t('Own|entry')}</span>{:else if adapted(e)}<span class="badge mine">{t('Adapted')}</span>{/if}
-              <span class="pen" aria-hidden="true"><Pencil size={18} /></span>
+              <span class="pen" aria-hidden="true"><Pencil size={20} /></span>
             </button>
             {#if K.full || K.hideable}
               <button type="button" class="ib eye" aria-pressed={e.hidden} aria-label={e.hidden ? t('Show again: {name}', { name: shown(e) }) : t('Hide: {name}', { name: shown(e) })} onclick={() => save(toggleHidden(value, e.id))}>
-                {#if e.hidden}<EyeOff size={18} aria-hidden="true" />{:else}<Eye size={18} aria-hidden="true" />{/if}
+                {#if e.hidden}<EyeOff size={20} aria-hidden="true" />{:else}<Eye size={20} aria-hidden="true" />{/if}
               </button>
             {/if}
           </li>
         {/each}
       </ul>
-      {#if !K.renameOnly}<button type="button" class="add" aria-haspopup="dialog" onclick={() => (sheet = { entry: null })}><Plus size={18} aria-hidden="true" />{t(K.ownWord)}</button>{/if}
+      {#if !K.renameOnly}<button type="button" class="add" aria-haspopup="dialog" onclick={() => (sheet = { entry: null })}><Plus size={20} aria-hidden="true" />{t(K.ownWord)}</button>{/if}
     </div>
     {#if changed}<button type="button" class="btn reset" onclick={reset}><Undo2 size={16} aria-hidden="true" />{t('Back to Standard|list')}</button>{/if}
-    <p class="ich-fine"><Info size={15} aria-hidden="true" /><span>{K.renameOnly ? t('Tap an entry to rename it. «Back to Standard» brings the Standard names back.') : K.full ? t('Hidden: the items keep their category. Hide and delete are in the window of the entry (pen), for Standard entries too.') : t('Rename and delete are in the window of the entry (pen), for Standard entries too.')}</span></p>
+    <p class="ich-fine"><Info size={16} aria-hidden="true" /><span>{K.renameOnly ? t('Tap an entry to rename it. «Back to Standard» brings the Standard names back.') : K.full ? t('Hidden: the items keep their category. Hide and delete are in the window of the entry (pen), for Standard entries too.') : t('Rename and delete are in the window of the entry (pen), for Standard entries too.')}</span></p>
   {/if}
 
   {#if sheet}

@@ -80,7 +80,7 @@
   {#if log.length}
     <ul class="rc-list">
       {#each log as x (x.id)}
-        <li class="rc-row"><span class="rc-row-main"><b>{t('{n} min', { n: x.min })}</b><small>{t('woke up at {time}', { time: hhmm(Date.parse(x.at)) })}</small></span><button type="button" class="rc-icon" aria-label={t('Delete this sleep?')} onclick={() => drop(x)}><Trash2 size={18} aria-hidden="true" /></button></li>
+        <li class="rc-row"><span class="rc-row-main"><b>{t('{n} min', { n: x.min })}</b><small>{t('woke up at {time}', { time: hhmm(Date.parse(x.at)) })}</small></span><button type="button" class="rc-icon" aria-label={t('Delete this sleep?')} onclick={() => drop(x)}><Trash2 size={20} aria-hidden="true" /></button></li>
       {/each}
     </ul>
   {/if}

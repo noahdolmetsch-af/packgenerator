@@ -59,7 +59,7 @@
         </button>
         {#if row}{@render row(r)}{/if}
         <SortArrows name={shown(r)} {i} n={rows.length} onstep={(dir) => move(i, i + dir)} />
-        <button type="button" class="rc-icon" aria-label={t('Change {name}', { name: shown(r) })} onclick={() => (edit = { ...r })}><Pencil size={18} aria-hidden="true" /></button>
+        <button type="button" class="rc-icon" aria-label={t('Change {name}', { name: shown(r) })} onclick={() => (edit = { ...r })}><Pencil size={20} aria-hidden="true" /></button>
       </li>
     {/each}
   </ul>

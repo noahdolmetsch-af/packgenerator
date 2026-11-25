@@ -226,13 +226,13 @@
                           </ul>
                         {/if}
                         <div class="btns">
-                          <button type="button" class="btn sm hi" onclick={() => answer(mail.open)}><Reply size={15} aria-hidden="true" />{t('Answer|verb')}</button>
+                          <button type="button" class="btn sm hi" onclick={() => answer(mail.open)}><Reply size={16} aria-hidden="true" />{t('Answer|verb')}</button>
                           {#if taken[m.id]}
-                            <a class="btn sm" href="#/inbox"><Inbox size={15} aria-hidden="true" />{t('In the Inbox · open')}</a>
+                            <a class="btn sm" href="#/inbox"><Inbox size={16} aria-hidden="true" />{t('In the Inbox · open')}</a>
                           {:else}
-                            <button type="button" class="btn sm" disabled={intake.busy === 'take'} onclick={() => intoApp(m)}><Inbox size={15} aria-hidden="true" />{intake.busy === 'take' ? t('Taking it in …') : t('Into the app')}</button>
+                            <button type="button" class="btn sm" disabled={intake.busy === 'take'} onclick={() => intoApp(m)}><Inbox size={16} aria-hidden="true" />{intake.busy === 'take' ? t('Taking it in …') : t('Into the app')}</button>
                           {/if}
-                          <a class="btn sm" href={gmailLink(m)} target="_blank" rel="noopener"><ExternalLink size={15} aria-hidden="true" />{t('Open in Gmail')}</a>
+                          <a class="btn sm" href={gmailLink(m)} target="_blank" rel="noopener"><ExternalLink size={16} aria-hidden="true" />{t('Open in Gmail')}</a>
                         </div>
                       {/if}
                     </div>
@@ -251,17 +251,17 @@
         <section class="ich-sec" aria-labelledby="how-h">
           <div class="ich-h"><div><h2 id="how-h">{t('How it works')}</h2></div></div>
           <ul class="card ich-list">
-            <li class="ich-row"><span class="ich-ib"><Lock size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Nothing kept')}</b><small>{t('The app fetches only what this page shows; a mail stays only when you tap «Into the app».')}</small></span></li>
-            <li class="ich-row"><span class="ich-ib"><Send size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Sent only by you')}</b><small>{t('A mail goes out only after your tap on «Send».')}</small></span></li>
-            <li><a class="ich-row" href="#/me/agenda"><span class="ich-ib"><CalendarDays size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Mails to an appointment')}</b><small>{t('Appointments and tasks › an appointment › «Mails to it»')}</small></span></a></li>
+            <li class="ich-row"><span class="ich-ib"><Lock size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('Nothing kept')}</b><small>{t('The app fetches only what this page shows; a mail stays only when you tap «Into the app».')}</small></span></li>
+            <li class="ich-row"><span class="ich-ib"><Send size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('Sent only by you')}</b><small>{t('A mail goes out only after your tap on «Send».')}</small></span></li>
+            <li><a class="ich-row" href="#/me/agenda"><span class="ich-ib"><CalendarDays size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('Mails to an appointment')}</b><small>{t('Appointments and tasks › an appointment › «Mails to it»')}</small></span></a></li>
           </ul>
         </section>
         <!-- «Mail in die App» 2a + 1a: the label and the +pack address, with the clicks for the Gmail filter -->
         <section class="ich-sec" aria-labelledby="in-app-h">
           <div class="ich-h"><div><h2 id="in-app-h">{t('Mails into the app by themselves')}</h2><p class="ich-hs">{t('they land in the Inbox; you sort them')}</p></div></div>
           <div class="card ich-body steps">
-            <p class="ich-help"><Tag size={15} aria-hidden="true" /> <b>{t('Label')}</b> · {t('Give a mail the Gmail label «{label}»: on the phone open the mail › ⋮ › «Change labels». The app fetches it when the Inbox opens.', { label: MAIL_LABEL })}</p>
-            <p class="ich-help"><Forward size={15} aria-hidden="true" /> <b>{t('Forward')}</b> · {t('Forward a mail to your own address with «+pack», e.g. firstname.name+pack@gmail.com. Gmail delivers it to you; a filter puts the label on. Set the filter up once:')}</p>
+            <p class="ich-help"><Tag size={16} aria-hidden="true" /> <b>{t('Label')}</b> · {t('Give a mail the Gmail label «{label}»: on the phone open the mail › ⋮ › «Change labels». The app fetches it when the Inbox opens.', { label: MAIL_LABEL })}</p>
+            <p class="ich-help"><Forward size={16} aria-hidden="true" /> <b>{t('Forward')}</b> · {t('Forward a mail to your own address with «+pack», e.g. firstname.name+pack@gmail.com. Gmail delivers it to you; a filter puts the label on. Set the filter up once:')}</p>
             <ol>
               <li>{t('On the computer open Gmail in Chrome; in the search bar at the top click the sliders icon on the right.')}</li>
               <li>{t('Under «To» type your address with +pack, e.g. firstname.name+pack@gmail.com.')}</li>

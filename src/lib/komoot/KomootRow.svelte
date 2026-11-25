@@ -45,9 +45,9 @@
 
 <div class="km" class:framed data-komoot-row>
   <a class="km-row" href={komootFindUrl(null, sport)} target="_blank" rel="noopener noreferrer" onclick={go} data-komoot-find>
-    <span class="km-ib" aria-hidden="true"><Compass size={18} /></span>
+    <span class="km-ib" aria-hidden="true"><Compass size={20} /></span>
     <span class="km-tw"><b>{t('Tour from komoot')}</b><small>{sub}</small></span>
-    <ExternalLink class="km-ext" size={18} aria-hidden="true" /><span class="sr">{t('(opens elsewhere)')}</span>
+    <ExternalLink class="km-ext" size={20} aria-hidden="true" /><span class="sr">{t('(opens elsewhere)')}</span>
   </a>
   {#if note}<p class="km-note" role="status">{note}</p>{/if}
 </div>

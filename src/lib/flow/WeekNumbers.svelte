@@ -58,13 +58,13 @@
         {/each}
       </div>
       <div class="ax"><span>{wk(series[0])}</span><span>{t('this week')}</span></div>
-      <p class="about"><Info size={15} aria-hidden="true" /><span>{t(m.about)} {m.src === 'fitbit' ? t('Source: Fitbit.') : t('Source: Strava and your rides.')}</span></p>
+      <p class="about"><Info size={16} aria-hidden="true" /><span>{t(m.about)} {m.src === 'fitbit' ? t('Source: Fitbit.') : t('Source: Strava and your rides.')}</span></p>
       {#if ANALYSE[open]}<a class="link" href={numHref({ key: ANALYSE[open], range: 'm3' })} data-wn-analyse={open}>{t('Open «{what}» in Analyse', { what: t(m.name) })} ›</a>{/if}
       {#if m.src === 'fitbit' && fitbitOff}<a class="link" href={FITBIT_HASH}>{t('Connect Fitbit')} ›</a>{/if}
     </div>
   {/if}
   <details class="how">
-    <summary><Info size={15} aria-hidden="true" /><span>{t('What do these numbers mean?')}</span><ChevronDown class="cv" size={16} aria-hidden="true" /></summary>
+    <summary><Info size={16} aria-hidden="true" /><span>{t('What do these numbers mean?')}</span><ChevronDown class="cv" size={16} aria-hidden="true" /></summary>
     <p>{t('Each value counts the last 7 days, today included. Next to it: how this compares with your usual week, the mean of the 4 weeks before. Only to look at, no grades. Tap a value for its 12 weeks.')}</p>
   </details>
 </div>

@@ -109,7 +109,7 @@
   {#if a}
     <div class="hd">
       <div class="ht"><h2 id="tick-h">{t('Tick {name}', { name: actName(a) })}</h2><p class="muted">{t('long press · only when needed')}</p></div>
-      <button type="button" class="xb" aria-label={t('Close')} onclick={close}><X size={18} aria-hidden="true" /></button>
+      <button type="button" class="xb" aria-label={t('Close')} onclick={close}><X size={20} aria-hidden="true" /></button>
     </div>
     <p class="lbl" id="tick-when">{t('When')}</p>
     {#if multi}
@@ -141,17 +141,17 @@
       {#if amount === 'own'}<input class="inp own" type="number" inputmode="numeric" min="1" bind:value={own} aria-label={t('How many')} />{/if}
     {/if}
     <div class="rw">
-      <span class="ib" aria-hidden="true"><Timer size={18} /></span>
+      <span class="ib" aria-hidden="true"><Timer size={20} /></span>
       <span class="rt"><b>{t('Stopwatch')}</b><small>{t('runs until you are done, then ticks off')}</small></span>
       <button type="button" class="btn" onclick={clock}>{t('Start|check')}</button>
     </div>
     <div class="rw">
-      <span class="ib" aria-hidden="true"><EyeOff size={18} /></span>
+      <span class="ib" aria-hidden="true"><EyeOff size={20} /></span>
       <span class="rt"><b>{t('Hide tile')}</b><small>{t('the history stays; back under Aktiv › Activities')}</small></span>
       <button type="button" class="btn" onclick={hide} data-tick-hide>{t('Hide')}</button>
     </div>
     <div class="acts">
-      {#if a.counts.includes('commute')}<button type="button" class="btn cm" onclick={commute}><Bike size={18} aria-hidden="true" />{t('Commute')}</button>{/if}
+      {#if a.counts.includes('commute')}<button type="button" class="btn cm" onclick={commute}><Bike size={20} aria-hidden="true" />{t('Commute')}</button>{/if}
       <button type="button" class="btn" onclick={close}>{t('Cancel')}</button>
       <button type="button" class="btn hi" onclick={go} disabled={!days.length || manyBad}><Check size={16} aria-hidden="true" />{t('Tick off')}</button>
     </div>

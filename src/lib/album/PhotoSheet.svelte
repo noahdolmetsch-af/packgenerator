@@ -34,8 +34,8 @@
     <div class="fa-ps-pic">
       <img src={photo.src} alt={photo.caption || photo.place || t('Photo')} />
       {#if total > 1}
-        <button type="button" class="fa-ps-nav fa-ps-prev" aria-label={t('Previous photo')} disabled={pos <= 1} onclick={() => onstep?.(-1)}><ChevronLeft size={22} aria-hidden="true" /></button>
-        <button type="button" class="fa-ps-nav fa-ps-next" aria-label={t('Next photo')} disabled={pos >= total} onclick={() => onstep?.(1)}><ChevronRight size={22} aria-hidden="true" /></button>
+        <button type="button" class="fa-ps-nav fa-ps-prev" aria-label={t('Previous photo')} disabled={pos <= 1} onclick={() => onstep?.(-1)}><ChevronLeft size={24} aria-hidden="true" /></button>
+        <button type="button" class="fa-ps-nav fa-ps-next" aria-label={t('Next photo')} disabled={pos >= total} onclick={() => onstep?.(1)}><ChevronRight size={24} aria-hidden="true" /></button>
       {/if}
     </div>
     {#if own}

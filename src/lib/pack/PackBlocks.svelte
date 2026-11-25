@@ -75,7 +75,7 @@
 {#if folded}
 <section class="card pblocks folded" aria-label={t('Building blocks')} data-blocks-folded>
   <div class="fline">
-    <span class="ficon" aria-hidden="true"><Blocks size={18} /></span>
+    <span class="ficon" aria-hidden="true"><Blocks size={20} /></span>
     <p class="fon"><b>{t('Building blocks on the trip:')}</b> {rows.on.map((r) => r.name).join(', ')}{#if rows.add.length}<span class="fmore num">{' · '}{tn(rows.add.length, '{n} more to choose', '{n} more to choose')}</span>{/if}</p>
     <div class="fact" bind:this={changeEl}>
       <Btn label={t('Change building blocks')} aria-expanded="false" explain={t('Shows every building block: one tap adds or removes it.')} onclick={unfold} />

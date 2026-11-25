@@ -65,15 +65,15 @@
     {#each shownStd as k (k)}
       <li data-season-row={k}>
         <span class="n">{stdName(k)}<small>{t(WHEN[k])}</small></span>
-        <button type="button" class="btn sm" aria-label={t('Rename «{name}»', { name: stdName(k) })} onclick={() => (renaming = { std: k })}><Pencil size={15} aria-hidden="true" /></button>
-        <button type="button" class="btn sm" aria-label={t('Delete «{name}»', { name: stdName(k) })} data-season-del={k} onclick={() => remove({ std: k })}><Trash2 size={15} aria-hidden="true" /></button>
+        <button type="button" class="btn sm" aria-label={t('Rename «{name}»', { name: stdName(k) })} onclick={() => (renaming = { std: k })}><Pencil size={16} aria-hidden="true" /></button>
+        <button type="button" class="btn sm" aria-label={t('Delete «{name}»', { name: stdName(k) })} data-season-del={k} onclick={() => remove({ std: k })}><Trash2 size={16} aria-hidden="true" /></button>
       </li>
     {/each}
     {#each cfg.own as o (o.id)}
       <li data-season-row={o.id}>
         <span class="n">{o.title}<small>{month(o.from)} – {month(o.to)}</small></span>
-        <button type="button" class="btn sm" aria-label={t('Rename «{name}»', { name: o.title })} onclick={() => (renaming = { own: o.id })}><Pencil size={15} aria-hidden="true" /></button>
-        <button type="button" class="btn sm" aria-label={t('Delete «{name}»', { name: o.title })} data-season-del={o.id} onclick={() => remove({ own: o.id })}><Trash2 size={15} aria-hidden="true" /></button>
+        <button type="button" class="btn sm" aria-label={t('Rename «{name}»', { name: o.title })} onclick={() => (renaming = { own: o.id })}><Pencil size={16} aria-hidden="true" /></button>
+        <button type="button" class="btn sm" aria-label={t('Delete «{name}»', { name: o.title })} data-season-del={o.id} onclick={() => remove({ own: o.id })}><Trash2 size={16} aria-hidden="true" /></button>
       </li>
     {/each}
     {#if !shownStd.length && !cfg.own.length}<li class="none">{t('No season ideas. Add your own or bring the standard ones back.')}</li>{/if}
@@ -88,10 +88,10 @@
       <div class="acts"><button type="submit" class="btn hi sm">{t('Save')}</button><button type="button" class="btn sm" onclick={() => (adding = false)}>{t('Cancel')}</button></div>
     </form>
   {:else}
-    <button type="button" class="btn sm" data-season-add onclick={() => (adding = true)}><Plus size={15} aria-hidden="true" />{t('Add an idea')}</button>
+    <button type="button" class="btn sm" data-season-add onclick={() => (adding = true)}><Plus size={16} aria-hidden="true" />{t('Add an idea')}</button>
   {/if}
   {#each hiddenStd as k (k)}
-    <button type="button" class="btn sm" data-season-back={k} onclick={() => restore(k)}><Undo2 size={15} aria-hidden="true" />{t('Bring back «{name}»', { name: stdName(k) })}</button>
+    <button type="button" class="btn sm" data-season-back={k} onclick={() => restore(k)}><Undo2 size={16} aria-hidden="true" />{t('Bring back «{name}»', { name: stdName(k) })}</button>
   {/each}
 </div>
 

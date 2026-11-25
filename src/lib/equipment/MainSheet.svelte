@@ -125,7 +125,7 @@
             <span class="ev">{t('every')}</span>
             <input class="inp num every" bind:value={c.every} oninput={() => (touched = true)} inputmode="numeric" maxlength="4" aria-label={t('Interval')} />
             <select class="inp unit" bind:value={c.unit} onchange={() => (touched = true)} aria-label={t('Unit|care')}>{#each UNITS as u (u)}<option value={u}>{unitName(u)}</option>{/each}</select>
-            <button type="button" class="ib" aria-label={t('Remove this care step')} onclick={() => dropCare(i)}><Trash2 size={18} aria-hidden="true" /></button>
+            <button type="button" class="ib" aria-label={t('Remove this care step')} onclick={() => dropCare(i)}><Trash2 size={20} aria-hidden="true" /></button>
           </div>
         {:else}
           <p class="hint">{t('No care step. Add one if you like.')}</p>

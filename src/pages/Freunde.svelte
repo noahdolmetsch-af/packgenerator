@@ -136,7 +136,7 @@
           <h2 id="fr-g-{g.key}" class="fr-gh">{t(g.title)}</h2>
           <ul class="fr-topics">
             {#each TOPICS.filter((x) => x.group === g.key) as x (x.key)}
-              <li><button type="button" class="fr-topic" onclick={() => (topic = x.key)} data-fr-topic={x.key}><span><b>{t(x.title)}</b><small>{t(x.hint)}</small></span><ChevronRight size={18} aria-hidden="true" /></button></li>
+              <li><button type="button" class="fr-topic" onclick={() => (topic = x.key)} data-fr-topic={x.key}><span><b>{t(x.title)}</b><small>{t(x.hint)}</small></span><ChevronRight size={20} aria-hidden="true" /></button></li>
             {/each}
           </ul>
         </section>

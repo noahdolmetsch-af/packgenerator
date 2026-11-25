@@ -73,7 +73,7 @@
           <div class="tc-main">
             <b>{#if c.state === 'chosen'}<Check size={16} aria-label={t('Chosen')} />{' '}{/if}{c.name}</b>
             <small>{[c.price != null ? money(c.price) : '', c.terms].filter(Boolean).join(' · ')}</small>
-            {#if c.cancelBy}<small class:soon={cancelSoon(c, today)} data-choice-cancel><CalendarClock size={13} aria-hidden="true" /> {t('Free cancellation until {day}', { day: dateOf(c.cancelBy) })}</small>{/if}
+            {#if c.cancelBy}<small class:soon={cancelSoon(c, today)} data-choice-cancel><CalendarClock size={14} aria-hidden="true" /> {t('Free cancellation until {day}', { day: dateOf(c.cancelBy) })}</small>{/if}
             <span class="tc-acts">
               {#if c.link}<a class="btn sm" href={c.link} target="_blank" rel="noopener noreferrer">{t('Open')}<ExternalLink size={14} aria-hidden="true" /></a>{/if}
               <button type="button" class="btn sm" aria-pressed={c.state === 'chosen'} onclick={() => setState(c, 'chosen')} data-choice-pick>{c.state === 'chosen' ? t('Chosen') : t('Choose this')}</button>
@@ -81,7 +81,7 @@
             </span>
           </div>
           {#if !phone.matches}<SortArrows name={c.name} i={n} n={active.length} onstep={(dir) => step(c.id, dir)} />{/if}
-          <button type="button" class="fz-icon tc-icon" aria-label={t('Change {name}', { name: c.name })} onclick={() => openEdit(c)} data-choice-edit><Pencil size={18} aria-hidden="true" /></button>
+          <button type="button" class="fz-icon tc-icon" aria-label={t('Change {name}', { name: c.name })} onclick={() => openEdit(c)} data-choice-edit><Pencil size={20} aria-hidden="true" /></button>
         </li>
       {/each}
     </ul>

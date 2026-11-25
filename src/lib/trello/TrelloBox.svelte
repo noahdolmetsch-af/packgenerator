@@ -58,14 +58,14 @@
       <p class="hint">{t('Each list chooses its place in its settings: only in the app, or also in Trello. Google Tasks keeps its own lists; nothing is copied between Trello and Google.')}</p>
       <ConnStatus name="Trello" busy={trello.busy} since={trello.since} />
       <div class="acts">
-        <button type="button" class="btn sm" disabled={trello.busy} onclick={() => syncNow()}><RefreshCw size={15} aria-hidden="true" />{trello.busy ? t('Syncing …') : t('Sync now')}</button>
+        <button type="button" class="btn sm" disabled={trello.busy} onclick={() => syncNow()}><RefreshCw size={16} aria-hidden="true" />{trello.busy ? t('Syncing …') : t('Sync now')}</button>
         {#if p.lastSync}<small>{t('Last synced {when}', { when: when(p.lastSync) })}</small>{/if}
       </div>
       {#if ask}
         <p class="ask">{t('Disconnect Trello? Your to-dos and lists stay in the app, the board stays in Trello; they just stop syncing.')}</p>
         <div class="acts"><button type="button" class="btn sm" onclick={cut}>{t('Disconnect')}</button><button type="button" class="lkb" onclick={() => (ask = false)}>{t('Cancel')}</button></div>
       {:else}
-        <button type="button" class="lkb" onclick={() => (ask = true)}><Unlink size={15} aria-hidden="true" />{t('Disconnect Trello')}</button>
+        <button type="button" class="lkb" onclick={() => (ask = true)}><Unlink size={16} aria-hidden="true" />{t('Disconnect Trello')}</button>
       {/if}
     {/if}
   </div>

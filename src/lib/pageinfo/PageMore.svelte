@@ -40,9 +40,9 @@
   {#each examples as ex (ex.id)}
     <details class="card can ex" data-example={ex.id}>
       <summary>
-        <NotebookPen size={18} aria-hidden="true" />
+        <NotebookPen size={20} aria-hidden="true" />
         <span><small>{t('Example to take over')}</small><b>{t(ex.title)}</b></span>
-        <ChevronDown class="chev" size={18} aria-hidden="true" />
+        <ChevronDown class="chev" size={20} aria-hidden="true" />
       </summary>
       <ul class="exl">
         {#each ex.lines as line (line)}<li>{t(line)}</li>{/each}

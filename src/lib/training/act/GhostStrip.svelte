@@ -32,7 +32,7 @@
 
 {#if gc}
   <button type="button" class="gst {gc.result}" data-ghost-strip={gc.result} onclick={go}>
-    <span class="ic" aria-hidden="true"><Ghost size={18} /></span>
+    <span class="ic" aria-hidden="true"><Ghost size={20} /></span>
     <span class="tx"><b>{t(HEAD[gc.result])}</b><small>{line}</small></span>
     <span class="more">{t('Show|gh')}<ChevronRight size={16} aria-hidden="true" /></span>
   </button>

@@ -36,7 +36,7 @@
   </div>
   {#if hero.plan}
     <div class="hint" data-hero-plan>
-      <CalendarDays size={18} aria-hidden="true" />
+      <CalendarDays size={20} aria-hidden="true" />
       <p>
         <b>{unitName} · {when}</b>
         {#if hero.plan.reach}{t('It is in your weekly plan. Tick it off on Active and this star is yours.')}{:else}{t('It is in your weekly plan this week. Every tick on Active counts.')}{/if}
@@ -45,7 +45,7 @@
     </div>
   {:else if hero.pace}
     <div class="hint" data-hero-pace>
-      <TrendingUp size={18} aria-hidden="true" />
+      <TrendingUp size={20} aria-hidden="true" />
       <p>{t('At your pace of the last weeks (about {n} a week) around {date}. Only a guess.', { n: val(hero.pace.perWeek, r.m.unit), date: dayShort(hero.pace.eta) })}</p>
     </div>
   {/if}

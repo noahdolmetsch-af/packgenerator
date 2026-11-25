@@ -114,7 +114,7 @@
 {#if pts.length > 1}
   <section class="wt" aria-labelledby="wt-h" data-wx-timeline>
     <div class="wt-hd">
-      <h3 id="wt-h"><CloudSun size={18} aria-hidden="true" />{t('Weather along the route')}</h3>
+      <h3 id="wt-h"><CloudSun size={20} aria-hidden="true" />{t('Weather along the route')}</h3>
       <button type="button" class="btn sm" onclick={load} disabled={busy} data-wx-timeline-load>
         <RefreshCw size={16} aria-hidden="true" />{busy ? t('Loading…') : cache ? t('Refresh') : t('Load weather')}
       </button>

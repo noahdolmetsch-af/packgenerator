@@ -85,7 +85,7 @@
       </div>
       {#each hints as h (h.itemId + h.to)}
         <div class="sug">
-          <Lightbulb size={18} aria-hidden="true" />
+          <Lightbulb size={20} aria-hidden="true" />
           <span class="t">
             {h.kind === 'heavy' ? t('{item} ({g}) could move from «{from}» to «{to}»: lower and more central.', { item: nm(h.itemId), g: g(h.grams), from: place(h.from), to: place(h.to) }) : t('{item} is in «{from}». You often need it on the way: within reach in «{to}»?', { item: nm(h.itemId), from: place(h.from), to: place(h.to) })}
             <span class="acts"><button type="button" class="lnk" onclick={() => move(h)}>{t('Move')}</button> · <button type="button" class="lnk" aria-expanded={why === h.itemId} onclick={() => (why = why === h.itemId ? null : h.itemId)}>{t('Why?')}</button></span>

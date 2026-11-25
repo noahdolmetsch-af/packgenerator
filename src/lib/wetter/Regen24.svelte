@@ -34,7 +34,7 @@
 </script>
 
 <section class="card wx-r24" aria-labelledby="wx-r24" data-wx-r24>
-  <h2 id="wx-r24" class="wx-r24-h"><CloudRain size={18} aria-hidden="true" />{t('Rain in the next 24 hours')}</h2>
+  <h2 id="wx-r24" class="wx-r24-h"><CloudRain size={20} aria-hidden="true" />{t('Rain in the next 24 hours')}</h2>
   {#if strip}
     <p class="wx-r24-say" data-wx-r24-say>{say}</p>
     <BarChart id="wxr24" {cols} {readout} {table} unit="mm" steps={MM_STEPS} maxTop={0} initial={0} height={110} label={say} hint={t('Point at an hour, or tap it, for its rain.')} />

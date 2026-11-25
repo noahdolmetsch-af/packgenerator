@@ -67,10 +67,10 @@
       </div>
       <div class="ia-prop" data-intent-proposal>
         <p class="ia-k"><Check size={16} aria-hidden="true" /> {t('This becomes your tour')} · {t('a proposal, all changeable')}</p>
-        <p class="ia-row"><CalendarDays size={18} aria-hidden="true" /><span><b>{t(p.title)}</b><small>{p.startDate ? shortDay(p.startDate) : ''}{p.days > 1 ? ` · ${t('{n} days', { n: p.days })}` : ''}</small></span></p>
-        {#if p.hours}<p class="ia-row"><Clock size={18} aria-hidden="true" /><span>{t('About {n} h on the bike', { n: num(p.hours) })}</span></p>{/if}
-        {#if p.overnight !== 'none'}<p class="ia-row"><Moon size={18} aria-hidden="true" /><span>{nightName(p)}{p.cook ? ` · ${t('Cooking')}` : ''}</span></p>{/if}
-        <p class="ia-row"><MessageCircleQuestion size={18} aria-hidden="true" /><span><b>{t('The look back asks afterwards')}</b><small>{p.asks.map((a) => `«${askText(a)}»`).join(' · ')}</small></span></p>
+        <p class="ia-row"><CalendarDays size={20} aria-hidden="true" /><span><b>{t(p.title)}</b><small>{p.startDate ? shortDay(p.startDate) : ''}{p.days > 1 ? ` · ${t('{n} days', { n: p.days })}` : ''}</small></span></p>
+        {#if p.hours}<p class="ia-row"><Clock size={20} aria-hidden="true" /><span>{t('About {n} h on the bike', { n: num(p.hours) })}</span></p>{/if}
+        {#if p.overnight !== 'none'}<p class="ia-row"><Moon size={20} aria-hidden="true" /><span>{nightName(p)}{p.cook ? ` · ${t('Cooking')}` : ''}</span></p>{/if}
+        <p class="ia-row"><MessageCircleQuestion size={20} aria-hidden="true" /><span><b>{t('The look back asks afterwards')}</b><small>{p.asks.map((a) => `«${askText(a)}»`).join(' · ')}</small></span></p>
         <div class="ia-btns">
           <button type="button" class="btn hi" onclick={() => apply(true)} data-intent-create>{t('Create trip')}</button>
           <button type="button" class="btn" onclick={() => apply(false)} data-intent-form>{t('Change in the form')}</button>

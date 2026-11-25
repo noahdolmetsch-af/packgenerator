@@ -106,14 +106,14 @@
         {#each stands as s (s.goal.id)}
           <li data-wg={s.goal.id} class:met={s.met}>
             <div class="r">
-              {#if s.goal.kind === 'km'}<span class="ib" aria-hidden="true"><Bike size={18} /></span>{:else}{@const a = acts.find((x) => x.id === s.goal.actId)}<ActIcon icon={a?.icon ?? 'heart'} ring={a?.ring ?? 'move'} />{/if}
+              {#if s.goal.kind === 'km'}<span class="ib" aria-hidden="true"><Bike size={20} /></span>{:else}{@const a = acts.find((x) => x.id === s.goal.actId)}<ActIcon icon={a?.icon ?? 'heart'} ring={a?.ring ?? 'move'} />{/if}
               {#if goalHref(s)}
                 <a class="m way" href={goalHref(s)} data-wg-way={s.goal.id}><b>{nameOf(s.goal)}</b><small class="num" data-wg-line>{line(s)}</small><span class="sr">{t('Open «{what}» in Analyse', { what: nameOf(s.goal) })}</span></a>
                 <ChevronRight size={14} class="wc" aria-hidden="true" />
               {:else}
               <span class="m"><b>{nameOf(s.goal)}</b><small class="num" data-wg-line>{line(s)}</small></span>
               {/if}
-              {#if s.met}<span class="ok" aria-hidden="true"><Check size={18} /></span>{/if}
+              {#if s.met}<span class="ok" aria-hidden="true"><Check size={20} /></span>{/if}
             </div>
             {#if !s.missing}<span class="bar" role="img" aria-label="{Math.round(s.fill * 100)} %"><i style="width:{s.fill ? Math.max(2, Math.round(s.fill * 100)) : 0}%"></i></span>{/if}
           </li>

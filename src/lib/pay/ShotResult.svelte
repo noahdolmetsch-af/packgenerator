@@ -41,19 +41,19 @@
 
 <section class="card shot" aria-label={t('Picture from TWINT')} data-testid="shot-result">
   {#if state === 'reading'}
-    <p class="shot-wait" role="status"><LoaderCircle size={18} aria-hidden="true" /> {t('Reading the picture on your phone… The first time, the app loads its text reader (about 5 MB).')}</p>
+    <p class="shot-wait" role="status"><LoaderCircle size={20} aria-hidden="true" /> {t('Reading the picture on your phone… The first time, the app loads its text reader (about 5 MB).')}</p>
   {:else if state === 'error'}
     <p class="shot-err" role="alert">{t('The picture could not be read. Mark the invoice by hand below.')}</p>
     <button class="btn" type="button" onclick={() => ondone?.('')}>{t('Close')}</button>
   {:else}
-    <p class="shot-res"><Check size={18} aria-hidden="true" /> <b>{t('Picture read:')}</b>&nbsp;{[got.amount ? `${formatAmount(got.amount)} CHF` : '', got.no ?? '', got.from].filter(Boolean).join(' · ') || t('nothing found')}</p>
+    <p class="shot-res"><Check size={20} aria-hidden="true" /> <b>{t('Picture read:')}</b>&nbsp;{[got.amount ? `${formatAmount(got.amount)} CHF` : '', got.no ?? '', got.from].filter(Boolean).join(' · ') || t('nothing found')}</p>
     {#if fit.inv && !picking}
       <div class="shot-fit">
         <b>{fit.inv.name} · {formatAmount(fit.inv.amount)} CHF</b>
         <small>{fit.inv.purpose} · {fit.inv.no} · {fit.how === 'no' ? t('fits exactly') : t('amount fits')}</small>
       </div>
       <div class="shot-btns">
-        <button class="btn hi" type="button" onclick={() => paid(fit.inv.id)}><Check size={18} aria-hidden="true" />{t('Yes, paid')}</button>
+        <button class="btn hi" type="button" onclick={() => paid(fit.inv.id)}><Check size={20} aria-hidden="true" />{t('Yes, paid')}</button>
         <button class="btn" type="button" onclick={() => (picking = true)}>{t('Another invoice')}</button>
       </div>
     {:else if open.length}
@@ -64,7 +64,7 @@
         </select>
       </label>
       <div class="shot-btns">
-        <button class="btn hi" type="button" disabled={!choice} onclick={() => paid(choice)}><Check size={18} aria-hidden="true" />{t('This one is paid')}</button>
+        <button class="btn hi" type="button" disabled={!choice} onclick={() => paid(choice)}><Check size={20} aria-hidden="true" />{t('This one is paid')}</button>
         <button class="btn" type="button" onclick={() => ondone?.('')}>{t('Cancel')}</button>
       </div>
     {:else}

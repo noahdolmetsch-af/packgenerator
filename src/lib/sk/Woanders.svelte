@@ -70,14 +70,14 @@
         <li>
           {#if missing(l)}
             <button type="button" class="sk-l sk-dash" data-sk-link={l.kind} data-sk-enter onclick={() => (editing = l)}>
-              <Plus size={18} aria-hidden="true" />
+              <Plus size={20} aria-hidden="true" />
               <span class="sk-lm"><b>{nameOf(l)}</b><small>{t('own link · enter')}</small></span>
             </button>
           {:else}
             {@const s = stored(l)}
             <a class="sk-l" data-sk-link={l.kind} href={s ? s.url : l.href} target="_blank" rel="noopener noreferrer" onclick={(e) => locate(e, l)}>
               <Icon size={18} aria-hidden="true" />
-              <span class="sk-lm"><b>{s?.name || nameOf(l)}</b><small>{s ? [l.sub, t('your link')].filter(Boolean).join(' · ') : l.sub}</small>{#if l.locate}<small class="sk-loc"><MapPin size={12} aria-hidden="true" />{t('asks for your location only when tapped')}</small>{/if}</span>
+              <span class="sk-lm"><b>{s?.name || nameOf(l)}</b><small>{s ? [l.sub, t('your link')].filter(Boolean).join(' · ') : l.sub}</small>{#if l.locate}<small class="sk-loc"><MapPin size={14} aria-hidden="true" />{t('asks for your location only when tapped')}</small>{/if}</span>
               <ExternalLink class="sk-ext" size={16} aria-hidden="true" /><span class="sr">{t('(opens elsewhere)')}</span>
             </a>
           {/if}

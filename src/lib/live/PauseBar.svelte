@@ -19,13 +19,13 @@
 
 {#if paused && auto}
   <div class="pb-slim" role="status" data-live-paused="auto">
-    <Pause size={18} aria-hidden="true" />
+    <Pause size={20} aria-hidden="true" />
     <span class="pb-slim-text"><b>{t('Auto-pause')}</b> · {t('the riding time stands')} · {hm(movingS)}</span>
     <button type="button" class="btn sm" onclick={onresume} data-live-resume>{t('Go on')}</button>
   </div>
 {:else if paused}
   <div class="pb-band" role="status" data-live-paused={auto ? 'auto' : 'hand'}>
-    <p class="pb-head"><Pause size={22} aria-hidden="true" /><b>{auto ? t('Auto-pause') : t('Paused|ride')}</b></p>
+    <p class="pb-head"><Pause size={24} aria-hidden="true" /><b>{auto ? t('Auto-pause') : t('Paused|ride')}</b></p>
     <p class="pb-text">{auto ? t('You ride slower than {kmh} km/h: the riding time stands and goes on by itself when you ride on.', { kmh: limit }) : t('The riding time stands. Nothing is recorded until you go on.')}</p>
     <p class="pb-times"><span>{t('Riding time')} <b>{hm(movingS)}</b></span><span>{t('Paused|ride')} <b>{hm(pausedS)}</b></span></p>
     {#if onwhy}
@@ -37,14 +37,14 @@
     {#if eta}<p class="pb-eta" data-live-pause-eta>{t('If you ride on now: arrival about {at}', { at: eta })}</p>{/if}
     <div class="pb-acts">
       <button type="button" class="btn hi pb-go" onclick={onresume} data-live-resume><Play size={20} aria-hidden="true" />{t('Go on')}</button>
-      <button type="button" class="btn" onclick={onstop} data-live-stop-paused><Square size={18} aria-hidden="true" />{t('Stop the ride')}</button>
+      <button type="button" class="btn" onclick={onstop} data-live-stop-paused><Square size={20} aria-hidden="true" />{t('Stop the ride')}</button>
     </div>
   </div>
 {:else}
   {#if standing}
     <p class="pb-hint" role="status" style:bottom="{bottom + 64}px" data-live-pause-hint>{t('You are standing: «Pause» stops the riding time.')}</p>
   {/if}
-  <button type="button" class="pb-btn" style:bottom="{bottom}px" onclick={onpause} aria-label={t('Pause the ride')} data-live-pause><Pause size={26} aria-hidden="true" /></button>
+  <button type="button" class="pb-btn" style:bottom="{bottom}px" onclick={onpause} aria-label={t('Pause the ride')} data-live-pause><Pause size={24} aria-hidden="true" /></button>
 {/if}
 
 <style>

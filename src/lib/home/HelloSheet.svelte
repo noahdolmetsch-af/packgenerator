@@ -126,7 +126,7 @@
   }
 </script>
 
-{#if label}<h1 id={headId} class="hello"><button type="button" class="hello-tap as-title" onclick={start} data-hello-tap aria-description={HELLO_TAP}>{label}<ChevronRight size={22} strokeWidth={2.4} aria-hidden="true" /></button></h1>
+{#if label}<h1 id={headId} class="hello"><button type="button" class="hello-tap as-title" onclick={start} data-hello-tap aria-description={HELLO_TAP}>{label}<ChevronRight size={24} strokeWidth={2.5} aria-hidden="true" /></button></h1>
 {:else}<button type="button" class="hello-tap" onclick={start} data-hello-tap>{HELLO_TAP}<ChevronRight size={14} aria-hidden="true" /></button>{/if}
 {#if saved > 0}<p class="done" role="status" data-hello-saved>{t('Saved in the history of «Your questions».')}</p>{/if}
 
@@ -201,11 +201,11 @@
         {#each plansOffered as p (p.key)}<button type="button" class="ab-opt" aria-pressed={plans.includes(p.key)} onclick={() => { touch(); plans = toggle(plans, p.key); }} data-plan={p.key}>{p.label}</button>{/each}
       {/if}
       <!-- HG1 (selbst entschieden): «+ eigener» puts the cursor into the field, an own plan is written there -->
-      <button type="button" class="ab-opt own" onclick={() => field?.focus()}><Plus size={15} aria-hidden="true" />{HELLO_OWN}</button>
+      <button type="button" class="ab-opt own" onclick={() => field?.focus()}><Plus size={16} aria-hidden="true" />{HELLO_OWN}</button>
     </div>
     <button type="button" class="more adj" onclick={adjust} data-hello-adjust><Pencil size={14} aria-hidden="true" />{t('Adjust buttons')}</button>
     <div class="vd-foot">
-      <small class="where"><Clock3 size={15} aria-hidden="true" />{t('Saved as you tap, in the history of «Your questions»')}</small>
+      <small class="where"><Clock3 size={16} aria-hidden="true" />{t('Saved as you tap, in the history of «Your questions»')}</small>
       <button type="button" class="btn hi" onclick={done} data-hello-save data-hello-done>{t('Done|hello')}</button>
     </div>
     {/if}

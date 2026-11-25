@@ -52,7 +52,7 @@
 
 <section aria-label={t('Bank statement checked')}>
   <p class="st-res">
-    <Check size={18} aria-hidden="true" />
+    <Check size={20} aria-hidden="true" />
     <span><b>{tn(found.length, '{n} payment recognised', '{n} payments recognised')}</b>{#if unclear.length}, {tn(unclear.length, '{n} is unclear.', '{n} are unclear.')}{:else}.{/if}</span>
   </p>
   {#if found.length || unclear.length}
@@ -96,7 +96,7 @@
     </ul>
   {/if}
   <div class="st-btns">
-    {#if marked.length}<button class="btn" type="button" onclick={undo}><RotateCcw size={18} aria-hidden="true" />{t('Undo')}</button>{/if}
+    {#if marked.length}<button class="btn" type="button" onclick={undo}><RotateCcw size={20} aria-hidden="true" />{t('Undo')}</button>{/if}
     <button class="btn" type="button" onclick={() => ondone?.()}>{t('To the invoices')}</button>
   </div>
   <p class="ich-fine">{t('The file stays only on this device. The app ignores the other bookings in the statement.')}{#if ignored}{' '}({tn(ignored, '{n} booking ignored', '{n} bookings ignored')}){/if}</p>

@@ -100,7 +100,7 @@
 
     {#if on('planb')}
     <details class="fold" data-door-planb open={isOpen('planb', !!bad)} ontoggle={toggle('planb')}>
-      <summary><CloudRain size={18} aria-hidden="true" /><span class="lab">{t('Plan B for bad weather')}</span><span class="r tp-small tp-muted">{trip.planB?.on ? t('Plan B is the route now') : pb ? (pb.kind === 'train' ? t('Train home') : pb.route ? t('{km} km variant', { km: num(Math.round(pb.route.km)) }) : t('Note')) : t('not set')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
+      <summary><CloudRain size={20} aria-hidden="true" /><span class="lab">{t('Plan B for bad weather')}</span><span class="r tp-small tp-muted">{trip.planB?.on ? t('Plan B is the route now') : pb ? (pb.kind === 'train' ? t('Train home') : pb.route ? t('{km} km variant', { km: num(Math.round(pb.route.km)) }) : t('Note')) : t('not set')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
       <div class="body">
         {#if bad && pb}<p class="warn" role="note" data-door-bad><TriangleAlert size={16} aria-hidden="true" />{t('Forecast for {date}: {what}. Your plan B is ready.', { date: new Date(`${bad.date}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'numeric' }), what: badText(bad, t) })}</p>{/if}
         <p class="tp-small tp-muted">{t('When heavy rain or a storm is forecast for a trip day, the app reminds you on the way and in the evening window.')}</p>
@@ -130,7 +130,7 @@
 
     {#if nights > 0 && on('checkin')}
       <details class="fold" data-door-checkin open={isOpen('checkin', lateN > 0)} ontoggle={toggle('checkin')}>
-        <summary><BedDouble size={18} aria-hidden="true" /><span class="lab">{t('Check-in of the accommodation')}</span><span class="r tp-small" class:late={lateN > 0}>{lateN ? tn(lateN, '{n} arrival too late', '{n} arrivals too late') : setCount ? tn(setCount, '{n} night set', '{n} nights set') : t('not set')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
+        <summary><BedDouble size={20} aria-hidden="true" /><span class="lab">{t('Check-in of the accommodation')}</span><span class="r tp-small" class:late={lateN > 0}>{lateN ? tn(lateN, '{n} arrival too late', '{n} arrivals too late') : setCount ? tn(setCount, '{n} night set', '{n} nights set') : t('not set')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
         <div class="body">
           <p class="tp-small tp-muted">{t('Until when can you check in? The app compares it with your planned arrival.')}</p>
           {#each rows as r (r.n)}
@@ -157,7 +157,7 @@
 
     {#if on('arrived')}
     <details class="fold" data-door-arrived open={isOpen('arrived', false)} ontoggle={toggle('arrived')}>
-      <summary><HeartHandshake size={18} aria-hidden="true" /><span class="lab">{t('Arrived safely')}</span><span class="r tp-small tp-muted">{chosen.size ? tn(contacts.filter((c) => chosen.has(c.id)).length, '{n} person', '{n} people') : t('not set')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
+      <summary><HeartHandshake size={20} aria-hidden="true" /><span class="lab">{t('Arrived safely')}</span><span class="r tp-small tp-muted">{chosen.size ? tn(contacts.filter((c) => chosen.has(c.id)).length, '{n} person', '{n} people') : t('not set')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
       <div class="body">
         <p class="tp-small tp-muted">{t('Who gets a short message when you arrive? On the way, one tap opens your phone’s share sheet with a ready text.')}</p>
         {#if contacts.length}

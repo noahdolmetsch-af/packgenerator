@@ -87,7 +87,7 @@
   <div class="pt-head">
     <span class="pt-n">{pins.length ? t('Your shortcuts') : t('No shortcuts yet')}</span>
     <button type="button" class="pt-edit" data-pins-edit aria-pressed={editing} onclick={() => ((editing = !editing), (open = null), (adding = false))}>
-      {#if editing}<Check size={15} aria-hidden="true" />{t('Done')}{:else}<Pencil size={15} aria-hidden="true" />{t('Change shortcuts')}{/if}
+      {#if editing}<Check size={16} aria-hidden="true" />{t('Done')}{:else}<Pencil size={16} aria-hidden="true" />{t('Change shortcuts')}{/if}
     </button>
   </div>
 
@@ -103,7 +103,7 @@
       <div class="pt-tip" role="status" data-pins-suggest={suggest.href}>
         <p>{t('You often open «{name}». Pin it here?', { name: suggest.title })}</p>
         <div class="pt-tools">
-          <button type="button" class="btn sm hi" onclick={() => pinSuggested(suggest)}><Plus size={15} aria-hidden="true" />{t('Pin|quick')}</button>
+          <button type="button" class="btn sm hi" onclick={() => pinSuggested(suggest)}><Plus size={16} aria-hidden="true" />{t('Pin|quick')}</button>
           <button type="button" class="btn sm" onclick={() => noThanks(suggest)}>{t('No, thanks')}</button>
         </div>
       </div>
@@ -122,8 +122,8 @@
           {:else}
             <span class="pt-lab">{pinLabel(p, t)}</span>
             <span class="pt-act">
-              <button type="button" class="btn sm" aria-label={t('Rename «{name}»', { name: pinLabel(p, t) })} onclick={() => (open = p.id)}><Pencil size={15} aria-hidden="true" /></button>
-              <button type="button" class="btn sm" aria-label={t('Unpin «{name}»', { name: pinLabel(p, t) })} onclick={() => unpin(p)}><Trash2 size={15} aria-hidden="true" /></button>
+              <button type="button" class="btn sm" aria-label={t('Rename «{name}»', { name: pinLabel(p, t) })} onclick={() => (open = p.id)}><Pencil size={16} aria-hidden="true" /></button>
+              <button type="button" class="btn sm" aria-label={t('Unpin «{name}»', { name: pinLabel(p, t) })} onclick={() => unpin(p)}><Trash2 size={16} aria-hidden="true" /></button>
               <SortArrows name={pinLabel(p, t)} {i} n={pins.length} onstep={(d) => move(i, i + d)} />
             </span>
           {/if}
@@ -131,13 +131,13 @@
       {/each}
     </ul>
     <div class="pt-tools">
-      <button type="button" class="btn sm" data-pins-add aria-expanded={adding} onclick={() => (adding = !adding)}><Plus size={15} aria-hidden="true" />{t('Add a shortcut')}</button>
-      <button type="button" class="btn sm" data-pins-reset onclick={reset}><RotateCcw size={15} aria-hidden="true" />{t('Back to the suggestions')}</button>
+      <button type="button" class="btn sm" data-pins-add aria-expanded={adding} onclick={() => (adding = !adding)}><Plus size={16} aria-hidden="true" />{t('Add a shortcut')}</button>
+      <button type="button" class="btn sm" data-pins-reset onclick={reset}><RotateCcw size={16} aria-hidden="true" />{t('Back to the suggestions')}</button>
       <a class="pt-more" href="#/quick">{t('Groups and notes: Quick Links')} ›</a>
     </div>
     {#if adding}
       <div class="pt-add">
-        <label class="pt-search"><SearchIcon size={15} aria-hidden="true" /><input class="pt-input" type="search" bind:value={q} placeholder={t('Search all functions')} aria-label={t('Search all functions')} autocomplete="off" /></label>
+        <label class="pt-search"><SearchIcon size={16} aria-hidden="true" /><input class="pt-input" type="search" bind:value={q} placeholder={t('Search all functions')} aria-label={t('Search all functions')} autocomplete="off" /></label>
         {#if q.trim()}
           <ul class="pt-hits">
             {#each hits as f (f.id)}<li><button type="button" class="pt-hit" onclick={() => pin(f)}><Plus size={14} aria-hidden="true" />{t(f.title)}</button></li>{/each}

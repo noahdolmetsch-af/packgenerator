@@ -206,8 +206,8 @@
           <li data-item={x.id}>
             <span class="c-m"><b>{x.what}</b><small class="tool-muted">{dayText(x.day)} · {x.paidBy === ME ? t('paid by you') : t('paid by {name}', { name: nameOf(x.paidBy) })}{x.for?.length ? ` · ${t('for {names}', { names: x.for.map(nameOf).join(', ') })}` : ''}</small></span>
             <span class="c-amt"><b>{money(x.chf)} CHF</b>{#if x.cur !== 'CHF'}<small class="tool-muted">{money(x.amount)} {x.cur}</small>{/if}</span>
-            <button type="button" class="btn sm" aria-label={t('Change {name}', { name: x.what })} onclick={() => openForm(x)}><Pencil size={15} aria-hidden="true" /></button>
-            <button type="button" class="btn sm" aria-label={t('Delete {name}', { name: x.what })} onclick={() => delItem(x)}><Trash2 size={15} aria-hidden="true" /></button>
+            <button type="button" class="btn sm" aria-label={t('Change {name}', { name: x.what })} onclick={() => openForm(x)}><Pencil size={16} aria-hidden="true" /></button>
+            <button type="button" class="btn sm" aria-label={t('Delete {name}', { name: x.what })} onclick={() => delItem(x)}><Trash2 size={16} aria-hidden="true" /></button>
           </li>
         {/each}
       </ul>
@@ -217,7 +217,7 @@
     {#if form}
       <form class="c-form" onsubmit={saveForm}>
         <input bind:this={receiptIn} type="file" accept="image/*" capture="environment" hidden onchange={readPhoto} />
-        <div><button type="button" class="btn sm" onclick={() => receiptIn.click()}><Camera size={15} aria-hidden="true" />{t('Read receipt photo')}</button></div>
+        <div><button type="button" class="btn sm" onclick={() => receiptIn.click()}><Camera size={16} aria-hidden="true" />{t('Read receipt photo')}</button></div>
         {#if reading}<p class="tool-status" role="status">{reading}</p>{/if}
         <label class="tool-field"><span>{t('What')}</span><input class="tool-input" maxlength="80" autocomplete="off" placeholder={t('e.g. Hotel, dinner, train')} bind:value={form.what} /></label>
         <div class="tool-row">
@@ -253,7 +253,7 @@
             <li>
               <span class="c-m"><b>{p.to === ME ? t('{from} pays you', { from: nameOf(p.from) }) : p.from === ME ? t('You pay {to}', { to: nameOf(p.to) }) : t('{from} pays {to}', { from: nameOf(p.from), to: nameOf(p.to) })}</b>{#if p.to === ME && costs.asked[p.from]}<small class="tool-muted">{t('requested ({no})', { no: costs.asked[p.from] })}</small>{/if}</span>
               <b class="c-amt">{money(p.cents / 100)} CHF</b>
-              {#if p.to === ME}<button type="button" class="btn sm" onclick={() => requestTwint(p)}><Send size={15} aria-hidden="true" />{t('Request by TWINT')}</button>{/if}
+              {#if p.to === ME}<button type="button" class="btn sm" onclick={() => requestTwint(p)}><Send size={16} aria-hidden="true" />{t('Request by TWINT')}</button>{/if}
             </li>
           {/each}
         </ul>
