@@ -86,4 +86,8 @@ export default {
   'Calendar dates without a time are often all day, so they are not preselected.': 'Kalendertermine ohne Zeit dauern oft den ganzen Tag, darum sind sie nicht vorgewählt.',
   '{n} entries placed.': '{n} Einträge eingeplant.',
   'Show the timeline': 'Zeitleiste zeigen',
+  'All day|band': 'Ganztägig',
+  '{n} suggestion looks like your plan|similar': '{n} Vorschlag der App sieht aus wie dein Plan',
+  '{n} suggestions look like your plan|similar': '{n} Vorschläge der App sehen aus wie dein Plan',
+  'like «{name}»': 'wie «{name}»',
 };

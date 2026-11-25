@@ -1,6 +1,7 @@
 // «Mein Tag»: the day as a timeline (src/lib/tag/timeline.js). Fictional data only.
 import { describe, it, expect } from 'vitest';
-import { layoutDay, nextBlocks, lengthOf, toMin, fmtMin, nowMin, weekOf, DAY_START, DAY_END } from '../src/lib/tag/timeline.js';
+import { layoutDay, nextBlocks, lengthOf, toMin, fmtMin, nowMin, weekOf, hourRows, isOver, HOUR_PX, EMPTY_PX, DAY_START, DAY_END } from '../src/lib/tag/timeline.js';
+import { foldSimilar } from '../src/lib/tag/similar.js';
 import { shiftDay } from '../src/lib/training.js';
 
 const e = (id, kind, time, mins) => ({ id, kind, time, title: id, sub: mins ? { mins } : null });
@@ -160,5 +161,72 @@ describe('planDay', () => {
   it('plans nothing for the past and ignores done entries', () => {
     expect(planDay([own('a', 30)], { day: '2026-11-20', today: '2026-11-23' }).moves).toEqual([]);
     expect(planDay([{ ...own('a', 30), done: true }], D).moves).toEqual([]);
+  });
+});
+
+describe('hourRows: empty hours are half as tall (Noah 24.11.2026)', () => {
+  const blk = (start, end) => ({ start, end });
+  it('an hour with an entry or with «now» is full height, an empty one is half', () => {
+    const g = hourRows([blk(18 * 60, 19 * 60)], { from: 18 * 60, to: 23 * 60, now: 22 * 60 + 41 });
+    expect(g.rows.map((r) => r.h)).toEqual([HOUR_PX, EMPTY_PX, EMPTY_PX, EMPTY_PX, HOUR_PX]);
+    expect(g.height).toBe(HOUR_PX * 2 + EMPTY_PX * 3);
+  });
+  it('an entry that crosses an hour keeps both hours full', () => {
+    const g = hourRows([blk(12 * 60, 13 * 60 + 30)], { from: 11 * 60, to: 15 * 60 });
+    expect(g.rows.map((r) => r.empty)).toEqual([true, false, false, true]);
+  });
+  it('pos and at are each other\'s inverse across rows of different height', () => {
+    const g = hourRows([blk(12 * 60, 12 * 60 + 45)], { from: 11 * 60, to: 15 * 60 });
+    expect(g.pos(11 * 60)).toBe(0);
+    expect(g.pos(12 * 60)).toBe(EMPTY_PX);
+    expect(g.pos(13 * 60)).toBe(EMPTY_PX + HOUR_PX);
+    for (const m of [11 * 60, 11 * 60 + 30, 12 * 60 + 15, 12 * 60 + 45, 13 * 60 + 15, 14 * 60 + 59, 15 * 60]) expect(g.at(g.pos(m))).toBeCloseTo(m, 5);
+  });
+  it('at stays inside the day', () => {
+    const g = hourRows([], { from: 6 * 60, to: 9 * 60 });
+    expect(g.at(-50)).toBe(6 * 60);
+    expect(g.at(99999)).toBe(9 * 60);
+  });
+  it('a whole empty day is all half rows', () => {
+    const g = hourRows([], { from: 6 * 60, to: 23 * 60 });
+    expect(g.height).toBe(17 * EMPTY_PX);
+  });
+});
+
+describe('isOver: only today has a past', () => {
+  it('a block whose end is before «now» is over; on other days nothing is', () => {
+    expect(isOver({ start: 600, end: 660 }, 700)).toBe(true);
+    expect(isOver({ start: 600, end: 660 }, 650)).toBe(false);
+    expect(isOver({ start: 600, end: 660 }, null)).toBe(false);
+  });
+});
+
+describe('layoutDay: all-day dates are bands (Noah 24.11.2026)', () => {
+  const trip = { id: 'cal:g:1', kind: 'date', title: 'BIKETRIP 3days', sub: { src: 'google' }, time: '', allDay: true };
+  const todo = { id: 'wi3', kind: 'todo', title: 'Garage', time: '' };
+  it('an all-day calendar date is a band and still stands in untimed (Heute laut Plan lists it as before)', () => {
+    const lay = layoutDay([trip, todo]);
+    expect(lay.bands.map((e) => e.id)).toEqual(['cal:g:1']);
+    expect(lay.untimed.map((e) => e.id)).toEqual(['cal:g:1', 'wi3']);
+  });
+  it('a date with a time is a block, not a band, even when marked all day by mistake', () => {
+    const lay = layoutDay([{ ...trip, time: '10:00' }]);
+    expect(lay.bands).toEqual([]);
+    expect(lay.blocks).toHaveLength(1);
+  });
+});
+
+describe('foldSimilar: a suggestion next to the imported session of the same kind', () => {
+  const sug = { id: 'tr:sug-2026-11-24-1', kind: 'sport', sessionKind: 'bike', title: 'Intervall-Einheit', done: false };
+  const tp = { id: 'tr:tp-1kvkdik', kind: 'sport', sessionKind: 'bike', title: 'Bike: Drift Intervals Progressiv (sub Schwelle)', done: false };
+  it('folds the suggestion and keeps the imported session', () => {
+    const r = foldSimilar([sug, tp, { id: 'wi1', kind: 'todo' }]);
+    expect(r.entries.map((e) => e.id)).toEqual(['tr:tp-1kvkdik', 'wi1']);
+    expect(r.folded).toEqual([{ e: sug, like: tp }]);
+  });
+  it('keeps everything when the kinds differ, when nothing is imported or when the suggestion is ticked', () => {
+    expect(foldSimilar([sug, { ...tp, sessionKind: 'run' }]).folded).toEqual([]);
+    expect(foldSimilar([sug]).folded).toEqual([]);
+    expect(foldSimilar([{ ...sug, done: true }, tp]).folded).toEqual([]);
   });
 });
