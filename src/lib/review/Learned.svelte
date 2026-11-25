@@ -14,6 +14,7 @@
   import { t, tn, num } from '../i18n.svelte.js';
   import { Lightbulb, Search, Pencil, Trash2, Plus } from '@lucide/svelte';
   import LearningSheet from './LearningSheet.svelte';
+  import { topicName } from './topicname.js'; // v0.30.2 (test R6.12): the same shown name here and in the search
   import RenameSheet from '../ui/RenameSheet.svelte';
   import GroupDeleteSheet from '../ui/GroupDeleteSheet.svelte';
   import UndoToast from './UndoToast.svelte';
@@ -26,12 +27,6 @@
   // 0.161.0 (Bugfixes 0.132.2 B3): an archived learning («Clean up test data») is gone from the list
   const learnings = $derived(($learnQ ?? []).filter((l) => !l.archivedAt));
   let lq = $state('');
-  // v0.30.2 (test R6.12): topics typed in small letters ("gear") are shown like the others.
-  const topicName = (topic) => {
-    const s = String(topic ?? '');
-    if (!s) return t('No topic');
-    return t(s) !== s ? t(s) : t(s.charAt(0).toUpperCase() + s.slice(1));
-  };
   const topics = $derived.by(() => {
     const q = lq.trim().toLowerCase();
     const list = learnings.filter((l) => !q || `${l.topic} ${topicName(l.topic)} ${l.rule} ${l.action ?? ''} ${l.source ?? ''}`.toLowerCase().includes(q));

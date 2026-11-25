@@ -1,10 +1,13 @@
 // «Suche findet mehr» und «Treffer lesbarer» (Warteliste 1, Noah 22.11.2026 «1a 4a 5a»): pure parts, fictional data only.
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
+import { lang, loadDe } from '../src/lib/i18n.svelte.js';
 import { parts, markWords } from '../src/lib/suche/mark.js';
 import { moreGroups, MORE_KIND } from '../src/lib/suche/mehr.js';
 import { searchAll, KIND } from '../src/lib/search.js';
 import { smartSearch } from '../src/lib/kisuche/smart.js';
 import { FEATURES } from '../src/lib/features.js';
+
+afterEach(() => (lang.v = 'en'));
 
 const more = {
   rides: [
@@ -37,6 +40,17 @@ describe('search finds more', () => {
       const g = searchAll(q, { more }).find((x) => x.kind === kind);
       expect(g?.rows.length, `${q} → ${kind}`).toBeGreaterThan(0);
     }
+  });
+  it('shows the topic of a learning like the page «Gelernt» does: capitalised, and in German translated', async () => {
+    await loadDe();
+    const hitAll = (...fs) => fs.join(' ').toLowerCase().includes('schlaf');
+    const data = { learnings: [{ id: 'l2', topic: 'sleep', rule: 'Test rule', action: '' }, { id: 'l3', topic: '', rule: 'Test rule without topic', action: '' }] };
+    lang.v = 'en';
+    expect(moreGroups(() => true, data).learning[0].sub).toBe('Sleep');
+    lang.v = 'de';
+    expect(moreGroups(() => true, data).learning[0].sub).toBe('Schlaf');
+    expect(moreGroups(hitAll, data).learning.map((r) => r.id)).toEqual(['l2']); // the German word finds it
+    expect(moreGroups(() => true, data).learning[1].sub).toBe('');
   });
   it('finds nothing extra before the tables are loaded', () => {
     expect(searchAll('uetliberg', {}).some((x) => x.kind === 'ride')).toBe(false);
