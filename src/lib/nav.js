@@ -451,7 +451,9 @@ const ANALYSIS_PAGES = {
   heute: { label: 'Today|tab', href: '#/auswerten', match: (h) => /^#\/auswerten(\?|$)/.test(h) },
   // «Auswerten neu» Teil 2: «Woche» (what you did and how you recovered, per week, month or year) is the first chip of the tab «Woche»
   woche: { label: 'Week|tab', href: '#/auswerten/woche', match: (h) => /^#\/auswerten\/woche(\/|\?|$)/.test(h) },
-  start: { label: 'Overview|tab', href: '#/auswerten/uebersicht', match: (h) => /^#\/auswerten\/(?!analyse|woche)/.test(h) },
+  // «Auswerten neu» Teil 3: «Verlauf» (your values over time, your normal over the years, what your data shows) is the first chip of the tab «Verlauf»
+  verlauf: { label: 'Course|tab', href: '#/auswerten/verlauf', match: (h) => /^#\/auswerten\/verlauf(\/|\?|$)/.test(h) },
+  start: { label: 'Overview|tab', href: '#/auswerten/uebersicht', match: (h) => /^#\/auswerten\/(?!analyse|woche|verlauf)/.test(h) },
   // Analyse PR 1 (Noah 27.10.2026 «1a»): every value as a tile, also behind «Mehr» on Heute
   analyse: { label: 'Analyse|page', href: '#/auswerten/analyse', match: (h) => /^#\/auswerten\/analyse(\/|\?|$)/.test(h) },
   form: { label: 'Form|tab', href: '#/flow/form', match: (h) => /^#\/flow\/form(\/|\?|$)/.test(h) },
@@ -562,10 +564,8 @@ export const PLACE_TABS = {
   // «Aktiv neu»: what you look at. The start takes the form card, Strava and «Wi gaht's?» from the old Aktiv.
   analysis: [
     { key: 'start', label: 'Today|tab', subs: ['heute', 'fragen', 'start'] },
-    { key: 'body', label: 'Body|tab', subs: ['form', 'body', 'insights', 'weight'] },
     { key: 'rides', label: 'Week|tab', subs: ['woche', 'rides', 'ticks', 'learned', 'milestones', 'challenges', 'heatmap', 'neuland', 'gipfel', 'year'] },
-    { key: 'history', label: "How you are|tab", subs: ['history', 'wohl', 'ideen'] },
-    { key: 'analyse', label: 'Analyse|page', subs: ['analyse'] },
+    { key: 'verlauf', label: 'Course|tab', subs: ['verlauf', 'form', 'body', 'insights', 'weight', 'history', 'wohl', 'ideen', 'analyse'] },
   ].map((x) => tabWithSubs(x, ANALYSIS_PAGES)),
 };
 

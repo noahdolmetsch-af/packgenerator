@@ -41,7 +41,8 @@ export async function tapTab(page, name) {
   await page.locator('nav.ptabs, .side .tabs').first().waitFor({ state: 'attached' });
   // since V4a (21.11.2026) the pages of Aktiv are chips (nav.psubs) under the tab «Training»
   const tab = page.locator(`${TABS}, nav.psubs:visible`).getByRole('link', { name, exact: true });
-  if ((await tab.count()) && (await tab.first().isVisible())) return tab.first().click();
+  // a chip row changes after a tab was tapped: give it a moment before looking under «Mehr» (the check was timing-dependent)
+  if (await tab.first().waitFor({ state: 'visible', timeout: 2500 }).then(() => true, () => false)) return tab.first().click();
   await page.locator('nav.ptabs .pmore').click();
   await page.locator('dialog.ptsheet').getByRole('link', { name, exact: true }).click();
 }
