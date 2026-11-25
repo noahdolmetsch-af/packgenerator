@@ -3,7 +3,9 @@
 // between two groups. The expected counts come from the app's own data (not from its rules: plain specs never import *.svelte.js).
 import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
-import TOURS from '../../src/lib/vorschlaege/data/netz.js';
+import FIRST200 from '../../src/lib/vorschlaege/data/netz.js';
+import MORE from '../../src/lib/vorschlaege/data/netz-mehr.js';
+import { daysOf } from '../../src/lib/vorschlaege/tage.js';
 import { anreiseOf, withinTravel } from '../../src/lib/vorschlaege/anreise.js';
 import { ready } from './settle.js';
 import { cellOf, cellsOf, addDays } from '../../src/lib/vorschlaege/wetter.js';
@@ -31,10 +33,15 @@ const showAll = async (page) => {
   await closeF(page);
   for (let i = 0; i < 30 && (await page.locator('[data-vs-more]').count()); i++) await page.locator('[data-vs-more]').click();
 };
+// Noah 24.11.2026 «ziel 3 mal so viele touren»: the page shows the stages of both files and the day tours made of them
+const STAGES = [...FIRST200, ...MORE];
+const TOURS = [...STAGES, ...daysOf(STAGES)];
 const hard = TOURS.filter((x) => x.cond === 'difficult');
+const hardDots = hard.filter((x) => !x.days); // the map draws the stages, not the day tours
+const NEAREST = hard.filter((x) => x.dz === Math.min(...hard.map((y) => y.dz))).map((x) => x.id); // the stage and its day tours start at the same place
 const FIRST = [...hard].sort((a, b) => a.dz - b.dz)[0].id; // nearest hard tour from Zurich main station (no home place)
 
-test('Tour suggestions: 200 tours, filters, one tour, hide and undo', async ({ page, context }, info) => {
+test('Tour suggestions: 600 tours, filters, one tour, hide and undo', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await context.route(/^https?:\/\/(?!localhost[:/])/, (r) => r.abort());
@@ -47,7 +54,7 @@ test('Tour suggestions: 200 tours, filters, one tour, hide and undo', async ({ p
   await page.locator('[data-vs-view="list"]').click();
   await expect(page.locator('[data-page="vorschlaege"] h1')).toHaveText(T('Tour suggestions'));
   const tours = page.locator('[data-vs-tour]');
-  expect(TOURS.length).toBe(200);
+  expect(TOURS.length).toBeGreaterThanOrEqual(600);
   await total(page, hard.length); // only hard for fitness at the start
   await openF(page);
   await expect(page.locator('[data-vs-filters] [data-vs-cond="difficult"]')).toHaveAttribute('aria-pressed', 'true');
@@ -55,7 +62,7 @@ test('Tour suggestions: 200 tours, filters, one tour, hide and undo', async ({ p
   await expect(page.locator('[data-vs-filters] [data-vs-tech="any"]')).toHaveAttribute('aria-pressed', 'true');
   await closeF(page);
   // nearest first: the first card is the nearest hard tour (from Zurich main station without a home place)
-  await expect(tours.first()).toHaveAttribute('data-vs-tour', FIRST);
+  expect(NEAREST).toContain(await tours.first().getAttribute('data-vs-tour'));
 
   // canton, fitness and skill filters
   await fclick(page, '[data-vs-region="gr"]');
@@ -102,10 +109,12 @@ test('Tour suggestions: 200 tours, filters, one tour, hide and undo', async ({ p
   await fclick(page, '[data-vs-cond="medium"]');
   await fclick(page, '[data-vs-cond="easy"]');
   await fclick(page, '[data-vs-hours="2"]');
-  await total(page, 1);
+  // up to 2 hours: some tours, not all (the rule itself is tested in tests/vorschlaege.test.js; regeln.js cannot be imported here)
+  await expect.poll(() => totalN(page)).toBeLessThan(TOURS.length);
+  expect(await totalN(page)).toBeGreaterThan(0);
   await fclick(page, '[data-vs-hours="any"]');
   await fclick(page, '[data-vs-art="downhill"]');
-  await total(page, 1);
+  await total(page, TOURS.filter((x) => x.kind === 'descent').length);
   await fclick(page, '[data-vs-art="downhill"]');
   await expect(page.locator('[data-vs-start]')).toContainText(T('Set your home place and you can choose how far the start may be.'));
   await fclick(page, '[data-vs-cond="medium"]');
@@ -117,7 +126,7 @@ test('Tour suggestions: 200 tours, filters, one tour, hide and undo', async ({ p
   await page.locator('[data-vs-view="map"]').click();
   await page.mouse.move(2, 2); // the list got shorter: the pointer would rest over a dot and open its card
   await expect(page.locator('[data-vs-karte] svg')).toBeVisible();
-  await expect(page.locator('[data-vs-karte] a[href^="#/trips/vorschlaege/"]')).toHaveCount(hard.length);
+  await expect(page.locator('[data-vs-karte] a[href^="#/trips/vorschlaege/"]')).toHaveCount(hardDots.length);
   // the hover card (Noah 23.11.2026): the mouse over a dot shows title, km, time and climb; on a phone the first tap shows it and does not open the tour yet
   const near = TOURS.find((x) => x.id === FIRST);
   const dot = page.locator(`[data-vs-dot="${FIRST}"]`);
@@ -149,10 +158,10 @@ test('Tour suggestions: 200 tours, filters, one tour, hide and undo', async ({ p
   await page.mouse.move(2, 2); // the map is back under the resting pointer: it would open the card of a dot
   await page.locator('[data-vs-kt="gr"]').focus();
   await page.keyboard.press('Enter');
-  await expect(page.locator('[data-vs-karte] a[href^="#/trips/vorschlaege/"]')).toHaveCount(hard.filter((x) => x.region === 'gr').length);
+  await expect(page.locator('[data-vs-karte] a[href^="#/trips/vorschlaege/"]')).toHaveCount(hardDots.filter((x) => x.region === 'gr').length);
   await page.locator('[data-vs-kt="gr"]').focus();
   await page.keyboard.press('Enter');
-  await expect(page.locator('[data-vs-karte] a[href^="#/trips/vorschlaege/"]')).toHaveCount(hard.length);
+  await expect(page.locator('[data-vs-karte] a[href^="#/trips/vorschlaege/"]')).toHaveCount(hardDots.length);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   await page.locator('[data-vs-view="list"]').click();
 
@@ -282,7 +291,8 @@ test('Tour suggestions: weather light on every tour, best day, filter by day, th
   await closeF(page);
   // the map: a ring around each dot with the light of today (the same traffic light as in the list)
   await page.locator('[data-vs-view="map"]').click();
-  await expect(page.locator('[data-vs-ring="bad"]')).toHaveCount(1);
+  // the rainy cell holds every hard tour whose start lies in it (more tours than before, several share a cell)
+  await expect(page.locator('[data-vs-ring="bad"]')).toHaveCount(hardDots.filter((x) => cellOf(x) === cellOf(TOURS.find((y) => y.id === FIRST))).length);
   expect(await page.locator('[data-vs-ring="good"]').count()).toBeGreaterThan(0);
   await expect(page.locator('[data-vs-ring-key]')).toBeVisible();
   await page.locator('[data-vs-view="list"]').click();
