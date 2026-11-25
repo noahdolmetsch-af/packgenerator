@@ -3,8 +3,8 @@ export default {
   title: 'One period for Analysis',
   lead: 'On Analysis one switch on top sets the period: week, month, year, everything or your own range.',
   points: [
-    { text: 'Week, Month and Year can be paged back with ‹ ›; «Everything» and «Own range» are there too', go: { href: '#/auswerten', steps: [{ sel: '[data-period-bar]' }] } },
-    { text: 'The list of your sports and the averages of «Your questions» follow the period; the cards of today say they do not', go: { href: '#/auswerten', steps: [{ sel: '[data-period-hint]' }] } },
+    { text: 'Week, Month and Year can be paged back with ‹ ›; «Everything» and «Own range» are there too', go: { href: '#/auswerten/uebersicht', steps: [{ sel: '[data-period-bar]' }] } },
+    { text: 'The list of your sports and the averages of «Your questions» follow the period; the cards of today say they do not', go: { href: '#/auswerten/uebersicht', steps: [{ sel: '[data-period-hint]' }] } },
   ],
   small: [{ box: 'new', text: 'Your choice is remembered on this device; paging back starts at the present again' }],
   test: ['Open Analysis: on top the switch shows «Week». Tap «Month»: the list below is named after the month.', 'Tap ‹: the month before. Tap «Everything»: the list covers all you recorded.'],
