@@ -12,7 +12,7 @@ Ein Wackler ist ein Test, der ohne Änderung an der App mal grün und mal rot is
 | bedienung.spec.js:31 | Computer | 24.11. | «n» kam, bevor das geschlossene Fenster seinen Verlaufsschritt abgegeben hatte | #1713 | stabil |
 | landscape (Tour quer, 844×390) | Handy | 24.11. | echter App-Fehler: leere Zeile im Tour-Band, 16 px zu breit | #1712 | stabil |
 | erinnerung.spec.js:29 | Handy | 25.11. | Seitenwechsel, solange das geschlossene Fenster seinen Verlaufsschritt zurücknimmt (`ERR_ABORTED`) | #1743 | stabil |
-| kursblick.spec.js:50 | Handy/Computer | 25.11. (PR 1752) | Händlerabschlag: die Seite speichert 5 und dann 4 im Hintergrund; das Neuladen schnitt die 4 ab, es kam 5 zurück | Test wartet auf den gespeicherten Wert (PR folgt) | beobachten |
+| kursblick.spec.js:50 | Handy/Computer | 25.11. (PR 1752) | Händlerabschlag: die Seite speichert 5 und dann 4 im Hintergrund; das Neuladen schnitt die 4 ab, es kam 5 zurück | #1754 | stabil |
 | dateneingabe.spec.js:69 | beide | 25.11. | das Warten las `.fit.pressureF` vor dem ersten Speichern (`TypeError`) | #1743 | stabil |
 | «Ausprobieren»: fünf Zeilen (Auswerten Zeitraum, Touren-Vorschläge Kanton, Schwierigkeit, Wochenwetter) | beide | 25.11. | keine Wackler: durch Umbauten veraltete Ziele, nie in PR-Läufen getippt | #1743 | stabil |
 | guard.spec.js Gruppe 3 («0 page titles») | Handy | 24.11. | unter Last wird die Überschrift zweimal gleich «0» gemessen | – | beobachten |
