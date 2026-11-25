@@ -1,6 +1,6 @@
 # Schreibweise-Vorschlag für eigene Regeltexte
 
-PR · 25.11.2026 · Auftrag: Noah (Gesamttest, Entscheid-Karte: «Vorschlag beim Speichern von «Regel ändern»»)
+PR #1773 · 25.11.2026 · Auftrag: Noah (Gesamttest, Entscheid-Karte: «Vorschlag beim Speichern von «Regel ändern»»)
 
 ## Was ist neu
 - Speicherst du den Text einer Regel (die Frage einer Regel unter «Die App fragt dich» oder im Fenster «Regel ändern»), schlägt eine ruhige Zeile die Schreibweise vor: Satzanfang gross und «5 Std.» statt «5h».
