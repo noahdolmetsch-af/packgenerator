@@ -176,6 +176,8 @@ export function timedrag(node, opts = {}) {
   // a finger that has lifted an entry must not scroll the page; the context menu of a long press must not open
   const touchmove = (e) => st?.active && e.cancelable && e.preventDefault();
   const menu = (e) => (st?.touch ? e.preventDefault() : undefined);
+  // a link or an image inside the entry would start the browser's own drag and swallow the pointer: pulling is ours
+  const native = (e) => o.enabled !== false && e.preventDefault();
   function key(e) {
     const onHandle = modeOf(e.target) === 'move' || (o.keys && e.target === node);
     if (o.enabled === false || !onHandle) return;
@@ -190,6 +192,7 @@ export function timedrag(node, opts = {}) {
   node.addEventListener('click', click, true);
   node.addEventListener('touchmove', touchmove, { passive: false });
   node.addEventListener('contextmenu', menu);
+  node.addEventListener('dragstart', native);
   node.addEventListener('keydown', key);
   window.addEventListener('keydown', esc);
   return {
@@ -202,6 +205,7 @@ export function timedrag(node, opts = {}) {
       node.removeEventListener('click', click, true);
       node.removeEventListener('touchmove', touchmove);
       node.removeEventListener('contextmenu', menu);
+      node.removeEventListener('dragstart', native);
       node.removeEventListener('keydown', key);
       window.removeEventListener('keydown', esc);
     },
