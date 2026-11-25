@@ -36,6 +36,13 @@
     color: var(--ink-2);
     font-weight: 600;
   }
+  .sp-b button {
+    padding: 0 2px;
+    border: 0;
+    background: none;
+    font-family: inherit;
+    cursor: pointer;
+  }
   .sp-b {
     display: inline-flex;
     gap: 4px 14px;
