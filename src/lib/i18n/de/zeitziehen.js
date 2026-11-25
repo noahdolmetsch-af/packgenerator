@@ -1,0 +1,23 @@
+/** German texts: «Termine ziehen» (Noah 24.11.2026 «wunsch hier und überall sonst wo sinnvoll … drag and drop», «1a 2b 3a 4a»). Keys are the English texts. */
+export default {
+  'This calendar is read-only, so the appointment cannot be moved here.': 'Dieser Kalender ist schreibgeschützt, darum lässt sich der Termin hier nicht verschieben.',
+  'This appointment comes from the app. Move it where you planned it.': 'Dieser Termin kommt aus der App. Verschiebe ihn dort, wo du ihn geplant hast.',
+  'This appointment lasts several days. Change it with «Change».': 'Dieser Termin dauert mehrere Tage. Ändere ihn mit «Ändern».',
+  'Saving in your Google calendar …': 'Wird in deinem Google Kalender gespeichert …',
+  '«{name}» moved to {when}. Also changed in your Google calendar.': '«{name}» verschoben auf {when}. Auch in deinem Google Kalender geändert.',
+  '«{name}» is back.': '«{name}» ist zurück.',
+  '«{name}» deleted in your Google calendar.': '«{name}» in deinem Google Kalender gelöscht.',
+  'Move …': 'Verschieben …',
+  'Move «{name}»': '«{name}» verschieben',
+  'Move|button': 'Verschieben',
+  'Move all …': 'Alles verschieben …',
+  'To this day': 'Auf diesen Tag',
+  'Choose another day.': 'Wähle einen anderen Tag.',
+  'Tick at least one entry.': 'Hake mindestens einen Eintrag an.',
+  'Copy|button': 'Kopieren',
+  '«{name}» copied to {day}.': '«{name}» kopiert auf {day}.',
+  '{n} entry moved to {day}.': '{n} Eintrag verschoben auf {day}.',
+  '{n} entries moved to {day}.': '{n} Einträge verschoben auf {day}.',
+  'Choose a time.': 'Wähle eine Uhrzeit.',
+  'The change is written to your Google calendar too. «Undo» writes it back.': 'Die Änderung wird auch in deinem Google Kalender gespeichert. «Rückgängig» schreibt sie zurück.',
+};
