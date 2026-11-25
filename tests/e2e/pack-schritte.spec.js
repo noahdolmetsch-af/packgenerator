@@ -33,7 +33,8 @@ test('Packing list: Steps view with «Next», arrows and a remembered view', asy
   // the arrow puts the second step first
   await page.locator('.bag-group').nth(1).locator('[data-step-up]').click();
   await expect(heads.first().locator('strong')).toHaveText(names[1]);
-  // the view and the order are kept after a reload
+  // the view and the order are kept after a reload (the choice is saved in the settings: wait for the order before the reload, as below for the view)
+  await expect.poll(() => page.evaluate(() => new Promise((ok) => { const r = indexedDB.open('pack-generator'); r.onsuccess = () => { const q = r.result.transaction('settings').objectStore('settings').get('pack.steps'); q.onsuccess = () => { r.result.close(); ok(q.result?.value?.order?.length ?? 0); }; }; }))).toBeGreaterThan(0);
   await page.reload();
   await expect(page.locator('[data-pack-view]')).toHaveValue('steps');
   await expect(page.locator('.bag-group .bag-heading').first().locator('strong')).toHaveText(names[1]);
