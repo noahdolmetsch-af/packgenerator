@@ -3,9 +3,9 @@ export default {
   title: 'Analysis: the answer of the day first',
   lead: 'The readiness stands right under the title, the period is one line, and under the answer one line says what fits today.',
   points: [
-    { text: 'The card «Readiness» stands directly under the title; «In focus» follows', go: { href: '#/auswerten', steps: [{ sel: '[data-section="form"]' }], where: 'Analysis › Overview, at the top.' } },
-    { text: 'The period is one line «Period: Week · …» with «Change», right above «Overview and last 7 days»', go: { href: '#/auswerten', steps: [{ sel: '[data-period-line]' }] } },
-    { text: 'Under the answer one line leads on: rest → «Tick off recovery», easy → trip tips, normal → weekly plan, ready → «Which mountain calls?» (also on the page «Form and recovery»; off with «Performance tips»)', go: { href: '#/auswerten', steps: [{ sel: '[data-day-suggest]' }] } },
+    { text: 'The card «Readiness» stands directly under the title; «In focus» follows', go: { href: '#/auswerten/uebersicht', steps: [{ sel: '[data-section="form"]' }], where: 'Analysis › Overview, at the top.' } },
+    { text: 'The period is one line «Period: Week · …» with «Change», right above «Overview and last 7 days»', go: { href: '#/auswerten/uebersicht', steps: [{ sel: '[data-period-line]' }] } },
+    { text: 'Under the answer one line leads on: rest → «Tick off recovery», easy → trip tips, normal → weekly plan, ready → «Which mountain calls?» (also on the page «Form and recovery»; off with «Performance tips»)', go: { href: '#/auswerten/uebersicht', steps: [{ sel: '[data-day-suggest]' }] } },
   ],
   small: [{ box: 'nicer', text: 'The sentence about what the period touches moved to the «?» window of the page' }],
   test: [

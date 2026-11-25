@@ -3,7 +3,7 @@
 PR #? · 24.11.2026 · Auftrag: Noah «1-5a» (Impeccable ganze App, 07:37 UTC) und «ja» (08:33 UTC), Paket 5, Punkte F1 und F2
 
 ## Was ist neu
-- Auf `#/auswerten` steht die Karte «Bereitschaft» **direkt unter dem Titel**. Reihenfolge: Kopf, Bereitschaft, «Aktivitäten von heute» und «Im Fokus», die Zeile «Zeitraum», «Überblick und letzte 7 Tage», «Wi gaht's?», Kacheln.
+- Auf `#/auswerten/uebersicht` (Reiter «Übersicht») steht die Karte «Bereitschaft» **direkt unter dem Titel**. Reihenfolge: Kopf, Bereitschaft, «Aktivitäten von heute» und «Im Fokus», die Zeile «Zeitraum», «Überblick und letzte 7 Tage», «Wi gaht's?», Kacheln.
 - Der Zeitraum ist **eine Zeile** «Zeitraum: Woche · 12. Okt. – 18. Okt. 2026» mit «Ändern» (`src/lib/flow/PeriodLine.svelte`). Ein Tipp klappt den bekannten Schalter (Woche, Monat, Jahr, Alles, eigener Zeitraum, ‹ ›) an dieser Stelle auf. Die Wahl bleibt gespeichert wie bisher. Das Sportjahr behält seinen eigenen Schalter.
 - **Tagesvorschlag** unter der Antwort (`src/lib/flow/form/TagesVorschlag.svelte`), auf der Karte in Auswerten und auf der Seite «Form und Erholung»: Ruhe → «Heute erholen?» mit «Erholung abhaken» (`#/flow/rest`); locker → «Lust auf eine lockere Runde?» mit «Ausflugstipps» (`#/trips/dreams`); normal → «Was heute im Plan steht» mit «Wochenplan» (`#/flow/wochenplan`); bereit → «Heute geht's gut. Welcher Berg ruft?» mit «Ausflugstipps». Die Zeile steht ausserhalb des Links der Karte und lässt sich mit «Leistungstipps» abschalten (`suggest.on.performance`).
 
