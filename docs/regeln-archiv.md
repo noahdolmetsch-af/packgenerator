@@ -19,6 +19,10 @@ Noah 24.11.2026 17:19: «ich möchte für jeden PR vor merge bilder sehen … di
 - Merge-Prüfung (Basis `main`, konfliktfrei, linearer Zweig): `CLAUDE.md`.
 ~~~~
 
+## Ersetzt am 25.11.2026 01:03: «bei geänderter Technik laufen weiter alle Zeilen» («Ausprobieren» im PR, Block 7)
+
+Noah «1a» 03.11.2026 (`docs/releases/ausprobieren-nur-neue-zeilen.md`, wörtlich): «Der Handy-Test «Ausprobieren» (jede Zeile unter Ich › Was ist neu führt an den richtigen Ort) tippt in einem PR nur noch die Zeilen der eigenen News-Datei. … Die Nacht-Prüfung tippt weiter alle Zeilen. … Ändert ein PR die Update-Liste, die Ziel-Tabelle, `src/lib/know/`, die Seite «Was ist neu» oder die Test-Helfer, laufen weiter alle Zeilen.» Ersetzt für den letzten Satz durch Noah «a» auf der Karte vom 25.11.2026 01:03 (Option «Neueste 200, Rest nachts»): Bei geänderter Technik tippt der PR nur die neuesten 200 Zeilen plus die eigenen; alle übrigen prüft der Nachtlauf. Grund: solche PRs tippten rund 1400 Zeilen, alle 85 Teile lagen in Teil 1 und liefen ins Zeitlimit (PR 1640, dreimal).
+
 ## Ersetzt am 25.11.2026 01:26: «höchstens 4 PRs gleichzeitig in der Prüfung» (Block 4)
 
 Noah 24.11.2026 23:18 (Fassung in `docs/regeln.md` Block 4 bis 25.11.2026): «**höchstens 4 PRs gleichzeitig in der Prüfung auf GitHub** (vorher 5–6; Noah: «ich möchte weniger rote tests haben»), **bis 8 offen insgesamt; 6–10 Threads arbeiten gleichzeitig.** Die 4 gelten, sobald main wieder grün ist. Ein neuer PR wird erst geöffnet, wenn in der Prüfung weniger als 4 sind und insgesamt weniger als 8 offen; sonst wartende PRs abbauen helfen.» Ersetzt durch Noah 25.11.2026 01:26 («neu 5 gleichzeitig»): höchstens 5 PRs gleichzeitig in der Prüfung; 8 offen und 6–10 Threads bleiben.
