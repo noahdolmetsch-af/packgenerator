@@ -187,7 +187,7 @@
   <!-- the check of the moment: Morgen-Check, from the evening round time the Abend-Check -->
   <!-- Heute aufräumen (23.11.2026): when the tile «Heute-Check» is on Heute it says the same, so the row is only here without it -->
   {#if check}<div class="ck" class:done={!due} data-body-check={evening ? 'evening' : 'morning'}>
-    <span class="ci" aria-hidden="true">{#if due}<ClipboardList size={18} />{:else}<Check size={18} strokeWidth={2.6} />{/if}</span>
+    <span class="ci" aria-hidden="true">{#if due}<ClipboardList size={20} />{:else}<Check size={20} strokeWidth={2.5} />{/if}</span>
     {#if due}
       <span class="ct">{tn(due, evening ? 'Evening check · {n} question' : late ? 'Open from this morning · {n} question' : 'Morning check · {n} question', evening ? 'Evening check · {n} questions' : late ? 'Open from this morning · {n} questions' : 'Morning check · {n} questions')}{#if areas.length}<small class="ar" data-body-areas>{areas.join(' · ')}</small>{/if}</span>
       {#if !open}<button type="button" class="btn sm" onclick={onstart}>{t('Start|round')}</button>{/if}

@@ -125,9 +125,9 @@
     <Crumb path={[{ href: '#/flow', label: t('Active|place') }, { href: '#/flow/week', label: t('Week') }]} here={t('Week in review')} />
     <PageHead title={t('Week in review')} text={t('Observation only: what was, nothing is rated.')} />
     <nav class="wnav" aria-label={t('Choose the week')}>
-      <a class="wstep" href={prevHref} aria-label={t('Week before')} data-week-prev><ChevronLeft size={18} aria-hidden="true" /></a>
+      <a class="wstep" href={prevHref} aria-label={t('Week before')} data-week-prev><ChevronLeft size={20} aria-hidden="true" /></a>
       <span class="wlabel num" data-week={monday}>{t('Wk {n}', { n: isoWeek(monday) })} · {range}{#if running}{' · '}{t('until today')}{/if}</span>
-      {#if nextHref}<a class="wstep" href={nextHref} aria-label={t('Week after')} data-week-next><ChevronRight size={18} aria-hidden="true" /></a>{:else}<span class="wstep off" aria-hidden="true"><ChevronRight size={18} /></span>{/if}
+      {#if nextHref}<a class="wstep" href={nextHref} aria-label={t('Week after')} data-week-next><ChevronRight size={20} aria-hidden="true" /></a>{:else}<span class="wstep off" aria-hidden="true"><ChevronRight size={20} /></span>{/if}
     </nav>
   </header>
 
@@ -220,13 +220,13 @@
               <li data-high="longest"><KindIcon kind={highs.longest.kind} size={18} /><span class="hl">{t('Longest activity')}<a href="#/flow/training/a/{encodeURIComponent(highs.longest.id)}">{actName(highs.longest)}</a></span><b class="num">{rideTimeS(highs.longest.movingS)}{#if highs.longest.km}{' · '}{num(highs.longest.km)} km{/if}</b></li>
             {/if}
             {#if highs.w20}
-              <li data-high="w20"><Zap size={18} aria-hidden="true" /><span class="hl">{t('Best 20 minutes')}<a href="#/flow/training/a/{encodeURIComponent(highs.w20.id)}">{actName(highs.w20)}</a></span><b class="num">{num(highs.w20.w20)} W</b></li>
+              <li data-high="w20"><Zap size={20} aria-hidden="true" /><span class="hl">{t('Best 20 minutes')}<a href="#/flow/training/a/{encodeURIComponent(highs.w20.id)}">{actName(highs.w20)}</a></span><b class="num">{num(highs.w20.w20)} W</b></li>
             {/if}
             {#if highs.hm}
-              <li data-high="hm"><Mountain size={18} aria-hidden="true" /><span class="hl">{t('Most climbing')}<a href="#/flow/training/a/{encodeURIComponent(highs.hm.id)}">{actName(highs.hm)}</a></span><b class="num">{num(highs.hm.hm)} m</b></li>
+              <li data-high="hm"><Mountain size={20} aria-hidden="true" /><span class="hl">{t('Most climbing')}<a href="#/flow/training/a/{encodeURIComponent(highs.hm.id)}">{actName(highs.hm)}</a></span><b class="num">{num(highs.hm.hm)} m</b></li>
             {/if}
             {#each highs.bests as b (b.key)}
-              <li data-high="best-{b.key}"><Star size={18} aria-hidden="true" /><span class="hl">{t('New best: {what}', { what: t(BEST[b.key]) })}<small>{t('before: {v}', { v: bestWas(b) })}</small></span><b class="num">{bestValue(b)}</b></li>
+              <li data-high="best-{b.key}"><Star size={20} aria-hidden="true" /><span class="hl">{t('New best: {what}', { what: t(BEST[b.key]) })}<small>{t('before: {v}', { v: bestWas(b) })}</small></span><b class="num">{bestValue(b)}</b></li>
             {/each}
           </ul>
         </section>

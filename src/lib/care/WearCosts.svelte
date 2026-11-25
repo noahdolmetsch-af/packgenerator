@@ -27,7 +27,7 @@
 </script>
 
 <section class="gcard" aria-labelledby="wk-h-{bike.id}" data-wear-costs>
-  <h2 id="wk-h-{bike.id}"><Coins size={18} aria-hidden="true" />{t('What the next months cost')}</h2>
+  <h2 id="wk-h-{bike.id}"><Coins size={20} aria-hidden="true" />{t('What the next months cost')}</h2>
   <div class="chips" role="group" aria-label={t('How far ahead')}>
     {#each HORIZONS.toSorted((a, b) => a - b) as m (m)}
       <button type="button" class="chip" aria-pressed={months === m} onclick={() => (months = m)} data-wear-costs-months={m}>{tn(m, '{n} month', '{n} months')}</button>

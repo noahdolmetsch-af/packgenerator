@@ -39,7 +39,7 @@
 
 {#if asks.length}
   <section class="tp-card ika" aria-labelledby="ika-h" data-intent-asks>
-    <h2 id="ika-h"><MessageCircleQuestion size={18} aria-hidden="true" /> {t('Your intent: {name}', { name: t(intentOf(it.key)?.name ?? 'Tour') })}</h2>
+    <h2 id="ika-h"><MessageCircleQuestion size={20} aria-hidden="true" /> {t('Your intent: {name}', { name: t(intentOf(it.key)?.name ?? 'Tour') })}</h2>
     <p class="ika-sub">{t('You asked these questions when you planned the tour. Answer what you like.')}</p>
     {#each asks as a, i (i + askText(a))}
       <div class="ika-q">

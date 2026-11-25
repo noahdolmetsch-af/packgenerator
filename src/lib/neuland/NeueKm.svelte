@@ -56,7 +56,7 @@
             {/each}
           </ul>
         {/if}
-        <p class="nk-note"><Info size={15} aria-hidden="true" /><span>{t('A stretch counts as new when none of your earlier rides passed within {m} m. Rides from Strava, GPX files and your own recordings count.', { m: NEAR_M })}</span></p>
+        <p class="nk-note"><Info size={16} aria-hidden="true" /><span>{t('A stretch counts as new when none of your earlier rides passed within {m} m. Rides from Strava, GPX files and your own recordings count.', { m: NEAR_M })}</span></p>
       {/if}
     </div>
   </section>

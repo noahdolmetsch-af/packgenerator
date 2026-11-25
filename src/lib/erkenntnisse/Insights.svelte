@@ -134,7 +134,7 @@
     {@render counterBlock(x)}
     {#if isLever(x.x)}
       {#if openTry(x) || startedId === x.id}
-        <p class="tried" data-try-running><Check size={15} aria-hidden="true" /><span>{t('Your try runs.')} <a href="#/me/ruhig/versuche">{t('Open the try')}</a></span></p>
+        <p class="tried" data-try-running><Check size={16} aria-hidden="true" /><span>{t('Your try runs.')} <a href="#/me/ruhig/versuche">{t('Open the try')}</a></span></p>
       {:else}
         <button type="button" class="btn" onclick={() => startTry(x)} data-try-start><FlaskConical size={16} aria-hidden="true" />{t('Test it for 14 days')}</button>
         <p class="ich-hs">{t('Starts a try with an end in «Experiment mit Ende». After 14 days the app shows the result next to the 14 days before.')}</p>
@@ -147,13 +147,13 @@
   {#if compact}<div class="ich-h"><div><h2 id="{idp}-h">{t('Insights')}</h2><p class="ich-hs">{t('what goes together in your data, the last {n} days', { n: WINDOW_DAYS })}</p></div></div>{/if}
   {#if rhr}
     <div class="card pad note" data-rhr-high>
-      <HeartPulse size={18} aria-hidden="true" />
+      <HeartPulse size={20} aria-hidden="true" />
       <p>{t('Your resting pulse has been above your normal ({n}) for {d} days: {list}. Maybe keep an eye on recovery.', { n: v(rhr.normal), d: rhr.last.length, list: rhr.last.join(', ') })}</p>
     </div>
   {/if}
   {#if fresh.length}
     <div class="card pad fresh" data-fresh>
-      <b class="wh"><Sparkles size={15} aria-hidden="true" /> {t('New this week')}</b>
+      <b class="wh"><Sparkles size={16} aria-hidden="true" /> {t('New this week')}</b>
       <ul class="wl">
         {#each fresh as x (x.id)}<li data-fresh-item={x.id}><span><b>{sentence(x)}</b></span><small class="num">{x.fresh === 'stronger' ? t('clearer than a week ago') : t('found this week')}</small></li>{/each}
       </ul>
@@ -200,11 +200,11 @@
       {/each}
     </ul>
   {:else}
-    <p class="card pad wait" data-insights-none><Hourglass size={15} aria-hidden="true" /><span>{t('Nothing clear yet. Insights show from {n} days with both values.', { n: MIN_DAYS })}</span></p>
+    <p class="card pad wait" data-insights-none><Hourglass size={16} aria-hidden="true" /><span>{t('Nothing clear yet. Insights show from {n} days with both values.', { n: MIN_DAYS })}</span></p>
   {/if}
   {#if !compact && waiting.length}
     <div class="card pad soon" data-soon>
-      <b class="wh"><Hourglass size={15} aria-hidden="true" /> {soon.soon.length ? tn(soon.soon.length, 'Soon visible: {n} link', 'Soon visible: {n} links') : t('Still collecting days')}</b>
+      <b class="wh"><Hourglass size={16} aria-hidden="true" /> {soon.soon.length ? tn(soon.soon.length, 'Soon visible: {n} link', 'Soon visible: {n} links') : t('Still collecting days')}</b>
       {#if soon.first}
         <p class="first" data-soon-first>{t('A first trend, not sure yet:')} <b>{sentence(soon.first)}</b> <small class="num">({tn(soon.first.n, '{n} day', '{n} days')})</small> <Sicherheit level="few" /></p>
       {/if}
@@ -246,7 +246,7 @@
       <p class="ich-hs">{t('Sure: it goes together clearly and the sentence rests on at least {n} days. Tendency: it goes together, but less clearly or on fewer days. Too little data: first days only, nothing to say yet.', { n: SURE_DAYS })}</p>
     </details>
   {/if}
-  <p class="local"><Lock size={15} aria-hidden="true" /><span>{t('Going together is not a cause. Only to look at, never a diagnosis. Everything stays on the device.')}</span></p>
+  <p class="local"><Lock size={16} aria-hidden="true" /><span>{t('Going together is not a cause. Only to look at, never a diagnosis. Everything stays on the device.')}</span></p>
   {#if compact}<a class="btn" href="#/me/insights" data-insights-all>{t('All insights')}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
 </section>
 

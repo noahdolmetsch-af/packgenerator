@@ -149,7 +149,7 @@
       <section class="surf sk-pad box" data-season-start>
         <p class="sk-kicker">{t('Season start')}</p>
         <p class="sk-title num">{tn(toStart, 'In {n} day the season starts', 'In {n} days the season starts')}</p>
-        <a class="sk-row" href="#/ski/care"><span class="sk-rt"><b>{t('Season care')}</b><small>{t('Transceiver, skins, wax before the first tour')}</small></span><ChevronRight size={18} aria-hidden="true" /></a>
+        <a class="sk-row" href="#/ski/care"><span class="sk-rt"><b>{t('Season care')}</b><small>{t('Transceiver, skins, wax before the first tour')}</small></span><ChevronRight size={20} aria-hidden="true" /></a>
       </section>
     {/if}
     <div class="sk-cols">
@@ -177,7 +177,7 @@
               {#each wishes as w, i (w.id)}
                 <li data-sort-id={w.id} data-wish={w.name}>
                   <SortGrip name={w.name} onstep={(dir) => move(i, i + dir)} />
-                  <button type="button" class="tick" role="checkbox" aria-checked={!!w.doneDay} aria-label={w.name} onclick={() => saveWishes((list) => toggleWish(list, w.id, today))}><span class="sk-box" aria-hidden="true">{#if w.doneDay}<Check size={18} strokeWidth={3} />{/if}</span></button>
+                  <button type="button" class="tick" role="checkbox" aria-checked={!!w.doneDay} aria-label={w.name} onclick={() => saveWishes((list) => toggleWish(list, w.id, today))}><span class="sk-box" aria-hidden="true">{#if w.doneDay}<Check size={20} strokeWidth={2.5} />{/if}</span></button>
                   {#if editing === w.id}
                     <form class="grow" onsubmit={endEdit}>
                       <!-- svelte-ignore a11y_autofocus -->

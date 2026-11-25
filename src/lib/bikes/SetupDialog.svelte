@@ -48,7 +48,7 @@
           {kind === 'delete' ? t('Trips that used it show «Standard» afterwards. You can undo it for 8 seconds.') : kind === 'tobike' ? t('Places the other bike does not have keep their things «without a bag».') : kind === 'fromtrip' ? t('The bags of this trip and what is in each of them. The trip then uses the new setup.') : t('Which bags are on the bike and what goes in which bag.')}
         </p>
       </div>
-      <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={18} aria-hidden="true" /></button>
+      <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
     </div>
     {#if kind !== 'delete'}
       <div class="fields">

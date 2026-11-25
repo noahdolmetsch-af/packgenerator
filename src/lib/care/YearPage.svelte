@@ -47,7 +47,7 @@
     </div>
     {#if bikes.length > 1}
       <section class="gcard" aria-labelledby="yr-all" data-year-all>
-        <h2 id="yr-all"><CalendarRange size={18} aria-hidden="true" />{t('All bikes in {year}', { year })}</h2>
+        <h2 id="yr-all"><CalendarRange size={20} aria-hidden="true" />{t('All bikes in {year}', { year })}</h2>
         <p class="num">{t('{km} km', { km: num(sum.km) })} · {tn(sum.rides, '{n} ride', '{n} rides')} · {tn(sum.changed, '{n} part changed', '{n} parts changed')} · {chf(sum.chf)}</p>
         {#if sum.top}<p class="quiet">{t('Most km: {bike}', { bike: sum.top })}</p>{/if}
       </section>

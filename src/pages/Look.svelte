@@ -100,9 +100,9 @@
             {/each}
           </div>
           <div class="scrow">
-            <button type="button" class="scb" aria-label={t('Smaller')} disabled={theme.scale <= SCALE_MIN} onclick={() => commit(theme.scale - SCALE_STEP)}><Minus size={18} aria-hidden="true" /></button>
+            <button type="button" class="scb" aria-label={t('Smaller')} disabled={theme.scale <= SCALE_MIN} onclick={() => commit(theme.scale - SCALE_STEP)}><Minus size={20} aria-hidden="true" /></button>
             <input id="look-scale-in" type="range" aria-labelledby="look-scale" aria-valuetext="{shown} %" min={SCALE_MIN} max={SCALE_MAX} step={SCALE_STEP} value={shown} oninput={(e) => (draft = +e.currentTarget.value)} onchange={(e) => commit(+e.currentTarget.value)} />
-            <button type="button" class="scb" aria-label={t('Larger')} disabled={theme.scale >= SCALE_MAX} onclick={() => commit(theme.scale + SCALE_STEP)}><Plus size={18} aria-hidden="true" /></button>
+            <button type="button" class="scb" aria-label={t('Larger')} disabled={theme.scale >= SCALE_MAX} onclick={() => commit(theme.scale + SCALE_STEP)}><Plus size={20} aria-hidden="true" /></button>
           </div>
           <p class="scends"><span>{SCALE_MIN} %</span>{#if theme.scale !== DEFAULT_SCALE}<button type="button" class="back100" onclick={() => commit(DEFAULT_SCALE)}>{t('Back to {n} %', { n: DEFAULT_SCALE })}</button>{/if}<span>{SCALE_MAX} %</span></p>
         </div>

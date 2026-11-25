@@ -87,7 +87,7 @@
           <a class="pic" href={bikesHash({ tab: 'rig', view: 'setup', bike: bike.id, setup: s.id })} tabindex="-1" aria-hidden="true"><RigBike bags={c.list} /></a>
           <div class="txt">
             <h3 id="ts-{s.id}">{nm(s)}
-              {#if s.id === lastId}<span class="badge ok"><Clock3 size={12} aria-hidden="true" />{t('last used')}</span>{/if}
+              {#if s.id === lastId}<span class="badge ok"><Clock3 size={14} aria-hidden="true" />{t('last used')}</span>{/if}
               {#if s.std}<span class="badge">{t('Standard · for old trips')}</span>{:else if !used[s.id]}<span class="badge new">{t('not used yet')}</span>{/if}
             </h3>
             <p class="bags">{c.list.length ? `${tn(c.list.length, '{n} bag', '{n} bags')}: ${bagNames(c)}` : t('No bags yet')}</p>

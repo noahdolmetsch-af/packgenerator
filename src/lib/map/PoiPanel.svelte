@@ -629,7 +629,7 @@
   {#if places.length}
     <div class="pp-fold">
       <button type="button" class="pp-fh" aria-expanded={listOpen} onclick={() => (listOpen = !listOpen)} data-poi-list-toggle>
-        <span>{t('Places|poi')} <span class="num">{num(places.length)}</span></span><ChevronDown size={18} aria-hidden="true" class={listOpen ? 'pp-up' : ''} />
+        <span>{t('Places|poi')} <span class="num">{num(places.length)}</span></span><ChevronDown size={20} aria-hidden="true" class={listOpen ? 'pp-up' : ''} />
       </button>
       {#if listOpen}
         <ul class="pp-list" data-poi-list>
@@ -662,7 +662,7 @@
 
   <div class="pp-fold">
     <button type="button" class="pp-fh" aria-expanded={savedOpen} onclick={() => (savedOpen = !savedOpen)} data-poi-saved-toggle>
-      <span>{t('Saved places|poi')} {#if starred.length}<span class="num">{num(starred.length)}</span>{/if}</span><ChevronDown size={18} aria-hidden="true" class={savedOpen ? 'pp-up' : ''} />
+      <span>{t('Saved places|poi')} {#if starred.length}<span class="num">{num(starred.length)}</span>{/if}</span><ChevronDown size={20} aria-hidden="true" class={savedOpen ? 'pp-up' : ''} />
     </button>
     {#if savedOpen}
       {#if !starred.length && !own.length}
@@ -688,7 +688,7 @@
 
   <div class="pp-fold">
     <button type="button" class="pp-fh" aria-expanded={ownOpen} onclick={() => (ownOpen = !ownOpen)} data-poi-own-toggle>
-      <span>{t('My own places|poi')} {#if own.length}<span class="num">{num(own.length)}</span>{/if}</span><ChevronDown size={18} aria-hidden="true" class={ownOpen ? 'pp-up' : ''} />
+      <span>{t('My own places|poi')} {#if own.length}<span class="num">{num(own.length)}</span>{/if}</span><ChevronDown size={20} aria-hidden="true" class={ownOpen ? 'pp-up' : ''} />
     </button>
     {#if ownOpen}
       <div class="pp-box" data-poi-own>

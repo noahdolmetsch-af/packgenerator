@@ -19,7 +19,9 @@ test('Trips: pack cards on top, Continue opens the list in Steps', async ({ page
   // the content is not pushed: the cards stand right behind the title block
   // (relative to the title: the path, the closed help lines and the search of the place stand between them since the day-one layout of Touren)
   const gap = (await page.locator('[data-pack-cards]').boundingBox()).y - (await page.locator('main h1').first().boundingBox()).y;
-  expect(gap).toBeLessThan(500);
+  // 25.11.2026 (App schöner 2b, Noah «7»): «Tour from komoot» is a quiet link in the head row beside «Races» and «On the way» instead of
+  // a chip row under the cards; on a phone that row wraps once more (about +50 px in front of the cards, -46 px behind them), so 500 became 560
+  expect(gap).toBeLessThan(560);
   if (process.env.SHOTS) {
     mkdirSync(process.env.SHOTS, { recursive: true });
     await page.screenshot({ path: `${process.env.SHOTS}/karten-${info.project.name === 'phone' ? 390 : 1440}.png` });

@@ -131,7 +131,7 @@
   </section>
 {:else if on === true && d}
   <section class="rv-sec tb" aria-labelledby="tb-h" data-tagebuch>
-    <div class="rv-h"><div><h2 id="tb-h"><BookHeart size={18} aria-hidden="true" /> {t('Tour diary')}</h2><p class="rv-sub">{d.diary?.edited ? t('your text') : t('a draft from your rides, weather and notes · change anything')}</p></div></div>
+    <div class="rv-h"><div><h2 id="tb-h"><BookHeart size={20} aria-hidden="true" /> {t('Tour diary')}</h2><p class="rv-sub">{d.diary?.edited ? t('your text') : t('a draft from your rides, weather and notes · change anything')}</p></div></div>
     <div class="rv-box pad">
       <textarea bind:this={box} class="inp tb-text" rows="8" value={d.diary?.text ?? ''} oninput={edit} aria-label={t('Tour diary')}></textarea>
       {#if photos.length}
@@ -142,7 +142,7 @@
         </ul>
       {/if}
       <div class="rowacts tb-acts">
-        <label class="btn k tb-pick" aria-disabled={busy}><ImagePlus size={17} aria-hidden="true" /><span class="kl">{busy ? t('Adding …') : t('Photos of those days')}</span><input type="file" accept="image/*" multiple onchange={pick} disabled={busy} hidden /></label>
+        <label class="btn k tb-pick" aria-disabled={busy}><ImagePlus size={16} aria-hidden="true" /><span class="kl">{busy ? t('Adding …') : t('Photos of those days')}</span><input type="file" accept="image/*" multiple onchange={pick} disabled={busy} hidden /></label>
         <Btn icon={RefreshCw} label={t('New draft')} onclick={redraft} />
         <Btn icon={Copy} label={t('Copy')} onclick={copy} />
         {#if canShare}<Btn icon={Share2} label={t('Share')} onclick={share} />{/if}

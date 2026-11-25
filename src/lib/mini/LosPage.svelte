@@ -199,9 +199,9 @@
             <li class="lo-drow">
               <SortGrip name={x.title} onstep={(dir) => moveDraw(i, i + dir)} />
               <a class="ich-row" href={`#/me/mini/los/${encodeURIComponent(x.id)}`} data-los-item={x.id}>
-                <span class="ich-ib"><Dices size={18} aria-hidden="true" /></span>
+                <span class="ich-ib"><Dices size={20} aria-hidden="true" /></span>
                 <span class="ich-m"><b>{x.title}</b><small>{t(modeOf(x.mode).label)} · {t('{n} people', { n: x.people.length })}</small></span>
-                <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+                <ChevronRight class="ich-chev" size={20} aria-hidden="true" />
               </a>
               <SortArrows name={x.title} {i} n={draws.length} onstep={(dir) => moveDraw(i, i + dir)} />
             </li>
@@ -235,7 +235,7 @@
         <p class="lo-help">{t('Not drawn yet.')}</p>
       {/if}
       <div class="lo-acts">
-        <button type="button" class="btn hi" onclick={drawIt} data-los-go><Dices size={18} aria-hidden="true" />{latest ? t('Draw again') : t('Draw now')}</button>
+        <button type="button" class="btn hi" onclick={drawIt} data-los-go><Dices size={20} aria-hidden="true" />{latest ? t('Draw again') : t('Draw now')}</button>
         {#if latest}
           <button type="button" class="btn" onclick={copy} data-los-copy><Copy size={16} aria-hidden="true" />{t('Copy')}</button>
           <a class="btn" href={wa} target="_blank" rel="noopener" data-los-wa><MessageCircle size={16} aria-hidden="true" />{t('Send to the group')}</a>
@@ -290,7 +290,7 @@
 
     {#if history.length}
       <section class="card lo-box" aria-labelledby="lo-hist-h">
-        <h2 id="lo-hist-h"><History size={18} aria-hidden="true" /> {t('Earlier results')}</h2>
+        <h2 id="lo-hist-h"><History size={20} aria-hidden="true" /> {t('Earlier results')}</h2>
         <ul class="lo-hist" data-los-history>
           {#each history as h (h.id)}
             <li>

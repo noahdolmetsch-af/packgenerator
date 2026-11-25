@@ -29,7 +29,7 @@
     {#each groups as g (g.key)}
       <li>
         <button type="button" class="cat" aria-expanded={isOpen(g.key)} onclick={() => (open = { ...open, [g.key]: !open[g.key] })}>
-          <ChevronRight class="chev" size={18} aria-hidden="true" /><span>{g.name}</span><span class="n num">{g.items.length}</span>
+          <ChevronRight class="chev" size={20} aria-hidden="true" /><span>{g.name}</span><span class="n num">{g.items.length}</span>
         </button>
         {#if isOpen(g.key)}
           <ul class="adds">

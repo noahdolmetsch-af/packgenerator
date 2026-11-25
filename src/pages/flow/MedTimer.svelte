@@ -232,11 +232,11 @@
           {/if}
           {#if gotStars.length}
             <span class="got" aria-label={t('Stars reached')}>
-              {#each gotStars as x (x.star.id)}<span class="gb" data-got={x.star.id}><Star size={12} aria-hidden="true" />{msName(x.r.m)} {x.star.star}</span>{/each}
+              {#each gotStars as x (x.star.id)}<span class="gb" data-got={x.star.id}><Star size={14} aria-hidden="true" />{msName(x.r.m)} {x.star.star}</span>{/each}
             </span>
           {/if}
         </span>
-        <ChevronRight size={18} aria-hidden="true" />
+        <ChevronRight size={20} aria-hidden="true" />
       </a>
     {/if}
 
@@ -257,7 +257,7 @@
                   {#each SOUNDS as s (s.id)}<option value={s.id}>{t(s.name)}</option>{/each}
                 </select>
               </label>
-              <button type="button" class="ib" aria-label={t('Close')} onclick={() => (longMark = null)}><X size={18} aria-hidden="true" /></button>
+              <button type="button" class="ib" aria-label={t('Close')} onclick={() => (longMark = null)}><X size={20} aria-hidden="true" /></button>
             </div>
           {/if}
         </section>
@@ -290,7 +290,7 @@
           </p>
           {#if soundsOpen}
             <div class="srow">
-              <Volume2 size={18} aria-hidden="true" />
+              <Volume2 size={20} aria-hidden="true" />
               <select class="sel" aria-label={t('Sound')} bind:value={sound} onchange={changed}>{#each SOUNDS as s (s.id)}<option value={s.id}>{t(s.name)}</option>{/each}</select>
               <button type="button" class="hear" onclick={() => hear(sound)}><Play size={14} aria-hidden="true" />{t('listen')}</button>
             </div>
@@ -308,7 +308,7 @@
           </label>
         </section>
 
-        <button type="button" class="btn hi go" onclick={start} data-start="timer"><Play size={22} aria-hidden="true" />{running ? t('Open the running session') : t('Start · {n} min', { n: minutes })}</button>
+        <button type="button" class="btn hi go" onclick={start} data-start="timer"><Play size={24} aria-hidden="true" />{running ? t('Open the running session') : t('Start · {n} min', { n: minutes })}</button>
         <!-- SK X8 (SKX4): «Meine Musik», your own link (e.g. a playlist), under «Start» (Noah 06.11.2026 «3a»: «Start» comes before «Save as a template?») -->
         <Woanders stack links={[{ kind: 'x8', slot: slotOf('x8'), icon: 'music', sub: t('your playlist') }]} />
 

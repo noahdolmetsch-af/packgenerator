@@ -385,12 +385,12 @@
       <div class="wshare"><ShareBar label={t('Weight by layer')} parts={layerParts} fmt={kg} /></div>
       <!-- v0.45.0 (Noah, decision 8): what the debriefs taught, in words; hidden at 0. v0.47.0: a quiet chip. -->
       {#if offLine}
-        <p class="offset"><Thermometer size={15} aria-hidden="true" /><span class="num">{t(offLine.text, { n: offLine.n })}</span><button type="button" class="linkbtn" onclick={resetOff}>{t('Reset|offset')}</button></p>
+        <p class="offset"><Thermometer size={16} aria-hidden="true" /><span class="num">{t(offLine.text, { n: offLine.n })}</span><button type="button" class="linkbtn" onclick={resetOff}>{t('Reset|offset')}</button></p>
       {/if}
     </div>
     {#if suggestion.state !== 'none'}
       <!-- v0.47.0: the one main action of the page -->
-      <button type="button" class="btn hi wear-btn" aria-controls="w-today" onclick={showToday}><Sparkles size={18} aria-hidden="true" />{suggestion.win?.tomorrow ? t('What do I wear tomorrow?') : t('What do I wear today?')}{#if suggestion.state === 'ok'}<span class="num"> · {suggestion.outfit.c}°</span>{/if}</button>
+      <button type="button" class="btn hi wear-btn" aria-controls="w-today" onclick={showToday}><Sparkles size={20} aria-hidden="true" />{suggestion.win?.tomorrow ? t('What do I wear tomorrow?') : t('What do I wear today?')}{#if suggestion.state === 'ok'}<span class="num"> · {suggestion.outfit.c}°</span>{/if}</button>
     {/if}
   </header>
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the card, the tip of the day, at the end the example «Was trage ich bei wie viel Grad?».
@@ -490,7 +490,7 @@
       {#if w.unsorted.length}
         <section class="surf sort" aria-labelledby="sort-h">
           <button type="button" class="sort-h" aria-expanded={sortOpen} aria-controls="sort-list" onclick={() => (sortOpen = !sortOpen)}>
-            <span id="sort-h">{t('To sort')}</span><span class="pill act"><span class="r num">{w.unsorted.length}</span></span><span class="sp"></span><ChevronDown class={sortOpen ? 'chev up' : 'chev'} size={18} aria-hidden="true" />
+            <span id="sort-h">{t('To sort')}</span><span class="pill act"><span class="r num">{w.unsorted.length}</span></span><span class="sp"></span><ChevronDown class={sortOpen ? 'chev up' : 'chev'} size={20} aria-hidden="true" />
           </button>
           {#if sortOpen}
             <div id="sort-list">
@@ -527,7 +527,7 @@
       {#if tidyCount}
         <section class="surf tidy" aria-labelledby="tidy-h" data-tidy>
           <button type="button" class="sort-h" aria-expanded={tidyOpen} aria-controls="tidy-list" onclick={() => (tidyOpen = !tidyOpen)}>
-            <span id="tidy-h">{t('Tidy up')}</span><span class="pill act"><span class="r num">{tidyCount}</span></span><span class="sp"></span><ChevronDown class={tidyOpen ? 'chev up' : 'chev'} size={18} aria-hidden="true" />
+            <span id="tidy-h">{t('Tidy up')}</span><span class="pill act"><span class="r num">{tidyCount}</span></span><span class="sp"></span><ChevronDown class={tidyOpen ? 'chev up' : 'chev'} size={20} aria-hidden="true" />
           </button>
           {#if tidyOpen}
             <div id="tidy-list">
@@ -583,7 +583,7 @@
 
       {#if !w.unsorted.length && sortedHere}
         <!-- v0.47.0: the emptied to-do list says so once, calmly, with the next step -->
-        <p class="surf sortdone" id="sort-done" tabindex="-1" role="status"><Check size={18} aria-hidden="true" /><span>{t('Everything sorted.')}</span><button type="button" class="linkbtn" onclick={() => document.querySelector('.cols')?.scrollIntoView({ behavior: 'smooth' })}>{t('To the layers')}</button></p>
+        <p class="surf sortdone" id="sort-done" tabindex="-1" role="status"><Check size={20} aria-hidden="true" /><span>{t('Everything sorted.')}</span><button type="button" class="linkbtn" onclick={() => document.querySelector('.cols')?.scrollIntoView({ behavior: 'smooth' })}>{t('To the layers')}</button></p>
       {/if}
 
       <div class="bar">
@@ -604,7 +604,7 @@
       {#if fLayer || fZone}
         <p class="filt" role="status">
           <span>{t('Only {what}', { what: [fLayer ? layerName(fLayer) : null, fZone ? zoneName(fZone) : null].filter(Boolean).join(' · ') })}</span>
-          <button type="button" class="linkbtn" onclick={() => ((fLayer = null), (fZone = null))}><X size={15} aria-hidden="true" />{t('Show all|filter')}</button>
+          <button type="button" class="linkbtn" onclick={() => ((fLayer = null), (fZone = null))}><X size={16} aria-hidden="true" />{t('Show all|filter')}</button>
         </p>
       {/if}
 
@@ -633,7 +633,7 @@
                 <button type="button" class="ltog" aria-expanded={!shut} onclick={() => toggleLayer(l.key)}>
                   <span class="lt2"><b>{layerName(l.key)}</b> <small>{layerSub(l.key)}</small></span>
                   <span class="ln2 num">{l.n} · {formatWeight(l.g)}</span>
-                  <ChevronRight class={shut ? 'lchev' : 'lchev down'} size={18} aria-hidden="true" />
+                  <ChevronRight class={shut ? 'lchev' : 'lchev down'} size={20} aria-hidden="true" />
                 </button>
               </h2>
             {:else}
@@ -680,7 +680,7 @@
                   <Thermometer size={16} aria-hidden="true" />
                   <span class="gt num">{gapText(z.gap)}</span>
                   {#if z.gap.wished}<span class="gw"><Check size={14} aria-hidden="true" />{t('On the wishlist: {name}', { name: nameOf(z.gap.wished) })}</span>
-                  {:else}<button type="button" class="btn sm" onclick={() => addWish(z.gap)} data-explain={t('Add to wishlist')}><Heart size={15} aria-hidden="true" />{t('Wishlist|put')}</button>{/if}
+                  {:else}<button type="button" class="btn sm" onclick={() => addWish(z.gap)} data-explain={t('Add to wishlist')}><Heart size={16} aria-hidden="true" />{t('Wishlist|put')}</button>{/if}
                 </p>
               {/if}
             {/each}

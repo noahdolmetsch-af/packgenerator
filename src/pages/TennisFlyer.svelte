@@ -555,7 +555,7 @@
 
         <!-- 5. photo -->
         <section class="card tf-sec" aria-labelledby="tf-h5" data-flyer-photo>
-          <h2 id="tf-h5"><ImageIcon size={18} aria-hidden="true" /> {t('Photo')}</h2>
+          <h2 id="tf-h5"><ImageIcon size={20} aria-hidden="true" /> {t('Photo')}</h2>
           <p class="muted">{t('Choose a photo from your gallery or take one; on a computer choose a file. It is made smaller and stays on this device: not in the backup and not on a server.')}</p>
           <PhotoPick {onfile} busy={photoBusy} has={!!currentPhoto(photos)} big camera="Take photo" choose="Choose photo" again="Other photo" />
           {#if photoMsg}<p class="err" role="alert">{photoMsg}</p>{/if}

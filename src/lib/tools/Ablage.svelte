@@ -98,7 +98,7 @@
 </script>
 
 <section class="tool-card ablage" data-ablage="links">
-  <svelte:element this={head} class="ab-h"><Link2 size={18} aria-hidden="true" />{t('Links|ablage')}</svelte:element>
+  <svelte:element this={head} class="ab-h"><Link2 size={20} aria-hidden="true" />{t('Links|ablage')}</svelte:element>
   <p class="tool-help">{t('Important web addresses in one place: timetables, bookings, your bank.')}</p>
   {#if links.length}
     <ul class="tool-list" use:sortable={{ onmove: (a, b) => saveLinks(moved(links, a, b)) }}>
@@ -107,8 +107,8 @@
           <SortGrip name={l.title} onstep={(d) => saveLinks(moved(links, i, i + d))} />
           <a class="ab-m" href={l.url} target="_blank" rel="noopener noreferrer"><b>{l.title}</b><small class="tool-muted">{l.url}</small></a>
           <SortArrows name={l.title} {i} n={links.length} onstep={(d) => saveLinks(moved(links, i, i + d))} />
-          <button type="button" class="btn sm" aria-label={t('Rename {name}', { name: l.title })} onclick={() => (renaming = { kind: 'link', e: l })}><Pencil size={15} aria-hidden="true" /></button>
-          <button type="button" class="btn sm" aria-label={t('Delete {name}', { name: l.title })} onclick={() => delLink(l)}><Trash2 size={15} aria-hidden="true" /></button>
+          <button type="button" class="btn sm" aria-label={t('Rename {name}', { name: l.title })} onclick={() => (renaming = { kind: 'link', e: l })}><Pencil size={16} aria-hidden="true" /></button>
+          <button type="button" class="btn sm" aria-label={t('Delete {name}', { name: l.title })} onclick={() => delLink(l)}><Trash2 size={16} aria-hidden="true" /></button>
         </li>
       {/each}
     </ul>
@@ -125,7 +125,7 @@
 </section>
 
 <section class="tool-card ablage" data-ablage="files">
-  <svelte:element this={head} class="ab-h"><Paperclip size={18} aria-hidden="true" />{t('Small files')}</svelte:element>
+  <svelte:element this={head} class="ab-h"><Paperclip size={20} aria-hidden="true" />{t('Small files')}</svelte:element>
   <p class="tool-help">{t('Small files up to 5 MB, e.g. a ticket or a list. They go into the backup.')}</p>
   {#if files.length}
     <ul class="tool-list" use:sortable={{ onmove: (a, b) => saveFiles(moved(files, a, b)) }}>
@@ -134,10 +134,10 @@
           <SortGrip name={f.name} onstep={(d) => saveFiles(moved(files, i, i + d))} />
           <button type="button" class="ab-m ab-open" onclick={() => openFile(f)}><b>{f.name}</b><small class="tool-muted">{sizeText(f.size)}</small></button>
           <SortArrows name={f.name} {i} n={files.length} onstep={(d) => saveFiles(moved(files, i, i + d))} />
-          <button type="button" class="btn sm" aria-label={t('Open file {name}', { name: f.name })} onclick={() => openFile(f)}><ExternalLink size={15} aria-hidden="true" /></button>
-          <button type="button" class="btn sm" aria-label={t('Share {name}', { name: f.name })} onclick={() => shareFile(f)}><Share2 size={15} aria-hidden="true" /></button>
-          <button type="button" class="btn sm" aria-label={t('Rename {name}', { name: f.name })} onclick={() => (renaming = { kind: 'file', e: f })}><Pencil size={15} aria-hidden="true" /></button>
-          <button type="button" class="btn sm" aria-label={t('Delete {name}', { name: f.name })} onclick={() => delFile(f)}><Trash2 size={15} aria-hidden="true" /></button>
+          <button type="button" class="btn sm" aria-label={t('Open file {name}', { name: f.name })} onclick={() => openFile(f)}><ExternalLink size={16} aria-hidden="true" /></button>
+          <button type="button" class="btn sm" aria-label={t('Share {name}', { name: f.name })} onclick={() => shareFile(f)}><Share2 size={16} aria-hidden="true" /></button>
+          <button type="button" class="btn sm" aria-label={t('Rename {name}', { name: f.name })} onclick={() => (renaming = { kind: 'file', e: f })}><Pencil size={16} aria-hidden="true" /></button>
+          <button type="button" class="btn sm" aria-label={t('Delete {name}', { name: f.name })} onclick={() => delFile(f)}><Trash2 size={16} aria-hidden="true" /></button>
         </li>
       {/each}
     </ul>

@@ -315,7 +315,7 @@
     <!-- the list -->
     {#if active && activePlan}
       <section class="card on" aria-labelledby="on-h" data-section="plan-active">
-        <span class="oi" aria-hidden="true"><CalendarRange size={22} /></span>
+        <span class="oi" aria-hidden="true"><CalendarRange size={24} /></span>
         <div class="oc">
           <h2 id="on-h" class="oh">{t('In use: {name}', { name: nameOf(activePlan) })}</h2>
           {#if activeRace}<p data-plan-for>{t('For: {race}', { race: activeRace.title || t('Race without a name') })}</p>{/if}
@@ -363,7 +363,7 @@
               <span class="pn"><b>{nameOf(p)}</b>{#if p.own}<small class="tag">{t('My plan')}</small>{/if}</span>
               <span class="pw">{t(p.who)}</span>
               <span class="pf num">{t('{w} weeks · {a}–{b} h per week', { w: p.weeks, a: num(p.lo), b: num(p.hi) })}</span>
-              <ChevronRight size={18} aria-hidden="true" />
+              <ChevronRight size={20} aria-hidden="true" />
             </a>
             <div class="pt">
               {#if p.own}

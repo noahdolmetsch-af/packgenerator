@@ -58,10 +58,10 @@
     {#if showPath}
       <nav class="pathline" aria-label={t('Where you are')} data-pathline>
         {#each steps as s, n (n)}
-          {#if n > 0}<ChevronRight class="sep" size={12} aria-hidden="true" />{/if}
+          {#if n > 0}<ChevronRight class="sep" size={14} aria-hidden="true" />{/if}
           {#if n === steps.length - 1 && !last}<span aria-current="page">{s.label}</span>{:else}<a href={s.href}>{s.label}</a>{/if}
         {/each}
-        {#if last}<ChevronRight class="sep" size={12} aria-hidden="true" /><span aria-current="page">{last}</span>{/if}
+        {#if last}<ChevronRight class="sep" size={14} aria-hidden="true" /><span aria-current="page">{last}</span>{/if}
       </nav>
     {/if}
     {#if tabInfo}<span class="pi"><InfoDot info={tabInfo} id={`tab.${place}`} /></span>{/if}

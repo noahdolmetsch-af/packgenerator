@@ -35,7 +35,7 @@
       {#each checks as c (c.key)}
         {@const x = text(c)}
         <li class:ok={c.ok} data-ready={c.key} data-ok={c.ok}>
-          {#if c.ok}<CircleCheck size={18} aria-label={t('ready')} />{:else}<CircleDashed size={18} aria-label={t('still missing')} />{/if}
+          {#if c.ok}<CircleCheck size={20} aria-label={t('ready')} />{:else}<CircleDashed size={20} aria-label={t('still missing')} />{/if}
           <span><b>{x.have}</b><small>{x.need}{#if !c.ok}{' · '}{x.gap}{/if}</small></span>
         </li>
       {/each}

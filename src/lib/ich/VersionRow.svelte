@@ -40,7 +40,7 @@
 </script>
 
 <div class="ich-row ich-wrap vrow" data-version-row data-version-state={asked ? state : 'checking'}>
-  <span class="ich-ib"><RefreshCw size={18} aria-hidden="true" /></span>
+  <span class="ich-ib"><RefreshCw size={20} aria-hidden="true" /></span>
   <span class="ich-m"><b>{t('Version {v} on this device', { v: running })}</b><small>{line}</small>{#if stuck}<small data-fresh-stuck>{t('Loading did not work. Close the app completely (swipe it away in the app overview) and open it again. Your data stays on this device.')}</small>{/if}{#if waiting > 0}<small data-not-online={waiting}>{waiting === 1 ? t('1 finished change is not online yet (usually about 5 minutes)') : t('{n} finished changes are not online yet (usually about 5 minutes)', { n: waiting })}</small>{/if}</span>
   <Btn kind={state === 'newer' ? 'hi' : 'normal'} class="sm" label={t('Load newest|update')} explain={t('Loads the app fresh from the internet. Your data stays on this device.')} onclick={() => {
     stuck = false;

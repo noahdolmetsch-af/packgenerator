@@ -23,13 +23,13 @@
 </script>
 
 <section class="card nd" aria-labelledby="nd-h" data-needs>
-  <h2 id="nd-h"><CircleHelp size={18} aria-hidden="true" />{t('What the app still needs to know')}</h2>
+  <h2 id="nd-h"><CircleHelp size={20} aria-hidden="true" />{t('What the app still needs to know')}</h2>
   {#if list.length}
     <p class="quiet">{t('Only if you want: each one makes a function work better.')}</p>
     <ul>
       {#each list as x (x.key)}
         {@const w = WORDS[x.key](x.n)}
-        <li data-need={x.key}><a href={x.href}><span><b>{w[0]}</b><small>{w[1]}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li>
+        <li data-need={x.key}><a href={x.href}><span><b>{w[0]}</b><small>{w[1]}</small></span><ChevronRight size={20} aria-hidden="true" /></a></li>
       {/each}
     </ul>
   {:else}

@@ -10,7 +10,7 @@
 </script>
 
 <div class="toast" role="status">
-  <Check size={18} aria-hidden="true" />
+  <Check size={20} aria-hidden="true" />
   <span>{text}</span>
   <button type="button" class="undo" onclick={onundo}><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>
 </div>

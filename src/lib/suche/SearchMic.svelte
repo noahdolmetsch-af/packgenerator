@@ -78,7 +78,7 @@
 
 {#if shown}
   <button type="button" class="mic" class:on={st === 'listening'} aria-pressed={st === 'listening'} aria-label={label} title={label} disabled={st === 'working' || st === 'loading'} onclick={toggle} data-search-mic={st}>
-    {#if st === 'listening'}<Square size={16} aria-hidden="true" />{:else}<Mic size={18} aria-hidden="true" />{/if}
+    {#if st === 'listening'}<Square size={16} aria-hidden="true" />{:else}<Mic size={20} aria-hidden="true" />{/if}
   </button>
 {/if}
 

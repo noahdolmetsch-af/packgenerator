@@ -17,7 +17,7 @@
 
 {#if lines.length}
   <section class="tp-card uh" aria-labelledby="uh-h" data-used-hint>
-    <h2 id="uh-h"><History size={18} aria-hidden="true" /> {t('Used last time')}</h2>
+    <h2 id="uh-h"><History size={20} aria-hidden="true" /> {t('Used last time')}</h2>
     <ul>
       {#each lines as l (l.item.id)}
         <li><b>{nameOf(l.item)}</b> · {l.last.taken ? t('{used} of {taken} used', { used: num(l.last.used), taken: num(l.last.taken) }) : t('{used} used', { used: num(l.last.used) })} · <small>{l.last.days > 1 ? t('{n} days, {title}', { n: num(l.last.days), title: l.last.title }) : l.last.title}</small></li>

@@ -50,8 +50,8 @@
   </div>
   {#if here}
     <div class="rc-acts">
-      <a class="btn" href={smsHref(text)} data-live-sms><MessageSquare size={18} aria-hidden="true" />{t('Send position by SMS')}</a>
-      <button type="button" class="btn" onclick={copy}><Copy size={18} aria-hidden="true" />{copied ? t('Copied') : t('Copy position')}</button>
+      <a class="btn" href={smsHref(text)} data-live-sms><MessageSquare size={20} aria-hidden="true" />{t('Send position by SMS')}</a>
+      <button type="button" class="btn" onclick={copy}><Copy size={20} aria-hidden="true" />{copied ? t('Copied') : t('Copy position')}</button>
     </div>
     <p class="rc-note">{t('The SMS has your position, a map link and the time. You choose who gets it.')}</p>
   {/if}
@@ -60,7 +60,7 @@
   {#if station}
     {@const l = navLinks(station)}
     <p class="lv-sos-st" data-live-station>
-      <Train size={18} aria-hidden="true" />
+      <Train size={20} aria-hidden="true" />
       <span><b>{station.name || t('Station')}</b> · {station.behind ? t('{d} km back', { d: station.distKm }) : t('{d} km ahead', { d: station.distKm })}</span>
     </p>
     <div class="rc-acts">
@@ -71,7 +71,7 @@
     <p class="rc-note">{t('No station among the stops. «Next trains home» looks for the nearest one.')}</p>
   {/if}
   <div class="rc-acts">
-    <button type="button" class="btn" onclick={() => (home = true)} data-live-home><Train size={18} aria-hidden="true" />{t('Next trains home')}</button>
+    <button type="button" class="btn" onclick={() => (home = true)} data-live-home><Train size={20} aria-hidden="true" />{t('Next trains home')}</button>
   </div>
   <p class="rc-note">{t('Bike on the train: in Switzerland you need a bike ticket; on many long-distance trains you must also reserve a bike place, in summer always. Abroad the rules differ: ask at the station.')}</p>
 </dialog>

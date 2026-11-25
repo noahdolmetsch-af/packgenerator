@@ -76,7 +76,7 @@
   {/if}
   {#if problem}<p class="det-err" role="alert">{problem}</p>{/if}
   <div class="card ich-row det-rem">
-    <span class="det-ib"><Bell size={18} aria-hidden="true" /></span>
+    <span class="det-ib"><Bell size={20} aria-hidden="true" /></span>
     <span class="ich-m"><b id="det-rem">{t('Reminder to check payments')}</b><small>{t('Every Sunday, 18:00 · only when invoices are open')}</small></span>
     <button class="btn sm" type="button" role="switch" aria-labelledby="det-rem" aria-checked={rem.on} onclick={toggle}>{rem.on ? t('on|switch') : t('off|switch')}</button>
   </div>

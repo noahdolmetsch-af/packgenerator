@@ -31,7 +31,7 @@
       <span><b id="prm-h">{t('Sunday: check payments')}</b><small>{tn(sum.count, '{n} invoice open', '{n} invoices open')} · {formatAmount(sum.sum)} CHF</small></span>
     </div>
     <div class="prm-btns">
-      <a class="btn hi" href="#/me/pay/invoices"><Landmark size={18} aria-hidden="true" />{t('Upload a bank statement')}</a>
+      <a class="btn hi" href="#/me/pay/invoices"><Landmark size={20} aria-hidden="true" />{t('Upload a bank statement')}</a>
       <button class="btn" type="button" onclick={later}>{t('Later')}</button>
     </div>
   </section>

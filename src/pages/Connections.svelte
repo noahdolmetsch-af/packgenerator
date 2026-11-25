@@ -174,7 +174,7 @@
                 <span class="ich-ib"><r.Icon size={18} aria-hidden="true" /></span>
                 <span class="ich-m"><b>{r.name}</b><small>{r.line}</small></span>
                 {#if r.on === true}<span class="pill ok">{t('on|conn')}</span>{:else if r.on === false}<span class="pill">{t('off|conn')}</span>{/if}
-                <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+                <ChevronRight class="ich-chev" size={20} aria-hidden="true" />
               </a>
               {#if r.st?.busy}
                 <div class="conn-run"><ConnStatus name={r.name} busy since={r.st.since} /></div>
@@ -218,7 +218,7 @@
         <section class="ich-sec" aria-labelledby="cn-indoor-h" data-section="indoor-bike">
           <div class="ich-h"><div><h2 id="cn-indoor-h">{t('Indoor rides')}</h2><p class="ich-hs">{t('rides on the trainer without a bike in Strava')}</p></div></div>
           <div class="card ich-body">
-            <label class="row"><Bike size={18} aria-hidden="true" /><span>{t('count for')}</span>
+            <label class="row"><Bike size={20} aria-hidden="true" /><span>{t('count for')}</span>
               <select value={d.sp.indoorBike ?? ''} onchange={(e) => setIndoor(e.currentTarget.value)} data-indoor>
                 <option value="">{t('no bike (do not count)')}</option>
                 {#each d.bikes as b (b.id)}<option value={b.id}>{b.name}</option>{/each}
@@ -231,10 +231,10 @@
         <section class="ich-sec" aria-labelledby="cn-cal-h" data-section="own-cal">
           <div class="ich-h"><div><h2 id="cn-cal-h">{t('Calendar «Packgenerator»')}</h2><p class="ich-hs">{t('your tours in your own Google calendar')}</p></div></div>
           <div class="card ich-list">
-            <label class="ich-row"><input type="checkbox" role="switch" checked={d.own.cal} onchange={(e) => calOn(e.currentTarget.checked)} /><span class="ich-ib"><CalendarDays size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Enter tours in the calendar «Packgenerator»')}</b><small>{d.own.calAt ? t('last time {when}', { when: when(d.own.calAt) }) : t('The app makes the calendar once; it shows on your phone too.')}</small></span></label>
-            <label class="ich-row"><input type="checkbox" role="switch" checked={d.own.remind} onchange={(e) => saveOwn({ remind: e.currentTarget.checked, lastCal: null })} /><span class="ich-ib"><ListChecks size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Reminder to pack')}</b><small>{t('two days before the tour, at 18:00')}</small></span></label>
+            <label class="ich-row"><input type="checkbox" role="switch" checked={d.own.cal} onchange={(e) => calOn(e.currentTarget.checked)} /><span class="ich-ib"><CalendarDays size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('Enter tours in the calendar «Packgenerator»')}</b><small>{d.own.calAt ? t('last time {when}', { when: when(d.own.calAt) }) : t('The app makes the calendar once; it shows on your phone too.')}</small></span></label>
+            <label class="ich-row"><input type="checkbox" role="switch" checked={d.own.remind} onchange={(e) => saveOwn({ remind: e.currentTarget.checked, lastCal: null })} /><span class="ich-ib"><ListChecks size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('Reminder to pack')}</b><small>{t('two days before the tour, at 18:00')}</small></span></label>
             <!-- Noah 26.10.2026 «7a»: the coming part changes of the bikes in the same calendar -->
-            <label class="ich-row"><input type="checkbox" role="switch" checked={d.own.wear} onchange={(e) => saveOwn({ wear: e.currentTarget.checked, lastCal: null })} data-own-wear /><span class="ich-ib"><Bike size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Part changes of your bikes')}</b><small>{t('e.g. «Chain» on the day it is about due at your pace; it moves with your km')}</small></span></label>
+            <label class="ich-row"><input type="checkbox" role="switch" checked={d.own.wear} onchange={(e) => saveOwn({ wear: e.currentTarget.checked, lastCal: null })} data-own-wear /><span class="ich-ib"><Bike size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('Part changes of your bikes')}</b><small>{t('e.g. «Chain» on the day it is about due at your pace; it moves with your km')}</small></span></label>
           </div>
           {#if d.own.cal}
             <div class="card ich-body">
@@ -251,7 +251,7 @@
         <section class="ich-sec" aria-labelledby="cn-notes-h" data-section="notes-tasks">
           <div class="ich-h"><div><h2 id="cn-notes-h">{t('Notes in Google Tasks')}</h2><p class="ich-hs">{t('the list «Packgenerator Notizen», both ways')}</p></div></div>
           <div class="card ich-list">
-            <label class="ich-row"><input type="checkbox" role="switch" checked={d.own.notes} onchange={(e) => notesOn(e.currentTarget.checked)} /><span class="ich-ib"><ListChecks size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Open notes as tasks')}</b><small>{d.own.notesAt ? t('last time {when}', { when: when(d.own.notesAt) }) : t('Ticked in Google = done in the app, and the other way round.')}</small></span></label>
+            <label class="ich-row"><input type="checkbox" role="switch" checked={d.own.notes} onchange={(e) => notesOn(e.currentTarget.checked)} /><span class="ich-ib"><ListChecks size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('Open notes as tasks')}</b><small>{d.own.notesAt ? t('last time {when}', { when: when(d.own.notesAt) }) : t('Ticked in Google = done in the app, and the other way round.')}</small></span></label>
           </div>
           {#if d.own.notes}<div class="card ich-body"><button type="button" class="btn" disabled={busy === 'notes'} onclick={() => notesOn(true)}><RefreshCw size={16} aria-hidden="true" />{t('Compare now')}</button></div>{/if}
         </section>

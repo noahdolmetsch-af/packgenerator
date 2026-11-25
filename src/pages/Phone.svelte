@@ -59,7 +59,7 @@
       <section class="ich-sec" aria-labelledby="how-h">
         <div class="ich-h"><div><h2 id="how-h">{t('How it works')}</h2><p class="ich-hs">{t('3 steps')}</p></div></div>
         <ol class="card ich-list steps">
-          {#each STEPS as s (s)}<li class="ich-row"><span class="ich-ib"><Check size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t(s)}</b></span></li>{/each}
+          {#each STEPS as s (s)}<li class="ich-row"><span class="ich-ib"><Check size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t(s)}</b></span></li>{/each}
         </ol>
         <div class="ich-acts go">
           <button type="button" class="btn hi" onclick={send} disabled={!!$demoQ || sending} title={$demoQ ? t('Off while the demo runs') : undefined}><Send size={16} aria-hidden="true" />{phone.matches ? t('Send to computer') : t('Send to phone')}</button>
@@ -72,7 +72,7 @@
       <section class="ich-sec" aria-labelledby="last-h">
         <div class="ich-h"><div><h2 id="last-h">{t('Last backup file')}</h2></div></div>
         <div class="card ich-list">
-          <div class="ich-row"><span class="ich-ib"><Database size={18} aria-hidden="true" /></span><span class="ich-m"><b>{$lastQ?.at ? when($lastQ.at) : t('no backup yet')}</b><small>{t('made on this device')}</small></span></div>
+          <div class="ich-row"><span class="ich-ib"><Database size={20} aria-hidden="true" /></span><span class="ich-m"><b>{$lastQ?.at ? when($lastQ.at) : t('no backup yet')}</b><small>{t('made on this device')}</small></span></div>
         </div>
       </section>
     </div>

@@ -16,7 +16,7 @@
       <a class="rh-hrow" href={subHash(s.key)} data-sub={s.key}>
         <span class="rh-ic"><Icon size={18} aria-hidden="true" /></span>
         <span class="rh-t"><b>{t(s.title)}</b><small>{t(s.sub)}</small></span>
-        <ChevronRight size={18} aria-hidden="true" />
+        <ChevronRight size={20} aria-hidden="true" />
       </a>
     </li>
   {/each}

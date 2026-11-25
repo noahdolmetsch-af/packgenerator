@@ -33,12 +33,12 @@
 
 <section class="wcard" aria-labelledby="wc-h-{bike.id}" data-wear-card={sum.state}>
   <a class="head" href={bikesHash({ tab: 'care', view: 'wear', bike: bike.id })}>
-    <Gauge size={18} aria-hidden="true" />
+    <Gauge size={20} aria-hidden="true" />
     <span class="m">
       <b id="wc-h-{bike.id}">{t('Wear|page')}</b>
       <small>{sum.n ? tn(sum.n, '{n} part soon to replace', '{n} parts soon to replace') : sum.state === 'ok' ? t('All parts fine') : t('Set start points, then the app can tell')}{#if now?.km != null}{' · '}{t('{km} km since the service on {date}', { km: num(now.km), date: dateOf(now.from) })}{/if}</small>
     </span>
-    <ChevronRight size={18} aria-hidden="true" />
+    <ChevronRight size={20} aria-hidden="true" />
   </a>
   {#if chainStep}
     <a class="next {chainStep.tone}" href={bikesHash({ tab: 'care', view: 'wear', bike: bike.id })} data-chain-next={chainStep.kind}>{t('Next|chain')}: {stepTitle(chainStep)}</a>

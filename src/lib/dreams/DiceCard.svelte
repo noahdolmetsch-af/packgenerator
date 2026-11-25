@@ -65,7 +65,7 @@
       {:else}
         <p class="ich-help">{t('Roll for a rule.')}</p>
       {/if}
-      <button type="button" class="btn hi" disabled={!rules.length} onclick={() => save(roll(cfg, localDay()))} data-dice-roll><Dices size={18} aria-hidden="true" />{last ? t('Roll again') : t('Roll')}</button>
+      <button type="button" class="btn hi" disabled={!rules.length} onclick={() => save(roll(cfg, localDay()))} data-dice-roll><Dices size={20} aria-hidden="true" />{last ? t('Roll again') : t('Roll')}</button>
     </div>
 
     <button type="button" class="btn btn-link" aria-expanded={open} onclick={() => (open = !open)} data-dice-rules>{open ? t('Close') : t('Rules ({n})', { n: rules.length })}</button>

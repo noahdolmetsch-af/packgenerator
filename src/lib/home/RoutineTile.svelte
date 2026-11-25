@@ -103,10 +103,10 @@
           {@const line = sub(x)}
           {@const dots = weekDots(routine, x, today, auto)}
           <button type="button" class="rt-row" aria-pressed={done} disabled={auto1} title={auto1 ? t('Ticked by Im Flow') : undefined} onclick={() => tap(x.id)}>
-            <span class="rt-tick" aria-hidden="true">{#if done}<Check size={15} strokeWidth={3} />{/if}</span>
+            <span class="rt-tick" aria-hidden="true">{#if done}<Check size={16} strokeWidth={2.5} />{/if}</span>
             <span class="rt-txt">
               <span class="rt-name">{itemName(x)}</span>
-              {#if line}<span class="rt-sub">{#if x.link}<Link2 size={12} aria-hidden="true" />{/if}<span>{line}</span></span>{/if}
+              {#if line}<span class="rt-sub">{#if x.link}<Link2 size={14} aria-hidden="true" />{/if}<span>{line}</span></span>{/if}
               <span class="rt-week" role="img" aria-label={t('This week: {list}', { list: dots.filter((d) => d.state !== 'off').map((d) => `${dayShort(weekdayOf(d.day))} ${t(dotWord[d.state])}`).join(', ') })} data-week>
                 {#each dots as d (d.day)}<span class="dot {d.state}" data-dot={d.state}></span>{/each}
               </span>

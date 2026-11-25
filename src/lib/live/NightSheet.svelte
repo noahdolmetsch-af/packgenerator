@@ -92,7 +92,7 @@
       <p class="lv-line" data-night-bed-mine><KindIcon kind="sleep" size={18} /><span><b>{mine.name || t('Place to sleep')}</b>{#if toKm(mine) != null}{' '}·{' '}{t('{d} km', { d: toKm(mine) })}{/if} · {t('My bed')}</span></p>
     {:else}
       {#if bed?.planned}
-        <p class="lv-line"><Moon size={18} aria-hidden="true" /><span>{t('Bed of the plan: km {km}', { km: Math.round(bed.planned.km) })}{#if bed.planned.name}{' '}· {bed.planned.name}{/if}</span></p>
+        <p class="lv-line"><Moon size={20} aria-hidden="true" /><span>{t('Bed of the plan: km {km}', { km: Math.round(bed.planned.km) })}{#if bed.planned.name}{' '}· {bed.planned.name}{/if}</span></p>
       {/if}
       {#if bedAhead}
         <p class="lv-line"><KindIcon kind="sleep" size={18} /><span>{bedAhead.name || t('Place to sleep')} · {t('{d} km', { d: Math.round(bedAhead.distKm * 10) / 10 })} · {t('there about {at}', { at: hhmm(bedAhead.eta) })}</span></p>
@@ -119,7 +119,7 @@
       </div>
     {/if}
     {#if emergency}
-      <p class="lv-line" data-night-emergency><Siren size={18} aria-hidden="true" /><span><b>{t('Emergency bed')}</b>: {emergency.name || t('Place to sleep')}{#if toKm(emergency) != null}{' '}·{' '}{t('{d} km', { d: toKm(emergency) })}{/if}</span></p>
+      <p class="lv-line" data-night-emergency><Siren size={20} aria-hidden="true" /><span><b>{t('Emergency bed')}</b>: {emergency.name || t('Place to sleep')}{#if toKm(emergency) != null}{' '}·{' '}{t('{d} km', { d: toKm(emergency) })}{/if}</span></p>
       <div class="lv-night-acts">
         <button type="button" class="btn sm" onclick={() => goHere(emergency)} data-night-emergency-go><Navigation size={16} aria-hidden="true" />{t('Navigate there')}</button>
         <button type="button" class="btn sm" onclick={() => keep('emergencyBed', null, t('Emergency bed removed.'))} data-night-emergency-clear>{t('Remove')}</button>
@@ -145,7 +145,7 @@
   <section class="lv-night-part" data-night-shop>
     <h3 class="lv-night-h3">{t('Last open shop before the night')}</h3>
     {#if shopRow}
-      <p class="lv-line"><Store size={18} aria-hidden="true" /><span>{shopRow.poi.name || t('Shop')} · {t('{d} km', { d: Math.round(shopRow.distKm * 10) / 10 })} · {t('there about {at}', { at: hhmm(shopRow.eta) })}{#if shopRow.closes}{' '}· {t('Open until {at}', { at: shopRow.closes })}{/if}</span></p>
+      <p class="lv-line"><Store size={20} aria-hidden="true" /><span>{shopRow.poi.name || t('Shop')} · {t('{d} km', { d: Math.round(shopRow.distKm * 10) / 10 })} · {t('there about {at}', { at: hhmm(shopRow.eta) })}{#if shopRow.closes}{' '}· {t('Open until {at}', { at: shopRow.closes })}{/if}</span></p>
       {#if shop.state === 'dark'}<p class="rc-note">{t('It is dark. The nearest shop ahead:')}</p>
       {:else if shop.state === 'none'}<p class="rc-note">{t('No open shop is left before the night. The nearest ahead:')}</p>{/if}
     {:else}
@@ -155,13 +155,13 @@
 
   <section class="lv-night-part" data-night-pauses>
     <h3 class="lv-night-h3">{t('Today so far')}</h3>
-    <p class="lv-line"><Clock size={18} aria-hidden="true" /><span>{t('Riding {a}, stopped {b}', { a: minText(Math.round(movingS / 60)), b: minText(Math.round(pausedS / 60)) })}</span></p>
+    <p class="lv-line"><Clock size={20} aria-hidden="true" /><span>{t('Riding {a}, stopped {b}', { a: minText(Math.round(movingS / 60)), b: minText(Math.round(pausedS / 60)) })}</span></p>
   </section>
 
   {#if race}
     <section class="lv-night-part" data-night-goals>
       <h3 class="lv-night-h3"><Flag size={16} aria-hidden="true" />{t('Three goals')}
-        {#if ctx}<button type="button" class="rc-icon" aria-label={editing ? t('Done') : t('Change my goals')} aria-pressed={editing} onclick={() => (editing = !editing)} data-night-goals-edit>{#if editing}<Check size={18} aria-hidden="true" />{:else}<Pencil size={18} aria-hidden="true" />{/if}</button>{/if}
+        {#if ctx}<button type="button" class="rc-icon" aria-label={editing ? t('Done') : t('Change my goals')} aria-pressed={editing} onclick={() => (editing = !editing)} data-night-goals-edit>{#if editing}<Check size={20} aria-hidden="true" />{:else}<Pencil size={20} aria-hidden="true" />{/if}</button>{/if}
       </h3>
       {#if editing}
         {#each TIER_ROWS as [k, name] (k)}

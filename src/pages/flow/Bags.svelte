@@ -128,7 +128,7 @@
           <button type="button" class="chip dash" onclick={() => (newBag = { actId: '', name: '' })} data-add-bag><Plus size={16} aria-hidden="true" />{t('new bag')}</button>
         {/if}
         <div class="note" data-remind>
-          <Bell size={18} aria-hidden="true" />
+          <Bell size={20} aria-hidden="true" />
           <span>
             <b>{t('Reminder the evening before')}</b>
             {#if !sets.on}{t('is off.')}{:else if remindDay}{t('{day} from 17:00 on Heute: «Tomorrow {name} {time}, pack the bag».', { day: wday(remindDay), name: bagName(nearest), time: next.get(nearest.id).time })}{:else}{t('Add fixed dates under «Week», then Heute reminds you the evening before.')}{/if}
@@ -187,7 +187,7 @@
         {/if}
       </section>
     {:else}
-      <p class="card none"><ShoppingBag size={18} aria-hidden="true" /> {t('No bag yet. Add one for your sport.')}</p>
+      <p class="card none"><ShoppingBag size={20} aria-hidden="true" /> {t('No bag yet. Add one for your sport.')}</p>
     {/if}
 {/snippet}
 

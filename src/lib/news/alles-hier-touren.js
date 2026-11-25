@@ -4,7 +4,7 @@ export default {
   lead: 'On top of Trips, templates, food plan, travel links, checks, races, ski tours and mountain and emergency are one tap away.',
   points: [
     { text: 'The field «All here» on top of Trips shows 14 functions as tiles', go: { href: '#/trips', steps: [{ sel: '[data-all-here]' }] } },
-    { text: 'The row «More for your tours» keeps the komoot link; its other links are tiles now', go: { href: '#/trips', steps: [{ sel: '[data-quick="komoot"]' }] } },
+    { text: 'The row «More for your tours» keeps the komoot link; its other links are tiles now', go: { href: '#/trips', steps: [{ sel: '[data-to-komoot]' }] } },
   ],
   small: [],
   test: ['Open Trips: on top you see «All here» with tiles like «Templates» and «Ski tours». Tap one: its page opens.', 'Tap «Change» and hide a tile; tap «Undo» in the message: the tile is back.'],

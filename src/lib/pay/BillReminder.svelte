@@ -33,8 +33,8 @@
       <span><b id="brm-h">{title}</b><small>{b.to} · {formatAmount(b.amount)} CHF · {dateOf(b.due)}{#if due.length > 1}{' · '}{t('{n} more', { n: due.length - 1 })}{/if}</small></span>
     </div>
     <div class="brm-btns">
-      <button class="btn hi" type="button" onclick={paid}><Check size={18} aria-hidden="true" />{t('Paid')}</button>
-      <a class="btn" href="#/me/pay/bills"><QrCode size={18} aria-hidden="true" />{t('Payment part')}</a>
+      <button class="btn hi" type="button" onclick={paid}><Check size={20} aria-hidden="true" />{t('Paid')}</button>
+      <a class="btn" href="#/me/pay/bills"><QrCode size={20} aria-hidden="true" />{t('Payment part')}</a>
       <button class="btn" type="button" onclick={later}>{t('Later')}</button>
     </div>
   </section>

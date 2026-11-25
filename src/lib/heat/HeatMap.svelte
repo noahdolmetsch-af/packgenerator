@@ -255,10 +255,10 @@
     </svg>
   {/if}
   <div class="ctl">
-    <button type="button" class="btn sm" aria-label={t('Zoom in')} onclick={() => zoom(2)}><Plus size={18} aria-hidden="true" /></button>
-    <button type="button" class="btn sm" aria-label={t('Zoom out')} onclick={() => zoom(0.5)}><Minus size={18} aria-hidden="true" /></button>
-    <button type="button" class="btn sm" aria-label={t('Show all rides')} onclick={fitAll} data-heat-fit><Maximize2 size={18} aria-hidden="true" /></button>
-    <button type="button" class="btn sm" aria-label={t('Map ground')} aria-expanded={pickOpen} onclick={() => (pickOpen = !pickOpen)} data-map-layers><Layers size={18} aria-hidden="true" /></button>
+    <button type="button" class="btn sm" aria-label={t('Zoom in')} onclick={() => zoom(2)}><Plus size={20} aria-hidden="true" /></button>
+    <button type="button" class="btn sm" aria-label={t('Zoom out')} onclick={() => zoom(0.5)}><Minus size={20} aria-hidden="true" /></button>
+    <button type="button" class="btn sm" aria-label={t('Show all rides')} onclick={fitAll} data-heat-fit><Maximize2 size={20} aria-hidden="true" /></button>
+    <button type="button" class="btn sm" aria-label={t('Map ground')} aria-expanded={pickOpen} onclick={() => (pickOpen = !pickOpen)} data-map-layers><Layers size={20} aria-hidden="true" /></button>
   </div>
   {#if pickOpen}
     <div class="gp" role="group" aria-label={t('Map ground')} data-map-grounds>

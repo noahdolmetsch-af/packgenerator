@@ -53,11 +53,11 @@
         aria-description={t('Long press: place, amount, duration or the countdown')}
         use:press={{ tap: (ev) => tap(s, ev?.currentTarget), long: () => (ui.tick = s.act.id) }}
       >
-        <span class="ic" aria-hidden="true">{#if s.todayDone}<Check size={big ? 18 : 20} strokeWidth={2.6} />{:else}<ActIcon icon={s.act.icon} ring={s.act.ring} box={false} size={18} />{/if}</span>
+        <span class="ic" aria-hidden="true">{#if s.todayDone}<Check size={big ? 18 : 20} strokeWidth={2.5} />{:else}<ActIcon icon={s.act.icon} ring={s.act.ring} box={false} size={18} />{/if}</span>
         <span class="tx"><b>{actName(s.act)}</b>{#if compact}<small class="sr">{tileSub(s)}</small>{:else}<small>{tileSub(s)}</small>{/if}</span>
       </button>
       <!-- KT (2a): the long press as a button, for everyone who does not know it -->
-      <button type="button" class="more" data-more={s.act.id} aria-label={t('More for {name}: duration, place or stopwatch', { name: actName(s.act) })} onclick={() => (ui.tick = s.act.id)}><Ellipsis size={16} strokeWidth={3} aria-hidden="true" /></button>
+      <button type="button" class="more" data-more={s.act.id} aria-label={t('More for {name}: duration, place or stopwatch', { name: actName(s.act) })} onclick={() => (ui.tick = s.act.id)}><Ellipsis size={16} strokeWidth={2.5} aria-hidden="true" /></button>
     </li>
   {/each}
 </ul>

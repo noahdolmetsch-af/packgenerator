@@ -38,7 +38,7 @@
 </script>
 
 <section class="gcard" aria-labelledby="gm-brand" data-brands>
-  <h2 id="gm-brand"><Award size={18} aria-hidden="true" />{t('What lasts longest')}</h2>
+  <h2 id="gm-brand"><Award size={20} aria-hidden="true" />{t('What lasts longest')}</h2>
   {#if Object.values(stats).some((l) => l.length)}
     <p class="quiet">{t('From your own parts that were used up, on all bikes. A help when you buy new ones.')}</p>
     {#each Object.keys(BRAND_PARTS) as g (g)}
@@ -55,13 +55,13 @@
   <h2 id="gm-more">{t('More for the bike')}</h2>
   <ul class="list">
     {#each PAGES as p (p.view)}
-      <li><a class="go" href={bikesHash({ tab: 'care', view: p.view, bike: bike.id })} data-griff-page={p.view}><p.icon size={18} aria-hidden="true" /><span class="grow"><b>{t(p.title)}</b><br /><small class="quiet">{t(p.sub)}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li>
+      <li><a class="go" href={bikesHash({ tab: 'care', view: p.view, bike: bike.id })} data-griff-page={p.view}><p.icon size={18} aria-hidden="true" /><span class="grow"><b>{t(p.title)}</b><br /><small class="quiet">{t(p.sub)}</small></span><ChevronRight size={20} aria-hidden="true" /></a></li>
     {/each}
   </ul>
 </section>
 
 <section class="gcard" aria-labelledby="gm-rem" data-griff-prefs>
-  <h2 id="gm-rem"><Bell size={18} aria-hidden="true" />{t('Reminders')}</h2>
+  <h2 id="gm-rem"><Bell size={20} aria-hidden="true" />{t('Reminders')}</h2>
   <label class="gsw"><input type="checkbox" checked={prefs.wetChain} onchange={(e) => set({ wetChain: e.currentTarget.checked })} data-pref-wet /> <span>{t('After a ride in the rain: «Dry and oil the chain» here and at 19:00 on the phone')}</span></label>
   <label class="gsw"><input type="checkbox" checked={prefs.shotEveryKm != null} onchange={(e) => set({ shotEveryKm: e.currentTarget.checked ? 1000 : null })} data-pref-shot /> <span>{t('A new wear photo every')}</span>
     {#if prefs.shotEveryKm != null}<input class="inp ev" type="number" min="100" max="20000" step="100" value={prefs.shotEveryKm} onchange={(e) => set({ shotEveryKm: Math.max(100, Math.round(Number(e.currentTarget.value) || 1000)) })} aria-label={t('km between two wear photos')} /> km{:else}<span class="quiet">{t('off')}</span>{/if}

@@ -223,7 +223,7 @@
         </section>
 
         <section class="rcard" aria-labelledby="rd-steps">
-          <h2 id="rd-steps"><ListChecks size={18} aria-hidden="true" />{t('Jobs|round')}</h2>
+          <h2 id="rd-steps"><ListChecks size={20} aria-hidden="true" />{t('Jobs|round')}</h2>
           <ul class="rows" use:sortable={{ onmove: move('steps') }}>
             {#each round.steps as s, i (s.id)}
               <li data-sort-id={s.id} data-round-step={s.id}>

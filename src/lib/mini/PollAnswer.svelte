@@ -139,11 +139,11 @@
 
   {#if err}<p class="pa-err" role="alert" data-pa-err>{err}</p>{/if}
   <div class="pa-acts">
-    {#if step > first}<button type="button" class="btn" onclick={back} data-pa-back><ChevronLeft size={18} aria-hidden="true" />{t('Back')}</button>{/if}
+    {#if step > first}<button type="button" class="btn" onclick={back} data-pa-back><ChevronLeft size={20} aria-hidden="true" />{t('Back')}</button>{/if}
     {#if step < n}
-      <button type="button" class="btn hi" onclick={next} data-pa-next>{t('Next|step')}<ChevronRight size={18} aria-hidden="true" /></button>
+      <button type="button" class="btn hi" onclick={next} data-pa-next>{t('Next|step')}<ChevronRight size={20} aria-hidden="true" /></button>
     {:else}
-      <button type="button" class="btn hi" onclick={send} disabled={sending} data-pa-send><Send size={18} aria-hidden="true" />{mine ? t('Send the changed answer') : t('Send my answer')}</button>
+      <button type="button" class="btn hi" onclick={send} disabled={sending} data-pa-send><Send size={20} aria-hidden="true" />{mine ? t('Send the changed answer') : t('Send my answer')}</button>
     {/if}
   </div>
   {#if sent}<p class="pa-ok" role="status" data-pa-sent>{sent}</p>{/if}

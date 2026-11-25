@@ -22,7 +22,7 @@
 
 {#if list.length}
   <section class="card mlist" aria-labelledby="ml-h" data-morning-list>
-    <h2 id="ml-h" class="sh"><Sunrise size={18} aria-hidden="true" />{t('This morning, still pack')}</h2>
+    <h2 id="ml-h" class="sh"><Sunrise size={20} aria-hidden="true" />{t('This morning, still pack')}</h2>
     <p class="tp-small tp-muted">{left ? t('{n} left', { n: left }) : t('All in. Have a good ride!')}</p>
     <ul>
       {#each list as r (r.e.itemId)}

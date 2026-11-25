@@ -33,7 +33,7 @@
   <TileHead {icon} {id} {title} {side} />
   {#if sub}<p class="sub">{sub}</p>{/if}
   {#if fold && pick}
-    <button type="button" class="btn tick" class:on={done} aria-pressed={done} onclick={() => ontick?.()}>{#if done}<Check size={18} aria-hidden="true" />{/if}{done ? t('{what}: done today', { what: label(pick) }) : t('{what} today: tick off', { what: label(pick) })}</button>
+    <button type="button" class="btn tick" class:on={done} aria-pressed={done} onclick={() => ontick?.()}>{#if done}<Check size={20} aria-hidden="true" />{/if}{done ? t('{what}: done today', { what: label(pick) }) : t('{what} today: tick off', { what: label(pick) })}</button>
     <button type="button" class="alt" aria-expanded={altOpen} aria-controls="{id}-alt" onclick={() => (altOpen = !altOpen)} data-alt>{t('Another suggestion')}<ChevronRight size={16} aria-hidden="true" /></button>
   {/if}
   {#if showAlt}
@@ -53,7 +53,7 @@
   </div>
   {/if}
   {#if pick && !fold}
-    <button type="button" class="btn tick" class:on={done} aria-pressed={done} onclick={() => ontick?.()}>{#if done}<Check size={18} aria-hidden="true" />{/if}{done ? t('{what}: done today', { what: label(pick) }) : t('{what} today: tick off', { what: label(pick) })}</button>
+    <button type="button" class="btn tick" class:on={done} aria-pressed={done} onclick={() => ontick?.()}>{#if done}<Check size={20} aria-hidden="true" />{/if}{done ? t('{what}: done today', { what: label(pick) }) : t('{what} today: tick off', { what: label(pick) })}</button>
   {/if}
   {#if reached}
     <p class="ch won" role="status" data-challenge-done><Trophy size={16} aria-hidden="true" /><span><b>{t('Challenge reached!')}</b> {t('{n}× {what}', { n: num(reached.times), what: label(reached.what) })}</span></p>

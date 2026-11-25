@@ -64,7 +64,7 @@
   <ul class="card ich-list">
     {#each $listQ ?? [] as s (s.id)}
       <li class="ich-row ich-wrap" data-snapshot={s.kind}>
-        <span class="ich-ib"><History size={18} aria-hidden="true" /></span>
+        <span class="ich-ib"><History size={20} aria-hidden="true" /></span>
         <span class="ich-m">
           <b>{rowName(s)}</b>
           <small>{when(s.at)} · {tn(s.rows ?? 0, '{n} record', '{n} records')}</small>

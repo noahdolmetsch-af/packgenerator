@@ -343,7 +343,7 @@
       <ul class="recs">
         {#each w.receipts as r (r.id)}
           <li>
-            <ReceiptText size={18} aria-hidden="true" />
+            <ReceiptText size={20} aria-hidden="true" />
             <span class="cl"><b>{r.label}</b><small>{[dateOf(r.date), r.shop, r.photo ? t('with photo') : t('no photo yet')].filter(Boolean).join(' · ')}</small></span>
             <span class="cv">{#if !r.photo}<a class="inl noprint" href={r.href}>{t('Photo')}</a>{:else if r.chf != null}{chf(r.chf)}{/if}</span>
           </li>

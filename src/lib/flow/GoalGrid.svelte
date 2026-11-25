@@ -79,7 +79,7 @@
   {#if !wide && resting.length}
     {#each restGroups as [until, list] (until)}
       <details class="rested">
-        <summary><Snowflake size={16} aria-hidden="true" /><span>{t('Rests until {date}:', { date: dayShort(until) })} {list.map((s) => actName(s.act)).join(' · ')}</span><ChevronDown size={18} class="chev" aria-hidden="true" /></summary>
+        <summary><Snowflake size={16} aria-hidden="true" /><span>{t('Rests until {date}:', { date: dayShort(until) })} {list.map((s) => actName(s.act)).join(' · ')}</span><ChevronDown size={20} class="chev" aria-hidden="true" /></summary>
         <ul>
           {#each list as s (s.act.id)}
             <li><a href="#/flow/edit/{s.act.id}"><ActIcon icon={s.act.icon} ring={s.act.ring} size={16} dim /><span>{actName(s.act)}</span><small>{actGoalText(s.act, s.restUntil ?? today)}</small></a></li>

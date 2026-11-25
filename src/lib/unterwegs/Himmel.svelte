@@ -46,13 +46,13 @@
   {:else}
     <p class="tp-small tp-muted">{t('With a start place or a route the sun times of the day appear here.')}</p>
   {/if}
-  <p class="moon"><Moon size={18} aria-hidden="true" /> <span><b>{t(PHASES[m.phase])}</b> · {t('{n} % lit', { n: Math.round(m.lit * 100) })} · {t('next full moon {day}', { day: fullDay })}</span></p>
+  <p class="moon"><Moon size={20} aria-hidden="true" /> <span><b>{t(PHASES[m.phase])}</b> · {t('{n} % lit', { n: Math.round(m.lit * 100) })} · {t('next full moon {day}', { day: fullDay })}</span></p>
 
-  <h3 class="uw-h3"><BookOpen size={18} aria-hidden="true" /> {t('Places along the way')}</h3>
+  <h3 class="uw-h3"><BookOpen size={20} aria-hidden="true" /> {t('Places along the way')}</h3>
   {#if saved?.list?.length}
     <ul class="pl">
       {#each saved.list as p (p.title)}
-        <li><b>{p.title}</b> <span>{p.text}</span> <a class="tp-link" href={p.url} target="_blank" rel="noopener noreferrer">{t('Wikipedia')}<ExternalLink size={12} aria-hidden="true" /><span class="sr">{t('(opens elsewhere)')}</span></a></li>
+        <li><b>{p.title}</b> <span>{p.text}</span> <a class="tp-link" href={p.url} target="_blank" rel="noopener noreferrer">{t('Wikipedia')}<ExternalLink size={14} aria-hidden="true" /><span class="sr">{t('(opens elsewhere)')}</span></a></li>
       {/each}
     </ul>
   {/if}

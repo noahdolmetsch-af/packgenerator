@@ -44,7 +44,7 @@
   <div class="ich-h"><div><h2 id="lock-h">{t('Backup with a password')}</h2><p class="ich-hs">{t('Optional. Locks your backup files, e.g. in Google Drive.')}</p></div></div>
   <div class="card ich-body">
     <label class="lk-row">
-      <span class="ich-ib"><Lock size={18} aria-hidden="true" /></span>
+      <span class="ich-ib"><Lock size={20} aria-hidden="true" /></span>
       <span class="lk-m"><b>{t('Lock backups with a password')}</b><small>{on ? t('On: export, send and the folder backup are locked.') : t('Off: backup files are readable without a password.')}</small></span>
       <input type="checkbox" role="switch" checked={on || editing} onchange={toggle} data-lock-switch />
     </label>

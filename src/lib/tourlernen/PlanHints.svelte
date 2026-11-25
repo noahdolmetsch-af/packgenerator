@@ -37,7 +37,7 @@
   <section class="card phint" aria-label={t('From earlier tours')} data-plan-learn>
     {#each hints as h (h.kind)}
       <div class="row" data-spare-hint={h.kind}>
-        <Wrench size={18} aria-hidden="true" />
+        <Wrench size={20} aria-hidden="true" />
         <div class="txt">
           <b>{t('Last time: {what}', { what: t(h.name) })}</b>
           <span class="tp-small tp-muted">{h.from.title}{#if h.part}{' · '}{h.part}{/if}</span>
@@ -50,7 +50,7 @@
     {/each}
     {#if spots.length}
       <div class="row" data-sleep-near>
-        <BedDouble size={18} aria-hidden="true" />
+        <BedDouble size={20} aria-hidden="true" />
         <div class="txt">
           <b>{t('Your places to sleep here')}</b>
           <ul>

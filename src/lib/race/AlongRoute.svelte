@@ -176,8 +176,8 @@
 {:else}
   <div class="rc-box rc-soft" data-race-route-tools>
     <div class="rc-acts">
-      <button type="button" class="btn" onclick={loadPois} disabled={!!busy} data-race-load-pois><MapPin size={18} aria-hidden="true" /> {busy === 'poi' ? t('Loading…') : t('Load places from OpenStreetMap')}</button>
-      <button type="button" class="btn" onclick={loadWx} disabled={!!busy} data-race-load-wx><CloudSun size={18} aria-hidden="true" /> {busy === 'wx' ? t('Loading…') : t('Load the weather')}</button>
+      <button type="button" class="btn" onclick={loadPois} disabled={!!busy} data-race-load-pois><MapPin size={20} aria-hidden="true" /> {busy === 'poi' ? t('Loading…') : t('Load places from OpenStreetMap')}</button>
+      <button type="button" class="btn" onclick={loadWx} disabled={!!busy} data-race-load-wx><CloudSun size={20} aria-hidden="true" /> {busy === 'wx' ? t('Loading…') : t('Load the weather')}</button>
     </div>
     <p class="rc-note">
       {ctx.osmAt ? t('Places from {at}', { at: age(ctx.osmAt) }) : t('No places loaded yet.')}
@@ -270,7 +270,7 @@
                         <b>{nameOfPoi(b)}</b>
                         <small>{t('km {km}', { km: Math.round(b.km) })}{#if SUB[b.sub]}{' '}· {t(SUB[b.sub])}{/if}</small>
                       </div>
-                      {#if b.phone}<a class="rc-icon" href="tel:{b.phone.replace(/[^\d+]/g, '')}" aria-label={t('Call {name}', { name: nameOfPoi(b) })}><Phone size={18} aria-hidden="true" /></a>{/if}
+                      {#if b.phone}<a class="rc-icon" href="tel:{b.phone.replace(/[^\d+]/g, '')}" aria-label={t('Call {name}', { name: nameOfPoi(b) })}><Phone size={20} aria-hidden="true" /></a>{/if}
                     </li>
                   {/each}
                 </ul>

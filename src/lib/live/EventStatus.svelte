@@ -6,7 +6,7 @@
    * each checkpoint and the finish; the button shows up when you are near it, and by hand in the list.
    * rows: memberRows with .part; mine: my part; onpart(patch).
    */
-  import { CircleCheck, Tent, Flag } from '@lucide/svelte';
+  import { CircleCheck, Tent, Flag, FlagTriangleRight } from '@lucide/svelte';
   import { t, num } from '../i18n.svelte.js';
   import { statusToday, statusCount, cpNear, lastCp, zurichTime } from './event.js';
   import './event.css';
@@ -38,8 +38,8 @@
   <h2 id="es-h">{t('Ready and arrived')}</h2>
   <p class="ev-muted">{plan?.start ? t('Start {time}.', { time: plan.start }) + ' ' : ''}{t('One tap, and everyone knows who is ready and who is already in camp.')}</p>
   <div class="ev-acts">
-    <button type="button" class="btn" class:hi={st?.kind !== 'ready'} aria-pressed={st?.kind === 'ready'} onclick={() => set('ready')} disabled={busy || !canSend} data-event-ready><CircleCheck size={18} aria-hidden="true" />{t('I am ready')}</button>
-    <button type="button" class="btn" aria-pressed={st?.kind === 'camp'} onclick={() => set('camp')} disabled={busy || !canSend} data-event-camp><Tent size={18} aria-hidden="true" />{t('I am in camp')}</button>
+    <button type="button" class="btn" class:hi={st?.kind !== 'ready'} aria-pressed={st?.kind === 'ready'} onclick={() => set('ready')} disabled={busy || !canSend} data-event-ready><CircleCheck size={20} aria-hidden="true" />{t('I am ready')}</button>
+    <button type="button" class="btn" aria-pressed={st?.kind === 'camp'} onclick={() => set('camp')} disabled={busy || !canSend} data-event-camp><Tent size={20} aria-hidden="true" />{t('I am in camp')}</button>
   </div>
   <p class="ev-strong" data-event-count>{t('{ready} of {total} ready, {camp} in camp.', { ready: count.ready, total: count.total, camp: count.camp })}</p>
   {#if st}<p class="ev-muted" role="status">{st.kind === 'ready' ? t('You are ready since {time}. Tap again to take it back.', { time: time(st.at) }) : t('You are in camp since {time}. Tap again to take it back.', { time: time(st.at) })}</p>{/if}
@@ -47,13 +47,13 @@
   {#if plan?.race && cps.length}
     <h3>{t('In the race')}</h3>
     {#if near}
-      <div><button type="button" class="btn hi" onclick={() => arrive(near)} disabled={busy || !canSend} data-event-cp-near><Flag size={18} aria-hidden="true" />{near.finish ? t('Arrived at the finish') : t('Arrived at {cp}', { cp: cpName(near) })}</button></div>
+      <div><button type="button" class="btn hi" onclick={() => arrive(near)} disabled={busy || !canSend} data-event-cp-near><Flag size={20} aria-hidden="true" />{near.finish ? t('Arrived at the finish') : t('Arrived at {cp}', { cp: cpName(near) })}</button></div>
     {/if}
     <ul class="ev-list" data-event-cps>
       {#each cps as c (c.i)}
         {@const who = rows.filter((r) => r.part?.cps?.[c.i])}
         <li data-event-cp={c.i}>
-          <span class="ev-ic" aria-hidden="true">{c.finish ? '🏁' : '🚩'}</span>
+          <span class="ev-ic" aria-hidden="true">{#if c.finish}<Flag size={16} />{:else}<FlagTriangleRight size={16} />{/if}</span>
           <span class="ev-txt"><b>{cpName(c)}</b><small>{t('km {km}', { km: num(c.km) })} · {who.length ? who.map((r) => `${r.name || t('Without a name')} ${time(r.part.cps[c.i])}`).join(', ') : t('nobody there yet')}</small></span>
           <button type="button" class="btn sm" aria-pressed={!!reached[c.i]} onclick={() => arrive(c)} disabled={busy || !canSend} data-event-cp-tap={c.i}>{reached[c.i] ? t('Arrived {time}', { time: time(reached[c.i]) }) : t('I am here')}</button>
         </li>

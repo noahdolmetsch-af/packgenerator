@@ -23,7 +23,7 @@
     </a>
   {/each}
   <a class="whole" href={whole} data-tab="whole">
-    <span class="pi"><LayoutGrid size={22} strokeWidth={2} aria-hidden="true" /></span>
+    <span class="pi"><LayoutGrid size={24} strokeWidth={2} aria-hidden="true" /></span>
     <span class="pn">{t('Whole app')}</span>
   </a>
 </nav>

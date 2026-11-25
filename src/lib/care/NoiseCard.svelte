@@ -65,7 +65,7 @@
 </script>
 
 <section class="gcard" aria-labelledby="nz-h-{bike.id}" data-noises>
-  <h2 id="nz-h-{bike.id}"><Ear size={18} aria-hidden="true" />{t('Noises')}</h2>
+  <h2 id="nz-h-{bike.id}"><Ear size={20} aria-hidden="true" />{t('Noises')}</h2>
   <p class="quiet">{t('Note a noise with the day and the km. The app shows tips and asks after the next change whether it is gone.')}</p>
   {#if open.length}
     <ul class="list">

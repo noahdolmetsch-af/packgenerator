@@ -206,7 +206,7 @@
   <Abhaken {today} />
 {:else}
 <nav class="wk" aria-label={t('Choose a day')}>
-  <a class="step" href="#/day/{shiftDay(day, -1)}" aria-label={t('Day before')}><ChevronLeft size={18} aria-hidden="true" /></a>
+  <a class="step" href="#/day/{shiftDay(day, -1)}" aria-label={t('Day before')}><ChevronLeft size={20} aria-hidden="true" /></a>
   <div class="chips">
     {#each days as x (x)}
       <a class="chip" data-day={x} class:dropon={drag?.over === x} class:on={x === day} class:today={x === today} href="#/day/{x}" aria-current={x === day ? 'date' : undefined}>
@@ -216,14 +216,14 @@
       </a>
     {/each}
   </div>
-  <a class="step" href="#/day/{shiftDay(day, 1)}" aria-label={t('Day after')}><ChevronRight size={18} aria-hidden="true" /></a>
+  <a class="step" href="#/day/{shiftDay(day, 1)}" aria-label={t('Day after')}><ChevronRight size={20} aria-hidden="true" /></a>
 </nav>
 
 <p class="line">
   <span>{dayLong(day)}</span>
   {#if rel}<span class="tag">{rel}</span>{/if}
   {#if d?.holiday}<span class="tag">{holidayName(d.holiday)}</span>{/if}
-  {#if wetNow}<span class="wx">{#if wetNow.wet}<CloudRain size={15} aria-hidden="true" />{:else if wetNow.dry}<Sun size={15} aria-hidden="true" />{:else}<CloudSun size={15} aria-hidden="true" />{/if}{wxWords(wetNow)}</span>{/if}
+  {#if wetNow}<span class="wx">{#if wetNow.wet}<CloudRain size={16} aria-hidden="true" />{:else if wetNow.dry}<Sun size={16} aria-hidden="true" />{:else}<CloudSun size={16} aria-hidden="true" />{/if}{wxWords(wetNow)}</span>{/if}
   {#if day !== today}<a class="today-link" href="#/day/{today}">{t('Back to today')}</a>{/if}
 </p>
 <p class="addrow">

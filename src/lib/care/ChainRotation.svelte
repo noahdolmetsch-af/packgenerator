@@ -62,7 +62,7 @@
 </script>
 
 <section class="gcard" aria-labelledby="rot-h-{bike.id}" data-rotation>
-  <h2 id="rot-h-{bike.id}"><Link2 size={18} aria-hidden="true" />{t('Chain rotation')}</h2>
+  <h2 id="rot-h-{bike.id}"><Link2 size={20} aria-hidden="true" />{t('Chain rotation')}</h2>
   <p class="quiet">{t('Several chains on one bike, in turn: each wears less, and the cassette lasts longer. The app counts the km of each chain.')}</p>
   {#if rot.due}<p class="warn" data-rotation-due>{t('{name} is next: {km} km on the current chain.', { name: rot.next.name, km: num(rot.since) })}</p>{/if}
   {#if rot.list.length}

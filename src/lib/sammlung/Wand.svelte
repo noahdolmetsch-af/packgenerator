@@ -90,7 +90,7 @@
 
     <section class="card shelf" aria-labelledby="wa-stamps" data-shelf="stamps">
       <div class="sh">
-        <h2 id="wa-stamps"><Stamp size={18} aria-hidden="true" />{t('Tour pass')}{#if tot.stamps}<span class="cnt num">{tot.stamps}</span>{/if}</h2>
+        <h2 id="wa-stamps"><Stamp size={20} aria-hidden="true" />{t('Tour pass')}{#if tot.stamps}<span class="cnt num">{tot.stamps}</span>{/if}</h2>
         <a class="all" href="#/debrief/tourenpass">{t('All|wall')}<ChevronRight size={14} aria-hidden="true" /></a>
       </div>
       {#if stamps.length}
@@ -107,7 +107,7 @@
 
     <section class="card shelf" aria-labelledby="wa-passes" data-shelf="passes">
       <div class="sh">
-        <h2 id="wa-passes"><Mountain size={18} aria-hidden="true" />{t('Passes')}{#if tot.passes}<span class="cnt num">{tot.passes}</span>{/if}</h2>
+        <h2 id="wa-passes"><Mountain size={20} aria-hidden="true" />{t('Passes')}{#if tot.passes}<span class="cnt num">{tot.passes}</span>{/if}</h2>
         <a class="all" href="#/debrief/paesse">{t('All|wall')}<ChevronRight size={14} aria-hidden="true" /></a>
       </div>
       {#if passes.length}
@@ -124,7 +124,7 @@
 
     <section class="card shelf" aria-labelledby="wa-places" data-shelf="places">
       <div class="sh">
-        <h2 id="wa-places"><MountainSnow size={18} aria-hidden="true" />{t('Summit book')}{#if tot.places}<span class="cnt num">{tot.places}</span>{/if}</h2>
+        <h2 id="wa-places"><MountainSnow size={20} aria-hidden="true" />{t('Summit book')}{#if tot.places}<span class="cnt num">{tot.places}</span>{/if}</h2>
         <a class="all" href="#/flow/gipfelbuch">{t('All|wall')}<ChevronRight size={14} aria-hidden="true" /></a>
       </div>
       {#if tops.length}
@@ -143,7 +143,7 @@
 
     <section class="card shelf" aria-labelledby="wa-ground" data-shelf="neuland">
       <div class="sh">
-        <h2 id="wa-ground"><Compass size={18} aria-hidden="true" />{t('New ground')}{#if tot.neuland}<span class="cnt num">{tot.neuland}</span>{/if}</h2>
+        <h2 id="wa-ground"><Compass size={20} aria-hidden="true" />{t('New ground')}{#if tot.neuland}<span class="cnt num">{tot.neuland}</span>{/if}</h2>
         <a class="all" href="#/neuland">{t('All|wall')}<ChevronRight size={14} aria-hidden="true" /></a>
       </div>
       {#if !ground}
@@ -163,7 +163,7 @@
 
     <section class="card shelf" aria-labelledby="wa-stars" data-shelf="stars">
       <div class="sh">
-        <h2 id="wa-stars"><Star size={18} aria-hidden="true" />{t('Stars')}{#if tot.stars}<span class="cnt num">{tot.stars}</span>{/if}</h2>
+        <h2 id="wa-stars"><Star size={20} aria-hidden="true" />{t('Stars')}{#if tot.stars}<span class="cnt num">{tot.stars}</span>{/if}</h2>
         <a class="all" href="#/flow/milestones">{t('All|wall')}<ChevronRight size={14} aria-hidden="true" /></a>
       </div>
       {#if tot.stars}

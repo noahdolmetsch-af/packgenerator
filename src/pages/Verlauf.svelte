@@ -146,7 +146,7 @@
               {#if g.fit.length}
                 <ul class="fit" data-fit={g.day}>
                   {#each g.fit as f (f.k)}<li data-fit-k={f.k}><small>{t(FIT_NAME[f.k])}</small><b class="num">{fitText(f.k, f.v)}</b></li>{/each}
-                  <li class="fsrc"><span class="ab-src fitbit"><Watch size={13} aria-hidden="true" />{srcText('fitbit')}</span></li>
+                  <li class="fsrc"><span class="ab-src fitbit"><Watch size={14} aria-hidden="true" />{srcText('fitbit')}</span></li>
                 </ul>
               {/if}
               {#if g.acts.length}
@@ -157,8 +157,8 @@
                         <span class="ht num">{a.time || '–'}</span>
                         <span class="ich-ib sm"><Bike size={16} aria-hidden="true" /></span>
                         <span class="hm"><b>{stravaName(a.name) || t('Activity from Strava')}</b><small class="num">{actLine(a)}</small></span>
-                        <span class="ab-src strava"><Bike size={13} aria-hidden="true" />{srcText('strava')}</span>
-                        <ChevronRight size={18} aria-hidden="true" />
+                        <span class="ab-src strava"><Bike size={14} aria-hidden="true" />{srcText('strava')}</span>
+                        <ChevronRight size={20} aria-hidden="true" />
                       </a>
                     </li>
                   {/each}

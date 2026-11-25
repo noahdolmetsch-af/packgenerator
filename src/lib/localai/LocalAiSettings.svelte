@@ -82,7 +82,7 @@
 </script>
 
 <section class="la" aria-labelledby="la-h" data-local-ai>
-  <h3 id="la-h"><Cpu size={18} aria-hidden="true" />{t('AI on this device')}</h3>
+  <h3 id="la-h"><Cpu size={20} aria-hidden="true" />{t('AI on this device')}</h3>
   <p class="note">{t('A small AI that runs inside the app, also without internet. Free, and your questions never leave the device.')}</p>
   {#if !able}
     <p class="note">{t('This browser cannot run it.')}</p>

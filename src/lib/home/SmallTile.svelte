@@ -32,7 +32,7 @@
   <span class="lb">{#each soft(t(tile.label)) as p, i (i)}<span>{p}</span>{/each}</span>
   {#if sub}<span class="su">{sub}</span>{/if}
   <!-- KT: the sign that the tile opens its page (the tile's own name stays its label) -->
-  <span class="op" aria-hidden="true">{t('Open|tile')}<span class="go"><ChevronRight size={12} strokeWidth={2.6} /></span></span>
+  <span class="op" aria-hidden="true">{t('Open|tile')}<span class="go"><ChevronRight size={14} strokeWidth={2.5} /></span></span>
 {/snippet}
 
 {#if href}

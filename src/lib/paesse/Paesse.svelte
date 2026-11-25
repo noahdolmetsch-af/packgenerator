@@ -115,8 +115,8 @@
             <li data-pass={p.id}>
               <Passschild name={p.name} m={p.m} date={dayText(p.date)} />
               <div class="pa">
-                <button type="button" class="btn" onclick={() => open(p)} aria-label={t('Change «{name}»', { name: p.name })} data-pass-edit><Pencil size={15} aria-hidden="true" />{t('Change')}</button>
-                <button type="button" class="btn" onclick={() => drop(p)} aria-label={t('Remove «{name}»', { name: p.name })} data-pass-drop><Trash2 size={15} aria-hidden="true" /></button>
+                <button type="button" class="btn" onclick={() => open(p)} aria-label={t('Change «{name}»', { name: p.name })} data-pass-edit><Pencil size={16} aria-hidden="true" />{t('Change')}</button>
+                <button type="button" class="btn" onclick={() => drop(p)} aria-label={t('Remove «{name}»', { name: p.name })} data-pass-drop><Trash2 size={16} aria-hidden="true" /></button>
               </div>
             </li>
           {/each}

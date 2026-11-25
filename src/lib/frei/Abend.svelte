@@ -186,7 +186,7 @@
   <p class="fz-intro">{t('How do you want to notice the day is over? Three small rituals, your music, a moment to arrive.')}</p>
 
   <section class="fz-box" aria-labelledby="fza-rit-h" data-rituals>
-    <h2 id="fza-rit-h" class="fz-h2"><Moon size={18} aria-hidden="true" /> {t('My rituals')}</h2>
+    <h2 id="fza-rit-h" class="fz-h2"><Moon size={20} aria-hidden="true" /> {t('My rituals')}</h2>
     <p class="fz-note">{tn(rituals.length, '{n} of 3 rituals', '{n} of 3 rituals')}{#if row}{' '}· {tn(row, '{n} evening in a row', '{n} evenings in a row')}{/if}</p>
     {#if !rituals.length}<p class="fz-empty">{t('No ritual yet. Pick one below or write your own.')}</p>{/if}
     <ul class="fz-list" use:sortable={{ onmove }}>
@@ -198,7 +198,7 @@
             <small>{isTicked(r) ? t('done tonight') : t('tap when done')}</small>
           </button>
           {#if !phone.matches}<SortArrows name={rName(r)} i={n} n={rituals.length} onstep={(dir) => step(r.id, dir)} />{/if}
-          <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: rName(r) })} onclick={() => (edit = { id: r.id, name: rName(r) })}><Pencil size={18} aria-hidden="true" /></button>
+          <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: rName(r) })} onclick={() => (edit = { id: r.id, name: rName(r) })}><Pencil size={20} aria-hidden="true" /></button>
         </li>
       {/each}
     </ul>
@@ -212,7 +212,7 @@
   </section>
 
   <section class="fz-box" aria-labelledby="fza-eve-h" data-eve-timer>
-    <h2 id="fza-eve-h" class="fz-h2"><PhoneOff size={18} aria-hidden="true" /> {t('Time without the phone')}</h2>
+    <h2 id="fza-eve-h" class="fz-h2"><PhoneOff size={20} aria-hidden="true" /> {t('Time without the phone')}</h2>
     {#if timer.state === 'idle'}
       <p class="fz-note">{t('Pick a time, start, and put the phone away. The app remembers when it is over.')}</p>
       <div class="fz-chips" role="group" aria-label={t('Minutes')}>
@@ -246,7 +246,7 @@
   </section>
 
   <section class="fz-box" aria-labelledby="fza-mus-h">
-    <h2 id="fza-mus-h" class="fz-h2"><Music size={18} aria-hidden="true" /> {t('My evening music')}</h2>
+    <h2 id="fza-mus-h" class="fz-h2"><Music size={20} aria-hidden="true" /> {t('My evening music')}</h2>
     {#if music}
       <div class="fz-acts">
         <a class="btn hi" href={music.url} target="_blank" rel="noopener" data-music>{music.name || t('Play')}</a>
@@ -266,8 +266,8 @@
         <li>
           <div class="fz-row">
             <button type="button" class="fz-row-main" aria-expanded={open === a.id} onclick={() => (open = open === a.id ? null : a.id)} data-arrive-open={a.id}><b>{aName(a)}</b></button>
-            {#if !a.std}<button type="button" class="fz-icon" aria-label={t('Change {name}', { name: aName(a) })} onclick={() => (arriveEdit = { id: a.id, name: a.name, text: a.text })}><Pencil size={18} aria-hidden="true" /></button>{/if}
-            <button type="button" class="fz-icon" aria-label={t('Delete {name}', { name: aName(a) })} onclick={() => removeArrive(a)}><X size={18} aria-hidden="true" /></button>
+            {#if !a.std}<button type="button" class="fz-icon" aria-label={t('Change {name}', { name: aName(a) })} onclick={() => (arriveEdit = { id: a.id, name: a.name, text: a.text })}><Pencil size={20} aria-hidden="true" /></button>{/if}
+            <button type="button" class="fz-icon" aria-label={t('Delete {name}', { name: aName(a) })} onclick={() => removeArrive(a)}><X size={20} aria-hidden="true" /></button>
           </div>
           {#if open === a.id}
             <p class="fz-text fza-read" data-arrive-text>{aText(a)}</p>
@@ -285,7 +285,7 @@
   </section>
 
   <section class="fz-box" aria-labelledby="fza-q-h" data-way-question>
-    <h2 id="fza-q-h" class="fz-h2"><Footprints size={18} aria-hidden="true" /> {t('A question for your way')}</h2>
+    <h2 id="fza-q-h" class="fz-h2"><Footprints size={20} aria-hidden="true" /> {t('A question for your way')}</h2>
     <div class="fz-chips" role="group" aria-label={t('Theme')}>
       <button type="button" class="fz-chip" aria-pressed={!group} onclick={() => ((group = ''), (qPick = null))}>{t('All')}</button>
       {#each QUESTION_GROUPS as g (g.key)}<button type="button" class="fz-chip" aria-pressed={group === g.key} onclick={() => ((group = g.key), (qPick = null))}>{t(g.name)}</button>{/each}

@@ -80,7 +80,7 @@
     <p class="count num">{t('{n} learnings in {k} topics', { n: num(learnings.length), k: num(topics.length) })}</p>
     <button type="button" class="btn" onclick={() => (editing = { learning: null })}><Plus size={16} aria-hidden="true" />{t('Learning')}</button>
   </div>
-  <label class="rv-search"><Search size={18} aria-hidden="true" /><input type="search" placeholder={t('Search learnings')} bind:value={lq} aria-label={t('Search learnings')} /></label>
+  <label class="rv-search"><Search size={20} aria-hidden="true" /><input type="search" placeholder={t('Search learnings')} bind:value={lq} aria-label={t('Search learnings')} /></label>
   {#each shownTopics as g (g.topic)}
     <section class="topic rv-sec" aria-label={topicName(g.topic)}>
       <div class="rv-h">
@@ -96,7 +96,7 @@
         {#each lq.trim() || openTopics[g.topic] ? g.ls : g.ls.slice(0, PER_TOPIC) as l (l.id)}
           <li class="rv-row lrn-row">
             <button type="button" class="ltap" aria-label={t('Edit learning: {name}', { name: l.rule })} onclick={() => (editing = { learning: l })}></button>
-            <span class="rv-ic" aria-hidden="true"><Lightbulb size={18} /></span>
+            <span class="rv-ic" aria-hidden="true"><Lightbulb size={20} /></span>
             <span class="rv-m"><span class="rv-t rule">{l.rule}</span>{#if l.action}<span class="rv-s do">→ {l.action}</span>{/if}{#if meta(l)}<span class="rv-s">{meta(l)}</span>{/if}</span>
             {#if l.priority === 'high' || l.confirmed}<span class="rv-v tags">{#if l.priority === 'high'}<span class="rv-tag">{t('high')}</span>{/if}{#if l.confirmed}<span>{t('confirmed {n}×', { n: l.confirmed })}</span>{/if}</span>{/if}
           </li>

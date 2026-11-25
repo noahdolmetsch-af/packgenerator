@@ -27,7 +27,7 @@
 
 {#if due}
   <p class="lvf-alert" role="status" data-live-eat>
-    <Utensils size={18} aria-hidden="true" /><span>{(near ?? ns)?.name ? t('Planned stop: {name}', { name: (near ?? ns).name }) : t('Time to eat')}</span>
+    <Utensils size={20} aria-hidden="true" /><span>{(near ?? ns)?.name ? t('Planned stop: {name}', { name: (near ?? ns).name }) : t('Time to eat')}</span>
     <button type="button" class="btn sm" onclick={() => save(eaten(e, Date.now(), near))} data-live-eat-done>{t('Eaten')}</button>
     {#if near}<button type="button" class="btn sm" onclick={() => save(eaten(e, Date.now(), near))}>{t('Skip the stop')}</button>
     {:else}<button type="button" class="btn sm" onclick={() => save(snooze(e, Date.now()))}>{t('In {n} minutes', { n: SNOOZE_MIN })}</button>{/if}

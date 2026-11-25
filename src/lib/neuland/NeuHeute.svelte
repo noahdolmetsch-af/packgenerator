@@ -40,7 +40,7 @@
       <Compass size={20} aria-hidden="true" />
       <span class="tx"><b>{news.text}</b><small>{t('First time ever. A tap shows them in New ground.')}</small></span>
     </a>
-    <button type="button" class="x" onclick={close} aria-label={t('Close «New since yesterday»')} data-neu-heute-close><X size={18} aria-hidden="true" /></button>
+    <button type="button" class="x" onclick={close} aria-label={t('Close «New since yesterday»')} data-neu-heute-close><X size={20} aria-hidden="true" /></button>
   </div>
 {/if}
 

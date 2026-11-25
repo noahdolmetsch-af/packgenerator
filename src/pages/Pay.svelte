@@ -69,7 +69,7 @@
   <details class="pay-more">
     <summary class="ich-h pay-sum"><div><h2 id="pay-more-h">{t('Sell and book')}</h2><p class="ich-hs">{t('prepared, not active yet')}</p></div><ChevronDown class="pay-chev" size={20} aria-hidden="true" /></summary>
   <p class="pay-band" role="note">
-    <Info size={18} aria-hidden="true" />
+    <Info size={20} aria-hidden="true" />
     <span><b>{t('Prepared, not active yet.')}</b> {t('Nothing in the app is locked and no money moves. Testing happens only in test mode with test cards.')}</span>
   </p>
 

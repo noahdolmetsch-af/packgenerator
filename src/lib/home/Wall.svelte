@@ -187,10 +187,10 @@
     {/if}
     {#if sections && phone.matches && folded.length}
       <!-- Noah 27.10.2026 «ja»: one tap opens every folded area again -->
-      <div class="ti long unfold" role="listitem"><button type="button" class="unfold-b" onclick={() => ((folded = []), writeFolded(folded))} data-unfold-all><ChevronDown size={18} aria-hidden="true" />{t('Open all areas')}</button></div>
+      <div class="ti long unfold" role="listitem"><button type="button" class="unfold-b" onclick={() => ((folded = []), writeFolded(folded))} data-unfold-all><ChevronDown size={20} aria-hidden="true" />{t('Open all areas')}</button></div>
     {/if}
     <div class="ti long plusw quiet" role="listitem">
-      <button type="button" class="plus" onclick={onadd} aria-haspopup="dialog"><Plus size={18} aria-hidden="true" /><span>{t('Add a tile')}</span></button>
+      <button type="button" class="plus" onclick={onadd} aria-haspopup="dialog"><Plus size={20} aria-hidden="true" /><span>{t('Add a tile')}</span></button>
     </div>
   </div>
 {/if}
@@ -198,11 +198,11 @@
   {@const i = tiles.findIndex((x) => x.id === pickedTile.id)}
   <div class="tools" role="group" aria-label={name(pickedTile.id)} data-tools={pickedTile.id}>
     <b class="tn">{name(pickedTile.id)}</b>
-    <button type="button" class="tb" disabled={i === 0} aria-label={t('One place earlier')} onclick={() => onchange?.(stepTile(tiles, pickedTile.id, -1))}><ChevronLeft size={18} aria-hidden="true" /></button>
+    <button type="button" class="tb" disabled={i === 0} aria-label={t('One place earlier')} onclick={() => onchange?.(stepTile(tiles, pickedTile.id, -1))}><ChevronLeft size={20} aria-hidden="true" /></button>
     {#each TILE[pickedTile.id].sizes as s (s)}
       <button type="button" class="tb sz" aria-pressed={pickedTile.size === s} onclick={() => onchange?.(resizeTile(tiles, pickedTile.id, s))}>{t(SIZE_NAME[s])}</button>
     {/each}
-    <button type="button" class="tb" disabled={i === tiles.length - 1} aria-label={t('One place later')} onclick={() => onchange?.(stepTile(tiles, pickedTile.id, 1))}><ChevronRight size={18} aria-hidden="true" /></button>
+    <button type="button" class="tb" disabled={i === tiles.length - 1} aria-label={t('One place later')} onclick={() => onchange?.(stepTile(tiles, pickedTile.id, 1))}><ChevronRight size={20} aria-hidden="true" /></button>
   </div>
 {/if}
 

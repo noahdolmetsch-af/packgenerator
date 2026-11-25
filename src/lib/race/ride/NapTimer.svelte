@@ -146,7 +146,7 @@
     </div>
   {:else}
     <div class="rc-acts" role="group" aria-label={t('Power nap')}>
-      {#each NAP_MIN as m (m)}<button type="button" class="btn" onclick={() => start(m)} data-nap-start={m}><AlarmClock size={18} aria-hidden="true" />{t('{n} min', { n: m })}</button>{/each}
+      {#each NAP_MIN as m (m)}<button type="button" class="btn" onclick={() => start(m)} data-nap-start={m}><AlarmClock size={20} aria-hidden="true" />{t('{n} min', { n: m })}</button>{/each}
     </div>
   {/if}
   <p class="rc-note" data-nap-warn>{t('The alarm only rings while the app stays open and the screen is on. To be safe, also set the alarm on your phone:')} {running ? t('wake at {time}.', { time: hhmm(until) }) : t('now + the minutes of your nap.')}</p>

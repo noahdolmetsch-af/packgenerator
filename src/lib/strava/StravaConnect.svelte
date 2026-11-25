@@ -28,7 +28,7 @@
     <span class="si" aria-hidden="true"><Bike size={20} /></span>
     <div class="m">
       <h2 id="sc-h">{t('Connect Strava')}</h2>
-      <p>{t('Then every ride lands on the right bike by itself and counts in «This week».')} <span class="lk"><Lock size={12} aria-hidden="true" />{t('Read only, disconnect at any time. Goes away once you are connected.')}</span></p>
+      <p>{t('Then every ride lands on the right bike by itself and counts in «This week».')} <span class="lk"><Lock size={14} aria-hidden="true" />{t('Read only, disconnect at any time. Goes away once you are connected.')}</span></p>
     </div>
     <div class="acts">
       <a class="btn sm" href={STRAVA_HASH}><Link2 size={16} aria-hidden="true" />{t('Connect')}</a>

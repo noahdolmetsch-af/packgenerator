@@ -140,7 +140,7 @@
         {#each shown as b, i (b.id)}
           <li data-sort-id={b.id}>
             {#if !q.trim()}<SortGrip name={b.name} onstep={(dir) => move(i, i + dir)} />{/if}
-            <button type="button" class="lbl-main" onclick={() => show(b.id)}><Package size={18} aria-hidden="true" /><span><b>{b.name}</b><small>{[b.place, tn(b.itemIds.length + b.lines.length, '{n} thing', '{n} things')].filter(Boolean).join(' · ')}</small></span></button>
+            <button type="button" class="lbl-main" onclick={() => show(b.id)}><Package size={20} aria-hidden="true" /><span><b>{b.name}</b><small>{[b.place, tn(b.itemIds.length + b.lines.length, '{n} thing', '{n} things')].filter(Boolean).join(' · ')}</small></span></button>
             {#if !q.trim()}<SortArrows name={b.name} {i} n={boxes.length} onstep={(dir) => move(i, i + dir)} />{/if}
           </li>
         {/each}

@@ -165,7 +165,7 @@
                 <span class="t">{b.name}{#if b.key === STANDARD}<small>{t('comes into every trip')}</small>{/if}</span>
                 <span class="n num">{tn(b.n, '{n} item', '{n} items')}</span><span class="w num">{weight(b.g, b.missing, b.n)}</span>
               </button>
-              <button type="button" class="disc" aria-label={t('What is in {name}', { name: b.name })} aria-expanded={openBlock === b.key} onclick={() => (openBlock = openBlock === b.key ? null : b.key)}><ChevronRight class="chev" size={18} aria-hidden="true" /></button>
+              <button type="button" class="disc" aria-label={t('What is in {name}', { name: b.name })} aria-expanded={openBlock === b.key} onclick={() => (openBlock = openBlock === b.key ? null : b.key)}><ChevronRight class="chev" size={20} aria-hidden="true" /></button>
               {#if openBlock === b.key}
                 <ul class="sub">
                   {#each b.members as i (i.id)}<li><span>{nameOf(i)}</span><span class="num">{itemWeight(i) == null ? '–' : formatWeight(itemWeight(i))}</span></li>{:else}<li>{t('No items in this building block yet.')}</li>{/each}
@@ -197,7 +197,7 @@
           <BagSplit tpl={draft} {items} {setsValue} bags={$bagsQ ?? []} {bikes} onchange={change} />
         {/if}
         <details class="fold" bind:open={foldOpen}>
-          <summary><span>{t('Days, overnight, ready check')}</span><small class="num">{tn(draft.days ?? 1, '{n} day', '{n} days')} · {nightWord(draft)}</small><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+          <summary><span>{t('Days, overnight, ready check')}</span><small class="num">{tn(draft.days ?? 1, '{n} day', '{n} days')} · {nightWord(draft)}</small><ChevronRight class="chev" size={20} aria-hidden="true" /></summary>
           <DaysFields tpl={draft} {byBike} onchange={change} />
           <span class="lbl">{t('Ready check')}</span>
           <ReadyFields tpl={draft} onchange={change} />

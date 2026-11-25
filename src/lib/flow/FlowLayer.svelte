@@ -50,13 +50,13 @@
 {#if tm && !ui.timerOpen && !ui.sessionOpen}
   <div class="fmini" class:done class:lift={!!ui.toast} role="group" aria-label={t('Stopwatch')}>
     <button type="button" class="open" onclick={openClock} aria-label={tm.session ? t('Open the session') : t('Open the stopwatch')}>
-      <Bell size={18} aria-hidden="true" />
+      <Bell size={20} aria-hidden="true" />
       <span class="mt"><small>{actName(tmAct)}</small><b class="num">{done ? t('done ✓') : clock(remainingSec(tm, clockState.now))}</b></span>
     </button>
     {#if done}
-      <button type="button" class="pp" onclick={openClock} aria-label={tm.session ? t('Open the session') : t('Done · tick off')}><Check size={18} aria-hidden="true" /></button>
+      <button type="button" class="pp" onclick={openClock} aria-label={tm.session ? t('Open the session') : t('Done · tick off')}><Check size={20} aria-hidden="true" /></button>
     {:else}
-      <button type="button" class="pp" onclick={togglePause} aria-label={tm.pausedAt ? t('Continue') : t('Pause')}>{#if tm.pausedAt}<Play size={18} aria-hidden="true" />{:else}<Pause size={18} aria-hidden="true" />{/if}</button>
+      <button type="button" class="pp" onclick={togglePause} aria-label={tm.pausedAt ? t('Continue') : t('Pause')}>{#if tm.pausedAt}<Play size={20} aria-hidden="true" />{:else}<Pause size={20} aria-hidden="true" />{/if}</button>
     {/if}
   </div>
 {/if}
@@ -64,12 +64,12 @@
 {#if ui.toast}
   {#key ui.toast.id}
     <div class="ftoast" role="status" onpointerenter={pauseFlowToast} onpointerleave={resumeFlowToast} onfocusin={pauseFlowToast} onfocusout={resumeFlowToast}>
-      <Check size={18} aria-hidden="true" />
+      <Check size={20} aria-hidden="true" />
       <span>{ui.toast.text}{#if ui.toast.hint}<small class="fth" data-toast-hint>{almostLine(ui.toast.hint)}</small>{/if}</span>
       {#if ui.toast.undo}<button type="button" class="undo" onclick={runUndo}>{t('Undo')}</button>{/if}
       {#if ui.toast.link}
         <a class="undo lk" href={ui.toast.link.href} onclick={closeToast} data-toast-link>{ui.toast.link.text}<ChevronRight size={16} aria-hidden="true" /></a>
-        <button type="button" class="undo x" onclick={closeToast} aria-label={t('Close')}><X size={18} aria-hidden="true" /></button>
+        <button type="button" class="undo x" onclick={closeToast} aria-label={t('Close')}><X size={20} aria-hidden="true" /></button>
       {/if}
       {#if ui.toast.next?.length}
         <p class="fnx" data-toast-next><span class="fnl">{t('As next')}</span>{#each ui.toast.next as n (n.href)}<a href={n.href} onclick={closeToast} data-next-to={n.href}>{n.text}</a>{/each}</p>

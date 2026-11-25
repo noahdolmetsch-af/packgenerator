@@ -102,7 +102,7 @@
   <section class="ich-sec" aria-labelledby="{idp}-n-h">
     <div class="ich-h"><div><h2 id="{idp}-n-h">{t('History and your own normal')}</h2><p class="ich-hs">{t('day value, mean of 7 days and your normal of the last 30 days')}</p></div></div>
     <div class="card pad">
-      <div class="ch-h"><b>{qText(normalQ)}</b><span class="srcs"><span class="ab-src hand"><Hand size={13} aria-hidden="true" />{srcText('hand')}</span></span></div>
+      <div class="ch-h"><b>{qText(normalQ)}</b><span class="srcs"><span class="ab-src hand"><Hand size={14} aria-hidden="true" />{srcText('hand')}</span></span></div>
       {#if normal.n}
         <div class="chw" bind:clientWidth={cw}><svg class="chart" width={W} height={H} viewBox="0 0 {W} {H}" role="img" aria-label={t('{q}: the last 30 days with your normal', { q: qText(normalQ) })}>
           {#if normal.band}<rect class="band" x={chart.L} y={chart.y(normal.band[1])} width={W - chart.L - chart.R} height={Math.max(2, chart.y(normal.band[0]) - chart.y(normal.band[1]))} rx="4" />{/if}
@@ -114,13 +114,13 @@
         </svg></div>
         <div class="leg"><span><i class="d"></i>{t('day value')}</span><span><i class="l"></i>{t('mean of 7 days')}</span>{#if normal.band}<span><i class="b"></i>{t('your normal {lo}–{hi}', { lo: normal.band[0], hi: normal.band[1] })}</span>{/if}</div>
       {:else}
-        <p class="wait"><Hourglass size={15} aria-hidden="true" /><span>{t('No answers yet. The line shows from the first answers on.')}</span></p>
+        <p class="wait"><Hourglass size={16} aria-hidden="true" /><span>{t('No answers yet. The line shows from the first answers on.')}</span></p>
       {/if}
       <dl class="tiles">
         <div><dd class="num">{f1(normal.today)}</dd><dt>{t('today')}</dt></div>
         <div><dd class="num">{f1(normal.avg7)}</dd><dt>{t('mean of 7 days')}</dt></div>
         <div><dd class="num">{normal.band ? `${normal.band[0]}–${normal.band[1]}` : '–'}</dd><dt>{t('your normal')}</dt></div>
-        <div><dd>{#if normal.dir === 'up'}<ArrowUpRight size={22} aria-hidden="true" />{:else if normal.dir === 'down'}<ArrowDownRight size={22} aria-hidden="true" />{:else}<ArrowRight size={22} aria-hidden="true" />{/if}</dd><dt>{normal.dir === 'up' ? t('direction: up') : normal.dir === 'down' ? t('direction: down') : normal.dir === 'same' ? t('direction: the same') : t('direction: not yet')}</dt></div>
+        <div><dd>{#if normal.dir === 'up'}<ArrowUpRight size={24} aria-hidden="true" />{:else if normal.dir === 'down'}<ArrowDownRight size={24} aria-hidden="true" />{:else}<ArrowRight size={24} aria-hidden="true" />{/if}</dd><dt>{normal.dir === 'up' ? t('direction: up') : normal.dir === 'down' ? t('direction: down') : normal.dir === 'same' ? t('direction: the same') : t('direction: not yet')}</dt></div>
       </dl>
     </div>
   </section>
@@ -128,7 +128,7 @@
   <section class="ich-sec" aria-labelledby="{idp}-m-h">
     <div class="ich-h"><div><h2 id="{idp}-m-h">{t('With and without')}</h2><p class="ich-hs">{t('days with a thing next to days without it · a result only from {n} days per group', { n: MIN_GROUP })}</p></div></div>
     <div class="card pad">
-      <div class="ch-h"><b>{qText(QUESTION['erreicht.zufrieden'])}</b><span class="srcs"><span class="ab-src hand"><Hand size={13} aria-hidden="true" />{srcText('hand')}</span><span class="ab-src app"><Smartphone size={13} aria-hidden="true" />{srcText('app')}</span></span></div>
+      <div class="ch-h"><b>{qText(QUESTION['erreicht.zufrieden'])}</b><span class="srcs"><span class="ab-src hand"><Hand size={14} aria-hidden="true" />{srcText('hand')}</span><span class="ab-src app"><Smartphone size={14} aria-hidden="true" />{srcText('app')}</span></span></div>
       {#each compact ? compares.slice(0, 1) : compares as c (c.key)}
         <div class="mo" data-compare={c.key}>
           <b>{c.label}</b>
@@ -136,7 +136,7 @@
             <div class="bar"><span>{c.yes}</span><i style:--w="{(c.r.with.mean / 10) * 100}%"></i><em class="num">Ø {c.r.with.mean}</em><small class="num">{tn(c.r.with.n, '{n} day', '{n} days')}</small></div>
             <div class="bar o"><span>{c.no}</span><i style:--w="{(c.r.without.mean / 10) * 100}%"></i><em class="num">Ø {c.r.without.mean}</em><small class="num">{tn(c.r.without.n, '{n} day', '{n} days')}</small></div>
           {:else}
-            <p class="wait"><Hourglass size={15} aria-hidden="true" /><span>{t('{a}: {n} · {b}: {m}. A result from {min} days per group.', { a: c.yes, n: tn(c.r.with.n, '{n} day', '{n} days'), b: c.no, m: tn(c.r.without.n, '{n} day', '{n} days'), min: MIN_GROUP })}</span></p>
+            <p class="wait"><Hourglass size={16} aria-hidden="true" /><span>{t('{a}: {n} · {b}: {m}. A result from {min} days per group.', { a: c.yes, n: tn(c.r.with.n, '{n} day', '{n} days'), b: c.no, m: tn(c.r.without.n, '{n} day', '{n} days'), min: MIN_GROUP })}</span></p>
           {/if}
         </div>
       {/each}
@@ -179,9 +179,9 @@
       <div class="card pad">
         <!-- AB: the sentence only with enough days and with the counted days, so it never says more than the data -->
         {#if obs.ready}
-          <p class="obs"><Eye size={18} aria-hidden="true" /><span>{t('After nights you felt as 1–4, your battery was under 5 on {n} of {m} days.', { n: obs.hits, m: obs.n })}</span></p>
+          <p class="obs"><Eye size={20} aria-hidden="true" /><span>{t('After nights you felt as 1–4, your battery was under 5 on {n} of {m} days.', { n: obs.hits, m: obs.n })}</span></p>
         {:else}
-          <p class="wait"><Hourglass size={15} aria-hidden="true" /><span>{t('Not enough days yet: an observation shows after about {n} days with answers.', { n: MIN_OBS_DAYS })}</span></p>
+          <p class="wait"><Hourglass size={16} aria-hidden="true" /><span>{t('Not enough days yet: an observation shows after about {n} days with answers.', { n: MIN_OBS_DAYS })}</span></p>
         {/if}
       </div>
     </section>
@@ -193,7 +193,7 @@
       </ul>
     </section>
   {/if}
-  <p class="local"><Lock size={15} aria-hidden="true" /><span>{t('Everything stays on the device and is in the backup. Nothing goes to a service.')}</span></p>
+  <p class="local"><Lock size={16} aria-hidden="true" /><span>{t('Everything stays on the device and is in the backup. Nothing goes to a service.')}</span></p>
   {#if compact}<a class="btn" href="#/me/analysis">{t('The whole analysis')}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
 </div>
 

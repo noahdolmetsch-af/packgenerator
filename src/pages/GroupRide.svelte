@@ -154,7 +154,7 @@
     <p class="ev-muted">{t('Loading…')}</p>
   {:else if !group}
     <Empty icon={Users} title={t('No group ride running')} text={msg || t('Make a group on the live map with «Invite the group». Friends open the link in the browser, without the app.')} />
-    <div><a class="btn hi" href="#/live" data-gr-to-live><MapIcon size={18} aria-hidden="true" />{t('To the live map')}</a></div>
+    <div><a class="btn hi" href="#/live" data-gr-to-live><MapIcon size={20} aria-hidden="true" />{t('To the live map')}</a></div>
   {:else}
     <p class="gr-sub">{t('Ends by itself {when}. Then all places are deleted.', { when: endTime })}{plan?.night ? ` ${t('Night pause {from}–{to}.', { from: plan.night.from, to: plan.night.to })}` : ''}</p>
     {#if msg}<p class="rc-note" role="status" data-gr-msg>{msg}</p>{/if}

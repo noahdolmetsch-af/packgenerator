@@ -38,7 +38,7 @@
 {#if d}
   <div class="msh">
     <section class="surf msc" data-ms-series aria-labelledby="msh-s">
-      <h2 id="msh-s" class="ht"><Flame size={18} aria-hidden="true" />{t('Series over everything')}</h2>
+      <h2 id="msh-s" class="ht"><Flame size={20} aria-hidden="true" />{t('Series over everything')}</h2>
       <p class="big" data-n={d.s.n}><b class="num">{d.s.n}</b> {tn(d.s.n, 'week in a row active', 'weeks in a row active')}</p>
       <ol class="wk" aria-label={t('The last {n} weeks', { n: d.s.weeks.length })}>
         {#each d.s.weeks as w (w.week)}<li class:on={w.on} class:rest={w.rest && !w.on} class:now={w.now}><span class="sr">{w.on ? t('active') : w.rest ? t('rest week') : t('nothing')}</span></li>{/each}
@@ -51,11 +51,11 @@
       <button type="button" class="btn sm rw" aria-pressed={d.s.rest} onclick={rest}><Pause size={16} aria-hidden="true" />{d.s.rest ? t('Rest week ✓') : t('This week: rest week')}</button>
     </section>
     <section class="surf msc" data-ms-trips aria-labelledby="msh-t">
-      <h2 id="msh-t" class="ht"><Backpack size={18} aria-hidden="true" />{t('Trips and bikes')}</h2>
+      <h2 id="msh-t" class="ht"><Backpack size={20} aria-hidden="true" />{t('Trips and bikes')}</h2>
       <ul class="rows">
-        <li><Backpack size={18} aria-hidden="true" /><span><b>{tn(d.trips, '{n} trip with the app', '{n} trips with the app')}</b>{#if nextTrips}<small>{t('Next milestone: {n} trips', { n: nextTrips })}</small>{/if}</span></li>
-        {#each d.bikes as b (b.id)}<li><Bike size={18} aria-hidden="true" /><span><b>{b.name}: {num(Math.round(b.km))} km</b><small>{t('Next milestone: {km} km', { km: num((Math.floor(b.km / 1000) + 1) * 1000) })}</small></span></li>{/each}
-        <li class:off={!d.night}><Moon size={18} aria-hidden="true" /><span><b>{d.night ? t('First night out ✓') : t('First night out')}</b></span></li>
+        <li><Backpack size={20} aria-hidden="true" /><span><b>{tn(d.trips, '{n} trip with the app', '{n} trips with the app')}</b>{#if nextTrips}<small>{t('Next milestone: {n} trips', { n: nextTrips })}</small>{/if}</span></li>
+        {#each d.bikes as b (b.id)}<li><Bike size={20} aria-hidden="true" /><span><b>{b.name}: {num(Math.round(b.km))} km</b><small>{t('Next milestone: {km} km', { km: num((Math.floor(b.km / 1000) + 1) * 1000) })}</small></span></li>{/each}
+        <li class:off={!d.night}><Moon size={20} aria-hidden="true" /><span><b>{d.night ? t('First night out ✓') : t('First night out')}</b></span></li>
       </ul>
     </section>
   </div>

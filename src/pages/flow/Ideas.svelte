@@ -167,7 +167,7 @@
           {/each}
         </ul>
       {:else}
-        <p class="card none"><Lightbulb size={18} aria-hidden="true" />{t('No own idea yet. Write one, or take a tip on the left.')}</p>
+        <p class="card none"><Lightbulb size={20} aria-hidden="true" />{t('No own idea yet. Write one, or take a tip on the left.')}</p>
       {/if}
 
       {#if done.length}

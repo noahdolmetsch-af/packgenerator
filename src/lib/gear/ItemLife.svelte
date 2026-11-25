@@ -83,7 +83,7 @@
 {#snippet part(key, Icon, title, value, body)}
   {#if folds}
     <details class="sec pf" data-fold={key} open={openFold === key} ontoggle={(e) => onFold(key, e.currentTarget.open)}>
-      <summary><Icon size={18} aria-hidden="true" /><span class="ft">{title}</span><span class="fv">{value}</span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+      <summary><Icon size={18} aria-hidden="true" /><span class="ft">{title}</span><span class="fv">{value}</span><ChevronRight class="chev" size={20} aria-hidden="true" /></summary>
       {#if openFold === key}<div class="pbody">{@render body()}</div>{/if}
     </details>
   {:else}

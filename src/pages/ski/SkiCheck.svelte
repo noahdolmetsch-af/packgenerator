@@ -36,7 +36,7 @@
       {#each g.rows as r (`${r.entry.itemId}|${r.entry.slot}`)}
         <li>
           <button type="button" class="sk-tick" role="checkbox" aria-checked={!!r.entry.packed} onclick={() => togglePack(trip.id, r.entry.itemId, r.entry.slot)} data-item={r.item.id}>
-            <span class="sk-box" aria-hidden="true">{#if r.entry.packed}<Check size={18} strokeWidth={3} />{/if}</span>
+            <span class="sk-box" aria-hidden="true">{#if r.entry.packed}<Check size={20} strokeWidth={2.5} />{/if}</span>
             <span class="sk-tt">{nameOf(r.item)}{#if r.entry.qty > 1}{" "}<span class="num">× {r.entry.qty}</span>{/if}</span>
           </button>
         </li>

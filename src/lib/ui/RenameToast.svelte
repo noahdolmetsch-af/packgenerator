@@ -49,7 +49,7 @@
         onfocusin={() => pauseToast(x.id)}
         onfocusout={() => resumeToast(x.id)}
       >
-        <Check size={18} aria-hidden="true" />
+        <Check size={20} aria-hidden="true" />
         <span>{x.text}</span>
         {#if x.undo}<button type="button" class={last ? 'undo' : 'undo-old'} onclick={() => undoToast(x.id)}><Undo2 size={16} aria-hidden="true" />{last ? t('Undo') : t('Take back|older note')}</button>{/if}
         {#if x.action}<button type="button" class="undo" onclick={() => actToast(x.id)} data-toast-action>{x.action}</button>{/if}

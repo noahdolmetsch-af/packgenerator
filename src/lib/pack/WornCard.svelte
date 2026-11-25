@@ -54,7 +54,7 @@
               <span class="tl"><TempBar item={r.item} mark={range} width={64} /><small class="num">{range0(r.item)}</small>{#if was}<small class="was">{t('instead of {name}', { name: nameOf(was) })}</small>{:else if reasons[r.entry.itemId]?.line}<small class="why">{reasons[r.entry.itemId].line}</small>{/if}</span>
             </span>
             <span class="w num">{r.item.weightG == null ? '–' : formatWeight(itemWeight(r.item) * (r.entry.qty || 1))}</span>
-            <span class="swi" aria-hidden="true"><ArrowLeftRight size={18} /></span>
+            <span class="swi" aria-hidden="true"><ArrowLeftRight size={20} /></span>
           </button>
           {/if}
         </li>
@@ -62,7 +62,7 @@
     </ul>
   {/each}
   <p class="foot">
-    <a class="btn wbtn" href={wardrobeHref} data-explain={t('Open in the wardrobe')}><Shirt size={18} aria-hidden="true" />{t('Wardrobe|open')}</a>
+    <a class="btn wbtn" href={wardrobeHref} data-explain={t('Open in the wardrobe')}><Shirt size={20} aria-hidden="true" />{t('Wardrobe|open')}</a>
   </p>
   <p class="legend">
     {#each [['base', 'Base|layer'], ['mid', 'Mid|layer'], ['outer', 'Outer|layer'], ['accessory', 'Accessories|layer']] as [k, name] (k)}<span><i style="background: var(--l{LN[k]})" aria-hidden="true"></i>{t(name)}</span>{/each}

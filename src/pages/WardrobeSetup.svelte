@@ -142,7 +142,7 @@
     <section class="wcard" aria-labelledby="piece-h" data-setup-card>
       <p class="cap">{t('Piece {n}', { n: done + 1 })}</p>
       <div class="top">
-        {#if cur.item.photo}<img class="ph" src={cur.item.photo} alt="" />{:else}<span class="ph blank" aria-hidden="true"><Shirt size={26} /></span>{/if}
+        {#if cur.item.photo}<img class="ph" src={cur.item.photo} alt="" />{:else}<span class="ph blank" aria-hidden="true"><Shirt size={24} /></span>{/if}
         <div>
           <h2 id="piece-h">{nameOf(cur.item)}</h2>
           <p class="note num">{[weight(cur.item), cur.used ? tn(cur.used, 'taken on {n} trip', 'taken on {n} trips') : t('not on a trip yet')].filter(Boolean).join(' · ')}</p>

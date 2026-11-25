@@ -68,7 +68,7 @@
         <h2 id="lg-h">{isNew ? t('Write down a change') : t('Change entry')}</h2>
         {#if entry?.source?.label}<p class="vd-sub meta">{entry.source.label}</p>{/if}
       </div>
-      <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={18} aria-hidden="true" /></button>
+      <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
     </div>
     <div class="grid">
       <label><span class="lbl">{t('Day')}</span><input class="inp" type="date" bind:value={draft.date} /></label>
