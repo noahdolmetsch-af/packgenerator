@@ -62,7 +62,7 @@ export const KEEP_DAYS = 60;
 
 const isDay = (d) => /^\d{4}-\d{2}-\d{2}$/.test(String(d ?? ''));
 const isTime = (x) => /^\d{2}:\d{2}$/.test(String(x ?? ''));
-const newId = (p) => `${p}${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+export const newId = (p) => `${p}${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 
 /** The 7 days of the week of a Monday. */
 export const daysOf = (monday) => Array.from({ length: 7 }, (_, i) => shiftDay(monday, i));

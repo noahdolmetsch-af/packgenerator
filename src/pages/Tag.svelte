@@ -9,10 +9,11 @@
   import PageHead from '../lib/ui/PageHead.svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import { weekQuery, putWeek } from '../lib/woche/load.js';
-  import { buildWeek, KIND_NAMES, ITEMS_KEY, TIMES_KEY, timesOf, cleanItem, pruneItems } from '../lib/woche.js';
+  import { buildWeek, KIND_NAMES, ITEMS_KEY, TIMES_KEY, timesOf, cleanItem, pruneItems, newId } from '../lib/woche.js';
   import { deleteWithUndo } from '../lib/ui/ask.js';
   import EntrySheet from '../lib/tag/EntrySheet.svelte';
   import PlanSheet from '../lib/tag/PlanSheet.svelte';
+  import VorlageSheet from '../lib/tag/VorlageSheet.svelte';
   import Todos from '../lib/tag/Todos.svelte';
   import Abhaken from '../lib/tag/Abhaken.svelte';
   import Seg from '../lib/ui/Seg.svelte';
@@ -33,6 +34,7 @@
   import { OUTDOOR_KEY, outdoorOf, dayOf as outdoorDay } from '../lib/outdoor.js';
   import { outdoorWindow, needOf, planRef } from '../lib/tag/draussen.js';
   import { eveningRows, laterDay } from '../lib/tag/abend.js';
+  import { TEMPLATES_KEY, patternOf, saveTemplate, putTemplate, repeatItems } from '../lib/tag/vorlage.js';
 
   let { sub = '' } = $props();
   const today = localDay();
@@ -230,12 +232,38 @@
     });
   }
   const addEntry = (time = '') => (editing = { item: null, day, time });
-  async function saveEntry(fields) {
+  async function saveEntry({ repeat = 0, ...fields }) {
     const old = editing.item;
     const next = cleanItem({ ...old, ...fields, mins: fields.mins ?? undefined });
     if (!next) return;
     if (fields.mins == null) delete next.mins;
-    await saveItems(old ? items().map((x) => (x.id === old.id ? next : x)) : [...items(), next]);
+    const before = items();
+    const list = old ? before.map((x) => (x.id === old.id ? next : x)) : [...before, next];
+    // «repeat every week» (Noah 25.11.2026, idea 3): ordinary copies on the same weekday, each one changeable alone
+    const copies = repeat ? repeatItems(next, repeat, list, () => newId('wi')) : [];
+    await saveItems([...list, ...copies]);
+    if (copies.length) offerDone(t('{n} repeats added.', { n: copies.length }), () => saveItems(before));
+  }
+  // day templates (Noah 25.11.2026, idea 3): keep the own entries of the day, put them on other days
+  let templating = $state(false);
+  const templates = $derived(src?.templates ?? []);
+  const pickDays = $derived(Array.from({ length: 14 }, (_, i) => shiftDay(today, i)));
+  async function saveTpl(name) {
+    const before = templates;
+    await putWeek(TEMPLATES_KEY, saveTemplate(before, name, patternOf(items(), day), () => newId('vt')));
+    offerDone(t('Template «{name}» kept.', { name }), () => putWeek(TEMPLATES_KEY, before));
+  }
+  async function putTpl(tpl, list) {
+    const before = items();
+    const made = putTemplate(tpl, list, before, () => newId('wi'));
+    if (!made.length) return offerDone(t('Everything of «{name}» is already there.', { name: tpl.name }), () => {});
+    await saveItems([...before, ...made]);
+    offerDone(t('{n} entries added.', { n: made.length }), () => saveItems(before));
+  }
+  async function deleteTpl(tpl) {
+    const before = templates;
+    await putWeek(TEMPLATES_KEY, before.filter((x) => x.id !== tpl.id));
+    offerDone(t('Template «{name}» deleted.', { name: tpl.name }), () => putWeek(TEMPLATES_KEY, before));
   }
   const deleteEntry = () => removeItem(editing.item);
   function removeItem(gone) {
@@ -415,7 +443,11 @@
 {/if}
 
 {#if planning}
-  <PlanSheet entries={d?.entries ?? []} {day} {today} now={now ?? 0} wet={!!wetNow?.wet} {next} onapply={applyPlan} onclose={() => (planning = false)} />
+  <PlanSheet entries={d?.entries ?? []} {day} {today} now={now ?? 0} wet={!!wetNow?.wet} {next} onapply={applyPlan} ontemplates={() => (templating = true)} onclose={() => (planning = false)} />
+{/if}
+
+{#if templating}
+  <VorlageSheet {day} pattern={patternOf(items(), day)} {templates} days={pickDays} onsave={saveTpl} onput={putTpl} ondelete={deleteTpl} onclose={() => (templating = false)} />
 {/if}
 
 {#if editing}
