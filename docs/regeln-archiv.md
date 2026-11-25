@@ -304,3 +304,10 @@ These are the only rules. They replace every older rule here, in `docs/arbeitswe
 - Never skip, disable or loosen a test to get green. Fix the cause, or adapt the test when the UI changed on purpose.
 - Test dates use calendar-day arithmetic in Europe/Zurich, never `Date.now() + n*864e5`.
 - For «today» in app code, use `localDay()` (src/lib/localday.js), not `toISOString().slice(0,10)`.
+
+## Ersetzt am 24.11.2026 22:19: «Ein Test, der 2× zufällig fällt» (Block 4, `CLAUDE.md`)
+
+Noah «a-c alle» 24.11.2026 22:19 (Wackel-Wächter, `docs/decisions/wackel-waechter.md`): schon das erste zufällige Rot kommt auf die Liste. Wortlaut davor, wörtlich:
+
+- Block 4: «**Ein Test, der 2× zufällig fällt,** kommt auf die Liste und wird noch am selben Tag stabil gemacht (Wackel-Thread).»
+- `CLAUDE.md`: «A test that fails twice by chance goes on the list and is made stable the same day.»

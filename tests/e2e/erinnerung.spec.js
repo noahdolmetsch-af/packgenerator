@@ -48,6 +48,8 @@ test('Erinnerung: fertiger Text, eigener Text, Mail mit Betreff auf Heute, aussc
   await expect(sheet.locator('[data-reminder-preview]')).toHaveText('Hoi Mia, morgen ist Tennis-Lektion um 17:00!');
   await sheet.getByRole('button', { name: T('Save') }).click();
   await expect(sheet).toBeHidden();
+  // a closed dialog hands its history step back one task later (backClose); a reload or a page change in between is aborted
+  await expect.poll(() => page.evaluate(() => history.state?.pgDialog ?? null)).toBeNull();
   await expect(card.locator('[data-reminder-sample]')).toContainText('Hoi Mia, morgen ist Tennis-Lektion um 17:00!');
   await page.reload();
   await expect(page.locator('[data-reminder-card] [data-reminder-sample]')).toContainText('Hoi Mia');
@@ -63,6 +65,8 @@ test('Erinnerung: fertiger Text, eigener Text, Mail mit Betreff auf Heute, aussc
   await add.locator('input[type=time]').fill('18:00');
   await add.getByRole('button', { name: T('Open the time') }).click();
   await expect(add).toBeHidden();
+  // a closed dialog hands its history step back one task later (backClose); a reload or a page change in between is aborted
+  await expect.poll(() => page.evaluate(() => history.state?.pgDialog ?? null)).toBeNull();
   await page.goto(`./buchen/#${id}`);
   await page.getByLabel(T('Your name')).fill('Mia Muster');
   await page.getByLabel(T('Phone or e-mail')).fill('mia@example.test');
