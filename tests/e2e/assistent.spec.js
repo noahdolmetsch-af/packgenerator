@@ -30,11 +30,15 @@ async function start(page, context, info) {
 }
 const external = sentOut; // weather and lake values carry nothing of yours
 
-test('the button opens the page; an example asks, the app answers; the two ways with examples', async ({ page, context }, info) => {
+test('a question in the search opens the assistant; an example asks, the app answers; the two ways with examples', async ({ page, context }, info) => {
   const { errors, out } = await start(page, context, info);
   await page.goto('./#/');
-  await page.getByRole('link', { name: T('Assistant'), exact: true }).first().click();
-  await expect(page).toHaveURL(/#\/assistent$/);
+  // «Ein Eingang» (Noah 24.11.2026 «1-3a»): no bubble in the bar any more; a question in the search leads on to the assistant
+  await expect(page.getByRole('link', { name: T('Assistant'), exact: true })).toHaveCount(0);
+  if (info.project.name === 'phone') await page.getByRole('button', { name: T('Search everything') }).click();
+  await page.getByRole('searchbox', { name: T('What do you want to do? Search or say an action') }).locator('visible=true').first().fill('Wann ist meine nächste Tour?');
+  await page.locator('[data-search-assistant]:visible').click();
+  await expect(page).toHaveURL(/#\/assistent\?q=/);
   await expect(page.getByRole('heading', { level: 1, name: T('Assistant') })).toBeVisible();
   await page.getByRole('button', { name: T('What is due on my bikes?') }).first().click();
   const card = page.locator('.aa[data-aa="care"]');

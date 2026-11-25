@@ -59,7 +59,7 @@ describe('where it lives', () => {
   it('the search has the microphone and «Ask further at», each behind its setting', () => {
     const s = src('src/lib/nav/Search.svelte');
     expect(s).toContain('<SearchMic onsaid={said}');
-    expect(s).toMatch(/\{#if asking && suche\.links\}<AskElsewhere/);
+    expect(s).toMatch(/\{#if asking && suche\.links\}[\s\S]*?<AskElsewhere/); // a closed line under a question («Ein Eingang», Noah 24.11.2026)
     expect(s).toContain('{#if inAll && suche.app && !listSay}<AskAnswer'); // behind its setting; a command sentence shows no answer beside it; a button other than «All» shows only its kind (Noah 24.11.2026 «1-5a»)
     expect(s).toContain('chrome={suche.chrome} links={suche.links}');
   });
