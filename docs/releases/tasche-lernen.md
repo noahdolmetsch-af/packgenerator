@@ -1,6 +1,6 @@
 # Tasche lernen
 
-PR #1785 · 23.11.2026 · Auftrag: Noah «3a» (Thread «Packen nach Taschen am Bike ausbauen»)
+PR #1788 · 23.11.2026 · Auftrag: Noah «3a» (Thread «Packen nach Taschen am Bike ausbauen»)
 
 ## Was ist neu
 - Packst du ein Teil auf mindestens drei abgeschlossenen Touren in eine andere Tasche als seine übliche (und auf mindestens 80 % seiner Touren in dieselbe), steht in der Karte «Bereit zur Abfahrt?» die Zeile «Übliche Tasche: … packst du oft woanders hin» (Ton «Tipp», ändert die Überschrift der Karte nicht).
