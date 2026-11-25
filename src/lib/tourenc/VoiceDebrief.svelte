@@ -11,11 +11,12 @@
   import { liveQuery } from 'dexie';
   import { Mic, Check, X, Sparkles, Play } from '@lucide/svelte';
   import { db } from '../db.js';
-  import { t, tn } from '../i18n.svelte.js';
+  import { t, tn, lang } from '../i18n.svelte.js';
   import SpeakButton from '../ui/SpeakButton.svelte';
   import VoiceRec from '../eingabe/VoiceRec.svelte';
   import Seg from '../ui/Seg.svelte';
   import { appendSpoken } from '../speak.js';
+  import { askGemini } from '../gemini/client.js'; // «Frag Gemini» (Noah 23.11.2026 «3a»)
   import { offerDone } from '../ui/rename.svelte.js';
   import { KINDS, MAX_TEXT, localPoints, withItems, applyPoints } from './voicepoints.js';
 
@@ -35,6 +36,18 @@
     busy = true;
     note = t('Sorted by the app itself (sentence by sentence).');
     points = withItems(localPoints(body), trip, items);
+    busy = false;
+  }
+  // «Mit Gemini gliedern» (Noah 23.11.2026 «3a»): Gemini cuts the report into points; on any failure the app does it itself
+  async function sortGemini() {
+    const body = text.trim().slice(0, MAX_TEXT);
+    if (!body || busy) return;
+    busy = true;
+    note = t('Sorted by Gemini. Check every point.');
+    const r = await askGemini({ mode: 'report', text: body, lang: lang.v });
+    const found = r.ok && Array.isArray(r.points) && r.points.length ? r.points : null;
+    if (!found) note = t('Gemini could not sort it now, so the app sorted it itself (sentence by sentence).');
+    points = withItems(found ?? localPoints(body), trip, items);
     busy = false;
   }
   const kept = $derived((points ?? []).filter((p) => p.keep).length);
@@ -104,8 +117,10 @@
           {/if}
         {/if}
         <p class="acts"><button type="button" class="btn hi" disabled={busy || text.trim().length < 6} onclick={sort} data-voice-sort><Sparkles size={20} aria-hidden="true" />{busy ? t('Sorting …') : t('Make key points')}</button>
+          <button type="button" class="btn" disabled={busy || text.trim().length < 6} onclick={sortGemini} data-voice-gemini>{t('Sort with Gemini')}</button>
           <button type="button" class="btn" disabled={!text.trim()} onclick={asNote} data-voice-note>{t('Only save as a note')}</button></p>
         <p class="tp-small tp-muted">{t('The app goes through the text sentence by sentence. Nothing is kept without your tap.')}</p>
+        <p class="tp-small tp-muted">{t('«Sort with Gemini» sends only this text to Google’s free Gemini. Send nothing private.')}</p>
       {:else}
         {#if note}<p class="tp-small tp-muted" role="status">{note}</p>{/if}
         <ul class="kp">

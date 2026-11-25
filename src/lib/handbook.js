@@ -118,6 +118,11 @@ const LISTED = {
     steps: ['Ask the app: type a question or tap an example; the answer comes from your data, with a link.', 'Help me plan: answer four short questions, check the plan, «Create the trip».'],
     example: 'Example: «What is due on my bikes?» → the parts that are due, and «Open bike care».',
   },
+  'f.askgemini': {
+    on: 'Assistant › «Ask Gemini» (the third tab).',
+    steps: ['Type a question, speak it with the microphone, or add a photo, then tap «Ask Gemini».', '«Read aloud» reads the answer; the switch «Read answers aloud at once» does it every time.', '«Do it for me»: write a sentence, check «I would do this», tap «Yes, do it» (with Undo).'],
+    example: 'Example: a photo of a worn brake pad and «Is this still good?» → a short answer you can have read to you.',
+  },
   'f.wardrobe': {
     on: null,
     steps: ['Open Gear › Clothes.', 'Add clothes by layer and body zone; gaps go to the wishlist.'],

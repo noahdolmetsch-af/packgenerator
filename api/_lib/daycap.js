@@ -38,6 +38,7 @@ export const DAY_CAPS = {
   rwgps: 200, // «Neue Quellen» 20.10.2026: Ride with GPS links (api/lake.js ?action=rwgps)
   group: 1500, // Gruppen-Live-Karte 25.10.2026: the group map of a ride (api/sync.js ?action=group)
   mini: 600, // Mini-Tools 28.10.2026: questions shared by link and their answers (api/sync.js ?action=mini)
+  ask: 150, // «Frag Gemini» 23.11.2026: the free tier of Gemini must not be used up by one day (api/ask.js)
   ov: 1500, // stops and departures (api/lake.js ?action=ov-…; Vercel's cache answers most)
 };
 /** Never counted: the watcher must always be able to look. */

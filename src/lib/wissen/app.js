@@ -9,6 +9,7 @@ export default {
   'f.ownvalues': 'Start with the values you know from experience, like how long your chain lasts. The app learns better from your numbers than from averages.',
   'f.alerts': 'Few sources you trust beat many you skim. A warning for your region the evening before is worth more than ten news in the morning.',
   'f.searchvoice': 'Short commands work best: «Regenjacke einpacken» beats a whole sentence. With wind on the mic, cup your hand around the phone.',
+  'f.askgemini': 'Gemini does not know your data and Google may use free questions to improve its products: ask nothing private. When the free limit is used up for now, «Ask further at» still works.',
   'f.assistent': 'Ask about your own data, like «How many km did I ride in May?». General questions about the world are better in a search engine.',
   'f.askfurther': 'Different AIs give different answers; for a pass or a ferry time, trust the official page in the end, not the most confident answer.',
   'f.miniapps': 'One small app for what you open daily, like the packing list or the weather, saves the detour through the menu, especially with gloves.',
