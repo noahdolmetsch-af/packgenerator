@@ -76,12 +76,39 @@ test('Tagessatz: low HRV and a short night say rest, lead to Form, Not today put
   expect(errors).toEqual([]);
 });
 
-test('Tagessatz: a fresh day without rain asks which mountain calls', async ({ page, context }, info) => {
+test('Tagessatz: a fresh day without rain names the mountain that calls', async ({ page, context }, info) => {
   const errors = await open(page, context, info, false);
   const line = page.locator('[data-say-day]');
   await expect(line).toBeVisible({ timeout: 20_000 });
   await expect(line).toHaveAttribute('data-kind', 'berg');
+  // the summit of the Gipfelbuch thread (name, height, km) once the list is loaded
+  await expect(line).toContainText('steht noch nicht in deinem Gipfelbuch', { timeout: 20_000 });
+  await expect(line).toContainText('Welcher Berg ruft');
+  await expect(line.getByRole('link')).toHaveAttribute('href', '#/flow/gipfelbuch/karte');
+  expect(errors).toEqual([]);
+});
+
+test('Tagessatz: without a home place the question leads to the summit book', async ({ page, context }, info) => {
+  const errors = await open(page, context, info, false);
+  await page.evaluate(() => new Promise((done, fail) => {
+    const req = indexedDB.open('pack-generator');
+    req.onerror = fail;
+    req.onsuccess = () => {
+      const tx = req.result.transaction('settings', 'readwrite');
+      tx.objectStore('settings').delete('homePlace');
+      tx.oncomplete = () => (req.result.close(), done());
+      tx.onerror = () => fail(tx.error);
+    };
+  }));
+  await page.reload();
+  await settle(page);
+  const close = page.locator('dialog[open]').getByRole('button', { name: /Schliessen|Close/ });
+  if (await close.count()) await close.first().click();
+  const line = page.locator('[data-say-day]');
+  await expect(line).toBeVisible({ timeout: 20_000 });
   await expect(line).toContainText('welcher Berg ruft');
+  await page.waitForTimeout(2500);
+  await expect(line).not.toContainText('Gipfelbuch.');
   await expect(line.getByRole('link')).toHaveAttribute('href', '#/flow/gipfelbuch');
   expect(errors).toEqual([]);
 });
