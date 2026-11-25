@@ -2,7 +2,7 @@
 
 Ein Wackler ist ein Test, der ohne Änderung an der App mal grün und mal rot ist, oder der auf main rot wird, ohne dass eine App-Änderung dazu passt. Der Ablauf steht in `docs/regeln.md`, Block 7 («Wackel-Wächter»). Diese Liste führt der Thread «Wackel-Tests zuverlässig machen»; nur Testnamen und Ursachen, keine Daten.
 
-**Stand:** `offen` = gemeldet, noch nicht stabil (hat Vorrang vor neuen PRs); `beobachten` = einmal gesehen, Ursache unklar; `stabil` = Ursache behoben, 3× pro Gerät grün.
+**Stand:** `offen` = gemeldet, noch nicht stabil (Fix-PR hat beim Bündler Vorrang); `beobachten` = einmal gesehen, Ursache unklar; `stabil` = Ursache behoben, 3× pro Gerät grün.
 
 | Test (Datei:Zeile) | Gerät | Gesehen | Ursache | Fix | Stand |
 |---|---|---|---|---|---|
