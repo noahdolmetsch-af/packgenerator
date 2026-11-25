@@ -409,9 +409,9 @@
             <div class="tpg" data-wp-tpgoal>
               <p class="sub">{t('Goal in weeks with TrainingPeaks')}</p>
               <div class="stepper">
-                <button type="button" class="btn sm" onclick={() => tpStep(-1)} disabled={tpGoal <= MIN_HOURS} aria-label={t('One hour less')} data-wp-tpdec><Minus size={18} aria-hidden="true" /></button>
+                <button type="button" class="btn sm" onclick={() => tpStep(-1)} disabled={tpGoal <= MIN_HOURS} aria-label={t('One hour less')} data-wp-tpdec><Minus size={20} aria-hidden="true" /></button>
                 <output class="big num" data-wp-tpvalue>{t('{n} h|plan', { n: tpGoal })}</output>
-                <button type="button" class="btn sm" onclick={() => tpStep(1)} disabled={tpGoal >= MAX_HOURS} aria-label={t('One hour more')} data-wp-tpinc><Plus size={18} aria-hidden="true" /></button>
+                <button type="button" class="btn sm" onclick={() => tpStep(1)} disabled={tpGoal >= MAX_HOURS} aria-label={t('One hour more')} data-wp-tpinc><Plus size={20} aria-hidden="true" /></button>
               </div>
               {#if cfg.tpHours}<button type="button" class="btn sm" onclick={tpSame} data-wp-tpsame>{t('Same as the goal above')}</button>{:else}<p class="sub">{t('Same as the goal above, until you change it.')}</p>{#if !overLines.length}<button type="button" class="btn sm" onclick={tpSet} data-wp-tpsuggest>{t('Suggest {n} h for these weeks', { n: tpSuggest })}</button>{/if}{/if}
             </div>
