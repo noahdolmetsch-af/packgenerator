@@ -5,7 +5,7 @@ import { daysOf, joinStages, MAX_STAGES } from '../src/lib/vorschlaege/tage.js';
 import KANTONE from '../src/lib/vorschlaege/data/kantone.js';
 import { kmMarks, stepFor, lineKm, pointAtKm, nearestOnLine } from '../src/lib/spur/kmmarks.js';
 import { fineOfTour, coarseOfTour, kmsOf, steepest, stretchOf } from '../src/lib/vorschlaege/steil.js';
-import { FRAME, lv95, toXY, pathOf, ZURICH, countBy, sizes, tipPos, TIP } from '../src/lib/vorschlaege/karte.js';
+import { FRAME, lv95, toXY, pathOf, ZURICH, countBy, sizes, tipPos, viewOf, TIP } from '../src/lib/vorschlaege/karte.js';
 import { crowKm, travelMin, anreiseOf, dayHours, fitsHalfDay, withinTravel, TRAVELS, ZURICH_HB } from '../src/lib/vorschlaege/anreise.js';
 import { CELL, cellOf, cellsOf, wetterUrl, parseWetter, dayVerdict, rainBefore, wetTrail, technical, addDays, weekdayOf, dateOfChoice, verdictFor, bestDay, weekOf, sortByWeather, loadWetter, BEST_DAYS } from '../src/lib/vorschlaege/wetter.js';
 import { NEAR_KM, HALF, spotList, reachedOf, spotsAlong, spotIndex, freshSpots, cantonNew, runsOf, neuOk, neuSort, toursNear, goalOf, monthOf, doneIn, tickTour, GOAL_STD } from '../src/lib/vorschlaege/neuland.js';
@@ -237,9 +237,27 @@ describe('Tourenvorschläge: die Karte', () => {
   it('zählt die Touren je Kanton, und die Zeichengrössen bleiben lesbar', () => {
     expect(countBy(P).gr).toBe(3);
     expect(countBy([]).gr).toBeUndefined();
-    expect(sizes(1).dot).toBe(7);
+    expect(sizes(1).dot).toBe(3.2);
     expect(sizes(0.27).dot).toBeGreaterThan(sizes(1).dot);
-    expect(sizes(0.27).font).toBeGreaterThanOrEqual(13);
+    // the same size on the screen: dot (frame units) times the scale is the same everywhere
+    expect(sizes(0.27).dot * 0.27).toBeCloseTo(sizes(2).dot * 2, 5);
+    expect(sizes(0.27).font * 0.27).toBeGreaterThanOrEqual(12);
+  });
+
+  it('die Karte zoomt auf die gewählten Kantone, im Format des Rahmens', () => {
+    const paths = { a: 'M100 100L300 100L300 200L100 200', b: 'M1000 700L1100 700L1100 800' };
+    expect(viewOf(paths, [])).toEqual({ x: 0, y: 0, w: FRAME.w, h: FRAME.h });
+    expect(viewOf(paths, ['zz'])).toEqual({ x: 0, y: 0, w: FRAME.w, h: FRAME.h });
+    const v = viewOf(paths, ['a']);
+    expect(v.w / v.h).toBeCloseTo(FRAME.w / FRAME.h, 5);
+    expect(v.x).toBeLessThanOrEqual(100);
+    expect(v.x + v.w).toBeGreaterThanOrEqual(300);
+    expect(v.y).toBeLessThanOrEqual(100);
+    expect(v.y + v.h).toBeGreaterThanOrEqual(200);
+    const two = viewOf(paths, ['a', 'b']);
+    expect(two.w).toBeLessThanOrEqual(FRAME.w);
+    expect(two.x).toBeGreaterThanOrEqual(0);
+    expect(two.y + two.h).toBeLessThanOrEqual(FRAME.h);
   });
 });
 

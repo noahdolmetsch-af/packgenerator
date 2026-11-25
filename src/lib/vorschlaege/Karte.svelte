@@ -6,7 +6,7 @@
    */
   import K from './data/kantone.js';
   import { REGIONS } from './regeln.js';
-  import { pathOf, toXY, ZURICH, countBy, sizes, tipPos } from './karte.js';
+  import { pathOf, toXY, ZURICH, countBy, sizes, tipPos, viewOf } from './karte.js';
   import { hoursOf, splitHours } from './regeln.js';
   import { t, num } from '../i18n.svelte.js';
 
@@ -19,8 +19,11 @@
   let figH = $state(0);
   const byId = $derived(new Map(tours.map((x) => [x.id, x])));
   const tipTour = $derived(tip ? byId.get(tip) ?? null : null);
-  const scale = $derived(cw ? cw / K.w : 1);
-  const tipAt = $derived(tipTour ? tipPos([toXY(tipTour.line[0])[0] * scale, toXY(tipTour.line[0])[1] * scale], [cw, figH || cw * (K.h / K.w)]) : null);
+  // chosen cantons: the map zooms to them (Noah 25.11.2026), dots and text stay the same size on the screen
+  const view = $derived(viewOf(K.paths, regions));
+  const zoomed = $derived(view.w < K.w);
+  const scale = $derived(cw ? cw / view.w : 1);
+  const tipAt = $derived(tipTour ? tipPos([(toXY(tipTour.line[0])[0] - view.x) * scale, (toXY(tipTour.line[0])[1] - view.y) * scale], [cw, figH || cw * (view.h / view.w)]) : null);
   const timeText = (h) => {
     const { h: hh, min } = splitHours(h);
     return min ? t('{h} h {min}', { h: hh, min }) : t('{h} h|tour', { h: hh });
@@ -36,10 +39,13 @@
       tip = id;
     }
   };
-  const z = $derived(sizes(cw ? cw / K.w : 1));
+  const z = $derived(sizes(scale));
   const greySet = $derived(new Set(grey));
   const count = $derived(countBy(tours));
-  const lit = $derived(Object.keys(light).length > 0);
+  // very many starts on the whole map (Noah 25.11.2026): smaller dots and no weather rings, the rings come back as soon as a canton is chosen
+  const crowd = $derived(!zoomed && tours.filter((x) => !x.days).length > 200);
+  const dotR = $derived(z.dot * (crowd ? 0.8 : 1));
+  const lit = $derived(Object.keys(light).length > 0 && !crowd);
   // day tours start where their first stage starts: the map draws the stages only (the numbers per canton count both)
   const drawn = $derived(tours.filter((x) => !x.days).map((x) => ({ id: x.id, title: x.title, light: light[x.id] ?? null, hard: x.cond === 'difficult', grey: greySet.has(x.id), d: pathOf(x.line), start: toXY(x.line[0]) })));
 </script>
@@ -47,7 +53,7 @@
 <figure class="karte" bind:clientWidth={cw} data-vs-karte>
   <div class="frame" bind:clientHeight={figH}>
   <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
-  <svg viewBox="0 0 {K.w} {K.h}" role="group" aria-label={t('Map of Switzerland with the tours of the list')} onclick={(e) => e.target.closest?.('a') || (tip = null)}>
+  <svg viewBox="{view.x} {view.y} {view.w} {view.h}" role="group" aria-label={t('Map of Switzerland with the tours of the list')} onclick={(e) => e.target.closest?.('a') || (tip = null)}>
     {#each REGIONS as r (r.key)}
       {#if K.paths[r.key]}
         <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
@@ -59,9 +65,9 @@
     {/each}
     {#each drawn as x (x.id)}
       <a href={`#/trips/vorschlaege/${x.id}`} aria-label={x.title} data-explain="off" data-vs-dot={x.id} onpointerenter={(e) => onEnter(x.id, e)} onpointerleave={onLeave} onfocus={() => touch() || (tip = x.id)} onblur={() => (tip = null)} onclick={(e) => onTap(x.id, e)}>
-        <circle cx={x.start[0]} cy={x.start[1]} r={z.dot * 1.4} class="hit" />
-        {#if x.light}<circle cx={x.start[0]} cy={x.start[1]} r={z.dot * 1.75} class="ring {x.light}" stroke-width={z.dot * 0.42} data-vs-ring={x.light} />{/if}
-        <circle cx={x.start[0]} cy={x.start[1]} r={z.dot} class="dot" class:hard={x.hard} class:grey={x.grey} stroke-width={z.dot * 0.3} />
+        <circle cx={x.start[0]} cy={x.start[1]} r={z.hit} class="hit" />
+        {#if x.light && !crowd}<circle cx={x.start[0]} cy={x.start[1]} r={dotR * 1.9} class="ring {x.light}" stroke-width={dotR * 0.4} data-vs-ring={x.light} />{/if}
+        <circle cx={x.start[0]} cy={x.start[1]} r={dotR} class="dot" class:hard={x.hard} class:grey={x.grey} stroke-width={dotR * 0.3} />
       </a>
     {/each}
     {#each REGIONS as r (r.key)}
@@ -75,6 +81,7 @@
     <circle cx={ZURICH[0]} cy={ZURICH[1]} r={z.dot * 1.6} class="zh" />
     <text x={ZURICH[0] - z.dot * 2.4} y={ZURICH[1] + z.font * 0.35} font-size={z.font * 1.05} class="zt" text-anchor="end">{t('Zurich|tour')}</text>
   </svg>
+  {#if zoomed}<button type="button" class="all" data-vs-karte-all onclick={() => regions.forEach((k) => onregion(k))}>{t('Whole Switzerland')}</button>{/if}
   {#if tipTour && tipAt}
     <div class="tip" role="status" style:left="{tipAt.left}px" style:top="{tipAt.top}px" style:width="{tipAt.width}px" data-vs-tip={tipTour.id}>
       <b>{tipTour.title}</b>
@@ -125,6 +132,7 @@
   .ln.hot { opacity: 1; }
   .ln.dim { opacity: 0.18; }
   .frame { position: relative; }
+  .all { position: absolute; top: 8px; left: 8px; z-index: 1; min-height: 32px; padding: 0 12px; border: 1px solid var(--k-border); border-radius: var(--r-pill); background: var(--k-paper); color: var(--k-text); font: inherit; font-size: var(--fs-small); font-weight: 600; cursor: pointer; }
   .tip { position: absolute; z-index: 2; display: grid; gap: 4px; padding: 8px 10px; background: var(--k-paper); color: var(--k-text); border: 1px solid var(--k-border); border-radius: 10px; box-shadow: 0 4px 14px var(--k-shadow); font-size: var(--fs-small); }
   .tip b { overflow-wrap: break-word; }
   .tnums { display: flex; flex-wrap: wrap; gap: 2px 12px; }
