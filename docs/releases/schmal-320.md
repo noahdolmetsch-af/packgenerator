@@ -12,6 +12,6 @@ PR #? · 25.11.2026 · Auftrag: Noah «Alle B und C weitergeben» (Gesamttest Ru
 - nichts
 
 ## Selbst entschieden
-- **Untere Leiste:** «Auswerten» ist in der Leiste bei 320 px schon ganz (Regel für Handys unter 360 px steht seit früher in `PlaceBar.svelte`); der Befund stammt von einer älteren Version. Der neue Test hält das fest.
+- **Untere Leiste:** Der fette Name «Auswerten» war bei 320 px einen Hauch breiter als sein Platz (63,28 gegen 63,2 px) und endete in «Auswert…»; ein Ganzzahl-Test sah das nicht. Auf Handys unter 360 px ist die aktive Beschriftung jetzt halbfett (600) und die Buchstaben etwas enger (`PlaceBar.svelte`). Der Test misst die Textbreite nun genau.
 - **C6 «ohne … abgeschnitten»:** Mit erfundenen langen Namen fand der Test auf Analyse, Wert, Auswerten, Körperwerte, Fahrten nichts, das ohne «…» abgeschnitten wird. Die Namen der Kacheln brechen um, sie werden nicht abgeschnitten. Gefunden und behoben wurde nur der Silbenumbruch in der Trainingswoche. Falls Noah einen konkreten Namen sieht, der abgeschnitten ist, bitte Ort nennen.
 - Die Einheiten-Namen in der Trainingswoche brechen bewusst um statt auf «…» zu enden (UI-Test Training, Fund 7); das bleibt.

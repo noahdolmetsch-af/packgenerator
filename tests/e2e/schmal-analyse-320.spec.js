@@ -38,7 +38,12 @@ test('at 320 and 390 px: chips, tabs and long names keep every word whole, the b
     await page.reload();
     await ready(page);
     await expect(page.locator('main h1').first()).toBeVisible();
-    const bar = await page.evaluate(() => [...document.querySelectorAll('nav.bottom .pn')].filter((e) => e.scrollWidth > e.clientWidth + 1).map((e) => e.textContent.trim()));
+    // the width of the text itself against its box (scrollWidth is rounded and let «Auswert…» pass by a hair)
+    const bar = await page.evaluate(() => [...document.querySelectorAll('nav.bottom .pn')].filter((e) => {
+      const r = document.createRange();
+      r.selectNodeContents(e);
+      return r.getBoundingClientRect().width > e.getBoundingClientRect().width + 0.1 || e.scrollHeight > e.clientHeight + 1;
+    }).map((e) => e.textContent.trim()));
     expect.soft(await brokenWords(page), `${what}: no word broken inside`).toEqual([]);
     expect.soft(await cutOff(page), `${what}: nothing cut off without «…» or a full text`).toEqual([]);
     expect.soft(bar, `${what}: the bottom bar labels are whole`).toEqual([]);
