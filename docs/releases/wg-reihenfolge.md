@@ -1,6 +1,6 @@
 # Deine Fragen: zuerst, was heute offen ist
 
-PR · 24.11.2026 · Auftrag: Noah «1-5a» und «ja» (Paket 6 der impeccable-Prüfung, Thread «Wi gaht's? um Träume und Visionen erweitern»)
+PR #1777 · 24.11.2026 · Auftrag: Noah «1-5a» und «ja» (Paket 6 der impeccable-Prüfung, Thread «Wi gaht's? um Träume und Visionen erweitern»)
 
 ## Was ist neu
 - Ganz oben auf der Seite «Deine Fragen» (Ich › Deine Fragen, auch unter Auswerten › Wi gaht's?) steht die Karte **«Heute noch offen»** mit dem Knopf «Starten» (Morgen- oder Abend-Runde, je nach Uhrzeit). Ist heute alles beantwortet, steht dort **«Heute beantwortet»** mit den Werten und «Ändern».
