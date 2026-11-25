@@ -1,6 +1,6 @@
 # Die Karte der App als Mindmap
 
-PR #(Nummer folgt) · 24./25.11.2026 · Auftrag: Noah «beide» (24.11.), dann «kreislauf fallen lassen» (25.11.) (Thread «Versteckte Inhalte auffindbar machen»)
+PR #1737 · 24./25.11.2026 · Auftrag: Noah «beide» (24.11.), dann «kreislauf fallen lassen» (25.11.) (Thread «Versteckte Inhalte auffindbar machen»)
 
 ## Was ist neu
 - Ich › Karte der App hat oben zwei Knöpfe: **Liste** (wie bisher, der Baum) und **Mindmap**.
