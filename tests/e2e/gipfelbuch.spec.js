@@ -125,3 +125,139 @@ test('Gipfelbuch on the page of a sport: the last places and the link to the who
   await expect(page.locator('[data-gb-chip="bike"]')).toHaveAttribute('aria-pressed', 'true');
   expect(errors).toEqual([]);
 });
+
+// «Eine Seite pro Gipfel» (Noah 24.11.2026 «alle 1-5 zusammen»): #/flow/gipfelbuch/<id> shows the visits of a place
+// with the temperature and the time up of the Strava ride, the fastest time on top, a note that stays, and an unknown
+// place says so with a way back. Fictional data only.
+test('Gipfelbuch: the page of one place with visits, time up and a note', async ({ page, context }) => {
+  const errors = await open(page, context, '#/flow/gipfelbuch');
+  await expect(page.locator('main')).toBeVisible();
+  const d1 = addDays(TODAY, -20);
+  const d2 = addDays(TODAY, -3);
+  const book = {
+    places: [{ id: 'gbp_ort', name: 'Testpass Mitte', sport: 'bike', ele: 2150, lat: null, lon: null, label: '', note: 'Test-Notiz zum Ort', createdAt: `${d1}T08:00:00.000Z` }],
+    visits: [
+      { id: 'gbv_o1', placeId: 'gbp_ort', day: d1, ref: 'act:test_ort_1', hm: 1200 },
+      { id: 'gbv_o2', placeId: 'gbp_ort', day: d2, ref: 'act:test_ort_2', hm: 1250 },
+    ],
+    dismissed: [],
+  };
+  const ortActs = [
+    { id: 'test_ort_1', type: 'Ride', kind: 'ride', day: d1, name: 'Testrunde Eins', tempMin: 4, tempMax: 17, climbs: [{ name: 'Testpass Mitte Nordrampe', s: 4200 }] },
+    { id: 'test_ort_2', type: 'Ride', kind: 'ride', day: d2, name: 'Testrunde Zwei', climbs: [{ name: 'Testpass Mitte Nordrampe', s: 3900 }] },
+  ];
+  await put(page, { settings: [{ key: 'gipfelbuch', value: book }], activities: ortActs });
+  await page.reload();
+  const main = page.locator('main');
+
+  // from the book: the place, its detail and the link to its own page
+  await main.locator('[data-gb-place="Testpass Mitte"]').click();
+  await main.locator('[data-gb-own]').click();
+  await expect(page).toHaveURL(/#\/flow\/gipfelbuch\/gbp_ort$/);
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Testpass Mitte');
+  await expect(main.locator('[data-gp-visit]')).toHaveCount(2);
+  await expect(main.locator('[data-core-line]')).toContainText('1:05:00'); // the faster of 70:00 and 65:00
+  await expect(main.locator('[data-gp-visit="gbv_o1"] [data-gp-wx]')).toContainText('4 – 17 °C');
+  await expect(main.locator('[data-gp-visit="gbv_o2"] [data-gp-up]')).toContainText(T('fastest'));
+  await expect(main).toContainText('Test-Notiz zum Ort');
+  await fits(page, 'place page');
+
+  // a note on a visit stays after a reload
+  const v2 = main.locator('[data-gp-visit="gbv_o2"]');
+  await v2.locator('[data-gp-note-open]').click();
+  await v2.locator('[data-gp-note-input]').fill('Test: Nebel am Gipfel');
+  await v2.getByRole('button', { name: T('Save') }).click();
+  await expect(v2.locator('[data-gp-note]')).toHaveText('Test: Nebel am Gipfel');
+  await page.reload();
+  await expect(page.locator('[data-gp-visit="gbv_o2"] [data-gp-note]')).toHaveText('Test: Nebel am Gipfel');
+
+  // an unknown place says so and leads back
+  await page.goto('./#/flow/gipfelbuch/gbp_gibtsnicht');
+  await expect(page.locator('[data-gp-missing]')).toBeVisible();
+  await expect(page.locator('[data-gp-missing] a[href="#/flow/gipfelbuch"]')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+// «Gipfelbuch ausbauen» (Noah 24.11.2026 «alle 1-5 zusammen», ideas 1 and 4): a Strava ride over a pass of the app's list is
+// found with its name and goes into the book with one tap; the collection «Pässe über 2000 m» counts it; own lists can be
+// added, changed and deleted with Undo. Fictional ride, real geography.
+test('Gipfelbuch: a pass found on a ride by name, a collection counts it, an own list', async ({ page, context }) => {
+  const errors = await open(page, context, '#/flow/gipfelbuch');
+  await expect(page.locator('main')).toBeVisible();
+  const act = { id: 'test_gb_furka', type: 'Ride', kind: 'ride', day: addDays(TODAY, -4), name: 'Testrunde Furka', hm: 1500, line: '_z`{G_vcr@wjEs{EgjD{wE', prof: { pts: [[0, 900], [60, 1500], [120, 900]] } };
+  await put(page, { activities: [act] });
+  await page.reload();
+  const main = page.locator('main');
+
+  // the pass is found by its name, one tap puts it in the book
+  const found = main.locator('[data-gb-found]');
+  await expect(found.locator('[data-gb-sugg="act:test_gb_furka"]').first()).toContainText('Furkapass');
+  await found.locator('[data-gb-add]').first().click();
+  await expect(main.locator('[data-gb-place="Furkapass"]')).toBeVisible();
+  await expect(main.locator('.undo')).toContainText('Furkapass');
+
+  // the collections are their own view of the book, next to the list and the map
+  await main.locator('[data-gb-views] [data-key="colls"]').click();
+  // the collection counts it, without a goal
+  const coll = main.locator('[data-gb-coll="paesse2000"]');
+  await coll.locator('summary').click();
+  await expect(coll.locator('summary small')).toContainText(/^1 /);
+  await expect(coll.locator('a.have', { hasText: 'Furkapass' })).toBeVisible();
+  await fits(page, 'collections');
+
+  // an own list: add, change, delete
+  await main.locator('[data-gb-list-new]').click();
+  const sheet = page.locator('[data-list-sheet]');
+  await sheet.locator('[data-gbl-save]').click();
+  await expect(sheet.locator('.err')).toHaveText(T('Give it a name.'));
+  await sheet.locator('[data-gbl-name]').fill('Testliste');
+  await sheet.locator('[data-gbl-items]').fill('Furkapass\nNiemalshorn');
+  await sheet.locator('[data-gbl-save]').click();
+  await expect(sheet).toBeHidden();
+  const own = main.locator('[data-gb-colls] details', { hasText: 'Testliste' });
+  await expect(own.locator('summary small')).toContainText(/^1 /);
+  await own.locator('summary').click();
+  await own.locator('[data-gb-list-edit]').click();
+  await sheet.locator('[data-gbl-delete]').click();
+  await expect(main.locator('[data-gb-colls] details', { hasText: 'Testliste' })).toHaveCount(0);
+  await main.locator('.undo button').click();
+  await expect(main.locator('[data-gb-colls] details', { hasText: 'Testliste' })).toHaveCount(1);
+  expect(errors).toEqual([]);
+});
+
+// «Gipfel-Karte mit Lücken» (Noah 24.11.2026 «alle 1-5 zusammen», idea 2): #/flow/gipfelbuch/karte shows the summits and passes
+// as dots, the gaps near the home place with «Touren dorthin» from the tour suggestions, and «Ich war da» puts a place in the book.
+test('Gipfelbuch: the map with the gaps near home and a tour toward one', async ({ page, context }) => {
+  const errors = await open(page, context, '#/flow/gipfelbuch');
+  await expect(page.locator('main')).toBeVisible();
+  await put(page, { settings: [{ key: 'homePlace', value: { name: 'Testort Zürich', lat: 47.3779, lon: 8.5403 } }] });
+  await page.goto('./#/flow/gipfelbuch/karte');
+  const main = page.locator('main');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText(T('Summit map'));
+  await expect(main.locator('svg.nmap circle.dot').first()).toBeVisible();
+  await expect(main.locator('[data-gk-legend]')).toContainText(T('open, near you'));
+  await fits(page, 'map');
+
+  // the nearest gap from Zürich is the Üetliberg; a tour of the suggestions leads over it
+  const gaps = main.locator('[data-gk-gaps]');
+  const first = gaps.locator('[data-gk-row]').first();
+  await expect(first).toContainText('Üetliberg');
+  await first.locator('[data-gk-tours]').click();
+  await expect(gaps.locator('[data-gk-tourlist] a[href^="#/trips/vorschlaege/"]').first()).toBeVisible({ timeout: 20000 });
+
+  // «I was there»: into the book, and the dot is yours
+  await first.locator('[data-gk-there]').click();
+  const sheet = page.locator('[data-place-sheet]');
+  await expect(sheet.locator('[data-gb-name]')).toHaveValue('Üetliberg');
+  await sheet.locator('[data-gb-save]').click();
+  await expect(sheet).toBeHidden();
+  await expect(main.locator('.undo')).toContainText('Üetliberg');
+  await expect(gaps.locator('[data-gk-row]').filter({ hasText: 'Üetliberg' })).toHaveCount(0);
+
+  // a filter and the way back
+  await main.locator('[data-gk-chip="vier"]').click();
+  await expect(main.locator('svg.nmap')).toBeVisible();
+  await main.locator('a[href="#/flow/gipfelbuch"]').first().click();
+  await expect(page).toHaveURL(/#\/flow\/gipfelbuch$/);
+  expect(errors).toEqual([]);
+});

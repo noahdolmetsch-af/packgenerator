@@ -7,17 +7,25 @@
    * st: 'year' (new in the chosen year), 'old' (reached before), '' (not yet); bg: { cantons, countries,
    * lakes } background shapes; labels: [{ lon, lat, text, st }]; lines: [[[lat, lon], …], …];
    * onpick(id): a tap on an area or a dot. The list below the map does the same for the keyboard.
+   * Summit book map (Noah 24.11.2026 «1-5a»): view 'near' shows the surroundings of `center` {lat, lon}, and `big` draws
+   * big dots: yours filled, the open ones near you as rings, the rest pale.
    */
   import { t } from '../i18n.svelte.js';
+  import { placeLabels } from '../dotlabels.js';
 
-  let { view = 'ch', areas = [], points = [], bg = {}, labels = [], lines = [], title = '', onpick = null } = $props();
+  let { view = 'ch', areas = [], points = [], bg = {}, labels = [], lines = [], title = '', onpick = null, center = null, big = false, span = 0.62, ratio = 1.15, labelSize = 3.4, dotLabels = false, selId = null } = $props();
 
   const S = 100; // 1° = 100 units
   const BOX = { ch: [5.9, 45.78, 10.55, 47.84, 46.8], alps: [5.4, 43.85, 14.4, 48.0, 46.2], europe: [-11, 35, 33, 66, 50] };
 
   // the box: the view's own, widened for countries reached outside Europe
   const box = $derived.by(() => {
-    const b = [...BOX[view]];
+    if (view === 'near' && center) {
+      const kc = Math.cos((center.lat * Math.PI) / 180);
+      const hx = (span * ratio) / kc;
+      return [center.lon - hx, center.lat - span, center.lon + hx, center.lat + span, center.lat];
+    }
+    const b = [...BOX[view === 'near' ? 'ch' : view]];
     if (view === 'europe') {
       for (const a of areas) {
         if (!a.st || !a.bbox) continue;
@@ -60,7 +68,15 @@
   const bgCantons = $derived((bg.cantons ?? []).map((c) => ({ id: c.id, d: path(c.rings) })));
   const bgLakes = $derived((bg.lakes ?? []).filter((l) => l.rings).map((l) => ({ id: l.id, d: path(l.rings) })));
   const shapes = $derived(areas.filter((a) => a.rings && visible(a.bbox)).map((a) => ({ id: a.id, st: a.st, d: path(a.rings) })));
-  const dots = $derived(points.map((p) => ({ id: p.id, st: p.st, xy: xy(p.lon, p.lat) })));
+  const dots = $derived(points.map((p) => ({ id: p.id, st: p.st, name: p.name, xy: xy(p.lon, p.lat) })));
+  const radius = (p) => (big ? (p.st === 'year' ? unit * 2.4 : p.st === 'old' ? unit * 2.1 : unit * 1.1) : p.st ? unit * 1.1 : unit * 0.75);
+  // the names of your places and of the open ones near you stand beside their dots, where no other name or dot is
+  const dotNames = $derived.by(() => {
+    if (!dotLabels) return [];
+    const fs = unit * labelSize;
+    const all = dots.map((d) => ({ id: d.id, x: d.xy[0], y: d.xy[1], r: radius(d), name: d.name && (d.st === 'year' || d.st === 'old') ? d.name : '' }));
+    return placeLabels(all, fs, { x0: box[0] * k * S, x1: box[2] * k * S, y0: -box[3] * S, y1: -box[1] * S }).map((l) => ({ ...l, fs }));
+  });
   const routes = $derived(lines.map((l) => l.map(([lat, lon]) => xy(lon, lat).join(',')).join(' ')));
 
   function pick(e) {
@@ -71,14 +87,17 @@
 
 <!-- the list under the map is the way for the keyboard and the screen reader; the map is a picture with taps -->
 <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
-<svg class="nmap {view}" viewBox={vb} role="img" aria-label={title || t('Map')} onclick={pick} preserveAspectRatio="xMidYMid meet">
+<svg class="nmap {view}" class:big viewBox={vb} role="img" aria-label={title || t('Map')} onclick={pick} preserveAspectRatio="xMidYMid meet">
   {#each bgCountries as c (c.id)}<path class="bgc" d={c.d} />{/each}
   {#each bgCantons as c (c.id)}<path class="bgk" d={c.d} />{/each}
   {#each shapes as a (a.id)}<path class="area {a.st || 'no'}" data-id={a.id} d={a.d} />{/each}
   {#each bgLakes as l (l.id)}<path class="lake" d={l.d} />{/each}
   {#each routes as r, i (i)}<polyline class="route" points={r} />{/each}
+  {#each dotNames as l (l.id)}
+    <text class="dn" x={l.x} y={l.y} font-size={l.fs} text-anchor={l.anchor} dominant-baseline="central" data-id={l.id} style:stroke-width="{l.fs * 0.28}px">{l.name}</text>
+  {/each}
   {#each dots as p (p.id)}
-    <circle class="dot {p.st || 'no'}" data-id={p.id} cx={p.xy[0]} cy={p.xy[1]} r={p.st ? unit * 1.1 : unit * 0.75} />
+    <circle class="dot {p.st || 'no'}" class:sel={selId === p.id} data-id={p.id} cx={p.xy[0]} cy={p.xy[1]} r={radius(p)} />
   {/each}
   {#each labels as l (l.text)}
     {@const [x, y] = xy(l.lon, l.lat)}
@@ -164,6 +183,29 @@
   }
   .dot.year {
     fill: var(--accent);
+  }
+  .dot.sel {
+    stroke: var(--ink);
+    stroke-width: 3;
+  }
+  .dn {
+    fill: var(--ink);
+    font-family: var(--font-body);
+    font-weight: 600;
+    paint-order: stroke;
+    stroke: var(--paper);
+    stroke-linejoin: round;
+    cursor: pointer;
+  }
+  .big .dot.old {
+    fill: var(--paper);
+    fill-opacity: 1;
+    stroke: var(--accent);
+    stroke-width: 2.5;
+  }
+  .big .dot.no {
+    fill-opacity: 0.35;
+    stroke: none;
   }
   .nl-lbl {
     fill: var(--ink-2);
