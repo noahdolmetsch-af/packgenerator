@@ -19,6 +19,10 @@ Noah 24.11.2026 17:19: «ich möchte für jeden PR vor merge bilder sehen … di
 - Merge-Prüfung (Basis `main`, konfliktfrei, linearer Zweig): `CLAUDE.md`.
 ~~~~
 
+## Ersetzt am 25.11.2026 01:26: «höchstens 4 PRs gleichzeitig in der Prüfung» (Block 4)
+
+Noah 24.11.2026 23:18 (Fassung in `docs/regeln.md` Block 4 bis 25.11.2026): «**höchstens 4 PRs gleichzeitig in der Prüfung auf GitHub** (vorher 5–6; Noah: «ich möchte weniger rote tests haben»), **bis 8 offen insgesamt; 6–10 Threads arbeiten gleichzeitig.** Die 4 gelten, sobald main wieder grün ist. Ein neuer PR wird erst geöffnet, wenn in der Prüfung weniger als 4 sind und insgesamt weniger als 8 offen; sonst wartende PRs abbauen helfen.» Ersetzt durch Noah 25.11.2026 01:26 («neu 5 gleichzeitig»): höchstens 5 PRs gleichzeitig in der Prüfung; 8 offen und 6–10 Threads bleiben.
+
 ## Ersetzt am 24.11.2026 23:18: «höchstens 5–6 PRs gleichzeitig in der Prüfung» (Block 4)
 
 Noah «a» 24.11.2026 16:58: «höchstens 5–6 PRs gleichzeitig in der Prüfung auf GitHub, bis 8 offen insgesamt; 6–10 Threads arbeiten gleichzeitig. Ein neuer PR wird erst geöffnet, wenn in der Prüfung weniger als 5–6 sind und insgesamt weniger als 8 offen.» Ersetzt für die Zahl in der Prüfung durch Noah 24.11.2026 23:18 («wenn main wieder grün ist, bitte nur 4 tests gleichzeitig laufen lassen ab sofort. ich möchte weniger rote tests haben»): höchstens 4 PRs gleichzeitig in der Prüfung; 8 offen und 6–10 Threads bleiben.
