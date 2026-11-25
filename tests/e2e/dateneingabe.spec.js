@@ -39,7 +39,7 @@ test('Pick-up check: type the saddle height on the card, Next opens the next val
   await card('Saddle height').getByRole('button', { name: T('One step more') }).click();
   await expect(card('Saddle height').locator('input')).toHaveValue('746');
   await card('Saddle height').getByRole('button', { name: T('Save') }).click();
-  await expect.poll(async () => (await table(page, 'bikes')).find((b) => b.id === bike).fit.seatHeight).toBe(746);
+  await expect.poll(async () => (await table(page, 'bikes')).find((b) => b.id === bike)?.fit?.seatHeight).toBe(746);
   expect(errors).toEqual([]);
 });
 
@@ -76,7 +76,7 @@ test('Enter values: type, «Next» to the next field, hide a field for all bikes
   await field('Target pressure front').fill('1,8');
   await field('Target pressure front').press('Enter');
   await expect(field('Target pressure rear')).toBeFocused();
-  await expect.poll(async () => (await table(page, 'bikes')).find((b) => b.id === bike).fit.pressureF).toBe(1.8);
+  await expect.poll(async () => (await table(page, 'bikes')).find((b) => b.id === bike)?.fit?.pressureF).toBe(1.8);
   // D3: hide «Saddle setback» for all bikes, only here
   await page.getByRole('button', { name: T('Choose fields') }).click();
   const dlg = page.locator('dialog[open]');
@@ -95,7 +95,7 @@ test('Enter values: type, «Next» to the next field, hide a field for all bikes
   await expect(page.getByLabel(/Token Gabel/)).toBeVisible();
   await page.getByLabel(/Token Gabel/).fill('2');
   await page.getByLabel(/Token Gabel/).press('Enter');
-  await expect.poll(async () => (await table(page, 'bikes')).find((b) => b.id === bike).ownValues?.['token-gabel']).toBe(2);
+  await expect.poll(async () => (await table(page, 'bikes')).find((b) => b.id === bike)?.ownValues?.['token-gabel']).toBe(2);
   // Show all brings the hidden field back
   await page.getByRole('button', { name: T('Choose fields') }).click();
   await page.locator('dialog[open]').getByRole('button', { name: T('Show all') }).click();
