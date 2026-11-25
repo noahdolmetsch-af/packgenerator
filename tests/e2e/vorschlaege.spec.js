@@ -291,8 +291,8 @@ test('Tour suggestions: weather light on every tour, best day, filter by day, th
   await first.locator('a.tl').click();
   const week = page.locator('[data-vs-wx-week]');
   await expect(week).toBeVisible();
-  await expect(week.locator('li')).toHaveCount(7);
-  await expect(week.locator('li').first()).toHaveAttribute('data-wx-level', 'bad');
+  await expect(week.locator('ul.wxweek li')).toHaveCount(7);
+  await expect(week.locator('ul.wxweek li').first()).toHaveAttribute('data-wx-level', 'bad');
   await expect(week.locator('[data-vs-wx-best]')).toContainText(T('Best day: {day}').replace(' {day}', ''));
   // start time (the hourly forecast: dry in the morning, rain from 13:00) and what to wear (cold: gloves)
   await expect(week.locator('[data-vs-wx-starts] li')).toHaveCount(3);

@@ -36,3 +36,27 @@ describe('woche: the period against the one before and the recovery of the perio
     expect(l.map((u) => u.min)).toEqual([90, 60]);
   });
 });
+
+describe('verlauf: the line of a value over the days', async () => {
+  const { seriesOf, axisValue, SPANS } = await import('../src/lib/auswerten/verlauf.js');
+  it('gives one point per day, a gap where there is no value', () => {
+    const t = table(10, (i) => (i === 3 ? null : 70 + i));
+    const s = seriesOf(t, 'hrv', TODAY, 10);
+    expect(s.cols.length).toBe(10);
+    expect(s.v[s.v.length - 1]).toBe(null); // today has no row
+    expect(s.v[9 - 3]).toBe(null); // the day with i = 3 has no value
+    expect(s.v[9 - 2]).toBe(72);
+  });
+  it('gives the middle of a week per point for long ranges, needing two values', () => {
+    const t = table(70, () => 60);
+    const s = seriesOf(t, 'hrv', TODAY, 70, 'week');
+    expect(s.cols.length).toBe(10);
+    expect(s.v.filter((x) => x === 60).length).toBeGreaterThanOrEqual(9);
+  });
+  it('turns sleep minutes into hours for the axis only', () => {
+    expect(axisValue('sleep', 420)).toBe(7);
+    expect(axisValue('hrv', 70)).toBe(70);
+    expect(axisValue('hrv', null)).toBeNull();
+    expect(SPANS.map((s) => s.key)).toEqual(['w4', 'w12', 'm6', 'y2']);
+  });
+});

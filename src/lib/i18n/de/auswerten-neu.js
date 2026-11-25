@@ -27,7 +27,7 @@ export default {
   'How do I sleep and recover?': 'Wie schlafe und erhole ich mich?',
   'Resting pulse, HRV and sleep, day by day.': 'Ruhepuls, HRV und Schlaf, Tag für Tag.',
   'What does me good?': 'Was tut mir gut?',
-  'What your answers and your watch show.': 'Was deine Antworten und deine Uhr zeigen.',
+  'What your data shows about your nights.': 'Was deine Daten über deine Nächte zeigen.',
   'The old overview': 'Die alte Übersicht',
   'Today|tab': 'Heute',
   // function entry
