@@ -51,7 +51,7 @@
     <h2 id="nb-h" class="sr">{t('New in {v}|banner', { v: shortVersion(e.version) })}</h2>
     <div class="nb-t">
       <a class="nb-title" href={NEWS_HREF} onclick={done} data-news-title><b>{t('New: {title}', { title: t(e.title) })}</b></a>
-      {#if more > 0}<button type="button" class="nb-more" onclick={() => (sheet = true)} data-news-more>{tn(more, 'and {n} more thing', 'and {n} more things')}</button>{/if}
+      {#if more > 0}{@const word = tn(more, 'and {n} more thing', 'and {n} more things')}<button type="button" class="nb-more" aria-label={word} onclick={() => (sheet = true)} data-news-more><span class="nb-long">{word}</span><span class="nb-short" aria-hidden="true">+{more}</span></button>{/if}
     </div>
     <a class="nb-go" href={NEWS_HREF} onclick={show} data-news-go>{t('Show me')}</a>
     <button type="button" class="nb-x" aria-label={t('Close the hint')} onclick={done}><X size={20} aria-hidden="true" /></button>
@@ -114,6 +114,26 @@
     cursor: pointer;
     text-decoration: underline;
     text-underline-offset: 3px;
+  }
+  .nb-short {
+    display: none;
+  }
+  /* a phone: the title keeps its room, «and 15 more things» becomes a «+15» to tap */
+  @media (max-width: 520px) {
+    .nb-long {
+      display: none;
+    }
+    .nb-short {
+      display: inline;
+      font-weight: 600;
+    }
+    .nb-more {
+      flex: none;
+      min-width: 44px;
+      padding: 0 6px;
+      color: var(--ink);
+      text-decoration: none;
+    }
   }
   .nb-go {
     flex: none;
