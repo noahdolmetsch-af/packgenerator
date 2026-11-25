@@ -7,8 +7,7 @@ test('Heute-Check: Kachel führt zum Fragebogen, die Analysen sind einen Tipp en
   const d = homeFixture();
   d.tables.settings.push({ key: 'abfragen', value: { since: '2026-10-08T19:00', q: {}, own: [] } });
   await openHome(page, context, info, { data: d });
-  // the round's window comes first (modal); «Not today» puts it away, the tile stays
-  await page.locator('[data-ab-today]').click();
+  // since 24.11.2026 the round's window opens only when asked: the tile is there at once
   const tile = page.locator('[data-section="heutecheck"]');
   await expect(tile).toBeVisible();
   await expect(tile.locator('[data-hc-count]')).toBeVisible();

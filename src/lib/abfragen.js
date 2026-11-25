@@ -741,6 +741,15 @@ export function fitNow(due = [], now) {
   });
 }
 
+/**
+ * The evening window asks about the evening (Noah 24.11.2026 «Die Traumfrage kommt nicht am Abend», «wie fühlst du dich heute»
+ * passt nicht in den Abend): from the evening round on, a question whose time is in the morning (before 11:00: the dream of
+ * last night, a short night with «how do you feel today?») stays away; it comes back with its next morning.
+ * Between 11:00 and the evening the window still shows what is open from this morning (fitNow, 17.11.2026).
+ * rows: dueList / dataDue rows (their `slot`); → the rows to show.
+ */
+export const notMorningAtNight = (rows = [], now, rounds) => (isEveningRound(now, rounds) ? rows.filter((d) => hmOf(d.slot) >= DAY_FROM) : rows);
+
 /** From 11:00 the morning is over (the day clock): what is still open then is «open from this morning». */
 export const afterMorning = (now) => hmOf(now) >= DAY_FROM;
 

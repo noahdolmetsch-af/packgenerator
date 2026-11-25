@@ -20,12 +20,12 @@ export default {
   // 1 Erholung
   'How well did you sleep: marmot or zombie?': 'Wie gut hast du geschlafen: Murmeltier oder Zombie?',
   'What did you dream last night?': 'Was hast du heute Nacht geträumt?',
-  'nothing remembered|dream': 'nichts gemerkt',
-  'nice|dream': 'schön',
-  'strange|dream': 'wirr',
-  'exciting|dream': 'spannend',
+  'nothing remembered|dream': 'Nichts gemerkt',
+  'nice|dream': 'Schön',
+  'strange|dream': 'Wirr',
+  'exciting|dream': 'Spannend',
   'nightmare|dream': 'Albtraum',
-  'it came back|dream': 'wieder derselbe',
+  'it came back|dream': 'Wieder derselbe',
   'How full is your battery right now?': 'Wie voll ist dein Akku gerade?',
   'Does your body feel more like a freshly oiled bike or a rusty chain today?': 'Fühlt sich dein Körper heute eher wie ein frisch geöltes Velo oder wie eine rostige Kette an?',
   'How many coffees do you need today to be human?': 'Wie viele Kaffees brauchst du heute, um Mensch zu sein?',
@@ -448,4 +448,7 @@ export default {
   'How many hours did you sit today?': 'Wie viele Stunden hast du heute gesessen?',
   'How does your belly feel: calm or roller coaster?': 'Wie fühlt sich dein Bauch an: ruhig oder Achterbahn?',
   'How many portions of vegetables and fruit were there today?': 'Wie viele Portionen Gemüse und Früchte gab es heute?',
+  // «Wi gaht's?» window, one question per screen (Noah 24.11.2026)
+  'Next|round': 'Weiter',
+  'Back|round': 'Zurück',
 };

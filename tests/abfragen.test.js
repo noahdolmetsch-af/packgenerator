@@ -8,7 +8,7 @@ import {
   AREAS, QUESTIONS, QUESTION, ON_AT_START, MERGED_INTO, AB_KEY, configOf, settingOf, setOn, setEvery, putOwn, dropOwn, newOwn, counts,
   everyOf, lastSlot, nextSlot, pendingSlot, dueList, snoozeAll, skipToday, quietToday, isQuiet, dayEnd, eveningEve, QUIET_KEY, QUIET_ROUND, LATER_KEY, laterStamp, valueOf, numberOf, answerRow, fromChecks, mergeHistory,
   lastAnswer, filterHistory, byDay, dowOf, timeOf, CHECK_MAP, MIRROR,
-  ROUNDS, roundsOf, setRounds, roundTime, roundEvery, partOf, isEveningRound, perDay, BUSY_DAY, roundQuestions, moreQuestions,
+  ROUNDS, roundsOf, setRounds, roundTime, roundEvery, partOf, isEveningRound, perDay, BUSY_DAY, roundQuestions, moreQuestions, notMorningAtNight,
 } from '../src/lib/abfragen.js';
 import { redirectOf, pageOf, CHECK_PAGES } from '../src/lib/nav.js';
 import { ownNormal, withWithout, feltMeasured, areaWeek, observation, sourceCounts, weekOf, dailyValues, MIN_GROUP } from '../src/lib/abauswertung.js';
@@ -572,5 +572,21 @@ describe('moreQuestions', () => {
     const off = setOn(null, 'erholung.akku', false, `${day}T06:00`);
     expect(moreQuestions(off, 'morning', day).map((d) => d.q.id)).toContain('erholung.akku');
     expect(moreQuestions(null, 'morning', day, ['erholung.sofa']).map((d) => d.q.id)).not.toContain('erholung.sofa');
+  });
+});
+
+// Noah 24.11.2026 «Die Traumfrage kommt nicht am Abend»: from the evening round the window keeps the morning questions away
+describe('notMorningAtNight', () => {
+  const rows = [{ q: { id: 'erholung.traum' }, slot: '2026-10-09T07:00' }, { q: { id: 'erholung.akku' }, slot: '2026-10-09T20:00' }, { q: { id: 'x.mittag' }, slot: '2026-10-09T13:00' }];
+  it('in the evening only the questions of the day and the evening stay', () => {
+    expect(notMorningAtNight(rows, '2026-10-09T20:40', null).map((d) => d.q.id)).toEqual(['erholung.akku', 'x.mittag']);
+  });
+  it('before the evening round everything stays, also what is open from this morning', () => {
+    expect(notMorningAtNight(rows, '2026-10-09T09:00', null)).toHaveLength(3);
+    expect(notMorningAtNight(rows, '2026-10-09T18:32', null)).toHaveLength(3);
+  });
+  it('a round time of its own moves the border', () => {
+    expect(notMorningAtNight(rows, '2026-10-09T21:10', { on: true, morning: '07:00', evening: '21:15' })).toHaveLength(3);
+    expect(notMorningAtNight(rows, '2026-10-09T21:20', { on: true, morning: '07:00', evening: '21:15' })).toHaveLength(2);
   });
 });

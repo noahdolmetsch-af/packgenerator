@@ -3,6 +3,7 @@
 // Fictional data (home0460-fixture.js; Friday 9 October 2026, 09:00).
 import { test, expect } from './clock.js';
 import { openHome, homeFixture, day } from './home0460-fixture.js';
+import { openRound } from './runde-fixture.js';
 
 const noSideways = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
 
@@ -19,9 +20,9 @@ async function open(page, context, info) {
   const T = await openHome(page, context, info, { data: d });
   // 03.11.2026 «Fragen aus deinen Daten» (changed on purpose): today's pulse 56 stands out against the usual 50, so the
   // morning check opens with the pulse question; wait for it, then put it away with «Später» (it would block the page)
-  const ab = page.locator('[data-section="abfragen"]');
+  const ab = await openRound(page);
   await expect(ab.locator('[data-q="daten.ruhepuls"]')).toBeVisible();
-  await ab.locator('[data-ab-later]').click();
+  await ab.locator('.vd-x').click();
   await expect(ab).toBeHidden();
   return T;
 }

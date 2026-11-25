@@ -5,6 +5,7 @@ import { test, expect } from './clock.js';
 import { viaTab } from './placetab.js'; // UI-Ziele #6: the pages that were rows under Ich are tabs now
 import { ready } from './settle.js';
 import { day } from './leistung-data.js';
+import { openRound, toLastStep } from './runde-fixture.js';
 
 const shot = async (page, info, name) => {
   if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
@@ -159,8 +160,10 @@ test('Was mir gut tut on Heute: the values tile and the ride in the evening chec
     .toMatch(new RegExp(`^${D0}T09`));
   await page.clock.setFixedTime(new Date(`${D0}T20:45:00+02:00`));
   await page.reload();
+  await openRound(page);
   const win = page.locator('dialog[data-section="abfragen"][data-round="evening"]');
   await expect(win).toHaveJSProperty('open', true);
+  await toLastStep(win); // the ride line sits under the last question
   await expect(win.locator('[data-check-ride]')).toContainText('Heute auf dem Velo: 42.5 km · 610 Hm · Puls 131');
   await expect(win.locator('[data-check-ride]')).toContainText('610 Hm');
   await expect(win.locator('[data-check-ride]')).toContainText('Puls 131');
