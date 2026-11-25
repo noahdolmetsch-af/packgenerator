@@ -3,6 +3,7 @@
  * The texts of the file (names, places, ground) are shown as typed; only the app's own words go through t().
  */
 import { t, tn, locale, num } from '../i18n.svelte.js';
+import { hmApprox } from './atlas.js';
 
 const KIND_TEXT = {
   mine: () => t('Registered|race'),
@@ -42,7 +43,8 @@ export function daysLabel(r) {
 /** The line under the title: «Bra-Bandito, Italien · 3–4 days». */
 export const placeLine = (r) => [[r.city, r.land].filter(Boolean).join(', '), daysLabel(r)].filter(Boolean).join(' · ');
 export const kmText = (r) => (r.km ? `${num(r.km)} km` : '');
-export const hmText = (r) => (r.hm ? `${num(r.hm)} ${t('m up|race')}` : t('Climb unknown|race'));
+/** «1 200 m up», «about 7 000 m up» for an estimate, «climb unknown» without. */
+export const hmText = (r) => (r.hm ? (hmApprox(r) ? t('about {n} m up', { n: num(r.hm) }) : `${num(r.hm)} ${t('m up|race')}`) : t('Climb unknown|race'));
 
 /** Download a text file (calendar): a link made for the moment. */
 export function download(name, text, type = 'text/calendar') {

@@ -8,9 +8,9 @@
   import RaceSheet from './RaceSheet.svelte';
   import { raceHref } from './parts.js';
   import { statusOf } from './atlas-view.js';
-  import { statusText, longDay, daysLabel, kmText } from './atlas-text.js';
+  import { statusText, longDay, daysLabel, kmText, hmText } from './atlas-text.js';
+  import { hmBasis } from './atlas.js';
   import { wakeable, wakeDays } from './atlas-wecker.js';
-  import { num } from '../i18n.svelte.js';
   import { t, locale } from '../i18n.svelte.js';
   const dayShort = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'long', timeZone: 'UTC' });
 
@@ -21,12 +21,15 @@
       [t('Start|race'), [longDay(row.date) || t('no date yet'), row.quality].filter(Boolean).join(' · ')],
       [t('Place|race'), [row.city, row.land].filter(Boolean).join(', ')],
       [t('Distance|race'), kmText(row)],
-      [t('Climb|race'), row.hm ? `${num(row.hm)} ${t('m up|race')}` : t('not known')],
+      [t('Climb|race'), row.hm ? hmText(row) : t('not known'), hmBasis(row)],
       [t('Length|race'), daysLabel(row)],
       [t('Ground|race'), row.surface],
+      [t('Support|race'), row.support],
       [t('Registration|race'), st.text],
       [t('Opens|race'), longDay(row.opens)],
       [t('Closes|race'), longDay(row.closes)],
+      [t('Deadline|race'), row.closes ? '' : row.deadline],
+      [t('Last edition|race'), [row.date2026, row.edition].filter(Boolean).join(' · ')],
     ].filter(([, v]) => v),
   );
   const canWake = $derived(wakeable(row, today));
@@ -46,10 +49,16 @@
     </div>
     {#if canWake && row.wecker}<p class="ad-wake" data-atlas-detail-wakeline>{t('You get a reminder at 08:00 on: {days}.', { days: wakeList })}</p>{/if}
     <dl class="ad-dl">
-      {#each facts as [k, v] (k)}<div><dt>{k}</dt><dd>{v}</dd></div>{/each}
+      {#each facts as [k, v, hint] (k)}<div><dt>{k}</dt><dd>{v}{#if hint}<small class="ad-hint" data-atlas-detail-hint>{hint}</small>{/if}</dd></div>{/each}
     </dl>
     {#if row.note}<p class="ad-note">{row.note}</p>{/if}
     {#if row.url}<a class="btn" href={row.url} target="_blank" rel="noopener noreferrer" data-atlas-detail-link><ExternalLink size={16} aria-hidden="true" />{t('To the organiser')}</a>{/if}
+    {#if row.urlLast || row.urlMore}
+      <p class="ad-more" data-atlas-detail-more>
+        {#if row.urlLast}<a href={row.urlLast} target="_blank" rel="noopener noreferrer" data-atlas-detail-last>{t('Last edition|race')}</a>{/if}
+        {#if row.urlMore}<a href={row.urlMore} target="_blank" rel="noopener noreferrer" data-atlas-detail-more-link>{t('More information')}</a>{/if}
+      </p>
+    {/if}
     {#if trip}<p class="ad-here">{t('This race is already one of your races.')}</p>{/if}
   </div>
 </RaceSheet>
@@ -85,6 +94,22 @@
   dd {
     margin: 0;
     font-weight: 600;
+  }
+  .ad-hint {
+    display: block;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    font-weight: 400;
+  }
+  .ad-more {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    margin: 0;
+    font-size: var(--fs-small);
+  }
+  .ad-more a {
+    color: var(--ink-2);
   }
   .ad-note {
     margin: 0;

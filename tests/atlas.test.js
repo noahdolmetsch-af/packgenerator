@@ -1,6 +1,6 @@
 // «Rennen aus dem Rennatlas» (Noah 24.11.2026 «a»): read a list of races, say what is known, build the record.
 import { describe, it, expect } from 'vitest';
-import { parseAtlas, rowOf, daysOf, isKnown, preselected, atlasOf, atlasLine, keyOf, MAX_ROWS } from '../src/lib/race/atlas.js';
+import { hmApprox, hmBasis, parseAtlas, rowOf, daysOf, isKnown, preselected, atlasOf, atlasLine, keyOf, MAX_ROWS } from '../src/lib/race/atlas.js';
 
 const LIST = [
   { name: 'Alpenrunde', date: '2027-06-12', days: '6–10', km: 1000, hm: 30000, city: 'Beispielstadt', land: 'Schweiz', surface: 'MTB / Offroad', url: 'https://example.org/alpenrunde', registered: true, checked: '2026-11-24', source: 'Veranstalter' },
@@ -38,6 +38,23 @@ describe('reading the file', () => {
     expect(rowOf({ name: 'Y', url: 'https://example.org/y' }).url).toBe('https://example.org/y');
     expect(rowOf(null)).toBeNull();
     expect(rowOf('x')).toBeNull();
+  });
+});
+
+describe('the new fields of the list', () => {
+  it('keeps support, deadline, last edition and the two links, and drops a link that is not https', () => {
+    const r = rowOf({ name: 'A', support: 'Selbstversorgt', deadline: 'Entfällt', edition: 'Vergangen', date2026: '02.08.2026', urlLast: 'https://example.org/last', urlMore: 'http://example.org/more' });
+    expect(r).toMatchObject({ support: 'Selbstversorgt', deadline: 'Entfällt', edition: 'Vergangen', date2026: '02.08.2026', urlLast: 'https://example.org/last', urlMore: '' });
+    expect(rowOf({ name: 'B' })).toMatchObject({ support: '', deadline: '', edition: '', date2026: '', hmNote: '', urlLast: '', urlMore: '' });
+  });
+  it('says an estimated climb is an estimate and why', () => {
+    const est = rowOf({ name: 'C', hm: 15000, hmNote: 'ca., Vorjahr (2024, 671 km)' });
+    expect(hmApprox(est)).toBe(true);
+    expect(hmBasis(est)).toBe('Vorjahr (2024, 671 km)');
+    const exact = rowOf({ name: 'D', hm: 2300 });
+    expect(hmApprox(exact)).toBe(false);
+    expect(hmBasis(exact)).toBe('');
+    expect(hmApprox(rowOf({ name: 'E', hmNote: 'ca., Vorjahr' }))).toBe(false);
   });
 });
 
