@@ -7,3 +7,4 @@ Quelle: Noah im Thread «Auswerten völlig neu entwerfen».
 - **«a»** (15:36) auf die Frage nach dem Vorgehen: drei Teile nacheinander statt eines grossen PR (Teil 1 Rechenteil, Reiter-Umbau und «Heute»; Teil 2 «Woche»; Teil 3 «Verlauf»).
 - **«ich gebe bescheid, wann der richtige zeitpunkt ist, zu pushen»** (15:35): nichts wird gepusht, bis Noah Bescheid gibt; bis dahin lokal vorbereiten.
 - Ersetzt: die Regel «Normal = Median der letzten 30 Tage» in `recoveryParts` (jetzt 365 Tage, 28 Tage als zweite Zahl).
+- **Teil 2, «Woche»** (Entwurf B «Wochenbericht»): der Reiter «Fahrten» heisst «Woche» und beginnt mit dem Bericht; die bisherigen Seiten bleiben Chips daneben (Schlüssel `rides` im Code bleibt, kleinste Änderung).

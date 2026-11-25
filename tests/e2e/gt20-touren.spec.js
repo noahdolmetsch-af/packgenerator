@@ -25,11 +25,12 @@ test('a) Rides is its own tab, under Auswerten since N1; Touren keeps the trips'
   await expect(page.locator('section[data-activities]')).toHaveCount(0);
   // N1 «Neue Leiste» (Noah 20.10.2026 «2a»): the tabs of Touren no longer have «Fahrten»
   await expect(page.locator(`nav.ptabs a[href="#/trips/rides"], .side .tabs a[href="#/trips/rides"]`).filter({ visible: true })).toHaveCount(0);
-  // Auswerten (it shares Aktiv's place) has the tab «Fahrten», same address as before
+  // Auswerten (it shares Aktiv's place) has the chip «Fahrten» under the tab «Woche», same address as before
   await page.goto('./#/flow'); // V4a (Noah 21.11.2026): Aktiv is part of Woche
   await expect(page).toHaveURL(/#\/flow/);
   // «Aktiv neu» (Noah 22.10.2026): Auswerten shares Aktiv's place; the switch (phone) or its row (computer) leads there
   await toAnalysis(page);
+  await tapTab(page, T('Week|tab')); // «Auswerten neu» (Noah 24.11.2026): «Fahrten» is a chip under the tab «Woche»
   await tapTab(page, T('Rides|tab'));
   await expect(page).toHaveURL(/#\/trips\/rides$/);
   await expect(page.getByRole('heading', { level: 1, name: T('Rides from Strava') })).toBeVisible();
