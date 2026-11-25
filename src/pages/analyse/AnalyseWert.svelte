@@ -1034,7 +1034,7 @@
   }
   /* a long trip name breaks into a second line (the row grows) instead of ending in «…» with no way to read the rest */
   .tn b {
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .tn small {
     color: var(--ink-3);
