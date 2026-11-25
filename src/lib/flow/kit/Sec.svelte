@@ -4,14 +4,16 @@
    * a quiet line under it and, at the right, one quiet link («Alle ›», «Ganze Liste ›», «Kacheln ändern»).
    * more: { href, label } or { onclick, label, expanded }. edit: { href, label }, a second quiet link
    * before it (Noah 20.10.2026 «1a»: «Bearbeiten ›» in the head of «Heute abhaken»).
+   * quiet (Noah 24.11.2026 «1-5a»): the page head already says what the part is, so the heading and the line under it
+   * stay for screen readers only and the head is just the quiet links, the first one left, the second one right.
    */
   import { ChevronRight } from '@lucide/svelte';
 
-  let { title, id, sub = '', more = null, edit = null, children } = $props();
+  let { title, id, sub = '', more = null, edit = null, quiet = false, children } = $props();
 </script>
 
 <section class="sec" aria-labelledby={id}>
-  <div class="sh">
+  <div class="sh" class:quiet>
     <div class="st">
       <h2 {id}>{title}</h2>
       {#if sub}<p>{sub}</p>{/if}
@@ -53,6 +55,29 @@
     margin: 2px 0 0;
     color: var(--ink-3);
     font: 400 var(--fs-small) / 1.4 var(--font-body);
+  }
+  .quiet {
+    justify-content: space-between;
+    flex-wrap: nowrap;
+  }
+  .quiet .st {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  /* the stopwatch (more) stands on the left, «Bearbeiten ›» (edit) on the right */
+  .quiet [data-sec-edit] {
+    order: 2;
+    margin-left: auto;
+  }
+  .quiet .mr:not([data-sec-edit]) {
+    order: 1;
+    padding-left: 0;
   }
   .mr {
     display: inline-flex;

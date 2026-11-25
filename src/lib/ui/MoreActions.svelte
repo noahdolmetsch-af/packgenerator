@@ -248,6 +248,7 @@
     width: 100%;
     max-width: 100%;
     max-height: 85vh;
+    max-height: 85dvh;
     margin: 0;
     padding: 12px 10px calc(16px + env(safe-area-inset-bottom));
     box-sizing: border-box;

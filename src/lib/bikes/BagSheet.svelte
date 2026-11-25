@@ -157,6 +157,7 @@
       margin: auto 0 0;
       border-radius: 20px 20px 0 0;
       max-height: 85vh;
+    max-height: 85dvh;
       padding-bottom: calc(16px + env(safe-area-inset-bottom));
     }
   }

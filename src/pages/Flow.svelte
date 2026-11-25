@@ -226,14 +226,10 @@
       {#await import('../lib/wetter/DraussenTipp.svelte') then m}<m.default />{:catch}{/await}
     </header>
 
-    <!-- «Von selbst» (T3): a new Strava activity asks «How was it?» in three words, for every sport -->
-    <FeelAsk />
-
-    <!-- Noah 19.10 «2a»: the Einstieg of Aktiv in the card «Was hier steht» (after the first visit one quiet line) -->
-    <HintCard page="aktiv" intro="aktiv" />
-
     {#if data && !states.length}
       <Empty icon={Plus} text={t('No sports yet. Add the first one: name, goal, done.')} action={{ label: t('New sport'), href: '#/flow/new' }} />
+      <FeelAsk />
+      <HintCard page="aktiv" intro="aktiv" />
     {:else if data}
       <!-- «Aktiv neu» (Noah 22.10.2026, spec «Startseite Aktiv»): one question, «Was mache ich heute, und bin ich im
            Soll?», in three parts: tick off today, this week, the rings. The form card, Strava, «Wi gaht's?» and the
@@ -243,7 +239,7 @@
       <div class="lay">
         <div class="col">
           <!-- the stopwatch sits in the head of this part (was Aktiv › Mehr › Stoppuhr) -->
-          <Sec id="tick-h" title={t('Tick off today')} sub={tickSub} edit={{ href: '#/flow/sports', label: t('Edit|acts') }} more={{ label: t('Stopwatch'), onclick: () => openTimer() }}>
+          <Sec id="tick-h" quiet title={t('Tick off today')} sub={tickSub} edit={{ href: '#/flow/sports', label: t('Edit|acts') }} more={{ label: t('Stopwatch'), onclick: () => openTimer() }}>
             <!-- the help line (spec «Heute abhaken»), the same as on Heute -->
             <TickGrid states={live} {today} cols={phone.matches ? 2 : 4} compact help medHelp={hasMed} jump onmed={(s) => (medFor = s.act.id)} />
             <SyncLine />
@@ -255,6 +251,11 @@
             <!-- package G #156: Strava activities waiting for «Count» (only when ticking is set to «suggest first») -->
             <TickSuggest />
           </Sec>
+          <!-- «Heute abhaken: Kacheln zuerst» (Noah 24.11.2026 «1-5a»): the tiles stand right under the help line; the question
+               «Wie war's?» of a new Strava activity (T3, three words, for every sport) and the Einstieg of Aktiv
+               (Noah 19.10 «2a», after the first visit one quiet line) come below them -->
+          <FeelAsk />
+          <HintCard page="aktiv" intro="aktiv" />
         </div>
         <div class="col">
           <Sec id="week-h" title={t('This week')} sub={t('your ticks and fixed dates · a tap plans the week')}>
