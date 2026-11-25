@@ -38,7 +38,7 @@ test('W1: after an update a banner names the versions since the last visit, View
   const banner = page.locator('[data-news-banner]');
   await expect(banner.getByRole('heading', { name: T('New in {v}|banner', { v: shortVersion(since[0].version) }) })).toBeAttached();
   await expect(banner.locator('[data-news-title]')).toContainText(T('New: {title}', { title: T(since[0].title) }));
-  await expect(banner.locator('[data-news-title]')).toContainText(T('and {n} more things', { n: since.length - 1 }));
+  await expect(banner.locator('[data-news-more]')).toContainText(T('and {n} more things', { n: since.length - 1 }));
   await noSideways(page);
   await shot(page, info, 'W1-neu-banner');
   await banner.locator('[data-news-title]').click();

@@ -46,6 +46,11 @@
   async function view() {
     open = true;
   }
+  // the line under the chips (know/NewsBanner.svelte) opens the same window; when it is closed, the card counts as seen too
+  $effect(() => {
+    window.addEventListener('neuseit-seen', seen);
+    return () => window.removeEventListener('neuseit-seen', seen);
+  });
   function closed() {
     open = false;
     seen();

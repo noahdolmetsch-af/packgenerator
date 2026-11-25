@@ -81,3 +81,20 @@ test('closing with the cross counts the news as seen, and nothing new means no c
   await seed(page, { card: CURRENT });
   await expect(page.locator('[data-neu-seit]')).toHaveCount(0);
 });
+
+test('the line under the chips opens the same window, and closing it counts the news as seen (one way into the list)', async ({ page, context }, info) => {
+  await start(page, context, info);
+  await seed(page);
+  const banner = page.locator('[data-news-banner]');
+  await expect(banner).toBeVisible({ timeout: 10_000 });
+  await banner.locator('[data-news-more]').click();
+  const sheet = page.locator('[data-neu-seit-sheet]');
+  await expect(sheet).toBeVisible();
+  await expect(sheet.locator('details.grp').first()).toBeVisible({ timeout: 10_000 });
+  await page.keyboard.press('Escape');
+  await expect(sheet).toHaveCount(0);
+  // the line is closed for this update, and the card at the end counts as seen too
+  await expect(banner).toHaveCount(0);
+  await expect(page.locator('[data-neu-seit]')).toHaveCount(0);
+  expect(await page.evaluate(() => localStorage.getItem('wasneu.card'))).toBe(CURRENT);
+});
