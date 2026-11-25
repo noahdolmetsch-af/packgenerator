@@ -1,6 +1,6 @@
 # Wackel-Tests: gemeinsamer Fix für Fenster und goto, Tagescheck und Touren-Plan
 
-25.11.2026 · Auftrag: Wackel-Wächter (Thread «Wackel-Tests zuverlässig machen»; gemeldet vom Bündler: `tages-check.spec.js:349` auf PR 1755, `touren-a2.spec.js:60` auf PR 1752 und 1733)
+PR #1758 · 25.11.2026 · Auftrag: Wackel-Wächter (Thread «Wackel-Tests zuverlässig machen»; gemeldet vom Bündler: `tages-check.spec.js:349` auf PR 1755, `touren-a2.spec.js:60` auf PR 1752 und 1733)
 
 ## Was ist neu
 - Nichts Sichtbares geändert, nur Tests.
