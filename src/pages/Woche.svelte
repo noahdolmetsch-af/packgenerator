@@ -7,7 +7,7 @@
    * the button «Plan the week» and a small form to add a date or a to-do. On a phone the days fold to
    * one line each (Noah «2a»), today open. Rules: lib/woche.js; data: lib/woche/load.js.
    */
-  import { Plus, ChevronDown, ChevronUp, CalendarCheck, ChevronRight, Palmtree, Bike, Sun, CloudRain, CloudSun, Info, History } from '@lucide/svelte';
+  import { Plus, Move, ChevronDown, ChevronUp, CalendarCheck, ChevronRight, Palmtree, Bike, Sun, CloudRain, CloudSun, Info, History } from '@lucide/svelte';
   import PageHead from '../lib/ui/PageHead.svelte';
   import Stat from '../lib/ui/Stat.svelte';
   import { statParts } from '../lib/ui/stat.js';
@@ -15,6 +15,9 @@
   import FreeSlotCard from '../lib/freiezeit/FreeSlotCard.svelte'; // Idee A3: free time plus good weather
   import Seg from '../lib/ui/Seg.svelte';
   import Entry from '../lib/woche/Entry.svelte';
+  import MoveSheet from '../lib/ui/MoveSheet.svelte';
+  import ShiftSheet from '../lib/ui/ShiftSheet.svelte';
+  import { timedrag } from '../lib/ui/timedrag.js';
   import WeekPeople from '../lib/alltag/WeekPeople.svelte'; // «Alles finden»: people to see again this week
   import WeekGoals from '../lib/flow/WeekGoals.svelte'; // «Woche» (Schritt V1): the goals of the week stand here, not only on Aktiv
   import { flowQuery } from '../lib/flow/data.svelte.js';
@@ -72,15 +75,60 @@
     if (ok !== 'delete') return false;
     return deleteWithUndo({ run: () => saveItems(items().filter((x) => x.id !== e.id)), undo: () => saveItems([...items().filter((x) => x.id !== e.id), gone]), text: t('"{name}" deleted.', { name: titleOf(e) }), name: titleOf(e), item: gone ? { store: ITEMS_KEY, row: gone, kind: 'plan' } : null });
   };
+  // «Termine ziehen» (Noah 24.11.2026 «1a 2b 3a 4a»): an own date or to-do is pulled onto another day, or moved with «Move …» (day and time); Undo takes it back
+  let overDay = $state(null); // the day that lights up while something is pulled over it
+  let moving = $state(null); // { e } while the «Move …» window is open
+  // what can move: an own date, to-do or bike job, and a session of the training plan
+  const movable = (e) => !!(e.own || e.sid);
+  async function moveEntry(e, day, time) {
+    if (e.sid) {
+      const before = src.sessions;
+      if (before.find((x) => x.id === e.sid)?.day === day) return;
+      await putWeek(TRAIN_KEY, { sessions: prunePlan(before.map((x) => (x.id === e.sid ? { ...x, day } : x)), today) });
+      offerDone(t('«{name}» moved to {day}.', { name: titleOf(e), day: dayName(day) }), () => putWeek(TRAIN_KEY, { sessions: before }));
+      return;
+    }
+    const before = items();
+    const was = before.find((x) => x.id === e.id);
+    if (!was || (was.day === day && (time == null || (was.time ?? '') === time))) return;
+    await saveItems(before.map((x) => (x.id === e.id ? cleanItem({ ...x, day, ...(time == null ? {} : { time }) }) : x)));
+    offerDone(t('«{name}» moved to {day}.', { name: titleOf(e), day: dayName(day) }), () => saveItems(before));
+  }
+  // «Copy»: an own date or to-do is made again on another day; the first one stays
+  async function copyEntry(e, day, time) {
+    const was = items().find((x) => x.id === e.id);
+    if (!was) return;
+    const before = items();
+    const { id, done, ...rest } = was;
+    await saveItems([...before, cleanItem({ ...rest, day, time: time ?? was.time ?? '' })]);
+    offerDone(t('«{name}» copied to {day}.', { name: titleOf(e), day: dayName(day) }), () => saveItems(before));
+  }
+  // «Move all …»: everything that can move on one day goes to another day together, with one Undo
+  let shifting = $state(null); // { day } while the window is open
+  const shiftable = (day) => (week?.days.find((x) => x.day === day)?.entries ?? []).filter((e) => movable(e) && !e.done);
+  async function shiftAll(day, ids, to) {
+    const beforeItems = items();
+    const beforeSessions = src.sessions;
+    const list = shiftable(day).filter((e) => ids.includes(e.id));
+    const own = new Set(list.filter((e) => e.own).map((e) => e.id));
+    const sess = new Set(list.filter((e) => e.sid).map((e) => e.sid));
+    if (own.size) await saveItems(beforeItems.map((x) => (own.has(x.id) ? cleanItem({ ...x, day: to }) : x)));
+    if (sess.size) await putWeek(TRAIN_KEY, { sessions: prunePlan(beforeSessions.map((x) => (sess.has(x.id) ? { ...x, day: to } : x)), today) });
+    offerDone(tn(list.length, '{n} entry moved to {day}.', '{n} entries moved to {day}.', { day: dayName(to) }), async () => {
+      if (own.size) await saveItems(beforeItems);
+      if (sess.size) await putWeek(TRAIN_KEY, { sessions: beforeSessions });
+    });
+  }
+  const pullSuggestion = (s) => ({ day: '', whole: true, enabled: s.act !== 'drop' && (s.act === 'move' || !!s.day), onpreview: (d) => (overDay = d?.over ?? null), oncommit: (g) => g.over && g.over >= today && take(s, g.over) });
   const toggleKind = (k) => putWeek(HIDE_KEY, src.hide.includes(k) ? src.hide.filter((x) => x !== k) : [...src.hide, k]);
 
   // Impeccable P5: every suggestion button says what it did and offers Undo
-  async function take(s) {
+  async function take(s, day = s.day) {
     const before = { items: items(), sessions: src.sessions };
-    const ch = takeSuggestion(s, { items: items(), sessions: src.sessions }, s.day, titleOf(s));
+    const ch = takeSuggestion(s, { items: items(), sessions: src.sessions }, day, titleOf(s));
     if (ch.items) await saveItems(ch.items);
     if (ch.sessions) await putWeek(TRAIN_KEY, { sessions: prunePlan(ch.sessions, today) });
-    offerDone(t('«{name}» planned for {day}.', { name: titleOf(s), day: dayName(s.day) }), async () => {
+    offerDone(t('«{name}» planned for {day}.', { name: titleOf(s), day: dayName(day) }), async () => {
       if (ch.items) await saveItems(before.items);
       if (ch.sessions) await putWeek(TRAIN_KEY, { sessions: before.sessions });
     });
@@ -256,7 +304,7 @@
       <section class="days" class:slim={emptyWeek} aria-label={t('The days of the week')}>
         {#each week.days as d (d.day)}
           {#if phone.matches}
-            <details class="dr" class:today={d.today} open={d.today || undefined} data-day={d.day}>
+            <details class="dr" class:today={d.today} class:drop={overDay === d.day} open={d.today || undefined} data-day={d.day}>
               <summary>
                 <b>{dayName(d.day)}</b>
                 {#if d.wx}{@render wxMark(d.wx)}{/if}
@@ -266,16 +314,18 @@
                 <ChevronRight size={20} aria-hidden="true" />
               </summary>
               <div class="ens">
-                {#each d.entries as e (e.id)}<Entry {e} ondone={toggleDone} onremove={remove} />{:else}<p class="none">{t('Nothing planned')}</p>{/each}
+                {#each d.entries as e (e.id)}<Entry {e} day={d.day} ondone={toggleDone} onremove={remove} ondrop={moveEntry} onover={(x) => (overDay = x)} onmove={(x) => (moving = { e: x })} />{:else}<p class="none">{t('Nothing planned')}</p>{/each}
                 {#if !d.past}<button type="button" class="dayadd" onclick={() => planDay(d.day)} data-day-add={d.day}><Plus size={16} aria-hidden="true" />{t('Add to plan')}</button>{/if}
+                {#if !d.past && shiftable(d.day).length > 1}<button type="button" class="dayadd" onclick={() => (shifting = { day: d.day })} data-day-shift={d.day}><Move size={16} aria-hidden="true" />{t('Move all …')}</button>{/if}
               </div>
             </details>
           {:else}
-            <div class="dc" class:today={d.today} class:past={d.past} data-day={d.day}>
+            <div class="dc" class:today={d.today} class:past={d.past} class:drop={overDay === d.day} data-day={d.day}>
               <h3><span>{dayName(d.day).split(' ')[0]}</span> <b class="num">{dayName(d.day).split(' ').slice(1).join(' ')}</b></h3>
               {#if d.wx || d.holiday || win?.date === d.day}<p class="dm">{#if d.wx}{@render wxMark(d.wx)}{/if}{#if win?.date === d.day}{@render winMark(win)}{/if}{#if d.holiday}<span class="hol" data-holiday={d.holiday}>{holidayName(d.holiday)}</span>{/if}</p>{/if}
-              {#each d.entries as e (e.id)}<Entry {e} ondone={toggleDone} onremove={remove} />{/each}
+              {#each d.entries as e (e.id)}<Entry {e} day={d.day} ondone={toggleDone} onremove={remove} ondrop={moveEntry} onover={(x) => (overDay = x)} onmove={(x) => (moving = { e: x })} />{/each}
               {#if !d.past}<button type="button" class="dayadd" onclick={() => planDay(d.day)} data-day-add={d.day}><Plus size={16} aria-hidden="true" />{t('Add to plan')}</button>{/if}
+                {#if !d.past && shiftable(d.day).length > 1}<button type="button" class="dayadd" onclick={() => (shifting = { day: d.day })} data-day-shift={d.day}><Move size={16} aria-hidden="true" />{t('Move all …')}</button>{/if}
             </div>
           {/if}
         {/each}
@@ -306,7 +356,7 @@
           </details>
           <ul>
             {#each sgShown as s (s.ref)}
-              <li class="k-{s.kind}" data-sugg={s.ref}>
+              <li class="k-{s.kind}" data-sugg={s.ref} use:timedrag={pullSuggestion(s)}>
                 <span class="dot" aria-hidden="true"></span>
                 <span class="st"><b>{titleOf({ ...s, sessionKind: s.sessionKind })}</b><small>{[subOf(s), s.day && s.act === 'take' ? (s.source === 'todo' ? t('Your to-do, no day yet · fits {day}', { day: dayName(s.day) }) : t('suggested: {day}', { day: dayName(s.day) })) : ''].filter(Boolean).join(' · ')}</small></span>
                 <span class="sb">
@@ -388,6 +438,28 @@
     <span class="sr">{wxWords(wx)}</span>{#if wx.max != null}<span class="num" aria-hidden="true">{Math.round(wx.max)}°</span>{/if}
   </span>
 {/snippet}
+
+{#if moving}
+  {@const it = items().find((x) => x.id === moving.e.id)}
+  <MoveSheet
+    title={titleOf(moving.e)}
+    day={it?.day ?? ''}
+    time={it?.time ?? ''}
+    timeless
+    onsave={({ day, time }) => moveEntry(moving.e, day, time)}
+    oncopy={moving.e.own ? ({ day, time }) => copyEntry(moving.e, day, time) : null}
+    onclose={() => (moving = null)}
+  />
+{/if}
+{#if shifting}
+  <ShiftSheet
+    day={shifting.day}
+    to={shiftDay(shifting.day, 1)}
+    entries={shiftable(shifting.day).map((e) => ({ id: e.id, title: titleOf(e), sub: e.time || '' }))}
+    onsave={({ ids, day }) => shiftAll(shifting.day, ids, day)}
+    onclose={() => (shifting = null)}
+  />
+{/if}
 
 <style>
   .wkp {
@@ -837,4 +909,19 @@
   .wc-row{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px solid var(--line);border-radius:10px;padding:10px;margin:6px 0}
   .wc-t{display:flex;flex-direction:column;font-weight:600}.wc-t small{font-weight:400;color:var(--muted)}
   .wc-b{display:flex;gap:6px;flex-wrap:wrap}
+  /* «Termine ziehen»: the day an entry is pulled over lights up; a suggestion pulled out of the list lifts */
+  .dc:has(:global(.td-lift)),
+  .dr:has(:global(.td-lift)) {
+    position: relative;
+    z-index: 7;
+    opacity: 1;
+  }
+  .dc.drop,
+  .dr.drop {
+    outline: 2px dashed var(--accent);
+    outline-offset: -2px;
+  }
+  .sg li {
+    -webkit-touch-callout: none;
+  }
 </style>
