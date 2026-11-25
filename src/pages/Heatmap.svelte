@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../lib/actlite.js';
   /**
    * «Heatmap» (Noah 20.10.2026 «ich möchte eine Heatmap … wo alle meine Rides eingezeichnet werden»;
    * answers «1a+b 2b+a 3 alle Fahrten von Strava 4a 5a»). #/heatmap (Touren › Rückblick › Heatmap,
@@ -34,7 +35,7 @@
 
   const dataQ = liveQuery(async () => {
     const [activities, rides, tracks, entries, bikes, fill] = await Promise.all([
-      db.activities ? db.activities.toArray() : [],
+      db.activities ? readLite(db, (T) => T.toArray()) : [],
       db.rides.toArray(),
       db.tracks ? db.tracks.where('kind').equals('rec').toArray() : [],
       db.kmBook.toArray(),

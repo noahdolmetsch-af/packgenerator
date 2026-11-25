@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../actlite.js';
   /**
    * v0.116.0 «Strava-Verbindung» (mockup S4): the tile «Strava» on Today. The last fetch: «3 neue
    * Fahrten geholt · +118 km», the km per bike, «alle zugeordnet» or how many wait in «Zum Prüfen».
@@ -27,7 +28,7 @@
 
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const openQ = liveQuery(() => db.kmBook.where('state').equals('open').toArray());
-  const lastQ = liveQuery(async () => (await db.activities.orderBy('day').reverse().limit(12).toArray()).sort(byNewest)[0] ?? null);
+  const lastQ = liveQuery(async () => (await readLite(db, (T) => T.orderBy('day').reverse().limit(12).toArray())).sort(byNewest)[0] ?? null);
   const nameOf = (id) => ($bikesQ ?? []).find((b) => b.id === id)?.name ?? '–';
   const last = $derived(strava.last);
   // UI-Test T9 (G1-07): rides already in the app show even when this device has no key yet; the tile

@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../actlite.js';
   /**
    * Paket U «Rennen»: one race (#/race/<tripId>/<part>). Builds what every part needs once (the race with
    * its suggestions, the route, the plan, the stops) and shows the five parts as tabs; each part loads on
@@ -59,7 +60,7 @@
   const itemsQ = liveQuery(() => db.items.toArray());
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const racesQ = racesQuery();
-  const actsQ = liveQuery(() => db.activities.toArray());
+  const actsQ = liveQuery(() => readLite(db, (T) => T.toArray()));
   const ridesQ = liveQuery(() => db.rides.toArray());
   const osmQ = cacheQuery(POI_CACHE + id);
   const today = localDay();

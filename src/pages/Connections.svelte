@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../lib/actlite.js';
   /**
    * Package G «Daten kommen von selbst», #155 «Seite Verbindungen unter Ich» (#/me/connections): every
    * connection of the app in one place, with its state and when data last came in. Here are also the
@@ -44,7 +45,7 @@
       db.settings.get(OWN_KEY),
       db.settings.get(STRAVA_KEY),
       db.flowActs.toArray(),
-      db.activities.toArray(),
+      readLite(db, (T) => T.toArray()),
       db.bikes.toArray(),
       db.meta.get(LAKE_CACHE_KEY),
       db.settings.get(MAIL_KEY),

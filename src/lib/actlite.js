@@ -23,6 +23,7 @@
  * The small summaries stay (hist, pHist, cHist = time per zone; pCurve, hCurve, best, p25 = best values; halves, pauses): the lists of
  * weeks, zones and power read them. A reader of a ride's page (curves, laps, segments, climbs, photos) reads the full table.
  */
+import Dexie from 'dexie';
 export const HEAVY_KEYS = ['ser', 'sprof', 'prof', 'segs', 'dprof', 'splits', 'hw', 'curve', 'climbs', 'secs5', 'laps', 'photos'];
 const HEAVY = new Set(HEAVY_KEYS);
 
@@ -161,8 +162,17 @@ export function startLite(db, { delay = 4000 } = {}) {
 export async function liteTable(db) {
   if (!db?.activitiesLite) return db.activities;
   const s = stateOf(db);
-  await startLite(db);
-  return s.ready ? db.activitiesLite : db.activities;
+  // Dexie.Promise, not the plain promise of startLite: a liveQuery loses track of the tables it reads when it awaits a promise that
+  // began outside of it (the card would never see a later save)
+  await Dexie.Promise.resolve(startLite(db));
+  if (!s.ready) return db.activities;
+  // one cheap count of each table (no rows are read): a row that came into `activities` past the app (an older tab, a test writing straight
+  // into IndexedDB) shows as a different count; then the full table answers and the summary is made again
+  const [a, b] = await Dexie.Promise.all([db.activities.count(), db.activitiesLite.count()]).catch(() => [0, -1]);
+  if (a === b) return db.activitiesLite;
+  s.ready = false;
+  setTimeout(() => buildLite(db).catch(() => {}), 1000);
+  return db.activities;
 }
 
 /** `fn(table)` on the table a list should read: db.activitiesLite when ready, else db.activities (a one-line reader). */

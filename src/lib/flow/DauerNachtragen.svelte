@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../actlite.js';
   /**
    * «Dauer nachtragen» (Noah 21.11.2026, Sportjahr S12): one fold in «Meine Aktivitäten», next to «Übliche Dauer». It lists the ticks that
    * have no measured time (the evaluation counts the usual duration there and says «ca.»). One tap on 15, 30, 45 or 60 min, or an own
@@ -24,7 +25,7 @@
 
   const SHOWN = 6;
   const q = liveQuery(async () => {
-    const [log, activities, acts, usual, ticks, trips, health] = await Promise.all([db.flowLog.toArray(), db.activities.toArray(), db.flowActs.toArray(), db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY), db.trips ? db.trips.toArray() : [], db.healthDays ? db.healthDays.toArray() : []]);
+    const [log, activities, acts, usual, ticks, trips, health] = await Promise.all([db.flowLog.toArray(), readLite(db, (T) => T.toArray()), db.flowActs.toArray(), db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY), db.trips ? db.trips.toArray() : [], db.healthDays ? db.healthDays.toArray() : []]);
     const map = prefsOf(ticks?.value).map;
     const ticksDue = dueRows(einheiten({ log, activities, acts, usual: usualMap(usual?.value), map }), log);
     const tours = tourRows({ trips, acts, log, activities, map, today: localDay() }).map((r) => ({ id: r.id, day: r.day, actId: r.actId, tour: r.title || t('Tour') }));

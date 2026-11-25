@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../../actlite.js';
   /**
    * Garmin-Übersicht (Noah 20.10.2026 «genau so kann es aussehen … baue sie 1:1 nach», light like the app):
    * on Aktiv, in Garmin Connect's order: «Aktivitäten von heute», «Im Fokus» (per sport, to swipe),
@@ -47,7 +48,7 @@
   const kinds = $derived(kindsOf(table, today, 7));
   // «Alle Sportarten» (Noah 22.11.2026, Schritt D): the sports you ticked in Aktiv stand next to the Strava sports
   const tq = liveQuery(async () => {
-    const [log, activities, acts, usual, ticks] = await Promise.all([db.flowLog.toArray(), db.activities.toArray(), db.flowActs.toArray(), db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY)]);
+    const [log, activities, acts, usual, ticks] = await Promise.all([db.flowLog.toArray(), readLite(db, (T) => T.toArray()), db.flowActs.toArray(), db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY)]);
     const u = usualMap(usual?.value);
     const map = prefsOf(ticks?.value).map;
     return { acts, units: tickUnits({ log, activities, acts, usual: u, map }), raw: { log, flowActs: acts, acts: activities, usual: u, map } };

@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../lib/actlite.js';
   /**
    * «Auswerten neu» Teil 2 (Noah 24.11.2026 «1b 2a 3b 4a 5a», Entwurf B «Wochenbericht»): the tab «Woche» of Auswerten (#/auswerten/woche).
    * Content first: one sentence about the period (hours, units, days, against the period before), the numbers, the hours by
@@ -38,7 +39,7 @@
   enterPage('woche');
   const today = localDay();
   const q = liveQuery(async () => {
-    const [log, activities, acts, usual, ticks, table] = await Promise.all([db.flowLog.toArray(), db.activities.toArray(), db.flowActs.toArray(), db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY), loadTable(db)]);
+    const [log, activities, acts, usual, ticks, table] = await Promise.all([db.flowLog.toArray(), readLite(db, (T) => T.toArray()), db.flowActs.toArray(), db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY), loadTable(db)]);
     return { log, activities, acts, usual: usualMap(usual?.value), map: prefsOf(ticks?.value).map, table };
   });
   const d = $derived($q);

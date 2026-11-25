@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../lib/actlite.js';
   /**
    * Paket M «Aus Touren lernen», #1027 «Chronik» (Noah «1b»: «alles auf einer Zeitachse (Fahrten, Pflege,
    * Meditation, Notizen) und eine Seite pro Monat, Filter Velo»). #/chronik, #/chronik/<YYYY-MM>.
@@ -23,7 +24,7 @@
   let { month: start = null } = $props();
   const today = localDay();
   const dataQ = liveQuery(async () => {
-    const [trips, debriefs, rides, activities, visits, maintenance, flowLog, notes, bikes] = await Promise.all([db.trips.toArray(), db.debriefs.toArray(), db.rides.toArray(), db.activities.toArray(), db.visits.toArray(), db.maintenance.toArray(), db.flowLog.toArray(), db.notes.toArray(), db.bikes.toArray()]);
+    const [trips, debriefs, rides, activities, visits, maintenance, flowLog, notes, bikes] = await Promise.all([db.trips.toArray(), db.debriefs.toArray(), db.rides.toArray(), readLite(db, (T) => T.toArray()), db.visits.toArray(), db.maintenance.toArray(), db.flowLog.toArray(), db.notes.toArray(), db.bikes.toArray()]);
     // Impeccable bug: a report from the error page («Error on the page …») is no part of your chronicle
     const report = /^(Error on the page|Fehler auf der Seite) «/;
     const own = notes.filter((n) => !report.test(String(n.text ?? n.body ?? n.title ?? '').trim()));

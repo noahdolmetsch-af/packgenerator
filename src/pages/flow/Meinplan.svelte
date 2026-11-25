@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../../lib/actlite.js';
   /**
    * «Mein Trainingsplan» (Noah 21.11.2026 «ich möchte alle entwürfe 1-3 umsetzen», S6, draft m3):
    *   #/flow/trainingsplan   plan and what you did, on one page: the goal, the week in numbers, hours per week (bars: done,
@@ -31,7 +32,7 @@
       db.settings.get(WEEKLOG_KEY),
       db.settings.get(PLAN_KEY),
       db.settings.get(GOAL_KEY),
-      db.activities.where('day').between(shiftDay(mon, -28), shiftDay(mon, 27), true, true).toArray().catch(() => []),
+      readLite(db, (T) => T.where('day').between(shiftDay(mon, -28), shiftDay(mon, 27), true, true).toArray()).catch(() => []),
     ]);
     return { stored: wp?.value ?? null, rawLog: wl?.value ?? null, rawPlan: pl?.value ?? null, rawGoal: gl?.value ?? null, acts };
   });

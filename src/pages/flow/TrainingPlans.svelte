@@ -1,4 +1,5 @@
 <script>
+  import { readLite } from '../../lib/actlite.js';
   /**
    * «Trainingspläne» (Noah 19.10.2026 «1a 2 kann eingestellt werden 3 a und b und gefühlte Anstrengung 4 1-4»):
    * Aktiv › Training › Trainingspläne, loaded only when opened.
@@ -38,7 +39,7 @@
   const goalQ = setting(GOAL_KEY);
   const racesQ = setting(RACES_KEY); // Paket U «Rennen», read only
   const tripsQ = liveQuery(() => db.trips.toArray());
-  const actsQ = liveQuery(() => db.activities.toArray());
+  const actsQ = liveQuery(() => readLite(db, (T) => T.toArray()));
 
   const own = $derived(ownOf($ownQ));
   const hidden = $derived(Array.isArray($hideQ) ? $hideQ : []);
