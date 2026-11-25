@@ -5,8 +5,8 @@
  * device. Tested in tests/atlas.test.js.
  *
  * File: { "format": "rennatlas", "asOf": "2026-11-24", "races": [{ name, date, days, km, hm, city, land, surface, url,
- * status, registered, fav, source, checked, opens, closes, quality, note, lat, lon }] } or the list alone.
- * Only `name` is needed; the rest is shown when it is there.
+ * status, registered, fav, source, checked, opens, closes, quality, note, lat, lon, support, deadline, edition, date2026,
+ * hmNote, urlMore, urlLast }] } or the list alone. Only `name` is needed; the rest is shown when it is there.
  */
 export const MAX_ROWS = 400;
 export const MAX_FILE = 2_000_000;
@@ -33,6 +33,11 @@ export function daysOf(v) {
 const norm = (s) => String(s ?? '').trim().toLowerCase().replace(/\s+/g, ' ');
 /** One race of the file: the same name on the same day counts once. */
 export const keyOf = (r) => `${norm(r.name)}|${r.date}`;
+
+/** Is the climb of this race an estimate («ca.», e.g. from last year)? hmNote reads «ca., Vorjahr (2024, 671 km)». */
+export const hmApprox = (row) => !!row?.hm && /^ca\./i.test(row.hmNote ?? '');
+/** What the estimate rests on («Vorjahr (2024, 671 km)»), as the file says it; '' if it is exact. */
+export const hmBasis = (row) => (hmApprox(row) ? row.hmNote.replace(/^ca\.,?\s*/i, '').trim() : '');
 
 /** One row of the file → a clean row, or null without a name. */
 export function rowOf(x) {
@@ -61,6 +66,13 @@ export function rowOf(x) {
     note: text(x.note, 300),
     lat: coord(x.lat, 90),
     lon: coord(x.lon, 180),
+    support: text(x.support, 60),
+    deadline: text(x.deadline, 60),
+    edition: text(x.edition, 60),
+    date2026: text(x.date2026, 30),
+    hmNote: text(x.hmNote, 100),
+    urlMore: link(x.urlMore),
+    urlLast: link(x.urlLast),
   };
 }
 
