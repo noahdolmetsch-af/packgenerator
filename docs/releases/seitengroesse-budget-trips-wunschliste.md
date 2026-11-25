@@ -1,6 +1,6 @@
 # Seitengrösse: Budget für «Touren» und «Wunschliste» angehoben, main wieder grün
 
-PR #PRNR · 25.11.2026 · Auftrag: main reparieren (Bündler, Vorrang; gemeldet vom Thread «Wi gaht's?» bei PR 1777: `seitengroesse.spec.js` war schon auf main rot)
+PR #1782 · 25.11.2026 · Auftrag: main reparieren (Bündler, Vorrang; gemeldet vom Thread «Wi gaht's?» bei PR 1777: `seitengroesse.spec.js` war schon auf main rot)
 
 ## Was ist neu
 - Nichts Sichtbares geändert. Der Wächter «Seitengrösse» (`tests/seitengroesse-budget.json`) zählt die Elemente der langsamsten Seiten auf dem Handy; zwei Seiten lagen darüber: `#/trips` 1680 statt 1620 Elemente (3,7 % mehr), `#/gear?tab=wishlist` 1542 statt 1540. Die Zahl ist auf jedem Rechner gleich, es war also kein Wackler: der Test war auf main rot, fiel aber nur in PRs auf (die CI auf main baut nur).
