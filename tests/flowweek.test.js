@@ -115,7 +115,7 @@ describe('the week (AK1)', () => {
       forecast,
     });
     const at = (day) => w.days.find((d) => d.day === day).items;
-    expect(at('2026-10-12')).toEqual([{ kind: 'done', actId: 'bike', n: 1, min: 35 }]);
+    expect(at('2026-10-12')).toEqual([{ kind: 'done', actId: 'bike', n: 1, min: 35, ticks: 1 }]);
     expect(w.days[0].past).toBe(true);
     // yoga is fixed on Thursday, so no yoga suggestion
     expect(at('2026-10-15')).toContainEqual({
@@ -247,12 +247,22 @@ describe('weekUnits: ONE number for the week (V3)', () => {
   const day = (items) => ({ day: '2026-10-05', items });
   it('counts ticks plus the fixed and planned dates still to come, not suggestions', () => {
     const days = [
-      day([{ kind: 'done', actId: 'a', n: 2, min: 60 }, { kind: 'fix', actId: 'b', time: '18:00', id: 'x' }]),
+      day([{ kind: 'done', actId: 'a', n: 2, min: 60, ticks: 2 }, { kind: 'fix', actId: 'b', time: '18:00', id: 'x' }]),
       day([{ kind: 'plan', actId: 'c' }, { kind: 'sug', actId: 'd', why: 'goal' }]),
     ];
     expect(weekUnits(days)).toEqual({ done: 2, total: 4 });
   });
-  it('counts a tick without n as one and gives null for an empty week', () => {
+  it('counts a tick once, whatever its repetitions (push-ups · 20 is one unit, like in Woche)', () => {
+    expect(weekUnits([day([{ kind: 'done', actId: 'a', n: 20, min: 0, ticks: 1 }])])).toEqual({ done: 1, total: 1 });
+    const w = weekPlan({
+      acts: [{ id: 'a', name: 'Push-ups', icon: 'dumbbell' }],
+      states: [],
+      log: [{ day: '2026-10-12', actId: 'a', n: 20 }, { day: '2026-10-12', actId: 'a', n: 10 }],
+      today: '2026-10-12',
+    });
+    expect(weekUnits(w.days)).toEqual({ done: 2, total: 2 });
+  });
+  it('counts a tick without ticks as one and gives null for an empty week', () => {
     expect(weekUnits([day([{ kind: 'done', actId: 'a' }])])).toEqual({ done: 1, total: 1 });
     expect(weekUnits([day([{ kind: 'sug', actId: 'd', why: 'daily' }])])).toBeNull();
     expect(weekUnits([])).toBeNull();
