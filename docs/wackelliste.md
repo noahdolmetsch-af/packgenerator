@@ -11,6 +11,9 @@ Ein Wackler ist ein Test, der ohne Änderung an der App mal grün und mal rot is
 | wochenrueckblick-mehr.spec.js (Notiz/Ziel) | beide | 24.11. | Neuladen vor dem fertigen Speichern | #1727 | stabil |
 | bedienung.spec.js:31 | Computer | 24.11. | «n» kam, bevor das geschlossene Fenster seinen Verlaufsschritt abgegeben hatte | #1713 | stabil |
 | landscape (Tour quer, 844×390) | Handy | 24.11. | echter App-Fehler: leere Zeile im Tour-Band, 16 px zu breit | #1712 | stabil |
+| erinnerung.spec.js:29 | Handy | 25.11. | Seitenwechsel, solange das geschlossene Fenster seinen Verlaufsschritt zurücknimmt (`ERR_ABORTED`) | #1743 | stabil |
+| dateneingabe.spec.js:69 | beide | 25.11. | das Warten las `.fit.pressureF` vor dem ersten Speichern (`TypeError`) | #1743 | stabil |
+| «Ausprobieren»: fünf Zeilen (Auswerten Zeitraum, Touren-Vorschläge Kanton, Schwierigkeit, Wochenwetter) | beide | 25.11. | keine Wackler: durch Umbauten veraltete Ziele, nie in PR-Läufen getippt | #1743 | stabil |
 | guard.spec.js Gruppe 3 («0 page titles») | Handy | 24.11. | unter Last wird die Überschrift zweimal gleich «0» gemessen | – | beobachten |
 | tages-check.spec.js:349 (Sonntagsfrage) | beide | 24.11. | unklar, unter Last gesehen | – | beobachten |
 | neuland.spec.js, inspiration.spec.js | beide | Nacht 24.11. | Meldung deckt Taste zu; Seitenleiste «Touren» mit Zusatztext | #1698 | stabil |
