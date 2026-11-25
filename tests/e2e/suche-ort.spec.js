@@ -46,6 +46,8 @@ test('Touren: four filter buttons with the sum; Auswerten has its field too', as
   await page.goto('./#/auswerten');
   const field = page.locator('[data-suche-hier="auswerten"] input');
   await expect(field).toHaveAttribute('placeholder', T('Find a value or question'));
+  // a screen reader gets the name of the field, not only the grey placeholder (Gesamttest Runde 2, C1)
+  await expect(page.getByRole('searchbox', { name: T('Find a value or question') })).toHaveCount(1);
   await field.fill('ruhepuls');
   await expect(page.locator('[data-suche-ueberall]')).toBeVisible();
   await shot(page, info, 'suche-ort-auswerten');
