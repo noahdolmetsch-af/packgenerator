@@ -321,7 +321,7 @@
   {/if}
 
   {#if outdoor && !outdoor.win}
-    <p class="outnote" data-draussen-none>{t('No free dry window of {n} min on this day.', { n: outdoor.need })}{#if outdoor.short} {t('Longest free and dry stretch: {from}–{to}.', { from: fmtMin(outdoor.short.s), to: fmtMin(outdoor.short.e) })}{/if}</p>
+    <p class="outnote" data-draussen-none>{t('No free dry window of {n} min on this day.', { n: outdoor.need })}{#if outdoor.short}{' '}{t('Longest free and dry stretch: {from}–{to}.', { from: fmtMin(outdoor.short.s), to: fmtMin(outdoor.short.e) })}{/if}</p>
   {/if}
 
   {#snippet timeline()}
