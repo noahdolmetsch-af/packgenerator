@@ -604,14 +604,22 @@
     opacity: 0.35;
     cursor: default;
   }
+  /* Gesamttest Runde 2, C3 (Noah 25.11.2026): at 320 px «Höhenmeter» broke in the middle of the word in a column of 72 px;
+     every column is at least as wide as its longest word, and the row scrolls sideways only if even that is too wide */
   .tabs {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(max-content, 1fr));
+    overflow-x: auto;
+    scrollbar-width: none;
     border-bottom: 1px solid var(--line);
+  }
+  .tabs::-webkit-scrollbar {
+    display: none;
   }
   .tabs button {
     min-height: 44px;
     padding: 0 4px;
+    white-space: nowrap;
     border: 0;
     border-bottom: 3px solid transparent;
     background: none;
