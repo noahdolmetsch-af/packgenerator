@@ -182,12 +182,19 @@ test('Every page of Auswerten remembers its own period', async ({ page, context 
   const bar = (k) => page.locator(`[data-period-bar] [data-key="${k}"]`);
   await press(bar('year'), info);
   await expect(bar('year')).toHaveAttribute('aria-pressed', 'true');
+  // on the overview the period is one line «Zeitraum: …» with «Ändern»; the known switch unfolds there
+  const unfold = async () => {
+    await expect(page.locator('[data-period-line]')).toBeVisible();
+    if (!(await page.locator('[data-period-bar]').count())) await page.locator('[data-period-change]').click();
+  };
   await page.evaluate(() => (location.hash = '#/auswerten/uebersicht'));
+  await unfold();
   await expect(bar('week')).toHaveAttribute('aria-pressed', 'true'); // its own choice, not the year of the Sports year
   await press(bar('month'), info);
   await page.evaluate(() => (location.hash = '#/auswerten/sportjahr'));
   await expect(bar('year')).toHaveAttribute('aria-pressed', 'true');
   await page.evaluate(() => (location.hash = '#/auswerten/uebersicht'));
+  await unfold();
   await expect(bar('month')).toHaveAttribute('aria-pressed', 'true');
   expect(errors).toEqual([]);
 });
