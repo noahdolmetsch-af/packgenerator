@@ -5,7 +5,7 @@ export default {
   points: [
     { text: 'The card «Readiness» stands directly under the title; «In focus» follows', go: { href: '#/auswerten/uebersicht', steps: [{ sel: '[data-section="form"]' }], where: 'Analysis › Overview, at the top.' } },
     { text: 'The period is one line «Period: Week · …» with «Change», right above «Overview and last 7 days»', go: { href: '#/auswerten/uebersicht', steps: [{ sel: '[data-period-line]' }] } },
-    { text: 'Under the answer one line leads on: rest → «Tick off recovery», easy → trip tips, normal → weekly plan, ready → «Which mountain calls?» (also on the page «Form and recovery»; off with «Performance tips»)', go: { href: '#/auswerten/uebersicht', steps: [{ sel: '[data-day-suggest]' }] } },
+    { text: 'Under the answer one line leads on: rest → «Tick off recovery», easy → trip tips, normal → weekly plan, ready → «Which mountain calls?» (also on the page «Form and recovery»; off with «Performance tips»)', go: { href: '#/auswerten/uebersicht', steps: [{ sel: '[data-day-suggest]' }], where: 'Analysis › Overview, under the card «Readiness» (it shows once your sleep and pulse of the last days are known).' } },
   ],
   small: [{ box: 'nicer', text: 'The sentence about what the period touches moved to the «?» window of the page' }],
   test: [
@@ -21,6 +21,7 @@ export default {
     'Analysis › Overview, at the top.': 'Auswerten › Übersicht, ganz oben.',
     'The period is one line «Period: Week · …» with «Change», right above «Overview and last 7 days»': 'Der Zeitraum ist eine Zeile «Zeitraum: Woche · …» mit «Ändern», gleich über «Überblick und letzte 7 Tage»',
     'Under the answer one line leads on: rest → «Tick off recovery», easy → trip tips, normal → weekly plan, ready → «Which mountain calls?» (also on the page «Form and recovery»; off with «Performance tips»)': 'Unter der Antwort führt eine Zeile weiter: Ruhe → «Erholung abhaken», locker → Ausflugstipps, normal → Wochenplan, bereit → «Welcher Berg ruft?» (auch auf der Seite «Form und Erholung»; abschaltbar mit «Leistungstipps»)',
+    'Analysis › Overview, under the card «Readiness» (it shows once your sleep and pulse of the last days are known).': 'Auswerten › Übersicht, unter der Karte «Bereitschaft» (sie erscheint, sobald dein Schlaf und dein Puls der letzten Tage bekannt sind).',
     'The sentence about what the period touches moved to the «?» window of the page': 'Der Satz, was der Zeitraum betrifft, steht jetzt im «?»-Fenster der Seite',
     'Open Analysis: right under the title stands the card «Readiness», then «In focus», then the line «Period: Week · …».': 'Öffne Auswerten: direkt unter dem Titel steht die Karte «Bereitschaft», dann «Im Fokus», dann die Zeile «Zeitraum: Woche · …».',
     'Tap «Change»: the switch for week, month, year and own range opens; your choice shows in the line.': 'Tippe «Ändern»: der Schalter für Woche, Monat, Jahr und eigenen Zeitraum klappt auf; deine Wahl steht in der Zeile.',
