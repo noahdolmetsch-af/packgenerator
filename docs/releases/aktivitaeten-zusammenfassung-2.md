@@ -1,6 +1,6 @@
 # Mehr Seiten öffnen schneller (Aktivitäten-Zusammenfassung, Teil 2)
 
-PR #NNNN · 25.11.2026 · Auftrag: Noah «a» vom 25.11.2026 (Thread «App doppelt so schnell machen»), Teil 1 (PR #1752) ist online
+PR #1760 · 25.11.2026 · Auftrag: Noah «a» vom 25.11.2026 (Thread «App doppelt so schnell machen»), Teil 1 (PR #1752) ist online
 
 ## Was ist neu
 - **Rund 50 weitere Lesestellen** lesen die kleine Tabelle `activitiesLite` statt der vollen `activities`: Auswerten › Analyse, Training (Liste, Pläne), Sportjahr, Rückblick, Auswerten-Woche, Verbindungen, Gewicht, Chronik, Heatmap, Touren (Analyse, Verlauf, Wochenplan, Meinplan), Rennen (Vorbereitung, Rückblick, Briefing, Detail), Lernen (Tagebuch, Beobachtungen, Chronik-Karte), Assistent, Suche, Traumreise, Neuland, Veloimgriff, Live-Speichern. Die Umstellung lief mit einem Skript über alle reinen Lesestellen.
