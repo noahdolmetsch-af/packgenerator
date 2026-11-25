@@ -12,6 +12,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { activeBikes } from '../lib/bikeretire.js';
+  import StandVelos from '../lib/stand/StandVelos.svelte'; // «Dein Stand in Zahlen» (Noah 24.11.2026 «b»): the three numbers of the area, content first
   import HintCard from '../lib/pageinfo/HintCard.svelte'; // Velos aufräumen: the «Einstieg» lives in the «?» window, no second help row on the page
   import SetupTab from '../lib/bikes/SetupTab.svelte';
   import CareTab from '../lib/care/CareTab.svelte';
@@ -158,6 +159,8 @@
   {:else if route.tab === 'care'}
     <CareTab bikeId={route.bike} open={route.open} tripId={route.trip ?? null} onbike={pickBike} onopened={opened} />
   {:else}
+    <!-- «Dein Stand in Zahlen» (Noah 24.11.2026 «b»): what you came for, first; the help line follows -->
+    <StandVelos />
     <HintCard page="velos" intro="velos" />
     <!-- Noah 06.11.2026 «2a» (Durchklick Etappe 4): the bikes first, «Alles hier» (the functions) under them -->
     <BikeCards bikeId={shownBike} onbike={pickBike} />

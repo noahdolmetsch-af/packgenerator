@@ -18,6 +18,8 @@
   import { atlasQuery, loadAtlas, putAtlas, markRace } from './atlas-store.js';
   import { longDay } from './atlas-text.js';
   import { offerDone } from '../ui/rename.svelte.js';
+  import { toast } from '../flow/ui.svelte.js';
+  import { ensureAtlasWake } from './wecker-push.js';
   import { localDay } from '../localday.js';
   import { t, tn } from '../i18n.svelte.js';
 
@@ -83,6 +85,20 @@
     offerDone(tn(got.rows.length, '{n} race loaded.', '{n} races loaded.'), () => putAtlas(before));
   }
   const mark = (r, patch) => markRace(keyOf(r), patch);
+  const WHY = {
+    unsupported: 'This browser cannot get reminders. On the phone it works in Chrome.',
+    denied: 'Your browser blocks notifications.',
+    not_set_up: 'The server is not set up for this yet.',
+    storage_not_set_up: 'The server is not set up for this yet.',
+  };
+  /** The alarm of a race: it is saved either way; a switch-on also asks for the phone alarm (a failure says why). */
+  async function wake(r) {
+    const on = r.wecker !== true;
+    await mark(r, { wecker: on });
+    if (!on) return;
+    const res = await ensureAtlasWake();
+    if (!res.ok) toast(t(WHY[res.code] ?? 'The server could not be reached. Try again later.'));
+  }
 
   async function make(list) {
     const todo = list.filter((r) => !known(r));
@@ -152,7 +168,7 @@
 
 {#if open}
   {@const r = rows.find((x) => keyOf(x) === keyOf(open)) ?? open}
-  <AtlasDetail row={r} {today} trip={tripOf(r)} {busy} onmark={(p) => mark(r, p)} oncreate={() => make([r])} onclose={() => (open = null)} />
+  <AtlasDetail row={r} {today} trip={tripOf(r)} {busy} onmark={(p) => mark(r, p)} onwake={() => wake(r)} oncreate={() => make([r])} onclose={() => (open = null)} />
 {/if}
 
 <style>

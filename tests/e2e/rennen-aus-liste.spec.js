@@ -118,6 +118,11 @@ test('Race atlas: file, list with filters, saved filter, year line, map, one rac
   await page.locator('[data-race-atlas] [data-key="list"]').click();
   await page.locator('[data-atlas-row] .al-hit').filter({ hasText: 'Talfahrt Beispiel' }).click();
   await expect(page.locator('[data-atlas-detail]')).toContainText('Erfundenes Rennen für den Test.');
+  // the alarm: a race whose registration is still to come has the button; it saves the alarm and names the days
+  await expect(page.locator('[data-atlas-detail-wake]')).toHaveAttribute('aria-pressed', 'false');
+  await page.locator('[data-atlas-detail-wake]').click();
+  await expect(page.locator('[data-atlas-detail-wake]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('[data-atlas-detail-wakeline]')).toContainText('16');
   await page.screenshot({ path: info.outputPath('rennatlas-rennen.png'), fullPage: false });
   await page.locator('[data-sheet-save]').click();
   await expect(page).toHaveURL(/#\/race\/.+/);

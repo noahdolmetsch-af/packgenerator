@@ -33,6 +33,8 @@ import { bundleMorning, morningOn } from './morning.js';
 import { outdoorOf, remindDays } from '../outdoor.js';
 import { askDay, ASK_AT } from '../challengeask.js';
 import { tageszieleOf, remindDays as zielDays } from '../tagesziel.js';
+import { wakeRows, wakeDays } from '../race/atlas-wecker.js';
+import { keyOf as raceKeyOf } from '../race/atlas.js';
 
 export const PUSH_KEY = 'push';
 export const AHEAD_DAYS = 14;
@@ -83,6 +85,8 @@ export const KINDS = [
   { key: 'backup', label: 'Backup', hint: 'When the last backup is older than set.' },
   // Paket N idea 2 (Noah 19.10.2026 «1-5 a»): a race trip's registration deadline (Touren › Träume)
   { key: 'race', label: 'Race registration', hint: '3 days and 1 day before the registration deadline, at 08:00.' },
+  // «Anmelde-Wecker» of the Rennatlas (Noah 24.11.2026, idea 2): the alarm of a race of the list, set in its window
+  { key: 'atlaswake', label: 'Race list alarm', hint: 'For races of the race atlas with an alarm: on the day the registration opens, and 3 days and 1 day before it closes, at 08:00.' },
   // «Draussen» PR 2 (Noah 21.11.2026 «2b»): every day at the time of the challenge (16:00) while it runs
   { key: 'outdoor', label: 'Outdoors challenge', hint: 'Every day at 16:00 (or the time you set) while your challenge runs, until the day is reached.' },
   // «Challenges» PR 4 (Noah 22.11.2026 «c»): the question every 10 days, off until switched on
@@ -109,7 +113,7 @@ export const KINDS = [
  * (tests/push-groups.test.js); a fold lists its switches in the order of KINDS.
  */
 export const PUSH_GROUPS = [
-  { key: 'tour', label: 'Around the tour', keys: ['eve', 'shop', 'race', 'eat'] },
+  { key: 'tour', label: 'Around the tour', keys: ['eve', 'shop', 'race', 'atlaswake', 'eat'] },
   { key: 'weather', label: 'Weather and light', keys: ['weather', 'ice', 'wxwatch', 'dark', 'rainsoon', 'air', 'fog', 'night'] },
   { key: 'bike', label: 'Bikes and gear', keys: ['wetchain', 'wear', 'workshop', 'supply', 'lend'] },
   { key: 'day', label: 'Everyday life', keys: ['birthday', 'plant', 'outdoor', 'challengeask', 'ziele', 'own', 'note', 'backup'] },
@@ -338,6 +342,17 @@ export function buildList(data) {
       for (const back of RACE_BEFORE)
         add({ key: `race:${tr.id}:${by}:${back}`, at: atMs(addDays(by, -back), DAY_AT), title: t('Race registration'), body: back === 1 ? t('Tomorrow is the last day to sign up for {trip}.', { trip: tourName(tr) }) : t('{n} days left to sign up for {trip}.', { n: back, trip: tourName(tr) }), url: '#/trips/dreams' });
     }
+  // «Anmelde-Wecker»: a race of the race atlas with an alarm (not registered): the opening day and 3 days and 1 day before it closes
+  if (on('atlaswake'))
+    for (const r of wakeRows(data.settings?.rennatlas?.rows ?? [], today))
+      for (const w of wakeDays(r, today))
+        add({
+          key: `atlaswake:${raceKeyOf(r)}:${w.day}:${w.back}`,
+          at: atMs(w.day, DAY_AT),
+          title: t('Race registration'),
+          body: w.kind === 'opens' ? t('Today the registration for {race} opens.', { race: r.name }) : w.back === 1 ? t('Tomorrow is the last day to sign up for {trip}.', { trip: r.name }) : t('{n} days left to sign up for {trip}.', { n: w.back, trip: r.name }),
+          url: '#/race',
+        });
   // Paket H (answer 2a): a supply 2 weeks before its best-before date (today when that day has passed)
   if (on('supply'))
     for (const it of data.items ?? []) {
