@@ -387,3 +387,42 @@ test('Mein Tag: in the evening a closed line counts what is open; tick off, to t
   await expect(page.locator('[data-evening]')).toHaveCount(0); // tomorrow has no review
   expect(errors).toEqual([]);
 });
+
+test('Mein Tag: keep a day as a template, put it on two days, repeat an entry every week, each with Undo', async ({ page, context }) => {
+  const errors = await open(page, context, '#/day');
+  await page.waitForSelector('h1');
+  await put(page, { settings: [{ key: 'week.items', value: ITEMS }] });
+  await page.reload();
+  // keep today: the dentist, the shopping and the call are the pattern
+  await page.locator('[data-plan-open]').click();
+  await page.locator('[data-plan-templates]').click();
+  const sheet = page.locator('[data-vorlage-sheet]');
+  await expect(sheet.locator('[data-vorlage-empty]')).toBeVisible();
+  await sheet.locator('[data-vorlage-name]').fill('Arbeitstag');
+  await sheet.locator('[data-vorlage-save]').click();
+  const tpl = sheet.locator('[data-vorlage]');
+  await expect(tpl).toContainText('Arbeitstag');
+  // on two later days
+  await tpl.locator('[data-vorlage-more]').click();
+  await sheet.locator(`[data-vorlage-day="${addDays(TODAY, 2)}"]`).check({ force: true });
+  await sheet.locator(`[data-vorlage-day="${addDays(TODAY, 3)}"]`).check({ force: true });
+  await sheet.locator('[data-vorlage-apply]').click();
+  await expect(page.locator('[data-vorlage-sheet]')).toHaveCount(0);
+  await page.locator(`[data-day="${addDays(TODAY, 2)}"]`).click();
+  await expect(page.locator('.tl [data-entry]').first()).toBeVisible();
+  await expect(page.locator('main')).toContainText('Zahnarzt');
+  await expect(page.locator('main')).toContainText('Einkaufen');
+  // Undo took everything back
+  await page.getByRole('button', { name: T('Undo') }).last().click();
+  await expect(page.locator('main')).not.toContainText('Einkaufen');
+  // repeat: change the dinner of tomorrow to repeat for 4 weeks
+  await page.locator(`[data-day="${addDays(TODAY, 1)}"]`).click();
+  await page.locator('[data-entry="wi4"]').click();
+  await page.locator('label', { hasText: T('4 more weeks|repeat') }).click();
+  await page.getByRole('button', { name: T('Save') }).click();
+  for (const n of [8, 15, 22, 29]) {
+    await page.goto(`./#/day/${addDays(TODAY, n)}`);
+    await expect(page.locator('main')).toContainText('Abendessen');
+  }
+  expect(errors, errors.join(" | ")).toEqual([]);
+});
