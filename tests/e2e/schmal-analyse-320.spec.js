@@ -49,3 +49,35 @@ test('at 320 and 390 px: chips, tabs and long names keep every word whole, the b
     expect.soft(bar, `${what}: the bottom bar labels are whole`).toEqual([]);
   }
 });
+
+// Gesamttest C6, more exactly (thread of the Gesamttest, 25.11.2026): in «Trips in this range» a long trip name ended in «…» with no way to
+// read the rest. Now the name breaks into a second line; nothing is cut and no word is broken inside.
+test('a long trip name in the trip list of Analyse wraps instead of ending in dots', async ({ page, context }, info) => {
+  test.skip(info.project.name !== 'phone', 'a phone width');
+  test.setTimeout(120_000);
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+  await page.clock.install({ time: new Date(D0) });
+  const healthDays = [];
+  for (let i = 0; i < 100; i++) {
+    const date = addDays(TODAY, -i);
+    healthDays.push({ date, restingHr: 50, steps: 7000, hrZones: { light: 60 + (i % 5) * 10, mod: 10 + (i % 4) * 5, vig: 5 + (i % 3), peak: i % 7 === 0 ? 4 : 0 }, src: 'google', at: `${date}T08:00:00Z` });
+  }
+  const names = ['Bikepacking ueber die Alpen mit sehr langem Namen fuer die Pruefung', 'Running day am See mit Freunden und Aussicht', 'Jura Wochenende'];
+  const trips = names.map((name, k) => ({ id: `e2e-c6-${k}`, name, domain: 'bike', status: 'done', startDate: addDays(TODAY, -8 - k * 10), days: 2 }));
+  await page.goto('./#/flow');
+  await ready(page);
+  await put(page, { healthDays, trips, rides: [{ id: 'e2e-c6-r0', date: addDays(TODAY, -8), tripId: 'e2e-c6-0', name: 'Etappe 1' }] });
+  for (const w of [320, 390]) {
+    await page.setViewportSize({ width: w, height: 700 });
+    await page.goto('./#/auswerten/analyse/cardioLoad');
+    await page.reload();
+    await ready(page);
+    const list = page.locator('[data-trip-list]');
+    await expect(list).toBeVisible();
+    await expect(list.locator('[data-trip-row]').first()).toContainText('Bikepacking ueber die Alpen');
+    expect.soft(await cutOff(page), `${w}: the trip names are not cut off`).toEqual([]);
+    expect.soft(await brokenWords(page), `${w}: no word broken inside`).toEqual([]);
+    expect.soft(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), `${w}: no sideways scroll`).toBeLessThanOrEqual(0);
+  }
+});
