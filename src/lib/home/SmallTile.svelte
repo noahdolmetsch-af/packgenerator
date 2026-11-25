@@ -36,9 +36,9 @@
 {/snippet}
 
 {#if href}
-  <a class="st {size}" class:hot {href} data-fn={fn} data-opens aria-label={label} onclick={onclick}>{@render inner()}</a>
+  <a class="st tap-fx {size}" class:hot {href} data-fn={fn} data-opens aria-label={label} onclick={onclick}>{@render inner()}</a>
 {:else}
-  <button type="button" class="st {size}" class:hot data-fn={fn} data-opens aria-label={label} {onclick}>{@render inner()}</button>
+  <button type="button" class="st tap-fx {size}" class:hot data-fn={fn} data-opens aria-label={label} {onclick}>{@render inner()}</button>
 {/if}
 
 <style>

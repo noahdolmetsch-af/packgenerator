@@ -14,6 +14,7 @@
   import { liveQuery } from 'dexie';
   import Skeleton from '../lib/ui/Skeleton.svelte';
   import { db } from '../lib/db.js';
+  import { doneBuzz } from '../lib/bedienung.svelte.js';
   import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
   import { tripStats, zoneName, RAIN } from '../lib/trips.js';
   import { hasBike, domainOf } from '../lib/domains.js';
@@ -142,6 +143,7 @@
       await db.trips.update(snap.id, { status: 'done' });
     });
     quickUndo = { prev, status: snap.status };
+    doneBuzz(); // «Fertig-Moment» (Noah 25.11.2026 «4a»)
   }
   async function undoQuick() {
     const u = quickUndo;

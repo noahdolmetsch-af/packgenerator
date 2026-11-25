@@ -16,6 +16,7 @@
   import { TONE_KEY, toneOf, SAYINGS, pick, stageKey } from '../tone.js';
   import { REWARD_KEY, rewardOf } from '../../flowms.js';
   import ToneSetting from '../ToneSetting.svelte';
+  import { doneBuzz } from '../../bedienung.svelte.js'; // «Fertig-Moment» (Noah 25.11.2026 «4a»): a new star buzzes twice
 
   const tq = liveQuery(() => db.settings.get(TONE_KEY));
   const tone = $derived(toneOf($tq?.value));
@@ -33,7 +34,10 @@
   let dialog = $state();
   const s = $derived(ui.star);
   $effect(() => {
-    if (s && dialog && !dialog.open) dialog.showModal();
+    if (s && dialog && !dialog.open) {
+      dialog.showModal();
+      doneBuzz();
+    }
     if (!s && dialog?.open) dialog.close();
   });
   const href = $derived(!s ? '#/flow/milestones' : `#/flow/sport/${encodeURIComponent(`act:${s.actId}`)}`);

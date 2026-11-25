@@ -5,7 +5,7 @@
  * with «Last place» = FE11) turns a plain start address into the chosen page; every page change is
  * kept as the last place.
  */
-import { OPS, OPS_KEY, opOf, buzzNow, START_KEY, LAST_KEY, SEEN_KEY, startOf, lastOf, startHash, DEFAULT_START } from './bedienung.js';
+import { OPS, OPS_KEY, opOf, buzzNow, DONE_PATTERN, START_KEY, LAST_KEY, SEEN_KEY, startOf, lastOf, startHash, DEFAULT_START } from './bedienung.js';
 import { quietNow } from './quiet.js';
 import { miniAppOf } from './miniapps.js';
 
@@ -81,6 +81,8 @@ export function setStart(key) {
 
 /** FE7: a short buzz when an item is ticked, when switched on. */
 export const buzz = () => ops.buzz && buzzNow();
+/** «Fertig-Moment» (Noah 25.11.2026 «4a»): the longer double buzz; the same switch, never tied to «reduce motion» (a buzz is no movement, «5a»). */
+export const doneBuzz = () => ops.buzz && buzzNow(undefined, DONE_PATTERN);
 /** Paket B (Noah 03.11.2026): the click when a bag rolls shut; the same switch as the tick buzz. */
 export const clickBuzz = () => ops.buzz && buzzNow(undefined, [10, 60, 18]);
 /** FE8: Today keeps its tips back now. */
