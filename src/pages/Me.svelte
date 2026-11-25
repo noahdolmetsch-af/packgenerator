@@ -323,9 +323,9 @@
           <li>
             <!-- 25.11.2026: «Frag Gemini» was 4 taps from Heute once the search no longer shows the Assistant above a question; Ich -> Assistent -> tab is 3 -->
             <a class="ich-row" href="#/assistent" data-me-row="assistent">
-              <span class="ich-ib"><MessageCircle size={18} aria-hidden="true" /></span>
+              <span class="ich-ib"><MessageCircle size={20} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Assistant')}</b><small>{t('Ask the app, ask Gemini, or let it help you plan. Free.')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+              <ChevronRight class="ich-chev" size={20} aria-hidden="true" />
             </a>
           </li>
           <li>
