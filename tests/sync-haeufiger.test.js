@@ -70,6 +70,34 @@ describe('wann ein Abgleich von selbst laeuft (auto.svelte.js)', () => {
     expect(POLL_MS).toBe(20_000);
   });
 
+  it('after thirty quiet rounds the pause is 3 minutes', async () => {
+    const { nextPollDelay, QUIET_MS, DEEP_MS, DEEP_AFTER } = await import('../src/lib/sync/auto.svelte.js');
+    expect(nextPollDelay(DEEP_AFTER - 1)).toBe(QUIET_MS);
+    expect(nextPollDelay(DEEP_AFTER)).toBe(DEEP_MS);
+    expect(DEEP_MS).toBe(180_000);
+  });
+
+  it('a tap after a long quiet time asks at once and brings the quick rhythm back', async () => {
+    const { watchSync, POLL_MS, DEEP_MS, DEEP_AFTER } = await import('../src/lib/sync/auto.svelte.js');
+    const win = fakeWin('visible');
+    watchSync(fakeDb(), win);
+    await vi.advanceTimersByTimeAsync(3_100);
+    // a long quiet time: ten quick rounds, twenty at 60 s, then every 3 minutes
+    await vi.advanceTimersByTimeAsync(POLL_MS * 10 + 60_000 * 21);
+    const deep = rounds;
+    await vi.advanceTimersByTimeAsync(DEEP_MS * 2);
+    expect(rounds - deep).toBeLessThanOrEqual(3);
+    expect(rounds - deep).toBeGreaterThanOrEqual(1);
+    const beforeTap = rounds;
+    win.fire('win:pointerdown');
+    await vi.advanceTimersByTimeAsync(10);
+    expect(rounds).toBe(beforeTap + 1);
+    // the quick rhythm is back: 20 s later the next round
+    await vi.advanceTimersByTimeAsync(POLL_MS);
+    expect(rounds).toBe(beforeTap + 2);
+    expect(DEEP_AFTER).toBe(30);
+  });
+
   it('asks every 20 s while in front, slows down when quiet, and does not run while hidden', async () => {
     const { watchSync, POLL_MS, QUIET_MS, QUIET_AFTER } = await import('../src/lib/sync/auto.svelte.js');
     const win = fakeWin('visible');

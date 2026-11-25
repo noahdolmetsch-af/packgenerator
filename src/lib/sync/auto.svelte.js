@@ -2,8 +2,10 @@
  * P8 «Automatischer Abgleich»: when a round runs by itself (only while the sync is switched on):
  * a moment after the app opens, when it comes back to the front, when the network is back,
  * 2 s after a change on this device, when the app is hidden with unsent changes, and every 20 s while it is
- * open and in front (every 60 s once nothing happened for a while; Noah 10.11.2026 «sofort», cost: one small
- * question to the server each time). One round at a time.
+ * open and in front (every 60 s once nothing happened for a while, every 3 minutes after half an hour of quiet;
+ * Noah 10.11.2026 «sofort», cost: one small question to the server each time; Noah 24.11.2026 «ja»: the server's
+ * day cap was full on 23.11. because of this asking). A tap or a key press after a quiet time asks at once and brings
+ * the quick rhythm back. One round at a time.
  *
  * sync is what the panel shows. Noah 24.10.2026: nothing about the sync ever shows outside Ich › Daten
  * und Backup: a change on both devices settles by itself (engine.js settle), an error waits for the next
@@ -15,11 +17,14 @@ import { syncHealth } from './health.js';
 import { NUDGE_KEY } from './nudge.js';
 
 export const AFTER_CHANGE_MS = 2_000;
-/** While the app is open and in front it asks the server for news this often; after QUIET_AFTER rounds without news every QUIET_MS. */
+/** While the app is open and in front it asks the server for news this often; after QUIET_AFTER rounds without news every QUIET_MS,
+ *  after DEEP_AFTER rounds without news every DEEP_MS (a computer left open in front asked 1440 times a day at 60 s). */
 export const POLL_MS = 20_000;
 export const QUIET_MS = 60_000;
 export const QUIET_AFTER = 10;
-export const nextPollDelay = (quiet) => (quiet >= QUIET_AFTER ? QUIET_MS : POLL_MS);
+export const DEEP_MS = 180_000;
+export const DEEP_AFTER = 30;
+export const nextPollDelay = (quiet) => (quiet >= DEEP_AFTER ? DEEP_MS : quiet >= QUIET_AFTER ? QUIET_MS : POLL_MS);
 /** Noah 10.11.2026: a round on the phone hung for minutes and everything waited behind it. A round is asked to stop
  *  at its next checkpoint after ROUND_MAX_MS; when it still does not end, the next one may start FREE_AFTER_MS later. */
 export const ROUND_MAX_MS = 3 * 60_000;
@@ -157,7 +162,7 @@ export function watchSync(db, win = globalThis) {
     error: () => {},
   });
   setTimeout(() => runSync(db), 3000);
-  // while the app is in front: ask for news every 20 s (60 s when it is quiet); hidden: no timer at all
+  // while the app is in front: ask for news every 20 s (60 s when it is quiet, 3 min when it is very quiet); hidden: no timer at all
   let pollTimer = null;
   const poll = () => {
     clearTimeout(pollTimer);
@@ -185,5 +190,13 @@ export function watchSync(db, win = globalThis) {
     wake();
     runSync(db);
   });
+  // a tap or a key press after a quiet time: ask at once and bring the quick rhythm back (the person is here again)
+  const touched = () => {
+    if (quiet < QUIET_AFTER || win.document?.visibilityState === 'hidden') return;
+    wake();
+    if (sync.on) runSync(db);
+    poll();
+  };
+  for (const ev of ['pointerdown', 'keydown']) win.addEventListener?.(ev, touched, { passive: true });
   poll();
 }
