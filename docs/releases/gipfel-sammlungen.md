@@ -1,6 +1,6 @@
 # Gipfelbuch: Namen und Sammlungen
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Noah «alle 1-5 zusammen» (Thread «Gipfelbuch ausbauen»), Ideen 1 und 4 von 5
+PR #1781 · 24.11.2026 · Auftrag: Noah «alle 1-5 zusammen» (Thread «Gipfelbuch ausbauen»), Ideen 1 und 4 von 5
 
 ## Was ist neu
 - Unter «Gefunden in deinen Fahrten» stehen jetzt auch Pässe und Gipfel mit ihrem Namen, Höhe und Position. Ein Tipp auf «Ins Gipfelbuch» trägt sie ein (mit Rückgängig); «Ändern» öffnet das Fenster, «Nicht dabei» legt den Vorschlag weg. Ist der Ort schon im Buch, steht «Nochmal bei …» (ein weiterer Besuch).

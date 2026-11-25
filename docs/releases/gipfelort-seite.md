@@ -1,6 +1,6 @@
 # Eine Seite für jeden Gipfel
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Noah «alle 1-5 zusammen» (Thread «Gipfelbuch ausbauen»), Idee 3 von 5
+PR #1781 · 24.11.2026 · Auftrag: Noah «alle 1-5 zusammen» (Thread «Gipfelbuch ausbauen»), Idee 3 von 5
 
 ## Was ist neu
 - Jeder Ort im Gipfelbuch hat eine eigene Seite `#/flow/gipfelbuch/<id>` (Gipfelbuch › Ort antippen › «Seite dieses Ortes öffnen»).
@@ -22,10 +22,10 @@ PR #<Nummer> · 24.11.2026 · Auftrag: Noah «alle 1-5 zusammen» (Thread «Gipf
 - «Fertig-Regel»: Seite = Eintrag `f.gipfelbuch` in `features.js` (Text, Handbuch, Worte); Absprung = Link in der Detail-Karte und in der Sammel-Wand; Gut zu wissen = bestehender Satz von `f.gipfelbuch`; leerer Zustand = Seite eines unbekannten Ortes; als Nächstes = Zeile «Als Nächstes» (alle Orte, Neuland, Sammel-Wand); App-Stand = Gipfelbuch-Zeile ergänzt.
 
 ## Entscheide (eigene Datei `docs/decisions/<name>.md`)
-- 24.11.2026: Gipfelbuch ausbauen in vier kleinen PRs (Seite pro Ort, Sammlungen und Erkennen, Karte mit Lücken, «Welcher Berg ruft?») – `docs/decisions/gipfelort-seite.md`
+- 24.11.2026: Gipfelbuch ausbauen: erst vier kleine PRs geplant (Seite pro Ort, Sammlungen und Erkennen, Karte mit Lücken, «Welcher Berg ruft?»), dann Noahs Regel «Kleine Änderungen derselben Seite in EINEN PR»: ein PR – `docs/decisions/gipfelort-seite.md`
 
 ## Stand im Plan (roadmap.md / vorhaben.md)
-- Gipfelbuch ausbauen: Idee 3 von 5 online, die anderen folgen als eigene PRs.
+- Gipfelbuch ausbauen: alle fünf Ideen und das Design in diesem einen PR.
 
 ## Prüfschritte (nach dem Merge auf der echten Seite)
 1. Gipfelbuch öffnen, einen Ort antippen, «Seite dieses Ortes öffnen» tippen.

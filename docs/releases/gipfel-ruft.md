@@ -1,6 +1,6 @@
 # «Welcher Berg ruft?»: die Rechnung für Heute
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Noah «alle 1-5 zusammen» (Thread «Gipfelbuch ausbauen»), Idee 5 von 5
+PR #1781 · 24.11.2026 · Auftrag: Noah «alle 1-5 zusammen» (Thread «Gipfelbuch ausbauen»), Idee 5 von 5
 
 ## Was ist neu
 - Nichts Sichtbares in diesem PR: die Rechnung liegt bereit (`src/lib/gipfelbuch-ruft.js`, reine Funktion `bergRuft` und der Satz `ruftSatz`). Die Zeile auf Heute hängt der Heute-Thread an (abgesprochen am 24.11.2026); er speist sie mit der Antwort des Tages (`dayAnswer`, Stufe `rest | easy | normal | hard`), dem Wetter von heute (`{ rainMm, wind }`, zum Beispiel aus `weekBest` für heute) und dem Wohnort.

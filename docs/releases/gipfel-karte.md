@@ -1,6 +1,6 @@
 # Gipfel-Karte mit Lücken
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Noah «alle 1-5 zusammen» (Thread «Gipfelbuch ausbauen»), Idee 2 von 5
+PR #1781 · 24.11.2026 · Auftrag: Noah «alle 1-5 zusammen» (Thread «Gipfelbuch ausbauen»), Idee 2 von 5
 
 ## Was ist neu
 - Neue Seite `#/flow/gipfelbuch/karte` («Karte der Gipfel und Pässe»), erreichbar über «Auf der Karte ansehen» bei den Sammlungen und die Zeile am Ende des Gipfelbuchs.
