@@ -6,6 +6,7 @@
  */
 import { t, tn, num } from '../i18n.svelte.js';
 import { FEATURES } from '../features.js';
+import { topicName } from '../review/topicname.js';
 
 /** The kinds this file adds to `KIND` (search.js): name (English key) and how many rows show before «N more». */
 export const MORE_KIND = {
@@ -36,7 +37,7 @@ export function moreGroups(hit, data = {}) {
       .sort(byDay)
       .map((r) => ({ id: r.id, title: r.name || t('Ride'), sub: [day(r.day), r.km ? `${num(r.km)} km` : '', r.bike, r.src === 'Strava' ? 'Strava' : ''].filter(Boolean).join(' · '), href: '#/trips/rides' })),
     place: places.filter((p) => hit(p.name)).map((p) => ({ id: p.id, title: p.name, sub: p.ele ? `${num(p.ele)} m` : '', href: '#/flow/gipfelbuch' })),
-    learning: learnings.filter((l) => hit(l.topic, l.rule, l.action)).map((l) => ({ id: l.id, title: [l.rule, l.action].filter(Boolean).join(' · ').slice(0, 80) || l.topic, sub: l.topic ?? '', href: '#/debrief/learnings' })),
+    learning: learnings.filter((l) => hit(l.topic, l.topic ? topicName(l.topic) : '', l.rule, l.action)).map((l) => ({ id: l.id, title: [l.rule, l.action].filter(Boolean).join(' · ').slice(0, 80) || (l.topic ? topicName(l.topic) : ''), sub: l.topic ? topicName(l.topic) : '', href: '#/debrief/learnings' })),
     care: visits
       .filter((v) => hit(v.shop, v.parts, v.bike, v.date))
       .sort((a, b) => String(b.date).localeCompare(String(a.date)))
