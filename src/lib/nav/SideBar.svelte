@@ -96,7 +96,7 @@
                   <!-- «Navigation schlank» (Noah 24.11.2026 «was ja»): the page under the lit tab (a chip, e.g. «Mein Tag» under «Woche») is named in the sidebar too, so the row never says «Woche» while you are on «Mein Tag» -->
                   {@const sub = tab === x.key && x.subs?.length > 1 ? subOf(p.key, hash) : null}
                   {@const subName = sub && tabLabel(p.key, sub).trim() !== tabLabel(p.key, x).trim() ? tabLabel(p.key, sub) : ''}
-                  <li><a href={x.href} class:cur={tab === x.key && !subName} class:parent={!!subName} aria-current={tab === x.key && !subName ? 'page' : undefined}>{tabLabel(p.key, x)}</a>{#if subName}<a class="subnow cur" href={sub.href} aria-current="page" data-side-sub>{subName}</a>{/if}</li>
+                  <li><a href={x.href} class:cur={tab === x.key && !subName} class:parent={!!subName} aria-current={tab === x.key ? (subName ? 'true' : 'page') : undefined}>{tabLabel(p.key, x)}</a>{#if subName}<a class="subnow cur" href={sub.href} aria-current="page" data-side-sub>{subName}</a>{/if}</li>
                 {/each}
               </ul>
             {/if}
