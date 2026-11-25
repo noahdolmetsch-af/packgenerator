@@ -19,6 +19,18 @@ Noah 24.11.2026 17:19: «ich möchte für jeden PR vor merge bilder sehen … di
 - Merge-Prüfung (Basis `main`, konfliktfrei, linearer Zweig): `CLAUDE.md`.
 ~~~~
 
+## Ersetzt am 25.11.2026 20:09: «höchstens 5 PRs gleichzeitig in der Prüfung» (Block 4)
+
+Noah «neu 5 gleichzeitig» 25.11.2026 01:26 (Fassung in `docs/regeln.md` Block 4 bis 25.11.2026 20:09), wörtlich: «**höchstens 5 PRs gleichzeitig in der Prüfung auf GitHub** (4 seit 24.11.2026 23:18, davor 5–6), **bis 8 offen insgesamt; 6–10 Threads arbeiten gleichzeitig.** Ein neuer PR wird erst geöffnet, wenn in der Prüfung weniger als 5 sind und insgesamt weniger als 8 offen; sonst wartende PRs abbauen helfen.» Ersetzt durch Noah «a» 25.11.2026 20:09 (Frage «6 statt 5 gleichzeitig: a) ja, mit Notbremse, b) bei 5 bleiben»): höchstens 6, mit Notbremse (zweimal main rot an einem Tag: für den Rest des Tages wieder 5).
+
+## Ersetzt am 25.11.2026 20:08: «Der Bündler vergibt Plätze in dieser Reihenfolge» (Block 4)
+
+Satz aus der Reihenfolge der Wichtigkeit (Noah 24.11.2026 23:18), wörtlich: «Der Bündler vergibt Plätze in dieser Reihenfolge; Reparaturen von rotem main gehen immer vor.» Geändert durch Noah «a» 25.11.2026 20:08 («Freie Plätze: a) sofort mit dem nächsten fertigen Paket füllen, Mein Tag bleibt beim Mergen vorn»): Freie Prüfplätze werden sofort gefüllt, die Reihenfolge der Wichtigkeit gilt beim Mergen; Reparaturen von rotem main gehen weiter immer vor.
+
+## Ersetzt am 25.11.2026 08:48: Reihenfolge der Wichtigkeit ohne «täglich Spürbares zuerst» (Block 4)
+
+Noah 24.11.2026 23:18 (Fassung in `docs/regeln.md` Block 4 bis 25.11.2026), wörtlich: «**Reihenfolge der Wichtigkeit** (Noah 24.11.2026 23:18): Wenn mehrere Pakete auf einen Platz warten oder etwas als Nächstes gebaut wird, kommt zuerst **1. Auswerten, 2. App schöner, 3. Suche, 4. Rennen, 5. Versteckte Inhalte, 6. weitere Bereiche, 7. alle anderen**. Der Bündler vergibt Plätze in dieser Reihenfolge; Reparaturen von rotem main gehen immer vor.» Ergänzt durch Noah «Aa Ba» 25.11.2026 08:48 (Antwort «B a»): zuerst das täglich Spürbare (schnellere App, Mein Tag, Abend-Fenster), dann die Liste; Reparaturen von rotem main und Wackel-Fixes gehen ganz vor.
+
 ## Ersetzt am 25.11.2026 01:03: «bei geänderter Technik laufen weiter alle Zeilen» («Ausprobieren» im PR, Block 7)
 
 Noah «1a» 03.11.2026 (`docs/releases/ausprobieren-nur-neue-zeilen.md`, wörtlich): «Der Handy-Test «Ausprobieren» (jede Zeile unter Ich › Was ist neu führt an den richtigen Ort) tippt in einem PR nur noch die Zeilen der eigenen News-Datei. … Die Nacht-Prüfung tippt weiter alle Zeilen. … Ändert ein PR die Update-Liste, die Ziel-Tabelle, `src/lib/know/`, die Seite «Was ist neu» oder die Test-Helfer, laufen weiter alle Zeilen.» Ersetzt für den letzten Satz durch Noah «a» auf der Karte vom 25.11.2026 01:03 (Option «Neueste 200, Rest nachts»): Bei geänderter Technik tippt der PR nur die neuesten 200 Zeilen plus die eigenen; alle übrigen prüft der Nachtlauf. Grund: solche PRs tippten rund 1400 Zeilen, alle 85 Teile lagen in Teil 1 und liefen ins Zeitlimit (PR 1640, dreimal).
