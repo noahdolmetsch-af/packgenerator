@@ -1,6 +1,6 @@
 # «Ausprobieren»: fünf Neuigkeits-Zeilen führen wieder an die Stelle (Auswerten, Touren-Vorschläge)
 
-PR #<Nummer> · 25.11.2026 · Auftrag: Wackel-Wächter (Thread «Wackel-Tests zuverlässig machen»; gemeldet vom Thread «Tests schneller machen», weil der Nachtlauf jetzt die neuesten 200 Zeilen tippt)
+PR #1743 · 25.11.2026 · Auftrag: Wackel-Wächter (Thread «Wackel-Tests zuverlässig machen»; gemeldet vom Thread «Tests schneller machen», weil der Nachtlauf jetzt die neuesten 200 Zeilen tippt)
 
 ## Was ist neu
 - Nichts Sichtbares geändert, nur das Ziel von fünf Zeilen in «Was ist neu». Sie waren kein Wackler, sondern durch Umbauten veraltet und fielen nur nicht auf, weil bisher kein PR-Lauf sie tippte:

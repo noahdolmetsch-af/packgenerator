@@ -1,6 +1,6 @@
 # Test «Werte eingeben»: das Warten liest ein Feld, das vor dem Speichern noch fehlt
 
-PR #<Nummer> · 25.11.2026 · Auftrag: Wackel-Wächter (Thread «Wackel-Tests zuverlässig machen»; `dateneingabe.spec.js:69`, `TypeError … pressureF`, gemeldet vom Thread «Tempo» auch auf unverändertem main)
+PR #1743 · 25.11.2026 · Auftrag: Wackel-Wächter (Thread «Wackel-Tests zuverlässig machen»; `dateneingabe.spec.js:69`, `TypeError … pressureF`, gemeldet vom Thread «Tempo» auch auf unverändertem main)
 
 ## Was ist neu
 - Nichts Sichtbares geändert, nur Test für «Werte eingeben». Der Test wartet mit `expect.poll`, bis der Soll-Druck im Velo gespeichert ist, und las dabei `…find(bike).fit.pressureF`. Solange das Velo noch keinen Eintrag `fit` hat (vor dem ersten Speichern), wirft das ein `TypeError`, und das Warten bricht ab, statt nochmal zu lesen.

@@ -1,6 +1,6 @@
 # Test «Erinnerung»: Neuladen und Seitenwechsel erst, wenn das geschlossene Fenster seinen Verlaufsschritt abgegeben hat
 
-PR #<Nummer> · 25.11.2026 · Auftrag: Regel 3 / Wackel-Wächter (Thread «Wackel-Tests zuverlässig machen»; `erinnerung.spec.js:29`, Handy, `net::ERR_ABORTED` bei `page.goto('./buchen/#…')`, gemeldet auf PR 1738)
+PR #1743 · 25.11.2026 · Auftrag: Regel 3 / Wackel-Wächter (Thread «Wackel-Tests zuverlässig machen»; `erinnerung.spec.js:29`, Handy, `net::ERR_ABORTED` bei `page.goto('./buchen/#…')`, gemeldet auf PR 1738)
 
 ## Was ist neu
 - Nichts Sichtbares geändert, nur Test für die Erinnerung an die Kunden. Ein geschlossenes Fenster nimmt seinen Verlaufsschritt eine Aufgabe später zurück (`backclose.js`). Ging der Test genau dazwischen neu laden oder auf `/buchen/` wechseln, brach dieser Rückschritt die Navigation ab (`ERR_ABORTED`). Ein Mensch ist dafür zu langsam.
