@@ -26,6 +26,7 @@
   import { mondayOf, shiftDay, PLAN_KEY, plannerSessions as sessionsOf } from '../../lib/training.js';
   import { WEEKPLAN_KEY, GOAL_TYPES, FIXABLE, MAX_COUNT, MIN_HOURS, MAX_HOURS, LIGHT_SHARE, HARD_SHARE, TYPES, planOf, isSummer, defaultsFor, setHours, stepCount, toggleFix, setFixTime, modeCfg, followsHours, planWeek, plannedMins, countsMins } from '../../lib/training/wochenplan.js';
   import { startUnitDone } from '../../lib/flow/ui.svelte.js';
+  import { timedrag } from '../../lib/ui/timedrag.js';
   import { needsSheet as needsUnitSheet, removeUnitEntries } from '../../lib/flow/unitdone.js';
   import { WEEKLOG_KEY, QUIET, logOf, weekLog, withSnapshot, syncTpDone, tpTicks, tpSnapUnits, setDone, dismiss, setPins, movePin, clearPin, setMode, setReleased, streakNow, progress, suggest, pastWeeks } from '../../lib/training/wochenlog.js';
   import { UNIT_NAME, UNIT_HINT, LOAD_WORD, NOTE_TEXT, WARN_TEXT, whyOf, timeChoices, lengthOf, hoursOf, reachedPct, EXAMPLE_MONDAY } from '../../lib/training/wochenplan-text.js';
@@ -203,6 +204,11 @@
     return queue;
   };
   const unmoveUnit = (u) => changePins((cur) => clearPin(cur, monday, u.id, today), t('{what} is back on the suggestion.', { what: nameOf(u.type) }));
+  // «Termine ziehen» (Noah 24.11.2026): a unit pulled onto another day does the same as «Move» (day; the time stays), with the same Undo.
+  // Units from TrainingPeaks and the match plan are fixed and do not move. A finger: press and hold, then pull.
+  let pulled = $state(null); // { id, dy, over } while a unit is dragged
+  const pullPreview = (u) => (d) => (pulled = d ? { id: u.id, dy: d.dy, over: d.over } : null);
+  const pullDone = (u) => (g) => g.over != null && Number(g.over) !== u.d && moveUnit(u, Number(g.over), null);
   const whyText = (u) => {
     const w = whyOf(u.why);
     return t(w.text, { day: dayName(u.d), a: w.a ? t(w.a) : '', b: w.b ? t(w.b) : '' });
@@ -427,14 +433,14 @@
             <h2 id="wp-days" class="vh">{t('The days of the week')}</h2>
             {#each [0, 1, 2, 3, 4, 5, 6] as d (d)}
               {@const list = rows(d)}
-              <div class="day" data-day={d}>
+              <div class="day" class:drop={pulled && pulled.over === String(d)} data-day={d}>
                 <div class="dn">
                   <b>{dayName(d, 'short')}{#if isNow}{' '}{new Date(`${shiftDay(monday, d)}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', day: 'numeric' })}.{/if}</b>
                   <span class="lpill {list.length ? week.dayLoad[d] : 'F'}">{t(LOAD_WORD[list.length ? week.dayLoad[d] : 'F'])}</span>
                 </div>
                 <div class="evs">
                   {#each list as u (u.id)}
-                    <div class="u k-{TYPES[u.type].kind}" class:quiet={quiet(u)} class:withtick={live} class:ticked={live && done[u.id]} class:let-go={live && released.includes(u.id)} data-unit={u.id}>
+                    <div class="u k-{TYPES[u.type].kind}" class:quiet={quiet(u)} class:withtick={live} class:ticked={live && done[u.id]} class:let-go={live && released.includes(u.id)} class:td-lift={pulled?.id === u.id} style:transform={pulled?.id === u.id ? `translateY(${pulled.dy}px)` : undefined} data-unit={u.id} use:timedrag={{ day: String(d), enabled: isNow && !quiet(u), whole: true, onpreview: pullPreview(u), oncommit: pullDone(u) }}>
                       {#if live}<label class="tk"><input type="checkbox" class="tick" checked={!!done[u.id]} disabled={released.includes(u.id)} onchange={(e) => tick(u, e.currentTarget.checked, e.currentTarget)} aria-label={t('Done: {what} on {day}', { what: nameOf(u.type), day: dayName(d) })} data-wp-tick={u.id} /></label>{/if}
                       <time>{u.t}</time>
                       <span class="t">{nameOf(u.type)}</span>
@@ -691,11 +697,27 @@
     min-width: 0;
   }
   .u {
+    -webkit-touch-callout: none;
     display: grid;
     grid-template-columns: 3.4em minmax(0, 1fr) auto;
     gap: var(--sp-2);
     margin: 0;
     align-items: baseline;
+  }
+  .u time,
+  .u .t,
+  .u .m {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .u.td-lift {
+    background: var(--paper);
+    border-radius: var(--r-card, 12px);
+  }
+  .day.drop {
+    outline: 2px dashed var(--accent);
+    outline-offset: -2px;
+    border-radius: var(--r-card, 12px);
   }
   .u .t {
     min-width: 0;
