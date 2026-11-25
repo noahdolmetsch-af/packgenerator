@@ -4,8 +4,8 @@ export default {
   lead: 'The suggestions now have 200 mountain bike tours from the official network, hard for fitness first, and a map of Switzerland.',
   points: [
     { text: 'A map of Switzerland shows every tour of the list as a dot with its line; tap a dot to open the tour, tap a canton to show only its tours', go: { href: '#/trips/vorschlaege', steps: [{ sel: '[data-vs-view="map"]' }], where: 'Trips › Dreams › Tour suggestions, «Map» above the tours.' } },
-    { text: 'The nearest tours come first; fitness «Difficult» is on at the start, the skill level is shown and can be filtered', go: { href: '#/trips/vorschlaege', steps: [{ sel: '[data-vs-cond-group]' }] } },
-    { text: 'Filter by canton: every canton with official routes has tours', go: { href: '#/trips/vorschlaege', steps: [{ sel: '[data-vs-region="sg"]' }] } },
+    { text: 'The nearest tours come first; fitness «Difficult» is on at the start, the skill level is shown and can be filtered', go: { href: '#/trips/vorschlaege', steps: [{ sel: '[data-vs-filters-open]', unless: '[data-vs-cond-group]' }, { sel: '[data-vs-cond-group]' }] } },
+    { text: 'Filter by canton: every canton with official routes has tours', go: { href: '#/trips/vorschlaege', steps: [{ sel: '[data-vs-filters-open]', unless: '[data-vs-region="sg"]' }, { sel: '[data-vs-region="sg"]' }] } },
   ],
   small: [{ box: 'new', text: 'Switch between «List» and «Map» above the tours', go: { href: '#/trips/vorschlaege', steps: [{ sel: '[data-vs-view="list"]' }] } }],
   test: ['Open Trips › Dreams › Tour suggestions and tap «Map»: the cantons, the dots and the lines show, with the number of tours in each canton.', 'Tap a canton (for example SG): only its tours stay on the map and in the list; tap it again to show all.', 'Tap a dot: the tour opens with its profile and «Why this suggestion?».', 'Switch «Medium» on under Fitness: more tours appear, the strongest of cantons without a hard tour among them.'],
