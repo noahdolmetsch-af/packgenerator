@@ -30,6 +30,7 @@
   import OwnSheet from '../lib/abfragen/OwnSheet.svelte';
   import RuleSheet from '../lib/abfragen/RuleSheet.svelte';
   import Auswertung from '../lib/abfragen/Auswertung.svelte';
+  import SpellHint from '../lib/abfragen/SpellHint.svelte';
   import { abQuery, ensureConfig, saveConfig, saveDataCfg } from '../lib/abdb.js';
   import { MAX_PER_DAY, DATA_QUESTIONS, VALUES, ruleList, moveRule, ruleName, setRuleName, dropRule, restoreRule, goneRules, ruleOn, setRule, ruleVal, setVal, ruleText, setText, resetRule, ruleChanged, ruleGap, GAP_DAYS, randomOn, setRandom, neverCount, bringBack as bringNeverBack } from '../lib/datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
   import { OWN_AREA, QUESTION, allQuestions, MERGED_INTO, configOf, settingOf, setOn, setEvery, putOwn, newOwn, counts, stampOf, setRounds, setMainOnly, timeOf, perDay, BUSY_DAY, areasOf, questionsIn, renameQuestion, moveToArea, deleteQuestion, restoreQuestion, goneQuestions, moveQuestion, renameArea, addArea, deleteArea, moveArea, listChanged, resetList } from '../lib/abfragen.js';
@@ -93,6 +94,7 @@
   const rules = $derived(ruleList(dcfg, customQs));
   const goneRs = $derived(goneRules(dcfg));
   let ruleEdit = $state(false);
+  let typed = $state({}); // «Schreibweise»: the text of a rule just saved, per rule (the hint under the field)
   let ruleFor = $state(undefined); // undefined: closed; null: a new rule; an own question: change it
   let renamingRule = $state(null);
   const ruleTitle = (x) => (x.q ? x.q.rule.title || x.q.text : (ruleName(dcfg, x.id) ?? t(x.rule.title)));
@@ -290,7 +292,8 @@
               <div class="dset">
                 {#if r}
                   <label><span>{t(r.param.label)}</span><input class="inp num" type="number" min={r.param.min} max={r.param.max} step={r.param.step} value={ruleVal(dcfg, r.id)} onchange={(e) => saveD(setVal(dcfg, r.id, e.currentTarget.value))} data-rule-val={r.id} /></label>
-                  <label class="wide"><span>{t('The question|data')}</span><input class="inp" type="text" maxlength="140" value={ruleText(dcfg, r.id) ?? ''} placeholder={t(DATA_QUESTIONS[r.qid].text)} onchange={(e) => saveD(setText(dcfg, r.id, e.currentTarget.value))} data-rule-text={r.id} /></label>
+                  <label class="wide"><span>{t('The question|data')}</span><input class="inp" type="text" maxlength="140" value={ruleText(dcfg, r.id) ?? ''} placeholder={t(DATA_QUESTIONS[r.qid].text)} onchange={(e) => { saveD(setText(dcfg, r.id, e.currentTarget.value)); typed[r.id] = e.currentTarget.value; }} data-rule-text={r.id} /></label>
+                  <SpellHint text={typed[r.id] ?? ''} ontake={(v) => { saveD(setText(dcfg, r.id, v)); typed[r.id] = ''; }} />
                 {:else}
                   <button type="button" class="btn" onclick={() => (ruleFor = x.q)} data-rule-change={x.id}><Pencil size={16} aria-hidden="true" />{t('Change this rule')}</button>
                 {/if}
