@@ -151,6 +151,21 @@ test('every function is visible on its home page', async ({ page, context }, inf
       await page.locator('dialog[data-help][open]').waitFor({ state: 'detached', timeout: 3000 }).catch(() => {});
       await page.waitForFunction(() => !history.state?.pgDialog, null, { timeout: 3000 }).catch(() => {}); // its history entry goes away a moment later
     }
+    // Tour-Seite: Hauptsache zuerst (Noah 24.11.2026 «1-5a»): the packing page shows four jump chips and «All n», which opens the window
+    // «On this page» with every jump mark. What the page itself does not show, that window shows once it is open (like the «?» window above).
+    if (found.includes(false)) {
+      const jumpAll = page.locator('[data-jump-all]');
+      if (await jumpAll.count()) {
+        await jumpAll.first().click();
+        await page.locator('[data-jump-sheet]').waitFor();
+        await page.waitForTimeout(300);
+        const inSheet = await look(true);
+        found = found.map((f, i) => f || inSheet[i]);
+        await page.keyboard.press('Escape');
+        await page.locator('[data-jump-sheet]').waitFor({ state: 'detached', timeout: 3000 }).catch(() => {});
+        await page.waitForFunction(() => !history.state?.pgDialog, null, { timeout: 3000 }).catch(() => {});
+      }
+    }
     list.forEach((x, i) => found[i] || missing.push(`${x.id} «${x.name}» on ${href}`));
   }
   info.annotations.push({ type: 'checked', description: `${Object.values(byPage).flat().length} functions on ${Object.keys(byPage).length} pages` });

@@ -37,6 +37,9 @@ test('Training: «Härter» and «Leichter» switch the week, never both, and th
   await ready(page);
   const row = page.locator('[data-week-modes]');
   await expect(row.locator('[data-wm-mode]')).toHaveCount(4);
+  // Noah 23.11.2026 «3a»: with a weekly plan «Suggest the week» is the way to the plan, and the older suggestion is not shown
+  await expect(row.locator('[data-wm-suggest]')).toHaveAttribute('href', '#/flow/wochenplan');
+  await expect(page.locator('[data-suggest]')).toHaveCount(0);
   await expect(row.locator('[data-wm-mode="hard"]')).toHaveAttribute('aria-pressed', 'false');
   await row.locator('[data-wm-mode="hard"]').click();
   await expect(row.locator('[data-wm-mode="hard"]')).toHaveAttribute('aria-pressed', 'true');

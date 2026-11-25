@@ -212,3 +212,20 @@ export async function refreshAll(db, { doFetch, now = Date.now(), force = false,
   await db.settings.put({ key: SP_KEY, value: JSON.parse(JSON.stringify({ cals })) });
   return { n: done.length, failed: done.filter((x) => !x.r.ok).map((x) => x.id) };
 }
+
+/**
+ * The team dates for the weekly plan (Noah 23.11.2026 «1a»): when a calendar of the sport is on and was fetched, `[{ team: 'on' }]`
+ * and one `{ team: 'date', id, day, time, mins, name }` per date (training and game alike); otherwise `[]`, and the plan keeps its own
+ * ice hockey. Only for the planner (`plannerSessions` of lib/training.js), never for a list. Pure.
+ */
+export function teamSessions(prefs, act = DEFAULT_ACT) {
+  const cals = (prefs?.cals ?? []).filter((c) => c.on && c.act === act && c.fetchedAt);
+  if (!cals.length) return [];
+  const out = [{ id: 'sp-on', team: 'on', act }];
+  for (const e of allEvents({ cals }, { act })) {
+    const mins = e.from && e.to && e.to > e.from ? toMin(e.to) - toMin(e.from) : 0;
+    out.push({ id: e.id, team: 'date', act, day: e.day, time: e.from && !e.allDay ? e.from : '', mins, name: e.title });
+  }
+  return out;
+}
+const toMin = (hm) => Number(hm.slice(0, 2)) * 60 + Number(hm.slice(3, 5));

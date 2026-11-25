@@ -9,7 +9,7 @@
   import { Check, Clock, TriangleAlert, Minus, ChevronRight, ChevronDown } from '@lucide/svelte';
 
   /** rows: ampelRows(); onact(act) runs the tap of a line. */
-  let { rows = [], onact = null } = $props();
+  let { rows = [], onact = null, stays = '' } = $props();
   const head = $derived(ampelHead(rows));
   // lines with a tap come first as buttons; the calm ones (done, or nothing to fix) share one short line each
   const todo = $derived(onact ? rows.filter((r) => r.act) : []);
@@ -59,7 +59,7 @@
         {/each}
       </ul>
     {/if}
-    <p class="fine">{t('Only a look at your data; nothing is blocked. Tap a line to fix it.')}</p>
+    <p class="fine">{stays ? `${stays} ` : ''}{t('Only a look at your data; nothing is blocked. Tap a line to fix it.')}</p>
   </details>
 {/if}
 

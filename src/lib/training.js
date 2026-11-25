@@ -374,8 +374,8 @@ export const planOf = (v) => (Array.isArray(v?.sessions) ? v.sessions.map(cleanS
  * a list of days. Not sessions: they have no hours and show in no list; only the weekly plan reads them and plans no free unit on them.
  */
 export const restOf = (v) => (Array.isArray(v?.rest) ? [...new Set(v.rest.filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(String(d))))].sort().slice(0, 60) : []);
-/** The sessions as the weekly plan reads them: the sessions plus one entry `{ rest: true, day }` per free day. For the planner only, never for a list. */
-export const plannerSessions = (v) => [...planOf(v), ...restOf(v).map((day) => ({ id: `rest-${day}`, day, src: 'tp', rest: true, kind: 'other', mins: 0, name: '' }))];
+/** The sessions as the weekly plan reads them: the sessions plus one entry `{ rest: true, day }` per free day, plus the team dates of Spielerplus (`teamSessions` of lib/spielerplus.js, optional). For the planner only, never for a list. */
+export const plannerSessions = (v, team = []) => [...planOf(v), ...restOf(v).map((day) => ({ id: `rest-${day}`, day, src: 'tp', rest: true, kind: 'other', mins: 0, name: '' })), ...team];
 /** The plan record with the new sessions, the free days kept (a writer of the sessions must not lose them). */
 export const planValue = (v, sessions) => ({ sessions, ...(restOf(v).length ? { rest: restOf(v) } : {}) });
 

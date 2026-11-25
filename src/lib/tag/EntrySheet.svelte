@@ -14,7 +14,7 @@
   let { item = null, day = '', time = '', onsave, ondelete, onclose } = $props();
 
   /* svelte-ignore state_referenced_locally */
-  let f = $state({ title: item?.title ?? '', kind: item?.kind ?? 'date', day: item?.day ?? day, time: item?.time ?? time, mins: item?.mins ?? '' });
+  let f = $state({ title: item?.title ?? '', kind: item?.kind ?? 'date', day: item?.day ?? day, time: item?.time ?? time, mins: item?.mins ?? '', repeat: 0 });
   let error = $state('');
   let dialog;
   let input;
@@ -36,11 +36,11 @@
       return;
     }
     const mins = Math.round(Number(f.mins));
-    await onsave?.({ title: f.title.trim(), kind: f.kind, day: f.day, time: f.time || '', mins: mins >= 5 && mins <= 480 ? mins : null });
-    dialog.close();
+    await onsave?.({ title: f.title.trim(), kind: f.kind, day: f.day, time: f.time || '', mins: mins >= 5 && mins <= 480 ? mins : null, repeat: Number(f.repeat) || 0 });
+    dialog?.close();
   }
   async function del() {
-    dialog.close();
+    dialog?.close();
     await ondelete?.();
   }
 </script>
@@ -76,6 +76,14 @@
       <div class="fld">
         <label class="flbl" for="es-mins">{t('Minutes|length')}</label>
         <input id="es-mins" class="inp" type="number" min="5" max="480" step="5" inputmode="numeric" bind:value={f.mins} />
+      </div>
+    </div>
+    <div class="fld">
+      <span class="flbl" id="es-rep">{t('Repeat every week')}</span>
+      <div class="seg" role="radiogroup" aria-labelledby="es-rep">
+        <label class:on={f.repeat === 0}><input type="radio" name="es-rep" value={0} bind:group={f.repeat} /> {t('Not repeated|repeat')}</label>
+        <label class:on={f.repeat === 4}><input type="radio" name="es-rep" value={4} bind:group={f.repeat} data-repeat="4" /> {t('4 more weeks|repeat')}</label>
+        <label class:on={f.repeat === 8}><input type="radio" name="es-rep" value={8} bind:group={f.repeat} data-repeat="8" /> {t('8 more weeks|repeat')}</label>
       </div>
     </div>
     <p class="hint">{t('Without a time, the entry stands above the timeline. Without minutes, the usual length counts.')}</p>

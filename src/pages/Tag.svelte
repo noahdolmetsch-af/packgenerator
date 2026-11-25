@@ -5,24 +5,27 @@
    * Heute and Abhaken show, so nothing is counted or stored twice. Rules of the layout: src/lib/tag/timeline.js.
    * Address: #/day (today) and #/day/YYYY-MM-DD. A tap on an entry opens it where it lives.
    */
-  import { Sun, CloudRain, CloudSun, ChevronLeft, ChevronRight, Palmtree, Plus, GripVertical, WandSparkles } from '@lucide/svelte';
+  import { Sun, CloudRain, CloudSun, ChevronLeft, ChevronRight, Palmtree, Plus, GripVertical, WandSparkles, Move } from '@lucide/svelte';
   import PageHead from '../lib/ui/PageHead.svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import { weekQuery, putWeek } from '../lib/woche/load.js';
-  import { buildWeek, KIND_NAMES, ITEMS_KEY, TIMES_KEY, timesOf, cleanItem, pruneItems } from '../lib/woche.js';
+  import { buildWeek, KIND_NAMES, ITEMS_KEY, TIMES_KEY, timesOf, cleanItem, pruneItems, newId } from '../lib/woche.js';
   import { deleteWithUndo } from '../lib/ui/ask.js';
   import EntrySheet from '../lib/tag/EntrySheet.svelte';
   import PlanSheet from '../lib/tag/PlanSheet.svelte';
+  import VorlageSheet from '../lib/tag/VorlageSheet.svelte';
   import Todos from '../lib/tag/Todos.svelte';
   import Abhaken from '../lib/tag/Abhaken.svelte';
   import Seg from '../lib/ui/Seg.svelte';
+  import ShiftSheet from '../lib/ui/ShiftSheet.svelte';
+  import { timedrag } from '../lib/ui/timedrag.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
   import { titleOf, subOf, dayName, wxWords, holidayName } from '../lib/woche/words.js';
   import { homeForecast } from '../lib/home-weather.js';
   import { db } from '../lib/db.js';
   import { liveQuery } from 'dexie';
   import SoSiehts from '../lib/firststart/SoSiehts.svelte';
-  import { mondayOf, shiftDay } from '../lib/training.js';
+  import { PLAN_KEY as TRAIN_KEY, mondayOf, shiftDay, prunePlan } from '../lib/training.js';
   import { actName } from '../lib/flow/ui.svelte.js';
   import { localDay } from '../lib/localday.js';
   import { t, tn } from '../lib/i18n.svelte.js';
@@ -33,6 +36,7 @@
   import { OUTDOOR_KEY, outdoorOf, dayOf as outdoorDay } from '../lib/outdoor.js';
   import { outdoorWindow, needOf, planRef } from '../lib/tag/draussen.js';
   import { eveningRows, laterDay } from '../lib/tag/abend.js';
+  import { TEMPLATES_KEY, patternOf, saveTemplate, putTemplate, repeatItems } from '../lib/tag/vorlage.js';
 
   let { sub = '' } = $props();
   const today = localDay();
@@ -147,13 +151,15 @@
     editing = { item: items().find((x) => x.id === e.id) };
   };
 
-  // step 2, part 2: drag an own entry (grip) to a new time or onto another day chip; drag the lower edge for its length.
-  // Whole quarter hours; nothing is saved while dragging, and the move offers Undo.
+  // step 2, part 2 («Termine ziehen», Noah 24.11.2026): the shared building block `timedrag` (src/lib/ui/timedrag.js) moves an entry:
+  // a mouse pulls it by the grip (or the entry itself), a finger after a long press; drag the lower edge for its length; the
+  // arrow keys on the grip move by a quarter hour (left and right: a day). Whole quarter hours; nothing is saved while
+  // dragging, and the move offers Undo. A session of the training plan only changes its day (onto a day chip).
   const SNAP = 15;
-  let drag = $state(null); // { id, mode: 'move' | 'size', y0, dy, over }
+  let drag = $state(null); // { id, mode: 'move' | 'size', dx, dy, over }
   const snap = (m) => Math.round(m / SNAP) * SNAP;
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
-  /** Where a block stands (minutes) when it is moved or stretched by `dy` pixels (mode) or by `by` minutes. */
+  /** Where a block stands (minutes) when it is moved or stretched by `by` minutes (mode). */
   function shape(b, mode, by) {
     if (mode === 'size') return { start: b.start, end: clamp(snap(b.end + by), b.start + SNAP, Math.min(b.start + 480, 24 * 60)) };
     const len = b.end - b.start;
@@ -163,47 +169,46 @@
   // over another day's chip the time stays as it is: only the day changes
   // pixels to minutes through the rows (an empty hour is half as tall as one with an entry)
   const byOf = (g, b) => (g.over ? 0 : g.mode === 'size' ? grid.at(grid.pos(b.end) + g.dy) - b.end : grid.at(grid.pos(b.start) + g.dy) - b.start);
-  const shown = (b) => (drag?.id === b.e.id ? shape(b, drag.mode, byOf(drag, b)) : { start: b.start, end: b.end });
-  // with pointer capture the click after a drag lands on the grip: it must not open the entry
-  const stopClick = (ev) => (ev.preventDefault(), ev.stopPropagation());
-  function dragStart(ev, b, mode) {
-    if (!isOwn(b.e) || (ev.pointerType === 'mouse' && ev.button !== 0)) return;
-    ev.preventDefault();
-    ev.stopPropagation();
-    ev.currentTarget.setPointerCapture(ev.pointerId);
-    drag = { id: b.e.id, mode, y0: ev.clientY, dy: 0, over: null };
+  const shown = (b) => (drag?.id === b.e.id && isOwn(b.e) ? shape(b, drag.mode, byOf(drag, b)) : { start: b.start, end: b.end });
+  // what can move here: an own entry (time and day) and a session of the training plan (day), never one that is ticked or lies in the past
+  const isSession = (e) => !!e.sid && !e.own;
+  const movable = (e) => !e.done && (isOwn(e) || (isSession(e) && day >= today));
+  async function moveSession(e, to) {
+    const before = src.sessions;
+    if (!before.some((x) => x.id === e.sid) || before.find((x) => x.id === e.sid).day === to) return;
+    await putWeek(TRAIN_KEY, { sessions: prunePlan(before.map((x) => (x.id === e.sid ? { ...x, day: to } : x)), today) });
+    offerDone(t('«{name}» moved to {day}.', { name: titleOf(e), day: dayName(to) }), () => putWeek(TRAIN_KEY, { sessions: before }));
   }
-  function dragMove(ev) {
-    if (!drag) return;
-    drag.dy = ev.clientY - drag.y0;
-    if (drag.mode === 'move') {
-      const over = document.elementFromPoint(ev.clientX, ev.clientY)?.closest('[data-day]')?.dataset.day ?? null;
-      drag.over = over && over !== day ? over : null;
-    }
-  }
-  async function dragEnd(b) {
-    const g = drag;
-    drag = null;
-    if (!g || (Math.abs(g.dy) < 4 && !g.over)) return;
-    const item = items().find((x) => x.id === g.id);
+  function commit(b, g) {
+    if (isSession(b.e)) return g.over && g.over >= today ? moveSession(b.e, g.over) : undefined;
+    const item = items().find((x) => x.id === b.e.id);
     if (!item) return;
     const to = shape(b, g.mode, byOf(g, b));
-    await change(item, g.mode === 'size' ? { mins: to.end - to.start } : { time: fmtMin(to.start), ...(g.over ? { day: g.over } : {}) });
+    return change(item, g.mode === 'size' ? { mins: to.end - to.start } : { time: fmtMin(to.start), ...(g.over ? { day: g.over } : {}) });
+  }
+  // an entry without a time can only change its day: pulled onto a day chip
+  function commitDay(e, over) {
+    if (isSession(e)) return over >= today ? moveSession(e, over) : undefined;
+    const item = items().find((x) => x.id === e.id);
+    return item && over !== item.day ? change(item, { day: over }) : undefined;
+  }
+  const pullDay = (e) => ({ day, enabled: movable(e), whole: true, onpreview: (g) => (drag = g ? { id: e.id, ...g } : null), oncommit: (g) => g.over && commitDay(e, g.over) });
+  function step(b, s) {
+    if (isSession(b.e)) {
+      const to = shiftDay(day, s.days);
+      return s.days && to >= today ? moveSession(b.e, to) : undefined;
+    }
+    const item = items().find((x) => x.id === b.e.id);
+    if (!item) return;
+    if (s.days) return change(item, { day: shiftDay(day, s.days) });
+    const to = shape(b, s.mode, s.minutes);
+    return change(item, s.mode === 'size' ? { mins: to.end - to.start } : { time: fmtMin(to.start) });
   }
   async function change(item, patch) {
     const before = items();
     await saveItems(before.map((x) => (x.id === item.id ? cleanItem({ ...x, ...patch }) : x)));
     const text = patch.mins ? t('«{name}» now takes {n} min.', { name: item.title, n: patch.mins }) : patch.day ? t('«{name}» moved to {day}.', { name: item.title, day: dayName(patch.day) }) : t('«{name}» moved to {time}.', { name: item.title, time: patch.time });
     offerDone(text, () => saveItems(before));
-  }
-  // the keyboard: arrow up and down move by a quarter hour, with Shift the length changes
-  function dragKey(ev, b) {
-    if (!isOwn(b.e) || !['ArrowUp', 'ArrowDown'].includes(ev.key)) return;
-    ev.preventDefault();
-    const step = ev.key === 'ArrowUp' ? -SNAP : SNAP;
-    const to = shape(b, ev.shiftKey ? 'size' : 'move', step);
-    const item = items().find((x) => x.id === b.e.id);
-    if (item) change(item, ev.shiftKey ? { mins: to.end - to.start } : { time: fmtMin(to.start) });
   }
   const weekTodos = $derived(items().filter((x) => x.kind === 'todo').map((x) => ({ id: x.id, title: x.title, day: x.day, done: x.done, time: x.time || '' })));
   async function tickItem(it) {
@@ -229,13 +234,55 @@
       await putWeek(TIMES_KEY, beforeTimes);
     });
   }
+  // «Move all …» (Noah 24.11.2026 «2+3 dazu»): when the day falls out, everything that can move goes to another day together, with one Undo
+  let shifting = $state(false);
+  const shiftable = $derived(day >= today ? (d?.entries ?? []).filter(movable) : []);
+  async function shiftAll(ids, to) {
+    const beforeItems = items();
+    const beforeSessions = src.sessions;
+    const list = shiftable.filter((e) => ids.includes(e.id));
+    const own = new Set(list.filter(isOwn).map((e) => e.id));
+    const sess = new Set(list.filter(isSession).map((e) => e.sid));
+    if (own.size) await saveItems(beforeItems.map((x) => (own.has(x.id) ? cleanItem({ ...x, day: to }) : x)));
+    if (sess.size) await putWeek(TRAIN_KEY, { sessions: prunePlan(beforeSessions.map((x) => (sess.has(x.id) ? { ...x, day: to } : x)), today) });
+    offerDone(tn(list.length, '{n} entry moved to {day}.', '{n} entries moved to {day}.', { day: dayName(to) }), async () => {
+      if (own.size) await saveItems(beforeItems);
+      if (sess.size) await putWeek(TRAIN_KEY, { sessions: beforeSessions });
+    });
+  }
   const addEntry = (time = '') => (editing = { item: null, day, time });
-  async function saveEntry(fields) {
+  async function saveEntry({ repeat = 0, ...fields }) {
     const old = editing.item;
     const next = cleanItem({ ...old, ...fields, mins: fields.mins ?? undefined });
     if (!next) return;
     if (fields.mins == null) delete next.mins;
-    await saveItems(old ? items().map((x) => (x.id === old.id ? next : x)) : [...items(), next]);
+    const before = items();
+    const list = old ? before.map((x) => (x.id === old.id ? next : x)) : [...before, next];
+    // «repeat every week» (Noah 25.11.2026, idea 3): ordinary copies on the same weekday, each one changeable alone
+    const copies = repeat ? repeatItems(next, repeat, list, () => newId('wi')) : [];
+    await saveItems([...list, ...copies]);
+    if (copies.length) offerDone(t('{n} repeats added.', { n: copies.length }), () => saveItems(before));
+  }
+  // day templates (Noah 25.11.2026, idea 3): keep the own entries of the day, put them on other days
+  let templating = $state(false);
+  const templates = $derived(src?.templates ?? []);
+  const pickDays = $derived(Array.from({ length: 14 }, (_, i) => shiftDay(today, i)));
+  async function saveTpl(name) {
+    const before = templates;
+    await putWeek(TEMPLATES_KEY, saveTemplate(before, name, patternOf(items(), day), () => newId('vt')));
+    offerDone(t('Template «{name}» kept.', { name }), () => putWeek(TEMPLATES_KEY, before));
+  }
+  async function putTpl(tpl, list) {
+    const before = items();
+    const made = putTemplate(tpl, list, before, () => newId('wi'));
+    if (!made.length) return offerDone(t('Everything of «{name}» is already there.', { name: tpl.name }), () => {});
+    await saveItems([...before, ...made]);
+    offerDone(t('{n} entries added.', { n: made.length }), () => saveItems(before));
+  }
+  async function deleteTpl(tpl) {
+    const before = templates;
+    await putWeek(TEMPLATES_KEY, before.filter((x) => x.id !== tpl.id));
+    offerDone(t('Template «{name}» deleted.', { name: tpl.name }), () => putWeek(TEMPLATES_KEY, before));
   }
   const deleteEntry = () => removeItem(editing.item);
   function removeItem(gone) {
@@ -312,7 +359,7 @@
       <h2>{t('Without a time')}</h2>
       <ul>
         {#each untimed as e (e.id)}
-          <li class="k-{e.kind}" class:done={e.done}>
+          <li class="k-{e.kind}" class:done={e.done} class:td-lift={drag?.id === e.id} use:timedrag={pullDay(e)} style={drag?.id === e.id ? `transform: translate(${drag.dx}px, ${drag.dy}px)` : undefined}>
             <a href={href(e)} data-entry={e.id} onclick={(ev) => openEntry(e, ev)}><b>{titleOf(e)}</b><small>{subOf(e) || t(KIND_NAMES[e.kind] ?? 'Other|kind')}</small></a>
           </li>
         {/each}
@@ -377,16 +424,18 @@
         class:past={isOver(b, now) && !b.e.done}
         class:small={shown(b).end - shown(b).start <= 30}
         class:dragging={drag?.id === b.e.id}
+        class:td-lift={drag?.id === b.e.id}
         href={href(b.e)}
         data-entry={b.e.id}
         onclick={(ev) => openEntry(b.e, ev)}
-        style="top: {top(shown(b).start)}px; height: {Math.max(22, top(shown(b).end) - top(shown(b).start) - 2)}px; left: calc(52px + (100% - 56px) * {b.col / b.cols}); width: calc((100% - 56px) / {b.cols} - 3px)"
+        use:timedrag={{ day, enabled: movable(b.e), whole: true, keys: true, onpreview: (g) => (drag = g ? { id: b.e.id, ...g } : null), oncommit: (g) => commit(b, g), onstep: (s) => step(b, s) }}
+        style="top: {top(shown(b).start)}px; height: {Math.max(22, top(shown(b).end) - top(shown(b).start) - 2)}px; left: calc(52px + (100% - 56px) * {b.col / b.cols}); width: calc((100% - 56px) / {b.cols} - 3px){drag?.id === b.e.id && isSession(b.e) ? `; transform: translate(${drag.dx}px, ${drag.dy}px)` : ''}"
       >
         <b>{titleOf(b.e)}</b>
         <small class="num">{fmtMin(shown(b).start)}{b.guessed && drag?.id !== b.e.id ? '' : `–${fmtMin(shown(b).end)}`}{subOf(b.e) ? ` · ${subOf(b.e)}` : ''}</small>
         {#if isOwn(b.e)}
-          <span class="grip" role="button" tabindex="0" aria-label={t('Move «{name}»: drag, or use the arrow keys', { name: titleOf(b.e) })} data-grip={b.e.id} onpointerdown={(ev) => dragStart(ev, b, 'move')} onpointermove={dragMove} onpointerup={() => dragEnd(b)} onpointercancel={() => (drag = null)} onkeydown={(ev) => dragKey(ev, b)} onclick={stopClick}><GripVertical size={16} aria-hidden="true" /></span>
-          <span class="size" role="presentation" data-size={b.e.id} onpointerdown={(ev) => dragStart(ev, b, 'size')} onpointermove={dragMove} onpointerup={() => dragEnd(b)} onpointercancel={() => (drag = null)} onclick={stopClick}></span>
+          <span class="grip" role="button" tabindex="0" aria-label={t('Move «{name}»: drag, or use the arrow keys', { name: titleOf(b.e) })} data-grip={b.e.id} data-drag-grip><GripVertical size={16} aria-hidden="true" /></span>
+          <span class="size" role="presentation" data-size={b.e.id} data-drag-size></span>
         {/if}
       </a>
     {/each}
@@ -410,12 +459,24 @@
     {@render timeline()}
   {/if}
 
+  {#if shiftable.length > 1}
+    <p class="addrow"><button type="button" class="add" data-day-shift onclick={() => (shifting = true)}><Move size={16} aria-hidden="true" />{t('Move all …')}</button></p>
+  {/if}
+
   <p class="foot">{t('What you plan in Woche stands here. Your own dates and to-dos you can add, change and drag here.')}</p>
 {/if}
 {/if}
 
 {#if planning}
-  <PlanSheet entries={d?.entries ?? []} {day} {today} now={now ?? 0} wet={!!wetNow?.wet} {next} onapply={applyPlan} onclose={() => (planning = false)} />
+  <PlanSheet entries={d?.entries ?? []} {day} {today} now={now ?? 0} wet={!!wetNow?.wet} {next} onapply={applyPlan} ontemplates={() => (templating = true)} onclose={() => (planning = false)} />
+{/if}
+
+{#if templating}
+  <VorlageSheet {day} pattern={patternOf(items(), day)} {templates} days={pickDays} onsave={saveTpl} onput={putTpl} ondelete={deleteTpl} onclose={() => (templating = false)} />
+{/if}
+
+{#if shifting}
+  <ShiftSheet day={day} to={shiftDay(day, 1)} entries={shiftable.map((e) => ({ id: e.id, title: titleOf(e), sub: e.time || '' }))} onsave={({ ids, day: to }) => shiftAll(ids, to)} onclose={() => (shifting = false)} />
 {/if}
 
 {#if editing}

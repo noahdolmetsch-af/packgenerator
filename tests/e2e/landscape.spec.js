@@ -107,7 +107,7 @@ for (const [w, hgt] of [
         const marks = alone.locator('[data-jump]');
         expect(await marks.count(), `${where}: at least two jump marks`).toBeGreaterThanOrEqual(2);
         for (const b of await marks.all()) expect((await b.boundingBox()).height, `${where}: jump mark 44 px`).toBeGreaterThanOrEqual(44);
-        await alone.locator('[data-jump="list"]').click();
+        await alone.locator('[data-jump="weather"]').click();
         await expect.poll(() => page.evaluate(() => window.scrollY), `${where}: the jump scrolls down`).toBeGreaterThan(0);
         await page.evaluate(() => window.scrollTo(0, 0));
       }

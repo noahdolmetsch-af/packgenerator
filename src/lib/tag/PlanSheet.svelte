@@ -15,7 +15,7 @@
   import { planDay } from './plan.js';
   import '../ui/daumen.css';
 
-  let { entries = [], day, today, now = 0, wet = false, next = null, onapply, onclose } = $props();
+  let { entries = [], day, today, now = 0, wet = false, next = null, onapply, ontemplates, onclose } = $props();
 
   let mode = $state('normal');
   let flipped = $state([]); // ids the user ticked or unticked against the preselection
@@ -36,11 +36,11 @@
   async function apply() {
     if (!picked.length) return;
     await onapply?.(picked);
-    dialog.close();
+    dialog?.close();
   }
 </script>
 
-<dialog class="sheet from-below plan" bind:this={dialog} use:backClose={() => dialog.close()} onclose={() => onclose?.()} aria-labelledby="pl-h" data-plan-sheet>
+<dialog class="sheet from-below plan" bind:this={dialog} use:backClose={() => dialog?.close()} onclose={() => onclose?.()} aria-labelledby="pl-h" data-plan-sheet>
   <div class="head">
     <h2 id="pl-h">{t('Plan my day')}</h2>
     <button type="button" class="ib" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
@@ -73,6 +73,7 @@
 
   <div class="foot daumen-foot">
     <button type="button" class="btn hi" disabled={!picked.length} onclick={apply} data-plan-apply>{tn(picked.length, 'Take over {n} entry', 'Take over {n} entries')}</button>
+    {#if ontemplates}<button type="button" class="btn" onclick={() => (dialog.close(), ontemplates())} data-plan-templates>{t('Day templates')}</button>{/if}
   </div>
 </dialog>
 

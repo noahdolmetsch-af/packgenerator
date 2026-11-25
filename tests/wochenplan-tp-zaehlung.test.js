@@ -25,9 +25,10 @@ describe('Zählung: Plan plus TrainingPeaks ist die Woche', () => {
     expect(rows.filter((r) => r.src === 'plan' && (r.type === 'bikeOut' || r.type === 'bikeIn'))).toEqual([]);
     const without = weekRows({ stored, log: logOf(null), sessions: [], acts: [] }, MON, WED);
     expect(without.filter((r) => r.src === 'plan' && (r.type === 'bikeOut' || r.type === 'bikeIn')).length).toBeGreaterThan(0);
-    // plan plus TrainingPeaks: the plan lost the bike minutes, so the sum is not «Soll plus TrainingPeaks»
+    // plan plus TrainingPeaks: the hours goal holds (Noah 23.11.2026 «2a»), so the sum is not «Soll plus TrainingPeaks»: it stays near the goal
     const bikeMins = without.filter((r) => r.type === 'bikeOut' || r.type === 'bikeIn').reduce((a, r) => a + r.mins, 0);
-    expect(sumOf(rows).plannedMins).toBe(sumOf(without).plannedMins - bikeMins + 314);
+    expect(sumOf(rows).plannedMins).toBeLessThan(sumOf(without).plannedMins - bikeMins + 314);
+    expect(sumOf(rows).plannedMins).toBeLessThanOrEqual(15 * 60 + 40);
   });
   it('meinPlan: week.tpMins und eine vergangene Woche ohne doppelte Zeilen', () => {
     const m = meinPlan({ stored, rawPlan: { sessions: SESS }, today: WED });

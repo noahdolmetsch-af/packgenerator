@@ -30,7 +30,7 @@ describe('Sammel-Wand: Zuletzt dazugekommen', () => {
   it('mixes the shelves, newest first, a thing without a day last', () => {
     const r = recent({ stamps, passes, book }, 20);
     expect(r.map((x) => x.name)).toEqual(['Test Joch', 'Test Pass Loop', 'Test Halle', 'Seeland Test', 'Test Horn', 'Furka Test', 'Test Kreuz', 'Col Test']);
-    expect(r[0]).toMatchObject({ kind: 'place', m: 2200, href: '#/flow/gipfelbuch' });
+    expect(r[0]).toMatchObject({ kind: 'place', m: 2200, href: '#/flow/gipfelbuch/g2' });
     expect(r[1]).toMatchObject({ kind: 'stamp', href: '#/debrief/tourenpass' });
     expect(r.at(-1)).toMatchObject({ kind: 'pass', date: '' });
   });

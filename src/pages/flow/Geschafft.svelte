@@ -28,6 +28,7 @@
   import { isUnitEntry, weekOfEntry, setUnitTick } from '../../lib/flow/unitdone.js';
   import { sportHref } from '../../lib/flow/mysports.js';
   import { GOAL_KEY, PLAN_KEY, plannerSessions as planSessionsOf } from '../../lib/training.js';
+  import { SP_KEY, prefsOf as spPrefsOf, teamSessions } from '../../lib/spielerplus.js';
   import { zones } from '../../lib/strava/zones.svelte.js';
   import { WEEKPLAN_KEY } from '../../lib/training/wochenplan.js';
   import { WEEKLOG_KEY } from '../../lib/training/wochenlog.js';
@@ -56,10 +57,10 @@
     if (!e) return (more = null);
     let stale = false;
     (async () => {
-      const [goal, weekplan, weeklog, plan] = await Promise.all([db.settings.get(GOAL_KEY), db.settings.get(WEEKPLAN_KEY), db.settings.get(WEEKLOG_KEY), db.settings.get(PLAN_KEY)]);
+      const [goal, weekplan, weeklog, plan, sp] = await Promise.all([db.settings.get(GOAL_KEY), db.settings.get(WEEKPLAN_KEY), db.settings.get(WEEKLOG_KEY), db.settings.get(PLAN_KEY), db.settings.get(SP_KEY)]);
             const activities = e.stravaId ? await readLite(db, (T) => T.toArray()).catch(() => []) : [];
       const stars = await db.flowStars.toArray().catch(() => []);
-      if (!stale) more = { goal: goal?.value ?? null, weekplan: weekplan?.value ?? null, weeklog: weeklog?.value ?? null, plan: plan?.value ?? null, activities, stars };
+      if (!stale) more = { goal: goal?.value ?? null, weekplan: weekplan?.value ?? null, weeklog: weeklog?.value ?? null, plan: plan?.value ?? null, team: teamSessions(spPrefsOf(sp?.value)), activities, stars };
     })();
     return () => (stale = true);
   });
@@ -74,7 +75,7 @@
   const zoneCmp = $derived(planned && more && entry?.stravaId ? zoneVsPlan(planned, more.activities.find((a) => String(a.id) === String(entry.stravaId)), zones.bounds) : null);
   const weekPlan = $derived(more && entry && week ? plannedWeek(more.plan, entry.day, week.mins) : null);
   const nowTime = new Date().toLocaleTimeString('sv-SE', { timeZone: 'Europe/Zurich', hour: '2-digit', minute: '2-digit' });
-  const next = $derived(more ? nextUnit(more.weekplan, more.weeklog, { day: today, time: nowTime }, planSessionsOf(more.plan)) : null);
+  const next = $derived(more ? nextUnit(more.weekplan, more.weeklog, { day: today, time: nowTime }, planSessionsOf(more.plan, more.team)) : null);
   // «Meilensteine» (stars are kept per milestone id «<activity>.…»): a star reached on the day of this tick
   const star = $derived(more && entry ? more.stars.some((s) => s.day === entry.day && String(s.msId).startsWith(`${entry.actId}.`)) : false);
 

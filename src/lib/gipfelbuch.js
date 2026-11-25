@@ -256,3 +256,75 @@ export function nextPassStar(book) {
   const target = PASS_STEPS.find((n) => n > have);
   return target ? { have, target } : null;
 }
+
+/* ---------- the page of one place (Noah 24.11.2026 «alle 1-5 zusammen», idea 3) ---------- */
+/** One place by id, or null. */
+export const placeById = (book, id) => book.places.find((p) => p.id === id) ?? null;
+
+/** Change one visit (note, weather kept with it). The day and the source stay. */
+export function editVisit(book, visitId, patch) {
+  const keep = {};
+  if (patch.note !== undefined) keep.note = String(patch.note ?? '').trim().slice(0, 500);
+  if (patch.wx !== undefined) keep.wx = patch.wx;
+  return { ...book, visits: book.visits.map((v) => (v.id === visitId ? { ...v, ...keep } : v)) };
+}
+/** Remove one visit. The last visit of a place stays: the place itself is removed instead. */
+export function removeVisit(book, visitId) {
+  const v = book.visits.find((x) => x.id === visitId);
+  if (!v || book.visits.filter((x) => x.placeId === v.placeId).length < 2) return book;
+  return { ...book, visits: book.visits.filter((x) => x.id !== visitId) };
+}
+
+/** Seconds as h:mm:ss (or m:ss under an hour). */
+export function clock(s) {
+  const n = Math.max(0, Math.round(Number(s) || 0));
+  const h = Math.floor(n / 3600);
+  const m = Math.floor((n % 3600) / 60);
+  const ss = String(n % 60).padStart(2, '0');
+  return h ? `${h}:${String(m).padStart(2, '0')}:${ss}` : `${m}:${ss}`;
+}
+
+/** A climb of an activity belongs to the place when its name holds the name of the place (or the other way round). */
+const climbOf = (a, place) => {
+  const key = norm(place.name);
+  if (key.length < 3) return null;
+  const hits = (Array.isArray(a?.climbs) ? a.climbs : []).filter((c) => c?.s > 0 && norm(c.name).length >= 3 && (norm(c.name).includes(key) || key.includes(norm(c.name))));
+  return hits.sort((x, y) => x.s - y.s)[0] ?? null;
+};
+
+/**
+ * What the rides and activities say about one visit: the source, the title, the temperature range Strava kept,
+ * the time up (a climb of the activity that carries the name of the place), the Strava photos.
+ * → { source: 'strava'|'gpx'|'hand', title, tmin, tmax, up: { s, name }|null, photos: [url] }
+ */
+export function visitFacts(visit, place, { acts = [], rides = [] } = {}) {
+  const [kind, id] = String(visit.ref ?? '').split(':');
+  const base = { source: 'hand', title: '', tmin: null, tmax: null, up: null, photos: [] };
+  if (kind === 'act') {
+    const a = acts.find((x) => String(x.id) === id);
+    if (!a) return { ...base, source: 'strava' };
+    const up = climbOf(a, place);
+    return {
+      source: 'strava',
+      title: a.name || '',
+      tmin: Number.isFinite(a.tempMin) ? Math.round(a.tempMin) : null,
+      tmax: Number.isFinite(a.tempMax) ? Math.round(a.tempMax) : null,
+      up: up ? { s: up.s, name: up.name } : null,
+      photos: (Array.isArray(a.photos) ? a.photos : []).map((p) => p?.url).filter((u) => typeof u === 'string' && /^https:\/\//.test(u)).slice(0, 3),
+    };
+  }
+  if (kind === 'ride') return { ...base, source: 'gpx', title: rides.find((r) => String(r.id) === id)?.name ?? '' };
+  return base;
+}
+
+/** The fastest time up over all visits: { s, day, visitId, name } or null. */
+export function fastestUp(book, placeId, sources) {
+  const place = placeById(book, placeId);
+  if (!place) return null;
+  let best = null;
+  for (const v of book.visits.filter((x) => x.placeId === placeId)) {
+    const up = visitFacts(v, place, sources).up;
+    if (up && (!best || up.s < best.s)) best = { s: up.s, day: v.day, visitId: v.id, name: up.name };
+  }
+  return best;
+}

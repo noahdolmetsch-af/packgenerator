@@ -23,7 +23,8 @@
   import { asksRide } from './fixed.js';
   import { tz2, askReopen, answerRide } from './reopen.svelte.js';
 
-  let { trip, info, debrief = null, tab = 'plan', ontemplate = null, bike = true } = $props();
+  // quietPlan (Tour-Seite, Noah 24.11.2026 «1-5a»): the plan band «Alles bleibt änderbar» is not drawn (only while «Reopened … Undo» shows); its sentence moved into «Ready to go?»
+  let { trip, info, debrief = null, tab = 'plan', ontemplate = null, bike = true, quietPlan = false } = $props();
   const ICON = { plan: Pencil, done: Flag, rated: Star };
   const Icon = $derived(ICON[info?.state]);
   const ask = $derived(asksRide(info));
@@ -36,7 +37,7 @@
   const canDebrief = $derived(!!trip.entries?.length && !trip.noDebrief);
   const undoHere = $derived(tz2.done?.id === trip.id ? tz2.done : null);
   // the plan band on Plan only (on the packing day it would only repeat itself); done and rated everywhere
-  const shown = $derived(!!Icon && !info.early && (info.state !== 'plan' || tab === 'plan'));
+  const shown = $derived(!!Icon && !info.early && (info.state !== 'plan' || (tab === 'plan' && (!quietPlan || !!undoHere))));
   let timer;
   $effect(() => {
     if (!undoHere) return;

@@ -1,0 +1,43 @@
+# Eine Seite für jeden Gipfel
+
+PR #1781 · 24.11.2026 · Auftrag: Noah «alle 1-5 zusammen» (Thread «Gipfelbuch ausbauen»), Idee 3 von 5
+
+## Was ist neu
+- Jeder Ort im Gipfelbuch hat eine eigene Seite `#/flow/gipfelbuch/<id>` (Gipfelbuch › Ort antippen › «Seite dieses Ortes öffnen»).
+- Oben: Besuche, erstes Mal, schnellste Zeit hoch. Darunter alle Besuche, neueste zuerst: Datum, Herkunft (Strava-Fahrt, Fahrt aus einer Datei, von Hand), Höhenmeter, Temperatur und Regen, Zeit hoch.
+- «Zeit hoch» kommt aus den Steigungen der Strava-Fahrt, deren Name den Ortsnamen enthält. Die schnellste ist markiert.
+- Temperatur: die Werte von Strava; sonst auf Tipp «Wetter dieses Tages holen» (Open-Meteo, nur bei Orten mit Koordinaten).
+- Fotos: die der Strava-Fahrt und eigene (bis 3 pro Besuch, auf dem Gerät verkleinert, mit Kreuz zum Entfernen und Rückgängig). Eine Notiz je Besuch.
+- Besuch entfernen mit Rückgängig. Der letzte Besuch eines Ortes bleibt; dann gibt es «Ort entfernen».
+- Die Sammel-Wand öffnet einen Ort auf dieser Seite.
+- Unbekannter Ort (zum Beispiel entfernt): die Seite sagt es und führt zurück ins Gipfelbuch.
+
+## Was fällt weg oder rutscht tiefer
+- nichts. Die Detail-Karte im Gipfelbuch bleibt; sie hat eine Zeile mehr («Seite dieses Ortes öffnen»).
+
+## Selbst entschieden
+- Eigene Fotos stehen in einer eigenen Einstellung `gipfelbuch-fotos`, nicht im Buch: das Buch bleibt klein und schnell. Kein neues Dexie-Schema, nur eine Zeile in der bestehenden Tabelle `settings`.
+- Besuche haben neu optional `note` und `wx`. Alte Besuche ohne diese Felder bleiben unverändert gültig.
+- Die Zeit hoch gibt es nur bei Strava-Fahrten mit gespeicherten Steigungen und passendem Namen; ohne Treffer steht nichts, keine Schätzung.
+- «Fertig-Regel»: Seite = Eintrag `f.gipfelbuch` in `features.js` (Text, Handbuch, Worte); Absprung = Link in der Detail-Karte und in der Sammel-Wand; Gut zu wissen = bestehender Satz von `f.gipfelbuch`; leerer Zustand = Seite eines unbekannten Ortes; als Nächstes = Zeile «Als Nächstes» (alle Orte, Neuland, Sammel-Wand); App-Stand = Gipfelbuch-Zeile ergänzt.
+
+## Entscheide (eigene Datei `docs/decisions/<name>.md`)
+- 24.11.2026: Gipfelbuch ausbauen: erst vier kleine PRs geplant (Seite pro Ort, Sammlungen und Erkennen, Karte mit Lücken, «Welcher Berg ruft?»), dann Noahs Regel «Kleine Änderungen derselben Seite in EINEN PR»: ein PR – `docs/decisions/gipfelort-seite.md`
+
+## Stand im Plan (roadmap.md / vorhaben.md)
+- Gipfelbuch ausbauen: alle fünf Ideen und das Design in diesem einen PR.
+
+## Prüfschritte (nach dem Merge auf der echten Seite)
+1. Gipfelbuch öffnen, einen Ort antippen, «Seite dieses Ortes öffnen» tippen.
+2. Bei einem Besuch «Notiz»: ein paar Worte schreiben, speichern, Seite neu laden: die Notiz steht noch da.
+3. Bei einem Besuch «Foto»: ein Bild wählen; das Kreuz nimmt es weg, «Rückgängig» holt es zurück.
+4. Sammel-Wand › «Zuletzt dazugekommen»: ein Ort öffnet seine eigene Seite.
+
+## Design nach der impeccable-Prüfung (Noah 24.11.2026 07:37 UTC «1-5a», Frage 4a)
+Alle vier Verbesserungen kommen in diesen einen Gipfelbuch-PR (`docs/decisions/gipfelbuch-design.md`):
+- Übersicht: Zahl-Kacheln, Schalter «Liste · Karte · Sammlungen», Vorschläge und nächster Stern je eine Zeile; die Zeilen zeigen Pass/Gipfel, «neu» als Punkt und einen Höhenbalken.
+- Ort-Seite: Kopfbild, Kacheln, Besuche als Zeitleiste, «Notiz · Foto · Wetter» als leise Zeile, «⋯» für «Besuch entfernen».
+- Karte: startet «Um dich», grosse Punkte, pro Ort «Touren ›» und ein runder Haken «Ich war da».
+- Was rutscht tiefer: «Gefunden in deinen Fahrten» ist eine Zeile mit «Ansehen» (bei leerem Buch offen); die Meilenstein-Karte ist eine schmale Zeile unter der Liste; die Sammlungen sind eine eigene Ansicht; «Besuch entfernen» steht hinter «⋯».
+- Mit den echten Daten von Noah (257 Vorschläge, ein Hügel auf 34 Fahrten) gesehen: Fahrten über denselben Ort des Katalogs sind jetzt eine Zeile («und 33 weitere Fahrten»); «Ins Gipfelbuch», «Nochmal bei …» und «Nicht dort» gelten für alle diese Fahrten auf einmal (`groupFound` in `src/lib/gipfelkatalog.js`). Kaputte Strava-Fotos werden auf der Ort-Seite ausgeblendet.
+- Selbst entschieden: Die Erklärsätze in den Sammlungen bleiben (nur in der eigenen Ansicht); der Höhenbalken misst gegen 4000 m; die Silhouette der Ort-Seite ist ein Bild aus der App (später das erste eigene Foto).

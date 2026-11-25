@@ -51,7 +51,7 @@
   // weighHint: false hides the "6 not weighed" badge (v0.30.1, Noah E4: not next to the green "Day ride created" card).
   // v0.47.1 (Noah a): edit (Plan only) turns date, duration, weather and bike into chips that change the value in place.
   // SN1: stateMore adds to the pill's extra («unterwegs, Tag 2 von 3»); stepText replaces «Schritt 3 von 4» in the bar.
-  let { trip, tab, kicker = '', compact = false, hint = '', action, aside = null, weighHint = true, edit = null, extra = null, stateMore = '', stepText = '', note = false, ontemplate = null, below = null } = $props();
+  let { trip, tab, kicker = '', compact = false, hint = '', action, aside = null, weighHint = true, edit = null, extra = null, stateMore = '', stepText = '', note = false, quietPlan = false, ontemplate = null, below = null } = $props();
   // Impeccable 18.10.2026 (Planen 1): `below` is a snippet drawn right under the step bar (the core line of Plan)
 
   const itemsQ = liveQuery(() => db.items.toArray());
@@ -180,7 +180,7 @@
     <StepBar {trip} tabs={stepsOf(trip)} {status} current={tab} onpick={() => openTrip(trip.id)} />
   </div>
   {@render below?.()}
-  {#if note && stInfo?.state}<div class="stnote"><StateNote {trip} info={stInfo} {debrief} {tab} {ontemplate} bike={byBike} /></div>{/if}
+  {#if note && stInfo?.state}<div class="stnote"><StateNote {trip} info={stInfo} {debrief} {tab} {ontemplate} bike={byBike} {quietPlan} /></div>{/if}
 </section>
 {#if tz2.ask === trip.id}<ReopenSheet {trip} rated={stInfo?.state === 'rated'} onclose={() => (tz2.ask = null)} />{/if}
 {#if factOpen && edit}<FactSheet field={factOpen} {trip} bikes={allBikes} {edit} onclose={() => (factOpen = null)} />{/if}
@@ -396,11 +396,17 @@
 
   /* Phone (Noah 3a): the next step stays at the bottom, above the bottom bar. */
   @media (max-width: 719px) {
+    /* Tour-Seite: Hauptsache zuerst (Noah 24.11.2026 «1-5a»): the facts are quiet text, not four pills; each stays a 44 px tap (one sheet per fact) */
     .meta .fact {
       min-height: 44px;
+      margin: 0;
+      padding: 4px 0;
+      border: 0;
+      border-radius: var(--r-1);
+      background: none;
     }
     .meta:has(.fact) {
-      gap: 6px 12px;
+      gap: 0 16px;
     }
     /* Noah 7a: On the way, only the name and the tabs (and "Saved ✓" for a moment, v0.35.0). */
     .compact .meta > :not(.saved),

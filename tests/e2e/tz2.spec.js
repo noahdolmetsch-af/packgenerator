@@ -55,11 +55,14 @@ test('Tour-Kopf: the band of each state, the fixed list, «Wieder öffnen» with
   await start(page, context);
   const note = page.locator('.trip-band .stn');
 
-  // planned: everything stays changeable, «Als Vorlage speichern»
+  // planned: no band any more (Tour-Seite: Hauptsache zuerst, Noah 24.11.2026 «1-5a»): the sentence stands in «Ready to go?»,
+  // «Als Vorlage speichern» in the menu «…» of the packing list
   await openTrip(page, PLAN.id);
-  await expect(note).toHaveAttribute('data-state', 'plan');
-  await expect(note.locator('h2')).toHaveText(T('Everything stays changeable until you set off.')); // Impeccable Planen 3: one line
-  await expect(note.getByRole('button', { name: T('Save as template') })).toBeVisible();
+  await expect(note).toHaveCount(0);
+  await expect(page.locator('details.ampel .fine')).toContainText(T('Everything stays changeable until you set off.'));
+  await page.locator('.list-menu summary').click();
+  await expect(page.locator('.list-menu-content').getByRole('button', { name: T('Save as template') })).toBeVisible();
+  await page.locator('.list-menu summary').click();
   if (info.project.name === 'desktop') await expect(page.locator('.add-mat')).toBeVisible(); // on a phone it is the + below
 
   // completed: «so bist du gefahren», the list fixed, «Rückblick ausfüllen» and «Wieder öffnen»
