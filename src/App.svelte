@@ -31,7 +31,7 @@
   import { watchVeloImGriff } from './lib/veloimgriff.svelte.js';
   import { watchInspect } from './lib/inspect/live.svelte.js';
   import { wide, phone } from './lib/media.svelte.js';
-  import { Plus, MessageCircle } from '@lucide/svelte';
+  import { Plus } from '@lucide/svelte';
   import { startPushSync } from './lib/push/client.js';
   import { linkFrom } from './lib/notebook.js';
   import { INSPO_WISH } from './lib/inspiration.js';
@@ -551,8 +551,7 @@
   <header class="top">
     {#if mini}<a class="brand" href={mini.tabs[0].href}><span class="mark" aria-hidden="true">PG</span><span class="long show">{t(mini.name)}</span></a>{:else}<a class="brand" href="#/" aria-label={t('Pack Generator, start page')}><span class="mark" aria-hidden="true"><LogoMark /></span><span class="long">Pack Generator</span></a>{/if}
     <div class="tools">
-      <!-- «Assistent» (Noah 15.10.2026 «3 a und b»): its own button next to the search -->
-      <a class="asst-ic" href="#/assistent" aria-label={t('Assistant')}><MessageCircle size={22} aria-hidden="true" /></a>
+      <!-- «Ein Eingang» (Noah 24.11.2026 «1-3a»): the assistant has no button of its own any more; the one search opens it («Open the assistant» under a question) -->
       {#if !mini}<HelpButton />{/if}<!-- «Alles finden 2» (Noah 22.10.2026 «3a»): the help of this page -->
       <Search compact />
       {#if !guest}<button type="button" class="plus" aria-label={t('New')} aria-haspopup="dialog" aria-keyshortcuts="n" onclick={() => (newMode = 'all')}><Plus size={22} strokeWidth={2.4} aria-hidden="true" /></button>{/if}
@@ -562,8 +561,8 @@
 {/if}
 <div class="col">
 {#if wide.matches && !mini}
-<!-- 4a (Noah 21.11.2026 «4a»): one place for help; on a computer the «?» and the assistant sit at the top right of the page, like in the phone's top bar -->
-<div class="dtools"><a class="asst-ic" href="#/assistent" aria-label={t('Assistant')} aria-current={hash.startsWith('#/assistent') ? 'page' : undefined}><MessageCircle size={22} aria-hidden="true" /></a><HelpButton /></div>
+<!-- 4a (Noah 21.11.2026 «4a»): one place for help; on a computer the «?» sits at the top right of the page, like in the phone's top bar. «Ein Eingang» (Noah 24.11.2026 «1-3a»): the assistant's bubble is gone here; the search opens it -->
+<div class="dtools"><HelpButton /></div>
 {/if}
 <DemoBar />
 <LogoRide />
@@ -1065,15 +1064,6 @@
     gap: var(--sp-1);
     padding: 4px var(--gut) 0;
     min-height: 48px;
-  }
-  .asst-ic {
-    display: inline-flex;
-    flex: none;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    color: var(--ink);
   }
   .tools {
     display: flex;

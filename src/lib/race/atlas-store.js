@@ -2,7 +2,7 @@
  * «Rennatlas»: your race list stays in the app (the settings record 'rennatlas', so it is in the backup
  * and on your other devices): { fileName, asOf, rows, saved: [{ id, name, filter }] }. The file is only
  * read on this device. A newer file replaces the races but keeps what you ticked (favourite,
- * registered) and the saved filters.
+ * registered, the alarm) and the saved filters.
  */
 import { liveQuery } from 'dexie';
 import { db } from '../db.js';
@@ -35,7 +35,7 @@ export const loadAtlas = ({ fileName, asOf, rows }) =>
       asOf,
       rows: rows.map((r) => {
         const o = old.get(keyOf(r));
-        return o ? { ...r, fav: r.fav || o.fav, registered: r.registered || o.registered } : r;
+        return o ? { ...r, fav: r.fav || o.fav, registered: r.registered || o.registered, ...(o.wecker ? { wecker: true } : {}) } : r;
       }),
       saved: cur?.saved ?? [],
     };

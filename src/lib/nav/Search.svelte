@@ -119,6 +119,19 @@
     focused = false;
   }
   let focused = $state(false); // the field has the focus: an empty field shows the commands to try
+  // «Ein Eingang» (Noah 24.11.2026 «4a»): «Help for this page» as the first row of the empty window; it opens the «?» window (event pg:help). No «?» in the bar (guest, mini apps): no row.
+  const hasHelp = $derived(open || focused ? !!document.querySelector('button[data-help-open]') : false);
+  function openHelp() {
+    leave();
+    queueMicrotask(() => window.dispatchEvent(new Event('pg:help')));
+  }
+  // «Ein Eingang» (Noah 24.11.2026 «2a»): only under a question, a row leads on to the assistant with the question filled in
+  function openAssistant() {
+    remember(q);
+    const text = q.trim();
+    leave();
+    location.hash = `#/assistent?q=${encodeURIComponent(text)}`;
+  }
   // v0.96.0 (mockup B): an empty search shows 3 commands to try, the last searches and all functions.
   const firstBike = $derived($all ? (sortBikes($all.bikes)[0] ?? null) : null);
   const bikeWord = $derived(firstBike ? String(firstBike.name ?? '').trim().split(/\s+/)[0].toLowerCase() : '');
@@ -391,7 +404,8 @@
       {#if open}
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
       {:else}
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></svg>
+        <!-- «Ein Eingang» (Noah 24.11.2026 «1a»): the magnifier with a small spark replaces the bubble and the magnifier; one tap opens the one window -->
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="10.5" cy="12.5" r="6.5" /><path d="M20 22l-4.8-4.8" /><path d="M20.5 1.8l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z" fill="currentColor" stroke="none" /></svg>
       {/if}
     </button>
     {#if open}
@@ -420,6 +434,12 @@
 
 {#snippet empty()}
   <div class="try" role="region" aria-label={t('Try a command')}>
+    <!-- «Ein Eingang» (Noah 24.11.2026 «4a»): the help of the page you are on is the first row; the «?» stays in the bar -->
+    {#if hasHelp}
+      <ul class="cmds" data-search-help-row>
+        <li><button type="button" data-search-help onclick={openHelp}><span class="m"><b>{t('Help for this page')}</b><small>{t('What you can do here')}</small></span><span class="go" aria-hidden="true">›</span></button></li>
+      </ul>
+    {/if}
     <!-- «Klügere Suche» (Noah 24.11.2026 «1-5a»): six topics; a tap searches the word, the results are pages and functions first -->
     <p class="gh">{t('Topics')}</p>
     <div class="tiles" data-search-topics>
@@ -503,11 +523,21 @@
       <!-- «Kluge Suche»: the hint to similar words / a typo and «Ask Claude» sit under the actions (FE17: actions on top, Enter runs the first) -->
       <!-- «Suche mit Sprache» (3a + b): «Ask further at» opens Claude, ChatGPT … -->
       <!-- one block «Weiter fragen» (Noah 22.10.2026 «3a»): the Chrome AI and the AI on this device inside it -->
-      {#if asking && suche.links}<AskElsewhere {q} links={suche.links}>
-          {#snippet children()}<SearchFree {q} data={$all} onpick={(w) => ((q = w), input?.focus())} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} local={suche.local} inside={suche.links} />{/snippet}
-        </AskElsewhere>
+      {#if asking && suche.links}
+        <!-- «Ein Eingang» (Noah 24.11.2026): «Ask further at» is a closed line under a question, the app's own answer stays first -->
+        <details class="askfold" data-search-ask-fold>
+          <summary><span>{t('Ask further at')} …</span><span class="chev" aria-hidden="true">›</span></summary>
+          <AskElsewhere {q} links={suche.links}>
+            {#snippet children()}<SearchFree {q} data={$all} onpick={(w) => ((q = w), input?.focus())} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} local={suche.local} inside={suche.links} />{/snippet}
+          </AskElsewhere>
+        </details>
       {:else}<SearchFree {q} data={$all} onpick={(w) => ((q = w), input?.focus())} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} local={suche.local} />{/if}
-      {#if inAll && help.length}
+      {#if asking}
+        <ul class="cmds" data-search-assistant-row>
+          <li><button type="button" data-search-assistant onclick={openAssistant}><span class="m"><b>{t('Open the assistant')}</b><small>{t('Ask on, or let the app plan a trip')}</small></span><span class="go" aria-hidden="true">›</span></button></li>
+        </ul>
+      {/if}
+      {#if inAll && help.length && !appHas}
         <p class="gh">{t('Fits your question')}</p>
         <ul>
           {#each help as f (f.id)}
@@ -636,6 +666,39 @@
   .gearfold:hover {
     background: var(--ground);
   }
+  /* «Ein Eingang»: «Ask further at» as a closed line */
+  .askfold {
+    margin: 8px 0 0;
+  }
+  .askfold > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 44px;
+    padding: 0 10px;
+    border-radius: var(--r-2);
+    color: var(--ink-2);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .askfold > summary:hover {
+    background: var(--ground);
+  }
+  .askfold > summary::-webkit-details-marker {
+    display: none;
+  }
+  .askfold .chev {
+    transition: transform 0.15s;
+  }
+  .askfold[open] .chev {
+    transform: rotate(90deg);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .askfold .chev {
+      transition: none;
+    }
+  }
+
   .search {
     position: relative;
     display: flex;
