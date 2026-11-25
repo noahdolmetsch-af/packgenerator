@@ -10,7 +10,7 @@ import { TEMPLATES_KEY } from '../templates.js';
 import { SETS_KEY } from '../sets.js';
 import { standardZones, tempoRides, paceGrid } from './werte.js';
 import { ZONES_KEY as STRAVA_ZONES_KEY, OWN_ZONES_KEY, ownOf, boundsOfStrava, validBounds as trainingBounds } from '../training.js';
-import { readLite } from '../actlite.js';
+import { liteAll } from '../actlite.js';
 
 /**
  * The older settings key of your own zone bounds { bounds: [Z1–Z4 upper bpm], at }. Still read; saving now goes
@@ -134,7 +134,7 @@ export function actOf(a) {
 export const loadPastActs = async (db) => {
   if (!hasActivities(db)) return [];
   try {
-    return (await readLite(db, (T) => T.toArray())).map(actOf);
+    return (await liteAll(db)).map(actOf);
   } catch {
     return [];
   }

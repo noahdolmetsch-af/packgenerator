@@ -71,7 +71,10 @@ export function maintainLite(db) {
               if ((req.type === 'add' || req.type === 'put') && req.values.some(isLite)) {
                 throw new Error('A slim row of the activity summary must never be saved into activities (it would delete the curves of the ride).');
               }
+              const st = stateOf(db);
+              st.ver++; // a shared whole-table read (liteAll) started before this save is not handed out again, nor one started during it
               const res = await table.mutate(req);
+              st.ver++;
               // (not yet there while the first opening after the update writes: nothing to keep in step, buildLite makes it)
               if (!down.schema.tables.some((t) => t.name === LITE)) return res;
               const lite = down.table(LITE);
@@ -95,7 +98,7 @@ export function maintainLite(db) {
 const states = new WeakMap(); // db → { ready, readyP, building }
 const stateOf = (db) => {
   let s = states.get(db);
-  if (!s) states.set(db, (s = { ready: false, readyP: null, building: null }));
+  if (!s) states.set(db, (s = { ready: false, readyP: null, building: null, ver: 0, all: null }));
   return s;
 };
 
@@ -167,6 +170,31 @@ export async function liteTable(db) {
   // whole 36 MB store and cost seconds when a page asks twenty times (measured); the counts are checked once, at the start (startLite).
   await Dexie.Promise.resolve(startLite(db));
   return s.ready ? db.activitiesLite : db.activities;
+}
+
+/**
+ * The whole summary (`T.toArray()`), read ONCE for everybody who asks within a moment: at the start Heute asks six places for it, and every
+ * copy of 1'447 rows costs the phone a few hundred ms. Each caller gets its own array (a sort stays its own). A save into `activities`
+ * (the middleware counts `ver`) ends the sharing at once, so a caller never gets rows older than its own question. Inside a liveQuery
+ * the cheap `limit(1)` read registers the table, so the query still runs again after every change (the rows come from the shared read).
+ */
+export const SHARE_MS = 1500;
+export async function liteAll(db) {
+  const T = await liteTable(db);
+  if (T !== db.activitiesLite) return T.toArray(); // the full table (summary not ready): no sharing
+  await T.limit(1).toArray();
+  const s = stateOf(db);
+  if (!s.all || s.all.ver !== s.ver) {
+    const e = { ver: s.ver, p: Promise.resolve(T.toArray()) };
+    s.all = e;
+    e.p.catch(() => {
+      if (s.all === e) s.all = null;
+    });
+    setTimeout(() => {
+      if (s.all === e) s.all = null;
+    }, SHARE_MS);
+  }
+  return (await Dexie.Promise.resolve(s.all.p)).slice();
 }
 
 /** `fn(table)` on the table a list should read: db.activitiesLite when ready, else db.activities (a one-line reader). */

@@ -6,7 +6,7 @@
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
-  import { readRaw, computeFrom } from './store.js';
+  import { readRaw, readSince, computeFrom } from './store.js';
   import { refreshOsmIfDue } from './osm.js';
   import { SEEN_KEY, dayBefore, rodeSince, newSince } from './neuheute.js';
   import { t } from '../i18n.svelte.js';
@@ -14,13 +14,19 @@
 
   let { today } = $props();
   const since = $derived(dayBefore(today));
-  const rawQ = liveQuery(() => readRaw(db));
+  // Tempo (Noah 25.11.2026): the whole history (all trips, rides, activities and recordings, drawn as lines) is read and worked through
+  // only when something was ridden since yesterday; the cheap question first (rows from yesterday on, by the index of the day)
+  const rawQ = liveQuery(async () => {
+    const from = dayBefore(today);
+    if (!rodeSince(await readSince(db, from), from, today)) return { none: true };
+    return readRaw(db);
+  });
   const seenQ = liveQuery(async () => (await db.settings.get(SEEN_KEY))?.value ?? null); // null: nothing closed yet
   let news = $state.raw(null);
   $effect(() => {
     const raw = $rawQ;
     const from = since;
-    if (!raw || !rodeSince(raw, from, today)) return void (news = null);
+    if (!raw || raw.none || !rodeSince(raw, from, today)) return void (news = null);
     let live = true;
     // N18: after a ride the places from OpenStreetMap are brought up to date first (once a week), so a new tower counts at once
     refreshOsmIfDue(db)

@@ -6,12 +6,12 @@ import { liveQuery } from 'dexie';
 import { db } from './db.js';
 import { dayTable } from './messwerte.js';
 import { withStravaRides, bikeActs, notIgnored } from './kmbook.js';
-import { readLite } from './actlite.js';
+import { liteAll } from './actlite.js';
 
 export async function loadTable(d = db) {
   const [health, acts, rides, kmBook, bikes, prefs] = await Promise.all([
     d.healthDays ? d.healthDays.toArray() : [],
-    d.activities ? readLite(d, (T) => T.toArray()) : [],
+    d.activities ? liteAll(d) : [],
     d.rides ? d.rides.toArray() : [],
     d.kmBook ? d.kmBook.toArray() : [],
     bikeActs(d),

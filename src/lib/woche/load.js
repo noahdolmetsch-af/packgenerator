@@ -14,7 +14,7 @@ import { withVisits } from '../workshop.js';
 import { bikeCare } from '../readiness.js';
 import { AGENDA_KEY } from '../agenda.js';
 import { SP_KEY, prefsOf as spOf } from '../spielerplus.js';
-import { readLite } from '../actlite.js';
+import { liteAll } from '../actlite.js';
 
 const shiftBack = (day, n) => new Date(Date.parse(`${day}T00:00:00Z`) - n * 864e5).toISOString().slice(0, 10);
 
@@ -26,7 +26,7 @@ export function weekQuery(today) {
     const [sets, trips, acts, flowActs, bikes, tasks, visits, gEvents, gTasks, flowLog, book] = await Promise.all([
       db.settings.where('key').anyOf(KEYS).toArray(),
       db.trips.toArray(),
-      readLite(db, (T) => T.toArray()),
+      liteAll(db),
       db.flowActs.toArray(),
       db.bikes.toArray(),
       db.maintenance.toArray(),

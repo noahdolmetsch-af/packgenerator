@@ -10,7 +10,7 @@ import { splitNeuland } from './split.js';
 import { GB_KEY, bookOf } from '../gipfelbuch.js';
 import { visitLines } from './funde.js'; // N10: the summit book's visits count as lines too
 import { OSM_KEY } from './osm.js';
-import { readLite } from '../actlite.js';
+import { readLite, liteAll } from '../actlite.js';
 
 export async function readState(db) {
   return stateOf((await db.settings.get(NEULAND_KEY))?.value);
@@ -35,7 +35,7 @@ export async function readRaw(db) {
     db.settings.get(NEULAND_KEY),
     db.trips.toArray(),
     db.rides.toArray(),
-    db.activities ? readLite(db, (T) => T.toArray()) : [],
+    db.activities ? liteAll(db) : [],
     db.tracks ? db.tracks.where('kind').equals('rec').toArray() : [], // the app's own recordings, like the Heatmap
     db.settings.get('homePlace'),
     db.settings.get(GB_KEY),
@@ -43,6 +43,20 @@ export async function readRaw(db) {
   ]);
   const book = bookOf(gbRec?.value);
   return { value: rec?.value ?? null, trips, rides, activities, recordings, homePlace: homeRec?.value ?? null, book, lines: visitLines(book), osmAt: osmRec?.value?.at ?? 0 };
+}
+
+/**
+ * Only the rows from `since` on (the indexes of the day), enough to ask «was anything ridden since then?» (neuheute.js rodeSince) without
+ * reading and drawing every ride of the years first. The same four sources as readRaw.
+ */
+export async function readSince(db, since) {
+  const [trips, rides, activities, recordings] = await Promise.all([
+    db.trips.where('startDate').aboveOrEqual(since).toArray(),
+    db.rides.where('date').aboveOrEqual(since).toArray(),
+    db.activities ? readLite(db, (T) => T.where('day').aboveOrEqual(since).toArray()) : [],
+    db.tracks ? db.tracks.where('day').aboveOrEqual(since).filter((x) => x.kind === 'rec').toArray() : [],
+  ]);
+  return { trips, rides, activities, recordings };
 }
 
 /**
