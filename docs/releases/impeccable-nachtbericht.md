@@ -1,6 +1,6 @@
 # Impeccable-Nachtbericht: die ganze App jede Nacht messen
 
-PR (Nummer folgt beim Öffnen) · 26.11.2026 · Auftrag: Noah «1-8» (Thread «Tests auf den neuen App-Stand bringen», Schritt 7 des Test-Plans)
+PR 1807 · 26.11.2026 · Auftrag: Noah «1-8» (Thread «Tests auf den neuen App-Stand bringen», Schritt 7 des Test-Plans)
 
 ## Was ist neu
 - Nichts Sichtbares geändert, nur Test und Nachtlauf: Jede Nacht um 03:40 UTC (04:40 in Zürich im Winter) öffnet ein Roboter **jede Adresse aus `docs/app-stand.md`** am Handy (390×844), am Laptop (1440×800) und am Computer (1440×900), nur mit den erfundenen Daten (`tests/fixtures/gesamttest`).
