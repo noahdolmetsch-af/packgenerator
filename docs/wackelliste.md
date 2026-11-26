@@ -25,9 +25,14 @@ Ein Wackler ist ein Test, der ohne Änderung an der App mal grün und mal rot is
 | wunschanfrage.spec.js:139 | Handy | 25.11. (PR 1752) | `page.goto` /buchen/ ERR_ABORTED; vermutet wie bei tages-check:349 | geteilter Baustein `clock.js` (#1758) | beobachten |
 | warumregeln.spec.js:50 | Handy | 25.11. (PR 1752) | 90 s Timeout, keine Fehlerzeile bekommen, lokal grün | – | beobachten |
 | pf.spec.js:940 (PF16, Backup-Rundlauf) | Computer | 25.11. (PR 1760, main 9bf587c) | Heute legt `home.spruch` (gezeigter Spruch) und `flow.medSeed` (Meditations-Vorlagen) erst an, wenn die Kachel gezeigt wird; das fiel mal vor, mal nach den Snapshot, die Einstellungen kamen mit einem Eintrag mehr zurück (2 von 12 rot, kein App-Fehler) | #1766 | stabil |
+| seitengroesse.spec.js | beide | 25.11. (Wi gaht's, PR 1777) | kein Wackler, eine echte Überschreitung: `#/trips` baut 1680 statt 1620 Elemente, `#/gear?tab=wishlist` 1542 statt 1540; die Zahl ist auf jedem Rechner gleich. Auf main seit Velos-Umbau 24.11. (PR 1702: 1622) und weiter gewachsen (1668, 1676, 1680); die CI auf main läuft nur `build`, das Rot fällt nur in PRs auf | #1782 | stabil |
 | neuland.spec.js, inspiration.spec.js | beide | Nacht 24.11. | Meldung deckt Taste zu; Seitenleiste «Touren» mit Zusatztext | #1698 | stabil |
 | checks, erinnerungen, ich-vier-gruppen, nacht-push, nebel-push, paketn, push, seitengroesse (je .spec.js) | beide | Nacht 24.11. | neu rot im Nachtlauf 24.11. (13:06 UTC); Ursache je Test noch nicht einzeln bestätigt | – | beobachten |
 | e2e-part (1), Handy und Computer: «Zeitlimit», ohne Testliste | beide | Nacht 22.–24.11. | der Teil läuft ins Zeitlimit und stürzt ab, bevor die Liste der roten Tests geschrieben wird; «wieder grün» ist damit unbekannt | – | offen |
 | ride-running 320 px, gt20-touren:67, uebergaenge:138, pf Szenario 3, pinmarks:52 | – | 24.11. | unklar, je einmal gesehen | – | beobachten |
 
 Ältere, behobene Fälle (rund 30 seit 23.11.2026) mit Ursache: Notiz des Wackel-Threads im Projektordner (`notes/wackel-tests/`).
+| sonnen-ausfahrt.spec.js:145 | Handy | 25.11. (PR 1782, volle Prüfung) | kein Wackler: seit PR 1769 öffnet sich das Morgenfenster nicht mehr von selbst, der Test wartete darauf (3 von 3 rot, lokal Bisect 1766 grün / 1769 rot) | #1782 | stabil |
+| ski.spec.js:121 | Handy | 25.11. (PR 1782, volle Prüfung) | las `[data-group]` gleich nach der Überschrift, die Gruppen waren noch nicht gebaut (leere Liste, im Retry grün) | #1782 | stabil |
+| sn5plus.spec.js:186 | Handy | 25.11. (PR 1782, volle Prüfung) | «Übernehmen» gibt es auch bei den Namensvorschlägen (Ich › Daten), beim Seitenwechsel noch im Bild: 10 Treffer statt 1 (strict mode, im Retry grün) | #1782 | stabil |
+| tp-freier-tag.spec.js:36 | beide | 26.11. (PR 1782, volle Prüfung) | kein Wackler: seit PR 1783 steht der Hinweis im zugeklappten «Mehr dazu», der Test suchte die alte Zeile (3 von 3 rot, auch lokal auf main) | #1782 | stabil |
