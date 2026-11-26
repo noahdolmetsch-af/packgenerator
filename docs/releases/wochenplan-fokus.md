@@ -11,6 +11,8 @@ PR #1795 · 26.11.2026 · Auftrag: Noah «3a» (Thread «Wochenplan-Vorschläge 
 - Eine Woche hat höchstens einen Fokus; in einer Skitour-Woche gilt er nicht, und eine Zeile unter den Schaltern sagt es. Jeder Tipp hat «Rückgängig»; die nächste Woche hat eigene Schalter. Die Wahl liegt in `training.weeklog` unter `mode` (neue Schlüssel `hit` und `kraft`), alte Sicherungen laden unverändert.
 - Planer: `focusOf` und der Fokus-Block in `planWeek` (`src/lib/training/wochenplan.js`); auch Heute («Jetzt dran»), Geschafft und Mein Trainingsplan lesen die Woche über `weekFor` und sehen den Fokus.
 
+- Reparatur ohne sichtbare Änderung: Die Wochenplan-Seite speichert den Wochenstand jetzt in einer einzigen Datenbank-Transaktion (Lesen und Schreiben zusammen). Vorher konnte ein spätes Zurückschreiben mit altem Stand eine gerade gespeicherte Woche überschreiben; so wurde `tests/e2e/wochenplan-abhaken.spec.js` («Strava only suggests; past weeks stay as they were») auf main rot.
+
 ## Warum
 Mit dem Wochenplan als einzigem Vorschlag («Woche vorschlagen», Noah «3a») fehlte der Fokus Intervalle/Kraft des älteren Vorschlags. Noah wollte ihn als eigene Wochen-Art zurück.
 

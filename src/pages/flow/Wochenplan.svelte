@@ -111,14 +111,22 @@
   const inARow = $derived(log ? streakNow(log, today) : 0);
   const sugg = $derived(live && log ? suggest(nowWeek.units, $actsQ ?? [], realMonday, done, weekLog(log, realMonday).no) : {});
   const past = $derived(log ? pastWeeks(log, today) : []);
-  // the week is stored as it was last seen; after Sunday it stays as it is (freezing)
+  // the week is stored as it was last seen; after Sunday it stays as it is (freezing). The write starts from the stored value read just now,
+  // never from the value this page read earlier: a late write must not bring back an older log (a week saved meanwhile, a restored backup).
   $effect(() => {
     if (!loaded || stored === null || !log || !sessLoaded) return;
     // TrainingPeaks counts for the star (Noah «4a»): its sessions are part of the snapshot and tick when they are done
-    let next = withSnapshot(log, realMonday, nowWeek.units, nowCfg.hours, today, tpSnapUnits(nowWeek.tp));
-    if ($actsQ) next = syncTpDone(next, realMonday, tpTicks(sessions, $actsQ, nowWeek.tp), today);
-    if (next !== log) untrack(() => db.settings.put({ key: WEEKLOG_KEY, value: next }));
+    const snap = { units: nowWeek.units, hours: nowCfg.hours, tp: tpSnapUnits(nowWeek.tp), ticks: $actsQ ? tpTicks(sessions, $actsQ, nowWeek.tp) : null, monday: realMonday, day: today };
+    untrack(() => saveSnapshot(snap));
   });
+  // read and write in one transaction: nothing saved in between (by another page, a restore, a test) is overwritten
+  const saveSnapshot = (o) =>
+    db.transaction('rw', db.settings, async () => {
+      const cur = logOf((await db.settings.get(WEEKLOG_KEY))?.value);
+      let next = withSnapshot(cur, o.monday, o.units, o.hours, o.day, o.tp);
+      if (o.ticks) next = syncTpDone(next, o.monday, o.ticks, o.day);
+      if (next !== cur) await db.settings.put({ key: WEEKLOG_KEY, value: next });
+    });
   async function writeLog(change) {
     const cur = logOf((await db.settings.get(WEEKLOG_KEY))?.value);
     const next = change(cur);
