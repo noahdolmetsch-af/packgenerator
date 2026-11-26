@@ -1,6 +1,6 @@
 # Fenster-Test mit vier Uhrzeiten im Nachtlauf
 
-PR #? · 26.11.2026 · Auftrag: Noah «Ja, jede Nacht mitlaufen» (Thread «Gesamttest der ganzen App»), Plan «Tests auf den neuen App-Stand bringen» Schritt 3
+PR #1805 · 26.11.2026 · Auftrag: Noah «Ja, jede Nacht mitlaufen» (Thread «Gesamttest der ganzen App»), Plan «Tests auf den neuen App-Stand bringen» Schritt 3
 
 ## Was ist neu
 - Nichts Sichtbares geändert, nur Test: `tests/e2e/gesamttest/fenster-zeit.spec.js` (neu) läuft mit dem nächtlichen Gesamttest.
