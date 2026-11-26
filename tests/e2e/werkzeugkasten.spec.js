@@ -370,7 +370,9 @@ test('Werkzeuge und Links: suggestions with the trip, switch off and back, own l
   await page.locator('dialog.gds[open]').getByRole('button', { name: de('Delete'), exact: true }).click();
   await expect(page.getByRole('heading', { level: 2, name: de('Everyday|links') })).toHaveCount(0);
   await expect(page.locator('[data-wl-group="none"]').getByText('Testseite Muster')).toBeVisible();
-  // B22 (Noah 27.10.2026): the rename note stays under the delete note; the newest one (.rtoast) undoes the delete
+  // B22 (Noah 27.10.2026): the rename note stays under the delete note; the newest one (.rtoast) undoes the delete.
+  // The delete note comes a moment AFTER the page shows the change (saved, then offered): wait for it, or the newest one is still the rename note.
+  await expect(page.locator('.rtoast')).toContainText(de('Group «{name}» deleted. The links are still there.').replace('{name}', de('Everyday|links')));
   await page.locator('.rtoast').getByRole('button', { name: de('Undo') }).click();
   await expect(page.getByRole('heading', { level: 2, name: de('Everyday|links') })).toBeVisible();
   await expect(page.locator('[data-wl-group="everyday"]').getByText('Testseite Muster')).toBeVisible();
