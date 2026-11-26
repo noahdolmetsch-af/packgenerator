@@ -42,3 +42,4 @@ Ein Wackler ist ein Test, der ohne Änderung an der App mal grün und mal rot is
 | design-capture.spec.js:6 | Computer | 25.11. (Nachtlauf 1779) | Knopf «Alles gepackt, los» mitten in der Einblend-Bewegung gemessen (4051 statt unter 1058), im Retry grün | #1793 | stabil |
 | geschafft.spec.js:160 | beide | 25.11. (Nachtlauf 1779) | Gefühl zurücknehmen und neue Dauer sind zwei Schreibvorgänge, der Test las nach dem ersten | #1793 | stabil |
 | ausprobieren.spec.js Teile 13/23/78/80/83 | beide | 25.11. (Nachtlauf 1779) | kein Wackler: sechs alte Neuheiten-Zeilen ohne «where», ihre Elemente gibt es nur mit Daten oder anderswo | #1793 | stabil |
+| wege-waechter.spec.js (`#/inbox/new`, `#/komoot/shared`) | Computer | 25.11. (Nachtlauf 1779) | Neuladen nach dem Öffnen: nahm das Fenster weg, liess aber den Verlaufseintrag stehen, ein Schritt zurück blieb auf `#/inbox` / `#/trips` (je nach Tempo) | #1796 | stabil |
