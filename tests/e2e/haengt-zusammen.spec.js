@@ -7,6 +7,8 @@ for (const [hash, moment] of [['wetter', 'planen'], ['neuland', 'lust'], ['debri
     await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
     await page.goto(`/#/${hash}`);
     await ready(page);
+    // «Belongs to …» is a part of the «?» window since 26.11.2026
+    await page.locator('[data-help-open]:visible').first().click();
     await expect(page.locator(`[data-gehoert="${moment}"]`).first()).toBeVisible();
   });
 }
