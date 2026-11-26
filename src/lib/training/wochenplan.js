@@ -191,6 +191,16 @@ export const modeCfg = (cfg, summer, mode = {}) => {
   return { ...out, tpHours: Math.min(MAX_HOURS, Math.max(MIN_HOURS, Math.round(cfg.tpHours * share))) };
 };
 
+/**
+ * The focus of a week (Noah 23.11.2026 «3a»): «Intervals» (`hit`) or «Strength» (`kraft`), one kind of week next to lighter and harder, never both.
+ * It changes which units the week holds, not the hours: the planner swaps small units for the ones the focus needs and says so in a note.
+ */
+export const FOCUS_MODES = ['hit', 'kraft'];
+export const focusOf = (mode = {}) => FOCUS_MODES.find((k) => mode?.[k]) || null;
+const HIT_BIKES = 2; // intervals: two bike units are the hard ones
+const KRAFT_GYMS = 3; // strength: three gym sessions
+const SWAP_OUT = ['runIn', 'mini', 'bikeIn', 'runOut']; // what makes room for a focus unit first (the smallest and least important)
+
 /** True when the units are exactly what the hours goal suggests (no change by hand since). */
 export const followsHours = (cfg, summer) => same(suggestFromHours(cfg.hours, summer).counts, cfg.counts);
 
@@ -446,6 +456,46 @@ export function planWeek(cfg, ctx) {
     notes.push(...r.notes.map((n) => ({ ...n, hours: goalH })));
     if (r.over > 0) notes.push({ key: 'soll-over', hours: goalH, mins: r.over, own: !!cfg.tpHours });
   }
+  // the focus of the week (Noah «3a»): not in a ski tour week, the tour is the plan. It comes after the hours goal was kept: the hours stay,
+  // small units make room for what the focus needs (only when enough room is freed; otherwise nothing is added and nothing is taken away).
+  const focus = !ski && FOCUS_MODES.includes(ctx.focus) ? ctx.focus : null;
+  const tpBikes = tp.filter((x) => x.type === 'bikeOut' || x.type === 'bikeIn').length; // bike sessions that TrainingPeaks or a training plan brings
+  if (focus) {
+    const room = (need, keep) => {
+      const take = {};
+      let freed = 0;
+      for (const t of SWAP_OUT.filter((x) => x !== keep)) {
+        let n = 0;
+        while (freed < need - TYPES[t].mins / 2 && (counts[t] || 0) - n > (cfg.fixes[t]?.length ?? 0) && n < 2) {
+          freed += TYPES[t].mins;
+          n++;
+        }
+        if (n) take[t] = n;
+      }
+      return freed >= need - 25 ? take : null; // not enough room: no swap
+    };
+    const swap = (take) =>
+      Object.entries(take).forEach(([t, n]) => {
+        counts[t] -= n;
+        notes.push({ key: 'focus-swap', type: t, n, mins: n * TYPES[t].mins });
+      });
+    if (focus === 'hit') {
+      let more = Math.min(Math.max(0, HIT_BIKES - tpBikes) - (counts.bikeOut + counts.bikeIn), MAX_COUNT.bikeIn - counts.bikeIn);
+      while (more-- > 0) {
+        const take = room(TYPES.bikeIn.mins, 'bikeIn');
+        if (!take) break;
+        counts.bikeIn++;
+        swap(take);
+      }
+    } else {
+      while (counts.gym < Math.min(KRAFT_GYMS, MAX_COUNT.gym)) {
+        const take = room(TYPES.gym.mins, 'gym');
+        if (!take) break;
+        counts.gym++;
+        swap(take);
+      }
+    }
+  }
   const units = (d) => U.filter((x) => x.d === d && !NOT_UNIT.includes(x.type)).length;
   const loadSum = (d) => U.filter((x) => x.d === d && !BARE.includes(x.type)).reduce((a, x) => a + LV[x.load], 0);
   const hardDays = () => new Set(U.filter((x) => x.load === 'H').map((x) => x.d));
@@ -635,7 +685,7 @@ export function planWeek(cfg, ctx) {
   }
   flex('mini');
 
-  // intervals: once a week, not next to a hard day
+  // intervals: once a week, not next to a hard day; with the focus «Intervals» twice, never on following days; with «Strength» none (the bike stays easy)
   {
     const H = hardDays();
     const bikes = U.filter((x) => x.type === 'bikeIn' || x.type === 'bikeOut');
@@ -643,16 +693,22 @@ export function planWeek(cfg, ctx) {
       b.variant = 'easy';
       if (b.type === 'bikeIn') b.load = 'L';
     });
-    const cands = bikes
-      .filter((b) => !H.has(b.d))
-      .map((b) => ({ b, k: (H.has(b.d - 1) ? 1 : 0) + (H.has(b.d + 1) ? 1 : 0) + (b.type === 'bikeOut' ? 0.5 : 0) }))
-      .sort((a, b) => a.k - b.k || a.b.d - b.b.d);
-    if (cands[0]) {
+    const want = focus === 'kraft' ? 0 : focus === 'hit' ? Math.max(0, HIT_BIKES - tpBikes) : 1;
+    const chosen = [];
+    for (let i = 0; i < want; i++) {
+      const cands = bikes
+        .filter((b) => !H.has(b.d) && !chosen.some((c) => Math.abs(c.d - b.d) < 2))
+        .map((b) => ({ b, k: (H.has(b.d - 1) ? 1 : 0) + (H.has(b.d + 1) ? 1 : 0) + (b.type === 'bikeOut' ? 0.5 : 0) }))
+        .sort((a, b) => a.k - b.k || a.b.d - b.b.d);
+      if (!cands[0]) break;
       const b = cands[0].b;
       b.load = 'M';
       b.variant = 'intervals';
       b.why = { key: 'intervals', calm: cands[0].k < 1 };
+      chosen.push(b);
     }
+    if (focus === 'hit') notes.push({ key: tpBikes ? 'focus-hit-tp' : chosen.length ? 'focus-hit' : 'focus-hit-none', n: tpBikes || chosen.length });
+    if (focus === 'kraft') notes.push({ key: counts.gym >= KRAFT_GYMS ? 'focus-kraft' : 'focus-kraft-none', n: counts.gym });
   }
   // summer: spread the cycling hours, the longest ride at the weekend
   if (bikeHours) {
