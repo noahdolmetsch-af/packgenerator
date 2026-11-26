@@ -2,6 +2,8 @@
   /**
    * Alles fertig (Versteckte Funktionen, Noah 22.10.2026 «1a»): a race is a trip, so «Your race» stands at the
    * top of Touren as soon as one is planned (the same row as in Training). Nothing shows without a coming race.
+   * «Touren-Seite klarer» (Noah 25.11.2026 «3a»): a race that already has a packing card (PackKarten, with its own «Race» link)
+   * is not shown a second time here.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
@@ -9,6 +11,7 @@
   import { raceTrips, daysBetween } from './race.js';
   import { raceHref } from './parts.js';
   import { localDay } from '../localday.js';
+  import { cardIds } from '../pack/packkarten.js';
   import { t, tn } from '../i18n.svelte.js';
   import { Flag, ChevronRight } from '@lucide/svelte';
 
@@ -18,7 +21,7 @@
   const next = $derived(raceTrips($tripsQ ?? [], $racesQ ?? {}, today).coming.find((r) => r.startDate && r.startDate >= today) ?? null);
 </script>
 
-{#if next}
+{#if next && !cardIds($tripsQ ?? [], today).has(next.id)}
   {@const d = daysBetween(today, next.startDate)}
   <a class="race-top" href={raceHref(next.id)} data-next-race-top>
     <Flag size={20} aria-hidden="true" />

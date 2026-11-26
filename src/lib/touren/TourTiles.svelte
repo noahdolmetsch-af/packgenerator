@@ -21,6 +21,7 @@
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
+  import { listAnd } from '../touren.js';
   import { t, tn, locale } from '../i18n.svelte.js';
   import { normState, skKey, hideTile, showTile } from '../sk/tiles.js';
   import { SK_BIG } from '../sk/tiles.js';
@@ -52,7 +53,7 @@
   }
   const wd = (iso) => new Date(`${iso}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' }).replace('.', '');
   const dm = (iso) => new Date(`${iso}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', timeZone: 'UTC' });
-  const bestText = $derived(wx.window?.best.length ? wx.window.best.map(wd).join(` ${t('and')} `) : '');
+  const bestText = $derived(wx.window?.best.length ? listAnd(wx.window.best.map(wd), t('and')) : '');
   const rangeOf = (days) => {
     const b = days.filter((d) => d.best);
     if (!b.length) return '';
@@ -180,7 +181,7 @@
   /* the map over the whole width stays at a calm height (the drawing keeps its proportions) */
   .tile.big :global(.rmap svg) {
     display: block;
-    max-height: 420px;
+    max-height: 300px;
     margin: 0 auto;
   }
   .th {

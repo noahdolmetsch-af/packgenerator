@@ -2,7 +2,7 @@
  * «Touren-Liste aufräumen»: joining doubles and taking them apart again, with the database
  * (aufraeumen.js has the rules). One transaction each, so a join or its «Wieder trennen» is never half done.
  */
-import { joinWrites, splitWrites } from './aufraeumen.js';
+import { joinWrites, splitWrites, markTestChanges, unmarkTestChanges } from './aufraeumen.js';
 
 const TABLES = ['trips', 'debriefs', 'rides'];
 
@@ -39,5 +39,23 @@ export async function splitDoubles(db, ids, now = new Date().toISOString()) {
     const plan = splitWrites(await readAll(db), ids, now);
     await write(db, plan);
     return plan.trips.length;
+  });
+}
+
+/** Set the «Test trip» switch on the given trips. Returns how many were marked. */
+export async function markTests(db, ids, now = new Date().toISOString()) {
+  return db.transaction('rw', db.trips, async () => {
+    let n = 0;
+    for (const id of ids) n += await db.trips.update(id, markTestChanges(now));
+    return n;
+  });
+}
+
+/** «Undo» of markTests: the switch off again. */
+export async function unmarkTests(db, ids) {
+  return db.transaction('rw', db.trips, async () => {
+    let n = 0;
+    for (const id of ids) n += await db.trips.update(id, unmarkTestChanges());
+    return n;
   });
 }

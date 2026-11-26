@@ -11,7 +11,7 @@
  *     it was before (`dupBefore`) and which trip it joined (`dupOf`), so «Wieder trennen» puts it back as it was.
  *   - Kurze Zeiten: «9 h 58 min» instead of «00:09:58:34».
  */
-import { homeTrips, archiveChanges } from '../home/heute.js';
+import { homeTrips, archiveChanges, isTestName } from '../home/heute.js';
 
 /** The ids of the made-up trips of the first start (firststart.js). */
 export const EXAMPLE_IDS = ['ex-trip', 'ex-past'];
@@ -115,6 +115,22 @@ export function splitWrites({ trips = [], debriefs = [], rides = [] }, ids, now 
     rides: (rides ?? []).filter((r) => r.dupFrom && want.has(r.dupFrom)).map((r) => ({ id: r.id, changes: { tripId: r.dupFrom, dupFrom: null } })),
   };
 }
+
+/* ---------- Testfahrten ---------- */
+
+/**
+ * «Touren-Seite klarer» (Noah 25.11.2026 «1-5a», Frage 1a): trips on the list whose name starts like a test
+ * («testnavigation 2611231655») but that have no «Test trip» switch yet. Only the name decides: a short ride can be
+ * a real one. Nothing is marked by itself; the card on the list offers it, with Undo.
+ */
+export function testLooking(trips = []) {
+  return homeTrips(trips).filter((x) => !isExample(x) && x.testTrip !== false && isTestName(x.title));
+}
+
+/** The changes of «Mark as test»: the switch of the trip (Noah H3a), so it counts nowhere. */
+export const markTestChanges = (now = new Date().toISOString()) => ({ testTrip: true, testMarkedAt: now });
+/** «Undo»: the switch off, explicitly (false), so the once-only update of old names does not set it again. */
+export const unmarkTestChanges = () => ({ testTrip: false, testMarkedAt: null });
 
 /* ---------- Zeiten ---------- */
 

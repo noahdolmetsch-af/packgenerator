@@ -8,7 +8,7 @@ export default {
   'No activity yet': 'Noch keine Aktivität',
   'All activities|rides': 'Alle Aktivitäten',
   // B3: «Packmodus» is «mit Packliste»
-  'With packing list|section': 'Mit Packliste',
+  'My trips|section': 'Meine Touren',
   'With packing list: {name}': 'Mit Packliste: {name}',
   'Packing|band': 'Packen',
   'Open packing': 'Packen öffnen',

@@ -116,13 +116,11 @@ test('Touren: the three states on cards and rows, chips with numbers, a pill on 
     await expect(done.locator(`[data-trip-list] li[data-row][data-state="${s}"] .tst svg`)).toHaveCount(n);
   }
   // a date passed without an end, and the trip from an uploaded ride
-  await expect(done.locator('li[data-row="test_data_gtp_trip28"] .tst')).toHaveText(`${T('Completed|state')} · ${T('date passed')}`);
+  await expect(done.locator('li[data-row="test_data_gtp_trip28"] .tst')).toHaveText(`${T('Completed|state')} · ${T('date passed|list')}`);
   await expect(done.locator('li[data-row="test_data_gtp_trip90"] .tst')).toHaveText(`${T('Completed|state')} · GPX`);
 
-  // the legend of the two colours under the list
-  // 0.163.0 «Handy kurz»: on a phone the legend goes (the star and the stripe stay on the rows)
-  if (info.project.name === 'phone') await expect(done.locator('ul.legend')).toBeHidden();
-  else await expect(done.getByRole('list', { name: T('What the colours mean') }).getByRole('listitem')).toHaveCount(LIST_STATES.length);
+  // «Touren-Seite klarer» (Noah 25.11.2026 «4a»): the legend of the two colours is not under the list any more (the rows say it with the pill; the «?» window explains it)
+  await expect(done.getByRole('list', { name: T('What the colours mean') })).toHaveCount(0);
 
   // one chip shows one state only; tapping it again shows all
   const all = await rows.count();

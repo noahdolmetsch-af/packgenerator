@@ -98,7 +98,7 @@ test('a) Touren › Fahrten: every Strava activity, a trip with a packing list i
   await page.goto('./#/trips');
   await openShort(page);
   const pack = page.locator('section[data-packmode]');
-  await expect(pack.getByRole('heading', { level: 2, name: T('With packing list|section') })).toBeVisible();
+  await expect(pack.getByRole('heading', { level: 2, name: T('My trips|section') })).toBeVisible();
   await expect(acts(page)).toHaveCount(0);
   const toRides = page.locator('a[data-to-rides]');
   await expect(toRides).toContainText(T('Rides from Strava'));

@@ -39,6 +39,12 @@ function data() {
 }
 const DATA = data();
 const TWINS = [`${P}twin1`, `${P}twin2`, `${P}twin3`];
+// «Touren-Seite klarer» (Noah 25.11.2026 «1a»): a trip named like a test that was made after the once-only update of old names
+// (testTrips2026 marks such trips right after an import), so it is written into the database after the start
+const TESTNAV = (() => {
+  const src = DATA.tables.trips.find((x) => x.status === 'done' && x.bikeId === 'bike-road');
+  return { ...src, id: `${P}testnav`, title: 'testnavigation 2611231655', startDate: day(-3), days: 1, status: 'done', createdAt: `${day(-3)}T08:00:00.000Z`, entries: [] };
+})();
 
 async function start(page, context, info) {
   mkdirSync(info.project.outputDir, { recursive: true });
@@ -112,10 +118,12 @@ test('c) doubled trips are suggested, joined by choice, nothing deleted, and tak
   const errors = await start(page, context, info);
   await expect(twins(page)).toHaveCount(3);
   const all = await rows(page).count();
-  const line = finished(page).locator('[data-doubles-line]');
-  await expect(line).toContainText(T('{n} trips look doubled', { n: 2 }));
-  await shot(page, info, 'doppelte-zeile', finished(page).locator('.sh').first());
-  await line.locator('[data-doubles-open]').click();
+  // «Touren-Seite klarer» (Noah 25.11.2026 «1a»): the doubles are one visible card above the list, not a grey line
+  const card = finished(page).locator('[data-tidy-card]');
+  await expect(card.locator('[data-tidy-doubles]')).toContainText(T('{n} trips look doubled', { n: 2 }));
+  await expect(card.locator('[data-tidy-doubles]')).toContainText(TWIN);
+  await shot(page, info, 'aufraeumen-karte', card);
+  await card.locator('[data-doubles-open]').click();
   const sheet = page.locator('[data-doubles-sheet]');
   await expect(sheet).toBeVisible();
   const group = sheet.locator('[data-doubles] li.grp');
@@ -160,6 +168,55 @@ test('c) doubled trips are suggested, joined by choice, nothing deleted, and tak
   await page.locator('[data-doubles-sheet]').getByRole('button', { name: T('Close'), exact: true }).click();
   await expect(twins(page)).toHaveCount(3);
   await expect(rows(page)).toHaveCount(all);
+  await noSideways(page);
+  expect(errors).toEqual([]);
+});
+
+test('c2) the card joins the doubles with one tap (the one with the Rückblick stays), Undo brings them back', async ({ page, context }, info) => {
+  const errors = await start(page, context, info);
+  const all = await rows(page).count();
+  const card = finished(page).locator('[data-tidy-card]');
+  await card.locator('[data-tidy-join]').click();
+  await expect(twins(page)).toHaveCount(1);
+  await expect(rows(page)).toHaveCount(all - 2);
+  // the one with the Rückblick (the middle one) is the one that stays
+  await expect(twins(page).locator('.tst[data-state="rated"]')).toHaveCount(1);
+  await expect(card.locator('[data-tidy-doubles]')).toHaveCount(0);
+  await page.getByRole('button', { name: T('Undo') }).click();
+  await expect(twins(page)).toHaveCount(3);
+  await expect(rows(page)).toHaveCount(all);
+  await expect(card.locator('[data-tidy-doubles]')).toBeVisible();
+  await noSideways(page);
+  expect(errors).toEqual([]);
+});
+
+test('c3) a trip named like a test is offered for the test switch, with Undo; nothing is deleted', async ({ page, context }, info) => {
+  const errors = await start(page, context, info);
+  await page.evaluate(async (trip) => {
+    const db = await new Promise((ok) => (indexedDB.open('pack-generator').onsuccess = (e) => ok(e.target.result)));
+    await new Promise((ok) => (db.transaction('trips', 'readwrite').objectStore('trips').put(trip).onsuccess = ok));
+    db.close();
+  }, TESTNAV);
+  await page.reload();
+  await openShort(page);
+  const card = finished(page).locator('[data-tidy-card]');
+  const nav = rows(page).filter({ has: page.getByRole('link', { name: 'testnavigation 2611231655', exact: true }) });
+  await expect(nav).toHaveCount(1);
+  await expect(card.locator('[data-tidy-tests]')).toContainText('testnavigation 2611231655');
+  await card.locator('[data-tidy-test]').click();
+  // it counts nowhere now: out of the list, the page says so in its quiet line
+  await expect(nav).toHaveCount(0);
+  await expect(page.locator('[data-hidden-tests]')).toBeVisible();
+  const kept = await page.evaluate(async (id) => {
+    const db = await new Promise((ok) => (indexedDB.open('pack-generator').onsuccess = (e) => ok(e.target.result)));
+    const trip = await new Promise((ok) => (db.transaction('trips').objectStore('trips').get(id).onsuccess = (e) => ok(e.target.result)));
+    db.close();
+    return { has: !!trip, test: trip?.testTrip, archived: !!trip?.archivedAt };
+  }, `${P}testnav`);
+  expect(kept).toEqual({ has: true, test: true, archived: false });
+  await page.getByRole('button', { name: T('Undo') }).click();
+  await expect(nav).toHaveCount(1);
+  await expect(card.locator('[data-tidy-tests]')).toHaveCount(0); // marked off by choice: not offered again
   await noSideways(page);
   expect(errors).toEqual([]);
 });

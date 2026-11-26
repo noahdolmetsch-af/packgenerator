@@ -147,6 +147,10 @@
         <li><Icon size={18} aria-hidden="true" /><span><b>{t(title)}</b>{t(text)}</span></li>
       {/each}
     </ul>
+    {#if hint.read}
+      <p class="jl">{t(hint.read[0])}</p>
+      <p class="expect" data-hint-read>{t(hint.read[1])}</p>
+    {/if}
     {#if intro}
       <p class="jl">{t('How to use {place}', { place: introName })}</p>
       <ul class="uc" data-intro-things={introKey}>
