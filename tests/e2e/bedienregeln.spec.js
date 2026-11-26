@@ -70,13 +70,15 @@ test('a new trip is kept as soon as something is chosen', async ({ page, context
 test('g and a letter open the tab opened last there', async ({ page, context }, info) => {
   test.skip(info.project.name === 'phone', 'keyboard shortcuts are for a computer');
   const errors = await start(page, context, info);
-  await page.goto('./#/wardrobe');
+  // «Velos und Material» (V5): «g m» always opens the tab Material (src/lib/nav/keys.js); the place letter «v» opens the tab opened last
+  // there, and «Sets» is a tab of its own, not a chip
+  await page.goto('./#/blocks');
   await expect(page.locator('main h1')).toBeVisible();
   await page.goto('./#/');
   await expect(page.locator('main')).toBeVisible();
   await page.locator('body').click({ position: { x: 5, y: 5 } }).catch(() => {});
   await page.keyboard.press('g');
-  await page.keyboard.press('m');
-  await expect(page).toHaveURL(/#\/wardrobe$/);
+  await page.keyboard.press('v');
+  await expect(page).toHaveURL(/#\/blocks$/);
   expect(errors).toEqual([]);
 });

@@ -17,8 +17,9 @@ test('capture preparation designs', async ({ page, context }, info) => {
   await expect(page.getByRole('heading', {name:'Packliste', exact: true})).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
   if (info.project.name === 'desktop') {
-    const button = await page.getByRole('button',{name:/^Alles (gepackt|einpacken), los$/}).boundingBox();
-    expect(button.y + button.height).toBeLessThanOrEqual(1058);
+    // the bar comes in from below (an entry movement): wait until it has settled instead of reading it mid-way (Wackler 25.11., Nachtlauf)
+    const button = page.getByRole('button',{name:/^Alles (gepackt|einpacken), los$/});
+    await expect.poll(async () => { const b = await button.boundingBox(); return b ? b.y + b.height : Infinity; }).toBeLessThanOrEqual(1058);
   }
   await page.screenshot({path:`qa/pack-${info.project.name}.png`,fullPage:true});
   // Remove the jacket and reduce the food amount through the real controls to reopen decisions.

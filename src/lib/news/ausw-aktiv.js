@@ -9,7 +9,7 @@ export default {
     },
     {
       text: 'Under «Your questions» the explanation is folded: «Why questions? Where do I see the answers?»',
-      go: { href: '#/auswerten', steps: [{ text: 'Why questions? Where do I see the answers?' }] },
+      go: { href: '#/auswerten', steps: [{ text: 'Why questions? Where do I see the answers?' }], where: 'Analysis, under «Your questions»; it shows once you have questions.' },
     },
   ],
   small: [],
@@ -20,6 +20,7 @@ export default {
   ],
   since: [],
   de: {
+    'Analysis, under «Your questions»; it shows once you have questions.': 'Auswerten, unter «Deine Fragen»; es erscheint, sobald du Fragen hast.',
     'Analysis: tidier start': 'Auswerten: aufgeräumter Start',
     'A list you pinned to Active now stands on Active. Under «Your questions» one folded line holds the explanation.': 'Eine Liste, die du an Aktiv angeheftet hast, steht jetzt auf Aktiv. Unter «Deine Fragen» steckt die Erklärung in einer eingeklappten Zeile.',
     'A list pinned to Active stands at the bottom of the page Active, no longer under Analysis': 'Eine an Aktiv angeheftete Liste steht unten auf der Seite Aktiv, nicht mehr unter Auswerten',

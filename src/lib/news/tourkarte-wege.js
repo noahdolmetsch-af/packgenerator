@@ -4,7 +4,7 @@ export default {
   lead: 'Each planned trip in Trips has small ways now: Pack, Weather, Form. And «4 wait for your review» shows exactly those trips.',
   points: [
     { text: 'The card of a planned trip leads to Pack, to the weather of this trip and to Form (after the trip: to its review)', go: { href: '#/trips', steps: [{ sel: '[data-plan-ways]' }] } },
-    { text: 'The number «n wait for your review» under the title is a way: it shows those trips', go: { href: '#/trips', steps: [{ sel: '[data-waiting-go]' }] } },
+    { text: 'The number «n wait for your review» under the title is a way: it shows those trips', go: { href: '#/trips', steps: [{ sel: '[data-waiting-go]' }], where: 'Trips, under the title; it shows once trips wait for their review.' } },
   ],
   small: [],
   test: [
@@ -14,6 +14,7 @@ export default {
   ],
   since: [],
   de: {
+    'Trips, under the title; it shows once trips wait for their review.': 'Touren, unter dem Titel; es erscheint, sobald Touren auf ihren Rückblick warten.',
     'Ways on every trip card': 'Wege auf jeder Tourkarte',
     'Each planned trip in Trips has small ways now: Pack, Weather, Form. And «4 wait for your review» shows exactly those trips.': 'Jede geplante Tour in Touren hat jetzt kleine Wege: Packen, Wetter, Form. Und «4 warten auf deinen Rückblick» zeigt genau diese Touren.',
     'The card of a planned trip leads to Pack, to the weather of this trip and to Form (after the trip: to its review)': 'Die Karte einer geplanten Tour führt zu Packen, zum Wetter dieser Tour und zu Form (nach der Tour: zu ihrem Rückblick)',

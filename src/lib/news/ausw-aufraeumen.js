@@ -5,7 +5,7 @@ export default {
   points: [
     {
       text: '«In focus» shows only sports with an activity in the last 7 days; otherwise one line says when the last one was',
-      go: { href: '#/auswerten', steps: [{ text: 'In focus' }] },
+      go: { href: '#/auswerten', steps: [{ text: 'In focus' }], where: 'Analysis, under the overview; it shows once a sport has an activity.' },
     },
     {
       text: 'The tiles for resting pulse, active zone minutes and calories name their day or period',
@@ -20,6 +20,7 @@ export default {
   ],
   since: [],
   de: {
+    'Analysis, under the overview; it shows once a sport has an activity.': 'Auswerten, unter der Übersicht; es erscheint, sobald eine Sportart eine Aktivität hat.',
     'Analysis: clearer periods': 'Auswerten: Zeiträume klarer',
     '«In focus» no longer shows a sport with 0:00:00, and the tiles of the overview say which days they count.': '«Im Fokus» zeigt keine Sportart mehr mit 0:00:00, und die Kacheln der Übersicht sagen, welche Tage sie zählen.',
     '«In focus» shows only sports with an activity in the last 7 days; otherwise one line says when the last one was': '«Im Fokus» zeigt nur Sportarten mit einer Aktivität in den letzten 7 Tagen; sonst sagt eine Zeile, wann die letzte war',
