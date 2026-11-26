@@ -60,9 +60,9 @@ describe('the weekly hours', () => {
     expect(hoursGoal({}, TODAY)).toBe(null);
     expect(hoursGoal({ goal: null, weekplan: null }, TODAY)).toBe(null);
   });
-  it('takes Training › goal first, then the hours of the weekly plan', () => {
+  it('takes the hours of the weekly plan first (one hours goal, Noah 26.11.2026), then Training › goal', () => {
     expect(hoursGoal({ goal: { hours: 6 } }, TODAY)).toBe(6);
-    expect(hoursGoal({ goal: { hours: 6 }, weekplan: { winter: { hours: 15 } } }, TODAY)).toBe(6);
+    expect(hoursGoal({ goal: { hours: 6 }, weekplan: { winter: { hours: 15 } } }, TODAY)).toBe(15);
     expect(hoursGoal({ weekplan: { winter: { hours: 12 } } }, TODAY)).toBe(12);
   });
 });

@@ -43,7 +43,7 @@
   import { DREAMS_KEY, storeOf as dreamStore, dreamList } from '../../lib/dreams.js'; // «Tour einplanen»
   import { weekQuery } from '../../lib/woche/load.js'; // «Zeitplan»: the dates of the week stand in the schedule
   import { buildWeek } from '../../lib/woche.js';
-  import { WEEKPLAN_KEY, planOf as weekplanOf, isSummer, modeCfg, planWeek, focusOf } from '../../lib/training/wochenplan.js'; // «Zeitplan»: the suggestions of the weekly plan
+  import { WEEKPLAN_KEY, planOf as weekplanOf, isSummer, modeCfg, planWeek, focusOf, weekHours } from '../../lib/training/wochenplan.js'; // «Zeitplan»: the suggestions of the weekly plan
   import { WEEKLOG_KEY, logOf, weekLog, weekPins, setMode } from '../../lib/training/wochenlog.js';
   import YourStand from '../../lib/training/YourStand.svelte'; // V4b2: the card «Your status»
   import { restLine } from '../../lib/training/dein-stand.js';
@@ -235,6 +235,8 @@
   );
   const wpQ = liveQuery(async () => (await db.settings.get(WEEKPLAN_KEY))?.value ?? null);
   const wlQ = liveQuery(async () => (await db.settings.get(WEEKLOG_KEY))?.value ?? null);
+  // ONE hours goal (Noah 26.11.2026): the weekly plan's hours when a plan is saved, else the training goal's while its day has not passed
+  const goalHours = $derived(weekHours({ goal: $goalQ, weekplan: $wpQ }, today));
   // only this week and next week carry suggestions, and only once a weekly plan was saved
   const wpWeek = $derived.by(() => {
     if ($wpQ == null || monday < mondayOf(today) || monday > shiftDay(mondayOf(today), 7)) return null;
@@ -256,7 +258,7 @@
   // Noah 23.11.2026 «4a»: «planned 19:20 of 15 h» counts everything the week holds: the days by hand and from TrainingPeaks, the suggestions of the
   // weekly plan and the team dates; the goal is the one of the weekly plan (its own goal in a week with TrainingPeaks or team dates)
   const weekAll = $derived.by(() => {
-    if (!wpWeek) return { mins: nums.planned, goalMins: goal?.hours ? goal.hours * 60 : 0 };
+    if (!wpWeek) return { mins: nums.planned, goalMins: goalHours ? goalHours * 60 : 0 };
     const { wk, cfg } = wpWeek;
     const team = (wk.team ?? []).reduce((a, x) => a + x.mins, 0);
     const outside = (wk.tp ?? []).reduce((a, x) => a + x.mins, 0) + team;
@@ -285,7 +287,7 @@
   // V4b2 «Your status»: readiness, the hours of this week, the resting pulse of the last days, the next race
   const stand = $derived({
     ready: $formQ?.ready ?? null,
-    week: nums.secs > 0 || goal?.hours ? { done: hmm(nums.secs), goal: goal?.hours ? hours(goal.hours * 60) : null } : null,
+    week: nums.secs > 0 || goalHours ? { done: hmm(nums.secs), goal: goalHours ? hours(goalHours * 60) : null } : null,
     rest: $formQ?.table ? restLine($formQ.table, today, $formQ.opts?.rest, (d, n) => shiftDay(d, -n)) : null,
     race: nextRace?.startDate ? { href: raceHref(nextRace.id), name: nextRace.title, when: daysBetween(today, nextRace.startDate) === 0 ? t('today') : tn(daysBetween(today, nextRace.startDate), 'in {n} day', 'in {n} days') } : null,
   });
@@ -365,7 +367,8 @@
     await db.settings.delete(GOAL_KEY);
     goalForm = null;
   }
-  const goalLine = $derived(goal ? [goal.hours ? t('{n} h per week', { n: num(goal.hours) }) : '', goal.base != null ? t('{n} % in Z1–Z2', { n: goal.base }) : '', goal.until ? tn(weeksTo(goal.until, today), '{n} week to go', '{n} weeks to go') : ''].filter(Boolean).join(' · ') : '');
+  // one hours goal: with a weekly plan its hours count (and the line says so); a goal whose day has passed says so instead of «0 weeks to go»
+  const goalLine = $derived(goal ? [goalHours ? ($wpQ != null ? t('{n} h per week · from your weekly plan', { n: num(goalHours) }) : t('{n} h per week', { n: num(goalHours) })) : '', goal.base != null ? t('{n} % in Z1–Z2', { n: goal.base }) : '', goal.until ? (goal.until < today ? t('ended on {day}', { day: fmt(goal.until, { day: 'numeric', month: 'long' }) }) : tn(weeksTo(goal.until, today), '{n} week to go', '{n} weeks to go')) : ''].filter(Boolean).join(' · ') : '');
 
   // the look back: six weeks up to the shown one
   const weeks = $derived(
@@ -415,6 +418,7 @@
           <label>{t('Share in Z1–Z2 (%)')}<input class="inp num" type="number" min="0" max="100" bind:value={goalForm.base} /></label>
           <label>{t('Until (optional)')}<input class="inp" type="date" bind:value={goalForm.until} /></label>
         </div>
+        {#if $wpQ != null}<p class="hint" data-goal-plan-hint>{t('You have a weekly plan: its hours count. This number is kept for weeks without a plan.')}</p>{/if}
         <div class="row">
           <button type="submit" class="btn hi">{t('Save')}</button>
           {#if goal}<button type="button" class="btn" onclick={dropGoal}>{t('Remove goal')}</button>{/if}
@@ -537,9 +541,9 @@
           <p class="none" data-back-empty>{t('No training time in the last 6 weeks yet. As soon as Strava brings an activity with heart rate, a bar per week stands here.')}</p>
           <a class="btn sm" href={STRAVA_HASH} data-back-strava>{strava.key ? t('To Strava') : t('Connect Strava')}</a>
         {:else}
-        <BarChart id="lookback" cols={wCols} line={wLine} lineColor="var(--ink)" goal={goal?.hours ? { v: goal.hours, text: t('Goal a week: {n} h', { n: num(goal.hours) }) } : null} readout={wRead} table={wTable} unit="h" label={t('Hours per week, last six weeks')} onopen={(i) => (wSel = i)} hint={t('Point at a week for its hours, tap it for the zones.')} />
+        <BarChart id="lookback" cols={wCols} line={wLine} lineColor="var(--ink)" goal={goalHours ? { v: goalHours, text: t('Goal a week: {n} h', { n: num(goalHours) }) } : null} readout={wRead} table={wTable} unit="h" label={t('Hours per week, last six weeks')} onopen={(i) => (wSel = i)} hint={t('Point at a week for its hours, tap it for the zones.')} />
         <ZoneBar bar={false} legend />
-        <p class="tw num" data-this-week>{goal?.hours ? t('This week {a} of {b} h', { a: hmm(nums.secs), b: hours(goal.hours * 60) }) : t('This week {a} h', { a: hmm(nums.secs) })}{#if baseShare != null}{' · '}{goal?.base != null ? t('Z1–Z2 {n} % (goal {g} %)', { n: baseShare, g: goal.base }) : t('Z1–Z2 {n} %', { n: baseShare })}{/if}</p>
+        <p class="tw num" data-this-week>{goalHours ? t('This week {a} of {b} h', { a: hmm(nums.secs), b: hours(goalHours * 60) }) : t('This week {a} h', { a: hmm(nums.secs) })}{#if baseShare != null}{' · '}{goal?.base != null ? t('Z1–Z2 {n} % (goal {g} %)', { n: baseShare, g: goal.base }) : t('Z1–Z2 {n} %', { n: baseShare })}{/if}</p>
         {#if showNext && !hasWeekPlan}<NextWeek last={lastWeekHours} reason={nextReason} goals={nextGoals} hours={(h) => `${num(h)} h`} onpick={pickNext} onlater={laterNext} />{/if}
         {/if}
         <p class="fb"><span><Timer size={16} aria-hidden="true" />{t('Active zone minutes')} <i class="pill">{t('with Fitbit')}</i></span><span><Heart size={16} aria-hidden="true" />{t('Resting heart rate')} <i class="pill">{t('with Fitbit')}</i></span></p>

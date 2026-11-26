@@ -134,3 +134,19 @@ test('Standardwoche: on a computer a place is pulled to another day', async ({ p
   await expect(std(page).locator('[data-sw-entry="tennis@2"]')).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+test('Wochenziel: with a weekly plan its hours count, and a goal whose day has passed says so', async ({ page, context }) => {
+  const errors = await open(page, context); // the plan of 15 hours is saved
+  await page.goto('./#/flow/training');
+  await ready(page);
+  const card = page.locator('[data-section="goal"]');
+  await card.getByRole('button', { name: T('Set a goal') }).click();
+  await page.locator('[data-goal-hours]').fill('10');
+  await expect(page.locator('[data-goal-plan-hint]')).toBeVisible(); // the form says which hours count
+  await page.locator('input[type="date"]').first().fill('2026-10-24'); // a day before the fixed clock
+  await page.getByRole('button', { name: T('Save'), exact: true }).first().click();
+  await expect(card).toContainText(T('{n} h per week · from your weekly plan').replace('{n}', '15'));
+  await expect(card).toContainText('endete am');
+  await expect(card).not.toContainText('0 Wochen');
+  expect(errors).toEqual([]);
+});
