@@ -104,7 +104,10 @@ describe('the night run has as many browser parts as it divides the specs into (
     const n = (/shard: \[([\d, ]+)\]\n    steps:/.exec(v)?.[1] ?? '').split(',').length;
     expect(n).toBe(7);
     expect(v).toContain(`--shard=\${{ matrix.shard }}/${n}`);
-    const gesamt = (/shard: \[1, 2\]/.test(v) ? 2 : 0) * 2; // the Gesamttest: phone and computer
+    // the Gesamttest: phone and computer; since 26.11.2026 six parts (every address of the code is opened at night), its matrix and its --shard=n/N agree
+    const gesamt = 6 * 2;
+    expect(/shard: \[1, 2, 3, 4, 5, 6\]\n    steps:\n(?:.*\n)*?      - run: npx playwright test tests\/e2e\/gesamttest /.test(v)).toBe(true);
+    expect(v).toContain('npx playwright test tests/e2e/gesamttest --project=${{ matrix.project }} --shard=${{ matrix.shard }}/6');
     const ausprobieren = (/shard: \[1, 2, 3\]\n    steps:\n(?:.*\n)*?      - run: npx playwright test tests\/e2e\/ausprobieren\.spec\.js/.test(v) ? 3 : 0) * 2; // phone and computer
     expect(ausprobieren).toBe(6);
     expect(v).toContain(`rot-liste.txt ${n * 2 + gesamt + ausprobieren} >`);
@@ -165,7 +168,7 @@ describe('the night run keeps a wobbly list (Noah 21.11.2026 «4»)', () => {
     expect(v).toContain('gh issue close');
   });
   it('the list does not disturb the comparison of the red ones (it counts only rot-*.txt files)', () => {
-    expect(v).toContain('rot-liste.txt 24 >');
+    expect(v).toContain('rot-liste.txt 32 >');
     expect(readFileSync(new URL('../scripts/nacht-vergleich.mjs', import.meta.url), 'utf8')).toContain("/^rot-.*\\.txt$/");
   });
 });
