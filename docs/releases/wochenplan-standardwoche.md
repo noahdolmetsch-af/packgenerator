@@ -1,6 +1,6 @@
 # Standardwoche im Wochenplan
 
-PR #NNNN · 26.11.2026 · Auftrag: Noah «1a, Wunsch- und Fix-Plätze pro Sportart, 3a, 5b» und «nichts doppeltes» (Thread «Wochenplan-Vorschläge verlässlich machen»)
+PR #1808 · 26.11.2026 · Auftrag: Noah «1a, Wunsch- und Fix-Plätze pro Sportart, 3a, 5b» und «nichts doppeltes» (Thread «Wochenplan-Vorschläge verlässlich machen»)
 
 ## Was ist neu
 - Training › Wochenplan hat zwei Reiter: «Woche» (der Vorschlag dieser und der nächsten Woche, wie bisher) und «Standardwoche» (deine normale Woche).
