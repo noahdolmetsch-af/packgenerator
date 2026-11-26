@@ -909,7 +909,8 @@
       order: 2;
     }
     .sort,
-    .sortdone {
+    .sortdone,
+    .tidy {
       order: 3;
     }
     .bar {
@@ -928,6 +929,10 @@
     }
     .foot {
       order: 7;
+    }
+    /* Impeccable «Kleider» (Noah 24.11.2026 «1-5a», Fund 1): your own clothes come first on a phone; the wishlist (not yours yet) ends the content */
+    .wishes {
+      order: 8;
     }
     .kits {
       order: 6;

@@ -6,6 +6,7 @@ Ein Wackler ist ein Test, der ohne Änderung an der App mal grün und mal rot is
 
 | Test (Datei:Zeile) | Gerät | Gesehen | Ursache | Fix | Stand |
 |---|---|---|---|---|---|
+| kleider-eigene-zuerst.spec.js:62 (Figur vor 700 px) | Handy | 26.11. (lokal, vor PR) | Mass wuchs mit dem Hinweis «Velo: was du auf dem Velo trägst …» (Velos-Material-Runde 2) auf 776 px; allein gemessen war die Seite noch nicht fertig und der Test zufällig grün | im selben PR: Grenze ist der erste Bildschirm (Höhe des Handys, 844 px) statt 700, mit `expect.poll`; der Test misst so die Absicht (Figur vor der Wunschliste, im ersten Bildschirm) | beobachten |
 | pack-schritte.spec.js:7 (Schritte, gemerkte Reihenfolge) | Handy | 25.11. (PR 1776) | Neuladen, bevor die mit dem Pfeil verschobene Reihenfolge in den Einstellungen gespeichert war (`pack.steps.order`); das Warten fehlte, bei den Einstellungen weiter unten im Test war es da | #1776 | beobachten |
 | tote-knoepfe.spec.js:28 | Handy | 24.11. | Netz aus, bevor die nachgeladene Seite «Hinweise» da war | #1731 | stabil |
 | rueckblick-design.spec.js (Knöpfe 44 px) | Computer | 24.11. | kleine Knöpfe (`.btn.sm`) sind mit Maus 32 px, 44 nur bei Touch | #1727 | stabil |
