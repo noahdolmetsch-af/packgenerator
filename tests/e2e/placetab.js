@@ -7,6 +7,13 @@ import { ALL_PLACES, PLACE_TABS } from '../../src/lib/nav.js';
 
 /** The visible tabs of the open place: the bar on top (phone) or the list in the sidebar (computer). */
 export const TABS = 'nav.ptabs:visible, .side .tabs:visible';
+/**
+ * The lit tab inside TABS. Since «Navigation schlanker» (PR 1759) the sidebar of a computer names the page under the lit tab as an
+ * extra row (data-side-sub, e.g. «Mein Setup» under «Velos»): the tab itself then carries aria-current="true", the row "page".
+ * TAB_LINK / TAB_LIT leave that extra row out, so tests count and read the tabs only.
+ */
+export const TAB_LINK = 'a:not([data-side-sub])';
+export const TAB_LIT = 'a[aria-current]:not([data-side-sub])';
 
 export async function viaTab(page, place, href) {
   // the place itself by its address (a window over the page, e.g. the morning check, could cover the bar)

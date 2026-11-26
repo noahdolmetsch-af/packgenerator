@@ -3,7 +3,7 @@
 // Fictional data (home0460-fixture.js), German UI, nothing leaves the preview.
 import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
-import { TABS } from './placetab.js';
+import { TABS, TAB_LINK } from './placetab.js';
 
 const noSideScroll = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
 
@@ -13,8 +13,8 @@ test('Velos und Material: four tabs, the old pages as chips, every address still
   await openHome(page, context, info);
   await page.goto('./#/bikes');
   const tabs = page.locator(TABS).first();
-  await expect(tabs.locator('a')).toHaveCount(4); // Velos, Pflege, Material, Sets
-  for (const href of ['#/bikes', '#/bikes?tab=care', '#/gear', '#/blocks']) await expect(tabs.locator(`a[href="${href}"]`)).toHaveCount(1);
+  await expect(tabs.locator(TAB_LINK)).toHaveCount(4); // Velos, Pflege, Material, Sets
+  for (const href of ['#/bikes', '#/bikes?tab=care', '#/gear', '#/blocks']) await expect(tabs.locator(`a[href="${href}"]:not([data-side-sub])`)).toHaveCount(1);
   await expect(page.locator('[data-place-switch]')).toHaveCount(0);
   const chips = page.locator('nav.psubs');
   await expect(chips).toHaveCount(0); // Velos aufräumen (23.11.2026): no chips under «Velos»; Teile and Mein Setup are rows of the page
@@ -33,7 +33,7 @@ test('Velos und Material: four tabs, the old pages as chips, every address still
   // every old page opens at its old address and lights its tab and its chip
   for (const [hash, tab, sub] of [['#/bikes?tab=care', '#/bikes?tab=care', 'care'], ['#/care', '#/bikes?tab=care', 'care'], ['#/bikes?tab=shop', '#/bikes?tab=care', 'shop'], ['#/bikes?tab=compare', '#/bikes', null], ['#/bikes?tab=rig', '#/bikes', null], ['#/gear?view=wish', '#/gear', 'wish'], ['#/gear/supplies', '#/gear', 'supplies'], ['#/gear/lend', '#/gear', 'lend'], ['#/blocks', '#/blocks', 'blocks'], ['#/equipment', '#/blocks', 'sets']]) {
     await page.goto(`./${hash}`);
-    await expect(tabs.locator(`a[href="${tab}"]`), hash).toHaveAttribute('aria-current', /page|true/);
+    await expect(tabs.locator(`a[href="${tab}"]:not([data-side-sub])`), hash).toHaveAttribute('aria-current', /page|true/);
     if (sub) await expect(chips.locator(`a[data-sub="${sub}"]`), hash).toHaveAttribute('aria-current', 'page');
   }
   expect(errors).toEqual([]);

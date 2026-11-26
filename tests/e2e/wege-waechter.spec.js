@@ -91,8 +91,15 @@ test('Wege-Wächter: Pfad, Sackgasse und Zurück auf jeder Adresse', async ({ pa
     if (p.pfad) pfad.push(hash);
     if (p.sackgasse) sack.push(hash);
     // back: Heute → page → back lands on Heute (the page may have replaced its own address, so we compare with Heute)
-    // a window that opened with the page (a new note, a shared tour) is closed by the first step back, by design (backclose.js): one more step
-    const mitFenster = (await page.locator('dialog[open], [role="dialog"]').count()) > 0;
+    // a window that opened with the page (a new note, a shared tour) is closed by the first step back, by design (backclose.js): one more step.
+    // This is looked at on a page opened WITHOUT reload: a reload races with the page («#/inbox/new» replaces its address and opens the
+    // window in the same moment): sometimes the reload took the window away but left its history entry, sometimes it came first
+    // (Wackler 25.11., Nachtlauf: #/inbox/new, #/komoot/shared). Without a reload the window is open or not, and stays so.
+    await page.goto('./#/');
+    await page.waitForTimeout(80);
+    await oeffne(page, hash, 0, false);
+    // a window that has its own history entry (backclose.js writes `pgDialog` into the state); a full-screen page with role=dialog has none
+    const mitFenster = await page.evaluate(() => !!history.state?.pgDialog);
     await page.goBack().catch(() => {});
     await page.waitForTimeout(250);
     if (mitFenster) {

@@ -4,7 +4,7 @@
 import { test, expect } from './clock.js';
 import { v048File, P, SPARK, GOAT } from './v048-fixture.js';
 import { openData, settle } from './settle.js';
-import { TABS } from './placetab.js';
+import { TABS, TAB_LIT } from './placetab.js';
 
 const SHOTS = process.env.AUSSTATTUNG_SHOTS;
 const noSideways = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
@@ -48,7 +48,7 @@ test('Ausstattung: groups with name, weight and price; a part gets its price in 
   await expect(page.getByRole('heading', { level: 1, name: 'Teile', exact: true })).toBeVisible();
   await expect(page.locator('header.vhead .vsub')).toContainText(`${P} Scott Spark 960 · `);
   // Velos aufräumen (23.11.2026): the tab «Velos» lights, and there is no row of chips under it (Teile is a row of the bike page)
-  await expect(page.locator(TABS).first().locator('a[aria-current="page"]')).toHaveText('Velos');
+  await expect(page.locator(TABS).first().locator(TAB_LIT)).toHaveText('Velos');
   await expect(page.locator('nav.psubs')).toHaveCount(0);
   // Noah's four measurements on top, the rest behind «+ n weitere Masse».
   // Impeccable Runde 2 (Ausstattung 1): no measure yet is one sentence and «Masse eintragen», which opens the first one

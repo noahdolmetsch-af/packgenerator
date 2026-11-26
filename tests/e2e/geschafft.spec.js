@@ -185,7 +185,8 @@ test('T2: a tap on a tile ticks and opens the page; duration and feeling are opt
   await expect(how.locator('[data-feel][aria-pressed="true"]')).toHaveCount(0);
   await expect(how.locator('[data-min="60"]')).toHaveAttribute('aria-pressed', 'true');
   await expect.poll(async () => (await readLog(page)).find((e) => e.id === saved[0].id)).toMatchObject({ min: 60 });
-  expect((await readLog(page)).find((e) => e.id === saved[0].id).feel).toBeUndefined();
+  // taking the feeling back and the new duration are two writes: wait for the database to hold both, not only the first (Wackler 25.11., Nachtlauf)
+  await expect.poll(async () => (await readLog(page)).find((e) => e.id === saved[0].id)?.feel).toBeUndefined();
   expect(errors).toEqual([]);
 });
 
