@@ -92,6 +92,9 @@
   import { ampelShows, ampelRows } from '../lib/trip/ampel.js';
   import { dazuRows, skipPatch } from '../lib/pack/dazu.js'; // «Dazu nötig» (Noah 23.11.2026 «G1»)
   import DazuSheet from '../lib/pack/DazuSheet.svelte';
+  import { learnedBags, withOff, LEARN_OFF } from '../lib/pack/taschelernen.js'; // «Tasche lernen» (Noah 23.11.2026 «3a»)
+  import TascheSheet from '../lib/pack/TascheSheet.svelte';
+  import { offerDone } from '../lib/ui/rename.svelte.js';
   import { griffRows, skipGriff } from '../lib/pack/griff.js'; // «Griffbereit» (Noah 23.11.2026 «G3»)
   import GriffSheet from '../lib/pack/GriffSheet.svelte';
   import { chargeList, chargeCount } from '../lib/charge.js';
@@ -298,6 +301,22 @@
   // «Dazu nötig» (Noah 23.11.2026 «G1»): what belongs with something on the list and is not on it; the line of the card opens the window
   const dazu = $derived(trip && !over ? dazuRows({ trip, items, trips: $tripsQ ?? [], debriefs: $debriefsQ ?? [] }) : []);
   let dazuOpen = $state(false);
+  // «Tasche lernen» (Noah 23.11.2026 «3a»): things you keep putting into another bag than their usual one; the line of the card opens the window
+  const learnOffQ = liveQuery(() => db.settings.get(LEARN_OFF));
+  const tasche = $derived(trip && !over ? learnedBags({ trip, items, trips: $tripsQ ?? [], debriefs: $debriefsQ ?? [], off: $learnOffQ?.value ?? [] }) : []);
+  let tascheOpen = $state(false);
+  async function learnApply(id, slot) {
+    const before = (await db.items.get(id))?.defaultBag ?? null;
+    const was = (await db.items.get(id))?.updatedAt;
+    await db.items.update(id, { defaultBag: slot, updatedAt: new Date().toISOString() });
+    offerDone(t('The usual bag is changed.'), () => db.items.update(id, { defaultBag: before, updatedAt: was ?? new Date().toISOString() }));
+  }
+  async function learnOff(id) {
+    const rec = await db.settings.get(LEARN_OFF);
+    const before = rec?.value ?? [];
+    await db.settings.put({ key: LEARN_OFF, value: withOff(before, id) });
+    offerDone(t('We will not ask about this item again.'), () => db.settings.put({ key: LEARN_OFF, value: before }));
+  }
   // «Griffbereit» (Noah 23.11.2026 «G3»): food, rain gear and marked things that lie out of reach; the line of the card opens the window
   const griff = $derived(trip && bikeTrip && !over ? griffRows({ trip, items, bags }) : []);
   let griffOpen = $state(false);
@@ -306,7 +325,7 @@
     if (!ampelShows(trip, stats, today)) return [];
     const c = before?.care ?? before?.shortCare ?? null;
     const care = before ? { due: c?.status === 'due' ? c.rows.length : 0, late: !!c?.late, nodata: before.care?.status === 'nodata' && !before.prep.total, open: before.open.length } : null;
-    return ampelRows({ trip, stats, today, forecast: !!fcWx, wxGap: bikeTrip && !!wxGap, care, charged: charge.length ? charged : null, dazu: dazu.length ? { n: dazu.length, name: nameOf(dazu[0].item) } : null, griff: griff.length && itemsById[griff[0].itemId] ? { n: griff.length, name: nameOf(itemsById[griff[0].itemId]) } : null });
+    return ampelRows({ trip, stats, today, forecast: !!fcWx, wxGap: bikeTrip && !!wxGap, care, charged: charge.length ? charged : null, dazu: dazu.length ? { n: dazu.length, name: nameOf(dazu[0].item) } : null, griff: griff.length && itemsById[griff[0].itemId] ? { n: griff.length, name: nameOf(itemsById[griff[0].itemId]) } : null, tasche: tasche.length ? { n: tasche.length, name: nameOf(tasche[0].item) } : null });
   });
   function ampelAct(act) {
     if (act === 'pack' || act === 'weather') location.hash = '#/pack?day';
@@ -314,6 +333,7 @@
     else if (act === 'power') chargeOpen = true;
     else if (act === 'dazu') dazuOpen = true;
     else if (act === 'griff') griffOpen = true;
+    else if (act === 'tasche') tascheOpen = true;
   }
   function useForecast() {
     changeContext((t) => ({ wx: { ...(t.wx ?? {}), ...fcWx, ...pctOf(t) }, wxFrom: 'forecast' }));
@@ -1227,6 +1247,7 @@
     <div class="onion-toast packed-toast" role="status"><span>{t('All packed. Have a good trip!')}</span><a class="btn sm" href="#/">{t('To Today')}</a><AlsNaechstes moment="packed" ontap={() => (packedNote = null)} /></div>
   {/if}
   {#if tplNote}<p role="status">{tplNote}</p>{/if}{#if shareNote}<p role="status">{shareNote}</p>{/if}
+  {#if tascheOpen}<TascheSheet rows={tasche} onapply={learnApply} onoff={learnOff} onclose={() => (tascheOpen = false)} />{/if}
   {#if dazuOpen}<DazuSheet rows={dazu} {itemsById} onadd={helperAdd} onskip={(id) => change((c) => skipPatch(c, id))} onclose={() => (dazuOpen = false)} />{/if}
   {#if griffOpen}<GriffSheet rows={griff} {itemsById} {bags} onapply={applyRows} onskip={(id) => change((c) => skipGriff(c, id))} onclose={() => (griffOpen = false)} />{/if}
   {#if chargeOpen}<ChargeSheet {trip} {items} onclose={() => (chargeOpen = false)} />{/if}
