@@ -1,6 +1,6 @@
 # Wochenplan: Wochenstand in einem Zug lesen und schreiben
 
-PR #NNN · 26.11.2026 · Auftrag: Reparatur von main (Bündler, Vorrang); die Änderung stammt aus dem Wochenplan-Thread (dort Commit 81b3091 in PR 1795), hier allein, damit main wieder grün wird
+PR #1797 · 26.11.2026 · Auftrag: Reparatur von main (Bündler, Vorrang); die Änderung stammt aus dem Wochenplan-Thread (dort Commit 81b3091 in PR 1795), hier allein, damit main wieder grün wird
 
 ## Was ist neu
 - Nichts Sichtbares geändert. Der Test `wochenplan-abhaken.spec.js:121` («Strava only suggests; past weeks stay as they were») ist seit PR 1783 auf main rot.
