@@ -1,6 +1,6 @@
 # Ein Wochenziel statt zwei
 
-PR #NNNN · 26.11.2026 · Auftrag: Noah «Ja» auf «ohne etwas zu verlieren» (Thread «Wochenplan-Vorschläge verlässlich machen»)
+PR #1814 · 26.11.2026 · Auftrag: Noah «Ja» auf «ohne etwas zu verlieren» (Thread «Wochenplan-Vorschläge verlässlich machen»)
 
 ## Was ist neu
 - Ist ein Wochenplan gespeichert, zählen dessen Stunden als Ziel der Woche: im Rückblick und bei «Diese Woche … von … Std.» auf Training › Woche, in den Wochenseiten (Woche, Tag, Woche planen) und in «Geschafft» (`weekHours` in `src/lib/training/wochenplan.js`). Ohne Wochenplan zählt das Trainingsziel, solange sein Tag nicht vorbei ist.
