@@ -10,6 +10,7 @@ PR #1782 · 25.11.2026 · Auftrag: main reparieren (Bündler, Vorrang; gemeldet 
   - `sonnen-ausfahrt.spec.js:145` (kurzer Schlaf): auf main seit PR 1769 («Wi gaht's? am Abend») rot, jedes Mal. Das Morgenfenster öffnet sich seit dort nur noch auf Wunsch und nicht mehr von selbst; der Test wartete 15 Sekunden auf dieses Fenster. Bisect lokal: PR 1766 grün, PR 1769 rot. Der Test prüft jetzt, dass das Fenster nicht aufgeht (so, wie es der Satz im Test schon sagte). Die CI hat es nicht gesehen, weil PR 1769 diese Datei nicht berührte.
   - `ski.spec.js:121` (Rucksack-Check): las die Gruppen sofort nach der Überschrift, bevor sie gebaut waren (leere Liste). Wartet jetzt auf die fünf Gruppen.
   - `sn5plus.spec.js:186` (Import prüfen): «Übernehmen» heisst auch der Knopf der Namensvorschläge unter Ich › Daten (`data-name-take`), die beim Wechsel zur Import-Seite noch im Bild sind: zehn Treffer statt einer. Der Test nimmt nur den Knopf der Import-Seite.
+  - `tp-freier-tag.spec.js:36` (Wochenplan, Recovery Day): seit PR 1783 («Wochenplan-Vorschläge verlässlich») steht der Hinweis «TrainingPeaks hat einen freien Tag» im zugeklappten Teil «Mehr dazu» und nicht mehr als eigene Zeile (`data-wp-tp`). Der Test klappt «Mehr dazu» auf und liest dort. Auf dem neuesten main in beiden Breiten 2× grün.
 
 ## Was fällt weg oder rutscht tiefer
 - nichts.
