@@ -85,6 +85,9 @@ test('every function is visible on its home page', async ({ page, context }, inf
     // pages load later (lazy): wait for the page's own title before reading it (it sometimes came after settle)
     await page.locator('main h1').first().waitFor({ timeout: 5000 }).catch(() => {});
     await settle(page);
+    // «?open=»: the page opens the note's window a moment later, when the note has come from the database: wait for the window itself
+    // (state, not time), a slow runner needed longer than the two looks below (PR 1807, f.richtext)
+    if (href.includes('open=')) await page.locator('dialog[open]').first().waitFor({ timeout: 15000 }).catch(() => {});
     // on a phone the cards «Belongs to …» and «All here» start as one line (Etappe 2, 1a): open them, they hold the functions
     await openCards(page);
     // parts that come with the page's data (mosaic, packing rows) can render a moment after settle: look a second time
@@ -166,7 +169,9 @@ test('every function is visible on its home page', async ({ page, context }, inf
         await page.waitForFunction(() => !history.state?.pgDialog, null, { timeout: 3000 }).catch(() => {});
       }
     }
-    list.forEach((x, i) => found[i] || missing.push(`${x.id} «${x.name}» on ${href}`));
+    // a page with «?open=» says when its window never opened: then the cause is the window, not the function
+    const noWindow = href.includes('open=') && !(await page.locator('dialog[open]').count()) ? ' (its window did not open)' : '';
+    list.forEach((x, i) => found[i] || missing.push(`${x.id} «${x.name}» on ${href}${noWindow}`));
   }
   info.annotations.push({ type: 'checked', description: `${Object.values(byPage).flat().length} functions on ${Object.keys(byPage).length} pages` });
   expect(missing, 'not visible on the home page: fix the page, use the page name in the catalogue (2b), or add it to GAPS with why').toEqual([]);
