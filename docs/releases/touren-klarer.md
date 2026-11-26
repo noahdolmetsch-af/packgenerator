@@ -1,6 +1,6 @@
 # Eine klarere Tourenseite
 
-PR #(folgt) · 25.11.2026 · Auftrag: Noah «1-5a» (Thread «Touren-Seite klarer machen»)
+PR #1799 · 25.11.2026 · Auftrag: Noah «1-5a» (Thread «Touren-Seite klarer machen»)
 
 Noah schickte einen Ganzseiten-Screenshot von Touren › Übersicht (Computer). Die Seite ist etwa 4000 Pixel hoch, die erste gefahrene Tour steht erst nach rund 1050 Pixeln, fünf gleiche Zeilen «Scott Scale Tagestour 8.10.» und eine Testfahrt («testnavigation», 1 min) stehen in der Liste. Die wiederholten Symbole am rechten Rand des Screenshots sind kein Fehler der App (Browser-Erweiterung im Screenshot).
 
