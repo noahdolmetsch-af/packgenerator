@@ -1183,7 +1183,7 @@
       </div>
     </div>
     {#if hakenTop}<div class="hktop" data-haken-top><HakenBlock {today} top={shownWall.some((w) => w.id === 'meditation' && w.size === 'long')} cfg={S[HABITS_KEY] ?? null} /></div>{/if}
-    {#if ready && !editing && bannerEntries.length}<NewsBanner entries={bannerEntries} onclose={() => (bannerOff = true)} />{/if}
+    {#if ready && !editing && bannerEntries.length}<NewsBanner entries={bannerEntries} from={newsUpdate?.from ?? BEFORE} onclose={() => (bannerOff = true)} />{/if}
     <!-- «Heute neu» A: one personal sentence; the idea for today moved into «Up now» -->
     {#if sentence}<p class="say" data-say>{#each sentence as p, i (i)}{#if i}{' '}{/if}{#if p.to}<a class="jump" href={`#${p.to}`} data-say-jump onclick={(e) => jumpTo(e, p.to)}>{p.text}</a>{:else}<span class:hi={p.hi}>{p.text}</span>{/if}{/each}</p>{/if}
     <!-- «Heute erholen» / «Welcher Berg ruft?» (Noah 24.11.2026 «1-5»): one quiet sentence from the form of the day, the zone minutes and the weather -->

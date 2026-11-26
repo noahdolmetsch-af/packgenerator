@@ -15,7 +15,15 @@
   import { liveQuery } from 'dexie';
   import { snapDb, snapshotFor } from '../maintenance/snapshots.js';
 
-  let { entries = [], onclose } = $props();
+  let { entries = [], from = null, onclose } = $props();
+  // «Zwei Neuheiten-Hinweise» (Noah 25.11.2026 «b»): a tap on «and N more things» opens the same window as the card at the end of Today
+  // (know/NeuSeitSheet.svelte, the news by place), so there is one way into the list. Closing it counts the news as seen.
+  let sheet = $state(false);
+  function sheetClosed() {
+    sheet = false;
+    window.dispatchEvent(new CustomEvent('neuseit-seen'));
+    done();
+  }
   // «App-Wartung» BF4 (Noah 13.10.2026): one calm line when the app kept a copy before this update
   const snapQ = liveQuery(() => snapshotFor(snapDb(), typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : ''));
   const e = $derived(entries[0] ?? null);
@@ -41,11 +49,17 @@
   <aside class="nbanner" aria-labelledby="nb-h" data-news-banner>
     <Sparkles size={20} aria-hidden="true" class="nb-i" />
     <h2 id="nb-h" class="sr">{t('New in {v}|banner', { v: shortVersion(e.version) })}</h2>
-    <a class="nb-t" href={NEWS_HREF} onclick={done} data-news-title><b>{t('New: {title}', { title: t(e.title) })}</b>{#if more > 0}{' · '}<span>{tn(more, 'and {n} more thing', 'and {n} more things')}</span>{/if}</a>
+    <div class="nb-t">
+      <a class="nb-title" href={NEWS_HREF} onclick={done} data-news-title><b>{t('New: {title}', { title: t(e.title) })}</b></a>
+      {#if more > 0}{@const word = tn(more, 'and {n} more thing', 'and {n} more things')}<button type="button" class="nb-more" aria-label={word} onclick={() => (sheet = true)} data-news-more><span class="nb-long">{word}</span><span class="nb-short" aria-hidden="true">+{more}</span></button>{/if}
+    </div>
     <a class="nb-go" href={NEWS_HREF} onclick={show} data-news-go>{t('Show me')}</a>
     <button type="button" class="nb-x" aria-label={t('Close the hint')} onclick={done}><X size={20} aria-hidden="true" /></button>
     {#if $snapQ}<p class="nb-snap" data-news-snapshot>{t('Your data was backed up before the update. Something wrong?')} <a href="#/me/data?at=before-updates">{t('Back to the state before the update')}</a></p>{/if}
   </aside>
+{/if}
+{#if sheet}
+  {#await import('./NeuSeitSheet.svelte') then m}<m.default {from} onclose={sheetClosed} />{/await}
 {/if}
 
 <style>
@@ -67,7 +81,13 @@
   .nb-t {
     flex: 1 1 0;
     min-width: 0;
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .nb-title {
+    flex: 0 1 auto;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -75,11 +95,45 @@
     font-size: var(--fs-body);
     text-decoration: none;
   }
-  .nb-t b {
+  .nb-title b {
     font-weight: 600;
   }
-  .nb-t span {
+  .nb-more {
+    flex: 0 1 auto;
+    min-width: 0;
+    min-height: 44px;
+    padding: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    border: 0;
+    background: none;
     color: var(--ink-2);
+    font: inherit;
+    font-size: var(--fs-body);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .nb-short {
+    display: none;
+  }
+  /* a phone: the title keeps its room, «and 15 more things» becomes a «+15» to tap */
+  @media (max-width: 520px) {
+    .nb-long {
+      display: none;
+    }
+    .nb-short {
+      display: inline;
+      font-weight: 600;
+    }
+    .nb-more {
+      flex: none;
+      min-width: 44px;
+      padding: 0 6px;
+      color: var(--ink);
+      text-decoration: none;
+    }
   }
   .nb-go {
     flex: none;
