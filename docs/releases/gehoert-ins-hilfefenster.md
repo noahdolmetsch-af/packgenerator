@@ -1,6 +1,6 @@
 # «Gehört zu …» ins «?»-Fenster
 
-PR #(folgt) · 26.11.2026 · Auftrag: Noah «Ja» (26.11.2026 18:07) auf die offene Frage 2 aus «Touren-Seite klarer» (Thread «Touren-Seite klarer machen»)
+PR #1811 · 26.11.2026 · Auftrag: Noah «Ja» (26.11.2026 18:07) auf die offene Frage 2 aus «Touren-Seite klarer» (Thread «Touren-Seite klarer machen»)
 
 ## Was ist neu
 - Die Links «Gehört zu …» (die Funktionen desselben Moments, bis zu fünf plus «alle n ›») stehen nicht mehr als geschlossene Zeile hinter dem Seitentitel, sondern im «?»-Fenster der Seite, unter den Funktionen der Seite (`src/lib/know/GehoertDazu.svelte`, eingehängt in `src/lib/nav/HelpButton.svelte`). Betroffen sind die Seiten, die die Zeile hatten: Packen, Touren, Ich, Velos, Rückblick, Neuland und Wetter. Eine Tour-Seite, die Seite eines Rennens usw. hatten sie nie.
