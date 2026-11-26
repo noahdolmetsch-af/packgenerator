@@ -96,5 +96,19 @@ test.describe('Nie abgeschnitten', () => {
       await expect(page.getByRole('dialog')).toBeVisible();
     });
   });
+  test('the window of a place in the standard week fits the screen', async ({ page, context }) => {
+    await blank(page, context);
+    await page.goto('./#/flow/wochenplan?view=std');
+    await ready(page);
+    await page.locator('[data-wochenplan] [data-empty] button').first().click();
+    await check(page, 'window «Place of the standard week»', async () => {
+      await page.locator('[data-sw-entry="tennis@1"]').click();
+      await expect(page.locator('[data-sw-sheet]')).toBeVisible();
+    });
+    await check(page, 'window «New place»', async () => {
+      await page.locator('[data-sw-add]').first().click();
+      await expect(page.locator('[data-sw-sheet]')).toBeVisible();
+    });
+  });
   // The morning and evening check («Wi gaht's?») is built and tested by its own thread (tests/e2e/runde-*.spec.js); it uses the same .vd-head / .vd-foot.
 });

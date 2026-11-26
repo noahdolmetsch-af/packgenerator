@@ -6,7 +6,9 @@
  * into German through `t()`; nothing here is shown to a person directly.
  *
  * Setting WEEKPLAN_KEY (the goals; travels with the backup like every setting, no api/):
- *   { v: 1, winter: Config, summer: Config }, Config = { hours, counts: { [type]: n }, fixes: { [type]: [{ d, t }] }, custom: { [type]: true }, tpHours? }
+ *   { v: 1, winter: Config, summer: Config }, Config = { hours, counts: { [type]: n }, fixes: { [type]: [{ d, t }] }, wishes: { [type]: [{ d, t }] }, custom: { [type]: true }, tpHours? }
+ * `fixes` stand on their day at their time (a fixed slot). `wishes` are places the person likes, in the order of liking: a free unit goes to the first wish
+ * that is free and allowed, and the planner takes another place (and says so) when none is (Noah 26.11.2026 «Wunsch- und Fix-Plätze pro Sportart»).
  * `tpHours` (optional): the hours goal of a week that has TrainingPeaks or team dates in it; without it `hours` counts for every week.
  * `d` is the weekday 0 (Monday) … 6 (Sunday), `t` is «HH:MM». Which season counts follows the date (1 April to 30 October is summer).
  * What belongs to one week only (moved units, ticks, skiing week, rain week) is not stored here; it goes in as `ctx`.
@@ -80,6 +82,7 @@ export function defaultsFor(summer) {
         hours: 19,
         counts: { hockey: 0, tennis: 3, yoga: 2, gym: 2, sauna: 1, rest: 1, bikeOut: 4, bikeIn: 0, runOut: 2, runIn: 0, mini: 0 },
         fixes: { tennis: fx('tennis', [1, 3, 6], true), yoga: fx('yoga', [0, 3], true), gym: fx('gym', [2], true) },
+        wishes: {},
         custom: {},
         bikeHours: 8,
       }
@@ -87,6 +90,7 @@ export function defaultsFor(summer) {
         hours: 15,
         counts: { hockey: 1, tennis: 3, yoga: 2, gym: 2, sauna: 1, rest: 1, bikeOut: 1, bikeIn: 1, runOut: 1, runIn: 1, mini: 1 },
         fixes: { hockey: fx('hockey', [6], false), tennis: fx('tennis', [1, 3, 5], false), yoga: fx('yoga', [0, 3], false), gym: fx('gym', [2], false) },
+        wishes: {},
         custom: {},
         bikeHours: null,
       };
@@ -121,9 +125,21 @@ export function configOf(raw, summer) {
     if (list.length) fixes[t] = list.slice(0, counts[t]);
   }
   Object.keys(custom).forEach((t) => !custom[t] && delete custom[t]);
+  const wishes = {};
+  for (const t of FIXABLE) {
+    const seen = new Set((fixes[t] || []).map((f) => f.d)); // a day holds a fixed slot or a wish of one kind of unit, not both
+    const list = [];
+    for (const f of Array.isArray(raw.wishes?.[t]) ? raw.wishes[t] : []) {
+      const d = whole(f?.d, 0, 6);
+      if (d === null || seen.has(d)) continue;
+      seen.add(d);
+      list.push({ d, t: timeOk(f?.t) ? f.t : defTime(t, d, summer) });
+    }
+    if (list.length) wishes[t] = list; // the order is the order of liking: not sorted
+  }
   const bikeHours = counts.bikeOut && Number.isFinite(Number(raw.bikeHours)) && raw.bikeHours > 0 ? Math.min(40, Number(raw.bikeHours)) : summer && counts.bikeOut ? base.bikeHours : null;
   const tpHours = raw.tpHours == null ? null : whole(raw.tpHours, MIN_HOURS, MAX_HOURS); // optional: its own goal for weeks with TrainingPeaks or team dates (Noah 23.11.2026 «2b»)
-  return { hours, counts, fixes, custom, bikeHours, ...(tpHours ? { tpHours } : {}) };
+  return { hours, counts, fixes, wishes, custom, bikeHours, ...(tpHours ? { tpHours } : {}) };
 }
 
 /** The stored setting made safe: { v, winter, summer }. Always a full value, also for nothing at all. */
@@ -232,6 +248,57 @@ export function setFixTime(cfg, type, d, t) {
   const list = cfg.fixes[type];
   if (!FIXABLE.includes(type) || !list || !timeOk(t) || !list.some((f) => f.d === d)) return cfg;
   return { ...cfg, fixes: { ...cfg.fixes, [type]: list.map((f) => (f.d === d ? { d: f.d, t } : f)) }, custom: { ...cfg.custom, [type]: true } };
+}
+
+// ---- slots of the standard week (Noah 26.11.2026): per kind of unit fixed slots and wishes --------------------------------
+
+/** The slots of one kind of unit: the fixed ones by weekday, then the wishes in the order of liking. [{ d, t, kind: 'fix' | 'wish' }] */
+export const slotsOf = (cfg, type) => [...(cfg.fixes?.[type] || []).map((f) => ({ d: f.d, t: f.t, kind: 'fix' })), ...(cfg.wishes?.[type] || []).map((f) => ({ d: f.d, t: f.t, kind: 'wish' }))];
+
+/** Which slot (of one kind of unit) sits on a weekday: { d, t, kind } or null. */
+export const slotOn = (cfg, type, d) => slotsOf(cfg, type).find((x) => x.d === d) || null;
+
+/** Takes the slot on a weekday away (a fixed slot or a wish). Fixed days then count as set by hand. */
+export function removeSlot(cfg, type, d) {
+  if (!FIXABLE.includes(type) || !slotOn(cfg, type, d)) return cfg;
+  const fixes = { ...cfg.fixes, [type]: (cfg.fixes[type] || []).filter((f) => f.d !== d) };
+  const wishes = { ...(cfg.wishes || {}), [type]: (cfg.wishes?.[type] || []).filter((f) => f.d !== d) };
+  if (!fixes[type].length) delete fixes[type];
+  if (!wishes[type].length) delete wishes[type];
+  return { ...cfg, fixes, wishes, custom: { ...cfg.custom, [type]: true } };
+}
+
+/**
+ * Puts a slot on a weekday: a fixed slot (the unit stands on that day at that time) or a wish (a free unit prefers it, in the order the wishes
+ * were made). The weekday holds one slot of a kind of unit; an older one there is replaced. A fixed slot beyond the count raises the count; a wish
+ * makes sure the count holds one free unit that can use it. Times that are not «HH:MM» come from the usual time (defTime).
+ */
+export function setSlot(cfg, type, d, t, kind, summer) {
+  if (!FIXABLE.includes(type) || !(d >= 0 && d <= 6) || !Number.isInteger(d) || (kind !== 'fix' && kind !== 'wish')) return cfg;
+  const time = timeOk(t) ? t : defTime(type, d, summer);
+  const old = slotOn(cfg, type, d);
+  let next = old ? removeSlot(cfg, type, d) : cfg;
+  const fixes = { ...next.fixes };
+  const wishes = { ...(next.wishes || {}) };
+  if (kind === 'fix') fixes[type] = [...(fixes[type] || []), { d, t: time }].sort((a, b) => a.d - b.d);
+  else {
+    const list = (wishes[type] || []).slice();
+    const at = old?.kind === 'wish' ? Math.min(list.length, (cfg.wishes?.[type] || []).findIndex((f) => f.d === d)) : list.length; // a wish keeps its place in the order of liking when only its time changes
+    list.splice(at, 0, { d, t: time });
+    wishes[type] = list.slice(0, 7);
+  }
+  const need = (fixes[type] || []).length + (wishes[type]?.length ? 1 : 0);
+  const counts = { ...next.counts, [type]: Math.max(next.counts[type] || 0, Math.min(MAX_COUNT[type], need)) };
+  if (fixes[type]) fixes[type] = fixes[type].slice(0, counts[type]);
+  return { ...next, counts, fixes, wishes, custom: { ...next.custom, [type]: true } };
+}
+
+/** Moves a slot to another weekday (same kind, same time unless a new time is given). Nothing changes when that day already holds a slot of the kind of unit. */
+export function moveSlot(cfg, type, from, to, t, summer) {
+  const s = slotOn(cfg, type, from);
+  if (!s || from === to || slotOn(cfg, type, to)) return cfg;
+  const moved = setSlot(removeSlot(cfg, type, from), type, to, t || s.t, s.kind, summer);
+  return moved;
 }
 
 // ---- the week ------------------------------------------------------------------------------------------------------
@@ -403,6 +470,7 @@ export function fitToHours(cfg, counts, bikeHours, budget) {
 export function planWeek(cfg, ctx) {
   const summer = isSummer(ctx.monday);
   const pins = ctx.pins || {};
+  const carried = new Set(Array.isArray(ctx.carried) ? ctx.carried : []); // ids whose move comes from an earlier week (not made in this one)
   let counts = { ...cfg.counts };
   let bikeHours = cfg.bikeHours;
   const U = [];
@@ -512,7 +580,8 @@ export function planWeek(cfg, ctx) {
     const day = pin ? pin.d : d;
     const time = pin ? pin.t : t;
     const mins = o.mins || TYPES[type].mins;
-    const x = { id, type, d: day, t: time, start: toM(time), end: toM(time) + mins, mins, load: o.load || TYPES[type].load, fixed: !!o.fixed, pinned: !!pin, variant: o.variant || null, why: pin ? { key: 'pinned' } : o.why || { key: 'best' } };
+    const like = !!pin && carried.has(id);
+    const x = { id, type, d: day, t: time, start: toM(time), end: toM(time) + mins, mins, load: o.load || TYPES[type].load, fixed: !!o.fixed, pinned: !!pin, carried: like, variant: o.variant || null, why: like ? { key: 'carried' } : pin ? { key: 'pinned' } : o.why || { key: 'best' } };
     U.push(x);
     return x;
   }
@@ -568,15 +637,45 @@ export function planWeek(cfg, ctx) {
   const skippedFixed = (type) => (cfg.fixes[type] || []).slice(0, counts[type] || 0).filter((f) => ski && f.d === skiDay).length;
 
   // 3 free units
+  // wishes first (Noah 26.11.2026): a free unit goes to the first place of liking that is free and allowed, before the planner places anything else
+  // (the rest block and the other free units wait). The ids stay the ones of the order (`gym#1`, `gym#2`): a unit with a move of the person keeps its id and its move.
+  const wished = new Set(); // wishes taken by a unit of this kind (type + weekday)
+  const wishedNote = new Set();
+  const handled = new Set(); // ids placed on a wish already
+  const freeIds = (type) => {
+    const out = [];
+    for (let k = 1; k <= Math.max(0, (counts[type] || 0) - (have[type] || 0) - skippedFixed(type)); k++) out.push(`${type}#${k}`);
+    return out;
+  };
+  const reserveOf = (type) => (type === 'gym' ? 35 : 0); // the sauna after the gym needs room too
+  function wishFirst(type) {
+    const list = cfg.wishes?.[type] || [];
+    if (!list.length) return;
+    for (const id of freeIds(type)) {
+      if (pins[id]) continue; // the person moved it: that stays
+      const wish = list.find((w) => !wished.has(`${type}${w.d}`) && !banned(w.d) && !clash(w.d, w.t, TYPES[type].mins + reserveOf(type)));
+      if (!wish) continue;
+      wished.add(`${type}${wish.d}`);
+      handled.add(id);
+      put(type, wish.d, wish.t, { id, noPin: true, why: { key: 'wish' } });
+    }
+  }
+  const wishTypes = ['hockey', 'tennis', 'yoga', 'gym', 'bikeOut', 'runOut', 'bikeIn'];
+  wishTypes.forEach(wishFirst);
   function flex(type) {
-    const n = counts[type] || 0;
-    const reserve = type === 'gym' ? 35 : 0; // the sauna after the gym needs room too
-    for (let i = (have[type] || 0) + skippedFixed(type); i < n; i++) {
-      const id = nid(type);
+    const reserve = reserveOf(type);
+    const list = cfg.wishes?.[type] || [];
+    for (const id of freeIds(type)) {
+      seq[type] = (seq[type] || 0) + 1;
+      if (handled.has(id)) continue;
       const pin = pins[id];
       if (pin) {
         put(type, pin.d, pin.t, { id });
         continue;
+      }
+      if (list.some((w) => !wished.has(`${type}${w.d}`)) && !wishedNote.has(type)) {
+        wishedNote.add(type);
+        notes.push({ key: 'wish-missed', type });
       }
       let best = null;
       for (let d = 0; d < 7; d++) {
@@ -619,6 +718,12 @@ export function planWeek(cfg, ctx) {
       const pin = pins[id];
       if (pin) {
         put('rest', pin.d, pin.t, { id });
+        continue;
+      }
+      const wishR = (cfg.wishes?.rest || []).find((w) => !wished.has(`rest${w.d}`) && !banned(w.d) && !clash(w.d, w.t, 180));
+      if (wishR) {
+        wished.add(`rest${wishR.d}`);
+        put('rest', wishR.d, wishR.t, { id, noPin: true, why: { key: 'wish' } });
         continue;
       }
       const H = hardDays();

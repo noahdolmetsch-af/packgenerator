@@ -12,7 +12,7 @@
  * Counted for the hours are the units that move you (not the small habits, not the rest block, not the ones let go).
  */
 import { shiftDay, mondayOf, isoWeek, goalOf, weeksTo, planOf as sessionsOf, plannerSessions, doneBy } from '../training.js';
-import { QUIET, logOf, weekLog, isPast, weekFor } from './wochenlog.js';
+import { QUIET, logOf, weekLog, weekPins, isPast, weekFor } from './wochenlog.js';
 import { TP_SRC } from './wochenplan.js';
 
 /** Weeks before this one and after it that the chart shows. */
@@ -27,9 +27,10 @@ const counts = (r) => !r.released && !QUIET.includes(r.type) && r.type !== 'rest
 /** The rows of one week: the units of the Wochenplan (frozen after Sunday) and the sessions of the week suggestion. */
 export function weekRows({ stored, log, sessions, planner, acts }, monday, today) {
   const w = weekLog(log, monday);
+  const wp = weekPins(log, monday);
   const rows = [];
   const past = isPast(monday, today);
-  const units = past ? (w.snap?.units ?? []).filter((u) => u.type !== 'tp') : stored != null ? weekFor(stored, monday, w.pins, w.mode, planner ?? sessions).week.units : []; // planner: the sessions plus the free days of TrainingPeaks, for the plan only
+  const units = past ? (w.snap?.units ?? []).filter((u) => u.type !== 'tp') : stored != null ? weekFor(stored, monday, wp.pins, w.mode, planner ?? sessions, wp.carried).week.units : []; // planner: the sessions plus the free days of TrainingPeaks, for the plan only
   for (const u of units) rows.push({ id: u.id, src: 'plan', type: u.type, name: null, d: u.d, t: u.t, mins: u.mins, done: !!w.done[u.id], doneMins: w.done[u.id] ? u.mins : 0, doneDay: w.done[u.id] ?? null, released: w.released.includes(u.id) });
   const end = shiftDay(monday, 6);
   for (const s of sessions) {

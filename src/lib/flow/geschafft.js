@@ -7,7 +7,7 @@
  */
 import { mondayOf, shiftDay, goalOf, planOf, zoneSecs, mainZone } from '../training.js';
 import { planOf as weekplanOf, isSummer } from '../training/wochenplan.js';
-import { weekFor, logOf, weekLog, QUIET } from '../training/wochenlog.js';
+import { weekFor, logOf, weekLog, weekPins, QUIET } from '../training/wochenlog.js';
 import { weekGoals } from '../flowweek.js';
 
 /** The 7 days Monday to Sunday of the week of a day. */
@@ -143,8 +143,10 @@ export function zoneVsPlan(planned, activity, bounds) {
 export function nextUnit(stored, rawLog, now, sessions = []) {
   if (stored == null) return null;
   const monday = mondayOf(now.day);
-  const w = weekLog(logOf(rawLog), monday);
-  const { week } = weekFor(stored, monday, w.pins, w.mode, sessions);
+  const log = logOf(rawLog);
+  const w = weekLog(log, monday);
+  const wp = weekPins(log, monday);
+  const { week } = weekFor(stored, monday, wp.pins, w.mode, sessions, wp.carried);
   const todayIdx = (new Date(`${now.day}T12:00:00Z`).getUTCDay() + 6) % 7;
   const open = week.units.filter((u) => !QUIET.includes(u.type) && !w.done[u.id] && !w.released.includes(u.id) && (u.d > todayIdx || (u.d === todayIdx && u.t > now.time)));
   const u = open.sort((a, b) => a.d - b.d || a.t.localeCompare(b.t))[0];

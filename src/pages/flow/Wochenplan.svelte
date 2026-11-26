@@ -22,15 +22,16 @@
   import PageHead from '../../lib/ui/PageHead.svelte';
   import Seg from '../../lib/ui/Seg.svelte';
   import Empty from '../../lib/ui/Empty.svelte';
+  import StandardWeek from '../../lib/training/StandardWeek.svelte';
   import { db } from '../../lib/db.js';
   import { mondayOf, shiftDay, PLAN_KEY, planValue, plannerSessions as sessionsOf } from '../../lib/training.js';
   import { oldSuggestions, withoutOldSuggestions } from '../../lib/training/suggest.js';
   import { SP_KEY, prefsOf as spPrefsOf, teamSessions } from '../../lib/spielerplus.js';
-  import { WEEKPLAN_KEY, GOAL_TYPES, FIXABLE, MAX_COUNT, MIN_HOURS, MAX_HOURS, LIGHT_SHARE, HARD_SHARE, TYPES, planOf, isSummer, defaultsFor, setHours, stepCount, toggleFix, setFixTime, modeCfg, focusOf, followsHours, planWeek, plannedMins, countsMins } from '../../lib/training/wochenplan.js';
+  import { WEEKPLAN_KEY, GOAL_TYPES, FIXABLE, MAX_COUNT, MIN_HOURS, MAX_HOURS, LIGHT_SHARE, HARD_SHARE, TYPES, planOf, isSummer, defaultsFor, setHours, stepCount, slotsOf, modeCfg, focusOf, followsHours, planWeek, plannedMins, countsMins } from '../../lib/training/wochenplan.js';
   import { startUnitDone } from '../../lib/flow/ui.svelte.js';
   import { timedrag } from '../../lib/ui/timedrag.js';
   import { needsSheet as needsUnitSheet, removeUnitEntries } from '../../lib/flow/unitdone.js';
-  import { WEEKLOG_KEY, QUIET, logOf, weekLog, withSnapshot, syncTpDone, tpTicks, tpSnapUnits, setDone, dismiss, setPins, movePin, clearPin, setMode, setReleased, streakNow, progress, suggest, pastWeeks } from '../../lib/training/wochenlog.js';
+  import { WEEKLOG_KEY, QUIET, logOf, weekLog, withSnapshot, syncTpDone, tpTicks, tpSnapUnits, setDone, dismiss, setPins, movePin, clearPin, weekPins, backToStandard, setMode, setReleased, streakNow, progress, suggest, pastWeeks } from '../../lib/training/wochenlog.js';
   import { UNIT_NAME, UNIT_HINT, LOAD_WORD, NOTE_TEXT, WARN_TEXT, whyOf, timeChoices, lengthOf, hoursOf, reachedPct, EXAMPLE_MONDAY } from '../../lib/training/wochenplan-text.js';
   import { t, tn, num, locale } from '../../lib/i18n.svelte.js';
   import { localDay } from '../../lib/localday.js';
@@ -60,18 +61,27 @@
   let openWhy = $state(null); // unit id whose «Why here?» is open
   let kept = $state.raw([]); // conflicts the person chose to leave as they are (this visit only)
 
+  // Noah 26.11.2026: two views of one plan, «Week» (the suggestion of this and next week) and «Standard week» (your normal week with fixed places and wishes)
+  let view = $state(typeof location !== 'undefined' && /[?&]view=std(\b|$)/.test(location.hash) ? 'std' : 'week');
+  const viewOptions = $derived([
+    { key: 'week', name: t('Week|view') },
+    { key: 'std', name: t('Standard week') },
+  ]);
   const summer = $derived(seasonPick === 'summer');
   const cfg = $derived(summer ? plan.summer : plan.winter);
   const isNow = $derived(isSummer(realMonday) === summer);
   const monday = $derived(isNow ? shiftDay(realMonday, 7 * weekPick) : EXAMPLE_MONDAY[seasonPick]);
   // the units moved by hand in the week shown (this week and next week; the example week has none)
   const shownLog = $derived(isNow ? weekLog(log ?? logOf(null), monday) : null);
-  const pinsShown = $derived(shownLog?.pins ?? {});
+  const pinsOfWeek = $derived(isNow ? weekPins(log ?? logOf(null), monday) : { pins: {}, carried: [] }); // moves of this week and the ones taken over from the weeks before (Noah 26.11.2026 «3a»)
+  const pinsShown = $derived(pinsOfWeek.pins);
   const modeShown = $derived(shownLog?.mode ?? {});
   // a lighter week shows 60 % of the hours for this one week; the goals themselves stay as they are
   const cfgW = $derived(modeCfg(cfg, summer, modeShown));
-  const week = $derived(planWeek(cfgW, { monday, pins: pinsShown, ski: !!modeShown.ski, rain: !!modeShown.rain, focus: focusOf(modeShown), sessions: isNow ? sessions : [] }));
+  const week = $derived(planWeek(cfgW, { monday, pins: pinsShown, carried: pinsOfWeek.carried, ski: !!modeShown.ski, rain: !!modeShown.rain, focus: focusOf(modeShown), sessions: isNow ? sessions : [] }));
   // TrainingPeaks counts on the hours (Noah «1a»): the plan plus what TrainingPeaks brings this week
+  // the standard week: what the goals make of a week with no TrainingPeaks, no tour and no moves
+  const stdWeek = $derived(planWeek(cfg, { monday: EXAMPLE_MONDAY[seasonPick], pins: {}, sessions: [] }));
   const mins = $derived(plannedMins(week.units) + week.tp.reduce((a, x) => a + x.mins, 0));
   // the goal of this week: its own goal when TrainingPeaks or team dates are in it and one is set (Noah «2b»)
   const goalNow = $derived(week.tp.length || week.team.length ? cfgW.tpHours || cfgW.hours : cfgW.hours);
@@ -103,7 +113,8 @@
   const nowSummer = $derived(isSummer(realMonday));
   const nowLog = $derived(weekLog(log ?? logOf(null), realMonday));
   const nowCfg = $derived(modeCfg(nowSummer ? plan.summer : plan.winter, nowSummer, nowLog.mode));
-  const nowWeek = $derived(planWeek(nowCfg, { monday: realMonday, pins: nowLog.pins, ski: !!nowLog.mode.ski, rain: !!nowLog.mode.rain, focus: focusOf(nowLog.mode), sessions }));
+  const nowPins = $derived(weekPins(log ?? logOf(null), realMonday));
+  const nowWeek = $derived(planWeek(nowCfg, { monday: realMonday, pins: nowPins.pins, carried: nowPins.carried, ski: !!nowLog.mode.ski, rain: !!nowLog.mode.rain, focus: focusOf(nowLog.mode), sessions }));
   const done = $derived(nowLog.done);
   const released = $derived(nowLog.released);
   const prog = $derived(progress([...nowWeek.units, ...tpSnapUnits(nowWeek.tp)], done, released));
@@ -208,7 +219,7 @@
     if ('sessions' in last) {
       if (last.sessions === null) await db.settings.delete(PLAN_KEY);
       else await db.settings.put({ key: PLAN_KEY, value: last.sessions });
-    } else if ('pins' in last) await writeLog((cur) => setPins(cur, last.monday, last.pins, today));
+    } else if ('pins' in last) await writeLog((cur) => ('mode' in last ? setMode(setPins(cur, last.monday, last.pins, today), last.monday, last.mode, today) : setPins(cur, last.monday, last.pins, today)));
     else if ('mode' in last) await writeLog((cur) => setMode(cur, last.monday, last.mode, today));
     else if (last.plan === null) await db.settings.delete(WEEKPLAN_KEY);
     else await db.settings.put({ key: WEEKPLAN_KEY, value: last.plan });
@@ -216,19 +227,13 @@
   }
 
   // ---- part 4: fixed days, wish time, moving, why, conflicts ----
-  const fixOn = (type, d) => (cfg.fixes[type] || []).some((f) => f.d === d);
-  const fixedFull = (type) => (cfg.fixes[type] || []).length >= MAX_COUNT[type];
-  function toggleDay(type, d) {
-    const on = fixOn(type, d);
-    return commit(toggleFix(cfg, type, d, summer), on ? t('{what} on {day} is no longer fixed.', { what: nameOf(type), day: dayName(d) }) : t('{what} on {day} is now fixed.', { what: nameOf(type), day: dayName(d) }));
-  }
-  const wishTime = (type, d, time) => commit(setFixTime(cfg, type, d, time), t('{what} on {day} now starts at {time}.', { what: nameOf(type), day: dayName(d), time }));
   async function changePins(change, text) {
     const cur = logOf((await db.settings.get(WEEKLOG_KEY))?.value);
     const before = weekLog(cur, monday).pins;
+    const beforeMode = weekLog(cur, monday).mode;
     const next = change(cur);
     if (next === cur) return;
-    history = [...history.slice(-19), { pins: before, monday }];
+    history = [...history.slice(-19), { pins: before, mode: beforeMode, monday }]; // a move and «back to the standard week» are both taken back by one Undo
     await db.settings.put({ key: WEEKLOG_KEY, value: next });
     msg = text;
   }
@@ -245,7 +250,17 @@
     });
     return queue;
   };
-  const unmoveUnit = (u) => changePins((cur) => clearPin(cur, monday, u.id, today), t('{what} is back on the suggestion.', { what: nameOf(u.type) }));
+  // «Back to the suggestion»: the own move goes; when an earlier week's move would then come back, the week starts from the standard week (Noah 26.11.2026 «3a»)
+  const unmoveUnit = (u) =>
+    changePins(
+      (cur) => {
+        const next = clearPin(cur, monday, u.id, today);
+        return weekPins(next, monday).pins[u.id] ? backToStandard(next, monday, today) : next;
+      },
+      u.carried ? t('{what} is back on the standard week.', { what: nameOf(u.type) }) : t('{what} is back on the suggestion.', { what: nameOf(u.type) }),
+    );
+  const backStd = () => changePins((cur) => backToStandard(cur, monday, today), t('This week starts from the standard week again.'));
+  const carriedN = $derived(week.units.filter((u) => u.carried).length);
   // «Termine ziehen» (Noah 24.11.2026): a unit pulled onto another day does the same as «Move» (day; the time stays), with the same Undo.
   // Units from TrainingPeaks and the match plan are fixed and do not move. A finger: press and hold, then pull.
   let pulled = $state(null); // { id, dy, over } while a unit is dragged
@@ -308,6 +323,7 @@
     else if (standing > 0 && isNow) bits.push(t('This week {a} of {b}', { a: week.units.filter((u) => u.type === type).length, b: standing }));
     const fixed = Math.min((cfg.fixes[type] || []).length, cfg.counts[type] || 0);
     if (fixed && !fromTeam) bits.push(t('{fixed} fixed, {free} free', { fixed, free: Math.max(0, (cfg.counts[type] || 0) - fixed) }));
+    if ((cfg.wishes?.[type] || []).length && !fromTeam) bits.push(tn((cfg.wishes[type] || []).length, '1 wish', '{n} wishes', {}));
     return bits.join(' · ');
   }
   // a session from TrainingPeaks has no unit of the plan: its own title (or the word TrainingPeaks)
@@ -385,56 +401,98 @@
     </Empty>
   {:else}
     <div class="ctl">
+      <Seg options={viewOptions} value={view} onchange={(k) => (view = k)} label={t('View')} chips />
       <Seg options={seasonOptions} value={seasonPick} onchange={(k) => { seasonPick = k; weekPick = 0; }} label={t('Season')} chips />
-      {#if isNow}<Seg options={weekOptions} value={String(weekPick)} onchange={(k) => (weekPick = Number(k))} label={t('Week')} chips />{/if}
+      {#if isNow && view === 'week'}<Seg options={weekOptions} value={String(weekPick)} onchange={(k) => (weekPick = Number(k))} label={t('Week')} chips />{/if}
       <button type="button" class="btn sm" onclick={undo} disabled={!history.length} data-wp-undo><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>
     </div>
     <p class="msg" role="status" aria-live="polite" data-wp-msg>{msg}</p>
     {#if !isNow}<p class="hint">{t('This is the plan for the {season} season, shown with an example week.', { season: summer ? t('summer') : t('winter') })}</p>{/if}
 
-    <div class="lay">
-      <div class="col">
-        <section class="card pc hrs" aria-labelledby="wp-hours" data-wp-hours>
-          <h2 id="wp-hours">{t('Goal per week')}</h2>
-          <div class="stepper">
-            <button type="button" class="btn sm" onclick={() => hoursStep(-1)} disabled={cfg.hours <= MIN_HOURS} aria-label={t('One hour less')} data-wp-hdec><Minus size={20} aria-hidden="true" /></button>
-            <output class="big num" data-wp-hvalue>{t('{n} h|plan', { n: cfg.hours })}</output>
-            <button type="button" class="btn sm" onclick={() => hoursStep(1)} disabled={cfg.hours >= MAX_HOURS} aria-label={t('One hour more')} data-wp-hinc><Plus size={20} aria-hidden="true" /></button>
-          </div>
-          <p class="sub">{t('with meditation and stretching, without the rest block')}</p>
-          <p class="plan num"><b data-wp-plan>{t('Plan: {a} h of {b} h', { a: hoursText(allMins), b: goalNow })}</b></p>
-          <span class="bar" role="img" aria-label={t('{n} percent of the goal', { n: pct })}><i style="width:{pct}%"></i></span>
-          {#if parts.length}
-            <ul class="parts" data-wp-parts>
-              {#each parts as x (x.k)}<li data-wp-tp={x.k}><span>{x.label}</span><b class="num">{t('{n} h|plan', { n: hoursText(x.m) })}</b></li>{/each}
-            </ul>
-          {/if}
-          {#each gone as g (g.key)}
-            <p class="gone" data-wp-tp={g.key} data-wp-gone><span>{g.lead}</span> {#each g.items as it (it)}<span class="tag">{it}</span>{/each}</p>
-          {/each}
-          {#each overLines as line (line)}<p class="hint" data-wp-over>{line}</p>{/each}
-          {#if overLines.length && outsideWeeks && !cfg.tpHours}<button type="button" class="btn sm" onclick={tpSet} data-wp-tpsuggest>{t('Suggest {n} h for these weeks', { n: tpSuggest })}</button>{/if}
-          {#if oldSug.length}
-            <p class="hint" data-wp-oldsug>{tn(oldSug.length, '1 old suggestion from «Suggest the week» is still in your week.', '{n} old suggestions from «Suggest the week» are still in your week.')} <button type="button" class="btn sm" onclick={dropOldSuggestions} data-wp-oldsug-go>{t('Take them out')}</button></p>
-          {/if}
-          {#if outsideWeeks}
-            <div class="tpg" data-wp-tpgoal>
-              <p class="sub">{t('Goal in weeks with TrainingPeaks')}</p>
-              <div class="stepper">
-                <button type="button" class="btn sm" onclick={() => tpStep(-1)} disabled={tpGoal <= MIN_HOURS} aria-label={t('One hour less')} data-wp-tpdec><Minus size={20} aria-hidden="true" /></button>
-                <output class="big num" data-wp-tpvalue>{t('{n} h|plan', { n: tpGoal })}</output>
-                <button type="button" class="btn sm" onclick={() => tpStep(1)} disabled={tpGoal >= MAX_HOURS} aria-label={t('One hour more')} data-wp-tpinc><Plus size={20} aria-hidden="true" /></button>
-              </div>
-              {#if cfg.tpHours}<button type="button" class="btn sm" onclick={tpSame} data-wp-tpsame>{t('Same as the goal above')}</button>{:else}<p class="sub">{t('Same as the goal above, until you change it.')}</p>{#if !overLines.length}<button type="button" class="btn sm" onclick={tpSet} data-wp-tpsuggest>{t('Suggest {n} h for these weeks', { n: tpSuggest })}</button>{/if}{/if}
+    {#snippet hoursCard()}
+      <section class="card pc hrs" aria-labelledby="wp-hours" data-wp-hours>
+        <h2 id="wp-hours">{t('Goal per week')}</h2>
+        <div class="stepper">
+          <button type="button" class="btn sm" onclick={() => hoursStep(-1)} disabled={cfg.hours <= MIN_HOURS} aria-label={t('One hour less')} data-wp-hdec><Minus size={20} aria-hidden="true" /></button>
+          <output class="big num" data-wp-hvalue>{t('{n} h|plan', { n: cfg.hours })}</output>
+          <button type="button" class="btn sm" onclick={() => hoursStep(1)} disabled={cfg.hours >= MAX_HOURS} aria-label={t('One hour more')} data-wp-hinc><Plus size={20} aria-hidden="true" /></button>
+        </div>
+        <p class="sub">{t('with meditation and stretching, without the rest block')}</p>
+        <p class="plan num"><b data-wp-plan>{t('Plan: {a} h of {b} h', { a: hoursText(allMins), b: goalNow })}</b></p>
+        <span class="bar" role="img" aria-label={t('{n} percent of the goal', { n: pct })}><i style="width:{pct}%"></i></span>
+        {#if parts.length}
+          <ul class="parts" data-wp-parts>
+            {#each parts as x (x.k)}<li data-wp-tp={x.k}><span>{x.label}</span><b class="num">{t('{n} h|plan', { n: hoursText(x.m) })}</b></li>{/each}
+          </ul>
+        {/if}
+        {#each gone as g (g.key)}
+          <p class="gone" data-wp-tp={g.key} data-wp-gone><span>{g.lead}</span> {#each g.items as it (it)}<span class="tag">{it}</span>{/each}</p>
+        {/each}
+        {#each overLines as line (line)}<p class="hint" data-wp-over>{line}</p>{/each}
+        {#if overLines.length && outsideWeeks && !cfg.tpHours}<button type="button" class="btn sm" onclick={tpSet} data-wp-tpsuggest>{t('Suggest {n} h for these weeks', { n: tpSuggest })}</button>{/if}
+        {#if oldSug.length}
+          <p class="hint" data-wp-oldsug>{tn(oldSug.length, '1 old suggestion from «Suggest the week» is still in your week.', '{n} old suggestions from «Suggest the week» are still in your week.')} <button type="button" class="btn sm" onclick={dropOldSuggestions} data-wp-oldsug-go>{t('Take them out')}</button></p>
+        {/if}
+        {#if outsideWeeks}
+          <div class="tpg" data-wp-tpgoal>
+            <p class="sub">{t('Goal in weeks with TrainingPeaks')}</p>
+            <div class="stepper">
+              <button type="button" class="btn sm" onclick={() => tpStep(-1)} disabled={tpGoal <= MIN_HOURS} aria-label={t('One hour less')} data-wp-tpdec><Minus size={20} aria-hidden="true" /></button>
+              <output class="big num" data-wp-tpvalue>{t('{n} h|plan', { n: tpGoal })}</output>
+              <button type="button" class="btn sm" onclick={() => tpStep(1)} disabled={tpGoal >= MAX_HOURS} aria-label={t('One hour more')} data-wp-tpinc><Plus size={20} aria-hidden="true" /></button>
             </div>
-          {/if}
-          <details class="more" data-wp-more>
-            <summary>{t('More about this')}</summary>
-            <p class="hint" data-wp-hint>{hoursLine}</p>
-            {#each deepLines as line (line)}<p class="hint">{line}</p>{/each}
-          </details>
-          {#if byHand}<button type="button" class="btn sm" onclick={suggestAgain} data-wp-again>{t('Suggest the units from the hours again')}</button>{/if}
-        </section>
+            {#if cfg.tpHours}<button type="button" class="btn sm" onclick={tpSame} data-wp-tpsame>{t('Same as the goal above')}</button>{:else}<p class="sub">{t('Same as the goal above, until you change it.')}</p>{#if !overLines.length}<button type="button" class="btn sm" onclick={tpSet} data-wp-tpsuggest>{t('Suggest {n} h for these weeks', { n: tpSuggest })}</button>{/if}{/if}
+          </div>
+        {/if}
+        <details class="more" data-wp-more>
+          <summary>{t('More about this')}</summary>
+          <p class="hint" data-wp-hint>{hoursLine}</p>
+          {#each deepLines as line (line)}<p class="hint">{line}</p>{/each}
+        </details>
+        {#if byHand}<button type="button" class="btn sm" onclick={suggestAgain} data-wp-again>{t('Suggest the units from the hours again')}</button>{/if}
+      </section>
+    {/snippet}
+    {#snippet goalsCard()}
+      <section class="card pc goals" aria-labelledby="wp-goals" data-wp-goals>
+        <h2 id="wp-goals">{t('Units per week')}</h2>
+        <ul class="glist">
+          {#each GOAL_TYPES as type (type)}
+            <li class="goal" data-goal={type}>
+              <span class="gn"><b>{nameOf(type)}</b><small>{goalMeta(type)}</small></span>
+              <span class="stepper sm">
+                <button type="button" class="btn sm" onclick={() => step(type, -1)} disabled={!cfg.counts[type]} aria-label={t('One less: {what}', { what: nameOf(type) })} data-wp-dec={type}><Minus size={16} aria-hidden="true" /></button>
+                <output class="num" aria-live="polite" data-wp-count={type}>{cfg.counts[type] || 0}</output>
+                <button type="button" class="btn sm" onclick={() => step(type, 1)} disabled={(cfg.counts[type] || 0) >= MAX_COUNT[type]} aria-label={t('One more: {what}', { what: nameOf(type) })} data-wp-inc={type}><Plus size={16} aria-hidden="true" /></button>
+              </span>
+              {#if FIXABLE.includes(type) && slotsOf(cfg, type).length}
+                <p class="slots" data-wp-slots={type}>
+                  {#each slotsOf(cfg, type) as s (s.d)}<span class="tag">{dayName(s.d, 'short')} {s.t} · {s.kind === 'fix' ? t('Fixed|place') : t('Wish|place')}</span>{/each}
+                </p>
+              {/if}
+            </li>
+          {/each}
+        </ul>
+        <p class="hint">{t('Meditation every second day and stretching in between come on their own.')}</p>
+        <button type="button" class="btn sm" onclick={reset} data-wp-reset>{t('Back to the basic plan')}</button>
+      </section>
+    {/snippet}
+
+    {#if view === 'std'}
+      <div class="col" data-wp-view="std">
+        <StandardWeek {cfg} week={stdWeek} {summer} {dayName} {nameOf} onchange={(next, text) => (next === cfg ? (msg = text) : commit(next, text))} />
+        <div class="lay">
+          <div class="col">
+            {@render hoursCard()}
+          </div>
+          <div class="col">
+            {@render goalsCard()}
+          </div>
+        </div>
+      </div>
+    {:else}
+    <div class="lay" data-wp-view="week">
+      <div class="col">
+        {@render hoursCard()}
 
         {#if isNow}
           <section class="card pc modes" aria-labelledby="wp-modes" data-wp-modes>
@@ -466,40 +524,7 @@
             <p class="hint">{t('Letting a unit go on purpose costs nothing: «Let go» takes it out of the week star.')}</p>
           </section>
         {/if}
-
-        <section class="card pc goals" aria-labelledby="wp-goals" data-wp-goals>
-          <h2 id="wp-goals">{t('Units per week')}</h2>
-          <ul class="glist">
-            {#each GOAL_TYPES as type (type)}
-              <li class="goal" data-goal={type}>
-                <span class="gn"><b>{nameOf(type)}</b><small>{goalMeta(type)}</small></span>
-                <span class="stepper sm">
-                  <button type="button" class="btn sm" onclick={() => step(type, -1)} disabled={!cfg.counts[type]} aria-label={t('One less: {what}', { what: nameOf(type) })} data-wp-dec={type}><Minus size={16} aria-hidden="true" /></button>
-                  <output class="num" aria-live="polite" data-wp-count={type}>{cfg.counts[type] || 0}</output>
-                  <button type="button" class="btn sm" onclick={() => step(type, 1)} disabled={(cfg.counts[type] || 0) >= MAX_COUNT[type]} aria-label={t('One more: {what}', { what: nameOf(type) })} data-wp-inc={type}><Plus size={16} aria-hidden="true" /></button>
-                </span>
-                {#if FIXABLE.includes(type)}
-                  <div class="fixrow" role="group" aria-label={t('Fixed days of {what}', { what: nameOf(type) })} data-wp-fixdays={type}>
-                    <span class="lbl">{t('Fixed days')}</span>
-                    {#each [0, 1, 2, 3, 4, 5, 6] as d (d)}
-                      <button type="button" class="chip" aria-pressed={fixOn(type, d)} disabled={!fixOn(type, d) && fixedFull(type)} aria-label={t('{what} on {day}', { what: nameOf(type), day: dayName(d) })} onclick={() => toggleDay(type, d)} data-wp-fix={`${type}:${d}`}>{dayName(d, 'short')}</button>
-                    {/each}
-                  </div>
-                  {#each cfg.fixes[type] || [] as f (f.d)}
-                    <label class="wish">
-                      <span>{dayName(f.d)}, {t('start time')}</span>
-                      <select class="inp" value={f.t} onchange={(e) => wishTime(type, f.d, e.currentTarget.value)} aria-label={t('{what} on {day}: start time', { what: nameOf(type), day: dayName(f.d) })} data-wp-wish={`${type}:${f.d}`}>
-                        {#each timeChoices(f.t) as c (c)}<option value={c}>{c}</option>{/each}
-                      </select>
-                    </label>
-                  {/each}
-                {/if}
-              </li>
-            {/each}
-          </ul>
-          <p class="hint">{t('Meditation every second day and stretching in between come on their own.')}</p>
-          <button type="button" class="btn sm" onclick={reset} data-wp-reset>{t('Back to the basic plan')}</button>
-        </section>
+        {@render goalsCard()}
       </div>
 
       <div class="col">
@@ -538,6 +563,9 @@
         {:else}
           <section class="card pc wk" aria-labelledby="wp-days" data-wp-week>
             <h2 id="wp-days" class="vh">{t('The days of the week')}</h2>
+            {#if carriedN > 0 && isNow}
+              <p class="like" data-wp-like><b>{tn(carriedN, '1 unit like last week.', '{n} units like last week.', {})}</b> {t('You moved them then, so the plan proposes them here again. Pull or move them as you like.')}<button type="button" class="btn sm" onclick={backStd} data-wp-std>{t('Back to the standard week')}</button></p>
+            {/if}
             {#each [0, 1, 2, 3, 4, 5, 6] as d (d)}
               {@const list = rows(d)}
               <div class="day" class:drop={pulled && pulled.over === String(d)} data-day={d}>
@@ -551,7 +579,7 @@
                       {#if live}<label class="tk"><input type="checkbox" class="tick" checked={!!done[u.id]} disabled={released.includes(u.id)} onchange={(e) => tick(u, e.currentTarget.checked, e.currentTarget)} aria-label={t('Done: {what} on {day}', { what: nameOf(u.type), day: dayName(d) })} data-wp-tick={u.id} /></label>{/if}
                       <time>{u.t}</time>
                       <span class="t">{nameOf(u.type)}</span>
-                      <span class="m num">{lengthText(u.mins)}{#if live && released.includes(u.id)}<span class="tag">{t('let go')}</span>{/if}{#if u.pinned}<span class="tag">{t('moved')}</span>{:else if u.fixed}<span class="tag">{t('fixed')}</span>{/if}{#if u.variant === 'intervals'}<span class="tag">{t('intervals')}</span>{/if}</span>
+                      <span class="m num">{lengthText(u.mins)}{#if live && released.includes(u.id)}<span class="tag">{t('let go')}</span>{/if}{#if u.carried}<span class="tag" data-wp-carried={u.id}>{t('like last week')}</span>{:else if u.pinned}<span class="tag">{t('moved')}</span>{:else if u.fixed}<span class="tag">{t('fixed')}</span>{/if}{#if u.variant === 'intervals'}<span class="tag">{t('intervals')}</span>{/if}</span>
                       {#if !quiet(u)}
                         <div class="ux">
                           <span class="sb">
@@ -560,7 +588,7 @@
                             {#if isNow}<button type="button" class="ab" aria-expanded={openMove === u.id} onclick={() => { openMove = openMove === u.id ? null : u.id; openWhy = null; }} data-wp-move-btn={u.id}>{t('Move')}</button>{/if}
                           </span>
                           {#if openWhy === u.id}
-                            <p class="whybox" data-wp-why={u.id}>{whyText(u)}{#if u.pinned}{' '}<button type="button" class="ab" onclick={() => unmoveUnit(u)} data-wp-unmove={u.id}>{t('Back to the suggestion|plan')}</button>{/if}</p>
+                            <p class="whybox" data-wp-why={u.id}>{whyText(u)}{#if u.pinned}{' '}<button type="button" class="ab" onclick={() => unmoveUnit(u)} data-wp-unmove={u.id}>{u.carried ? t('Back to the standard week') : t('Back to the suggestion|plan')}</button>{/if}</p>
                           {/if}
                           {#if openMove === u.id && isNow}
                             <div class="whybox mv" data-wp-move={u.id}>
@@ -575,7 +603,7 @@
                                 </select>
                               </label>
                               <small class="muted">{t('The rest of the week plans itself anew.')}</small>
-                              {#if u.pinned}<button type="button" class="ab" onclick={() => unmoveUnit(u)}>{t('Back to the suggestion|plan')}</button>{/if}
+                              {#if u.pinned}<button type="button" class="ab" onclick={() => unmoveUnit(u)}>{u.carried ? t('Back to the standard week') : t('Back to the suggestion|plan')}</button>{/if}
                             </div>
                           {/if}
                         </div>
@@ -617,6 +645,7 @@
         </section>
       </div>
     </div>
+    {/if}
 
     <!-- next step: what usually comes after the plan -->
     <nav class="next" aria-label={t('As next')} data-wp-next>
@@ -919,17 +948,24 @@
     text-decoration: line-through;
     opacity: 0.7;
   }
-  .fixrow {
-    flex-basis: 100%;
+  .like {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 6px;
-  }
-  .fixrow .lbl {
+    gap: var(--sp-2) var(--sp-3);
+    margin: 0 0 var(--sp-3);
+    padding: var(--sp-3);
+    border: 1px solid var(--ok);
+    border-radius: var(--r-ctl);
+    background: var(--ok-soft);
     font-size: var(--fs-small);
-    color: var(--ink-2);
-    margin-right: 4px;
+  }
+  .slots {
+    flex-basis: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
   }
   .chip {
     min-width: 40px;
@@ -951,14 +987,6 @@
   .chip:disabled {
     opacity: 0.4;
     cursor: default;
-  }
-  .wish {
-    flex-basis: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--sp-3);
-    font-size: var(--fs-small);
   }
   .ux {
     grid-column: 1 / -1;

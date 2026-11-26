@@ -36,21 +36,30 @@ async function open(page, context) {
 test('Wochenplan: fixed days and the wish time change the week, and Undo takes them back', async ({ page, context }, info) => {
   const errors = await open(page, context);
   const root = page.locator('[data-wochenplan]');
+  // since 26.11.2026 the fixed days and times are the places of the «Standard week» (the card «Units per week» only counts)
+  await root.locator('button', { hasText: T('Standard week') }).first().click();
+  const std = root.locator('[data-sw]');
   // the basic plan has tennis fixed on Tuesday, Thursday, Saturday
-  for (const d of [1, 3, 5]) await expect(root.locator(`[data-wp-fix="tennis:${d}"]`)).toHaveAttribute('aria-pressed', 'true');
-  await expect(root.locator('[data-wp-fix="tennis:2"]')).toHaveAttribute('aria-pressed', 'false');
+  for (const d of [1, 3, 5]) await expect(std.locator(`[data-sw-entry="tennis@${d}"]`)).toHaveAttribute('data-sw-kind-of', 'fix');
+  await expect(std.locator('[data-sw-entry="tennis@2"]')).toHaveCount(0);
   await shot(page, info, 'fixtage');
   // Wednesday becomes a fixed tennis day: a fourth unit, at its usual time
-  await root.locator('[data-wp-fix="tennis:2"]').click();
-  await expect(root.locator('[data-wp-fix="tennis:2"]')).toHaveAttribute('aria-pressed', 'true');
+  await std.locator('[data-sw-add="2"]').first().click();
+  const sheet = page.locator('[data-sw-sheet]');
+  await sheet.locator('[data-sw-type="tennis"]').click();
+  await sheet.locator('[data-sw-kind="fix"]').click();
+  await sheet.locator('[data-sw-save]').click();
+  await expect(std.locator('[data-sw-entry="tennis@2"]')).toHaveAttribute('data-sw-kind-of', 'fix');
   await expect(root.locator('[data-wp-count="tennis"]')).toHaveText('4');
-  await expect(root.locator('[data-day="2"] [data-unit="tennis@2"]')).toBeVisible();
-  await expect(root.locator('[data-wp-msg]')).toContainText(T('{what} on {day} is now fixed.').replace('{what}', T('Tennis')).replace('{day}', 'Mittwoch'));
+  await expect(root.locator('[data-wp-msg]')).toContainText(T('{what} is fixed on {day} at {time}.').replace('{what}', T('Tennis')).replace('{day}', 'Mittwoch').split('{time}')[0]);
   await root.locator('[data-wp-undo]').click();
   await expect(root.locator('[data-wp-count="tennis"]')).toHaveText('3');
-  await expect(root.locator('[data-wp-week] [data-unit="tennis@2"]')).toHaveCount(0);
+  await expect(std.locator('[data-sw-entry="tennis@2"]')).toHaveCount(0);
   // the wish time of the Tuesday unit
-  await root.locator('[data-wp-wish="tennis:1"]').selectOption('17:30');
+  await std.locator('[data-sw-entry="tennis@1"]').click();
+  await sheet.locator('[data-sw-time]').selectOption('17:30');
+  await sheet.locator('[data-sw-save]').click();
+  await root.locator('button', { hasText: T('Week|view') }).first().click();
   await expect(root.locator('[data-unit="tennis@1"] time')).toHaveText('17:30');
   // saved: after a reload the same
   await page.reload();

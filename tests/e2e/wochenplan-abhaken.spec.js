@@ -81,6 +81,7 @@ test('Wochenplan: tick a unit, progress follows, the tick stays after a reload a
   await shot(page, info, 'wochenplan-abhaken');
   // a plan change does not move the tick: one yoga unit less, tennis stays ticked
   await root.locator('[data-wp-dec="yoga"]').click(); // one unit less in total
+  await expect(root.locator('[data-wp-count="yoga"]')).toHaveText('1'); // the change is saved before the page is reloaded below (the count is read from the stored goals)
   await expect(root.locator('[data-wp-tick="tennis@1"]')).toBeChecked();
   // kept after a reload
   await page.reload();
