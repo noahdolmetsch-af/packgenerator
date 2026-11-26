@@ -1,6 +1,6 @@
 # Wunschliste: ein Name, eine Knopfzeile, «+ Wunsch»
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Noah «1-5a» (impeccable ganze App, Paket 11; Thread «Packen nach Taschen am Bike ausbauen»)
+PR #1813 · 24.11.2026 · Auftrag: Noah «1-5a» (impeccable ganze App, Paket 11; Thread «Packen nach Taschen am Bike ausbauen»)
 
 ## Was ist neu
 - Chip, Seitentitel, Handbuch und Rundgang sagen «Wunschliste» statt «Einkauf» (die Adresse `#/gear?view=wish` bleibt).
