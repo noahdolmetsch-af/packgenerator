@@ -35,7 +35,7 @@
       <span class="ic" aria-hidden="true"><Trophy size={20} /></span>
       <span class="tx">
         <b>{t('Challenge: {name}', { name: t(idea.name) })}</b>
-        <small>{t('Every day at least {n} min. Tick it off here or on Today.', { n: idea.goal })}</small>
+        <small>{t('Every day at least {n} min. Every session counts by itself.', { n: idea.goal })}</small>
       </span>
       <button type="button" class="btn sm" onclick={() => ((edit = null), (preset = idea), (open = true))} data-med-challenge-start>{t('Start|challenge')}</button>
     </div>

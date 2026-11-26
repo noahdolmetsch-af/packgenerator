@@ -21,9 +21,11 @@ export const UNITS = {
   steps: { chips: [1000, 2000, 5000], goal: 8000, max: MAX_DAY },
 };
 export const UNIT_KEYS = Object.keys(UNITS);
+/** «Belongs to»: the page whose sessions count by themselves (only minutes; today: the meditation sessions of the Dexie table flowLog). */
+export const LINKS = ['meditation'];
 /** Ideas to take over (only ideas, nothing is on by itself). */
 export const SUGGESTIONS = [
-  { name: '30 days of meditation', unit: 'min', goal: 10, days: 30 },
+  { name: '30 days of meditation', unit: 'min', goal: 10, days: 30, link: 'meditation' },
   { name: 'Daily steps', unit: 'steps', goal: 8000, days: 30 },
   { name: 'Stretching', unit: 'min', goal: 10, days: 14 },
   { name: 'Glasses of water', unit: 'count', word: 'glasses', goal: 8, days: 30 },
@@ -53,6 +55,7 @@ export function tageszieleOf(value) {
         name: clean(c.name, 40),
         unit,
         word: unit === 'count' ? clean(c.word, 20) : '',
+        link: unit === 'min' && LINKS.includes(c.link) ? c.link : '',
         goal: Number(c.goal) >= 1 ? whole(c.goal, 1, UNITS[unit].max) : UNITS[unit].goal,
         from: c.from,
         until: c.until,
@@ -65,20 +68,36 @@ export function tageszieleOf(value) {
 }
 
 /** A new goal: from a day (default today) for `days` days (default until the end of the year). */
-export function newZiel({ today, name, unit = 'min', word = '', goal, from = today, until, days, id = `tz-${today}-${Math.random().toString(36).slice(2, 7)}` }) {
+export function newZiel({ today, name, unit = 'min', word = '', link = '', goal, from = today, until, days, id = `tz-${today}-${Math.random().toString(36).slice(2, 7)}` }) {
   const u = UNIT_KEYS.includes(unit) ? unit : 'min';
   const end = until && until >= from ? until : days > 0 ? addDays(from, Math.round(days) - 1) : `${from.slice(0, 4)}-12-31`;
-  return tageszieleOf([{ id, name, unit: u, word, goal: goal || UNITS[u].goal, from, until: end, hand: {}, stopped: false, closed: false }])[0] ?? null;
+  return tageszieleOf([{ id, name, unit: u, word, link, goal: goal || UNITS[u].goal, from, until: end, hand: {}, stopped: false, closed: false }])[0] ?? null;
 }
 
 /** The amount added by hand on a day. */
-export const handSum = (c, day) => (c?.hand?.[day] ?? []).reduce((n, m) => n + m, 0);
+export const handOnly = (c, day) => (c?.hand?.[day] ?? []).reduce((n, m) => n + m, 0);
+/** The amount of a day: added by hand plus what the linked page counted by itself (`auto`, per day, never stored). */
+export const handSum = (c, day) => handOnly(c, day) + (c?.auto?.[day] ?? 0);
+/**
+ * «Belongs to: Meditation»: the minutes of the sessions per day, from the rows of flowLog, added to the goals that are linked
+ * (from their first to their last day). The goals come back as new objects; `tageszieleOf` drops `auto` again on saving.
+ */
+export function withAuto(list, log) {
+  const sums = {};
+  for (const l of log ?? []) if (l?.actId === 'meditation' && isDay(l.day) && Number.isFinite(l.min) && l.min > 0) sums[l.day] = (sums[l.day] ?? 0) + Math.round(l.min);
+  return (list ?? []).map((c) => {
+    if (c.link !== 'meditation') return c;
+    const auto = {};
+    for (const [d, n] of Object.entries(sums)) if (d >= c.from && d <= c.until) auto[d] = n;
+    return { ...c, auto };
+  });
+}
 /** Add an amount to a day (whole numbers; never more than a day holds). */
 export function addAmount(c, day, n) {
   const m = whole(n, 0, UNITS[c?.unit]?.max ?? 1440);
   if (!c || !m) return c;
   const cur = c.hand[day] ?? [];
-  const room = UNITS[c.unit].max - handSum(c, day);
+  const room = UNITS[c.unit].max - handOnly(c, day);
   return { ...c, hand: { ...c.hand, [day]: [...cur, Math.min(m, room)].filter((x) => x > 0) } };
 }
 /** Take the last added amount of a day back (Undo). */

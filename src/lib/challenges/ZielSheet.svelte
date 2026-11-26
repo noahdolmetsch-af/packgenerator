@@ -23,6 +23,7 @@
   let from = $state('');
   let until = $state('');
   let remind = $state('');
+  let linked = $state(false);
   let bad = $state('');
   const WHY = {
     unsupported: 'This browser cannot get reminders. On the phone it works in Chrome.',
@@ -43,6 +44,7 @@
         from = c.from;
         until = c.until;
         remind = c.remindAt ?? '';
+        linked = c.link === 'meditation';
       } else {
         const p = preset ?? {};
         nm = p.name ? t(p.name) : '';
@@ -53,6 +55,7 @@
         from = n.from;
         until = n.until;
         remind = '';
+        linked = p.link === 'meditation';
       }
       dialog.showModal();
     }
@@ -69,7 +72,7 @@
     if (!(g >= 1 && g <= UNITS[unit].max)) return (bad = t('Whole number from 1 to {n}.', { n: UNITS[unit].max }));
     if (!from || !until || until < from) return (bad = t('The last day comes after the first day.'));
     if (remind && !okTime(remind)) return (bad = t('Enter the time like 16:00.'));
-    const next = tageszieleOf([{ ...(c ?? { id: `tz-${today}-${Math.random().toString(36).slice(2, 7)}`, hand: {} }), name: nm, unit, word, goal: g, from, until, remindAt: remind, stopped: false, closed: false }])[0];
+    const next = tageszieleOf([{ ...(c ?? { id: `tz-${today}-${Math.random().toString(36).slice(2, 7)}`, hand: {} }), name: nm, unit, word, goal: g, from, until, remindAt: remind, link: unit === 'min' && linked ? 'meditation' : '', stopped: false, closed: false }])[0];
     if (!next) return (bad = t('Give it a name.'));
     // a time asks the browser for notifications once and switches the kind on; the challenge is saved either way
     let msg = '';
@@ -98,6 +101,9 @@
       <label><span class="lbl">{t('First day')}</span><DateInput bind:value={from} /></label>
       <label><span class="lbl">{t('Last day')}</span><DateInput bind:value={until} min={from} /></label>
     </div>
+    {#if unit === 'min'}
+      <label class="chk"><input type="checkbox" bind:checked={linked} data-ziel-link /><span><b>{t('Belongs to: Meditation')}</b><small class="muted">{t('Every meditation session counts toward the goal by itself. You can still add minutes by hand.')}</small></span></label>
+    {/if}
     <label><span class="lbl">{t('Reminder time on the phone')}</span><input class="inp" type="time" bind:value={remind} data-ziel-remind /><small class="muted">{t('Optional: a reminder every day at this time while the challenge runs. A day that reaches the goal sends none. Leave empty for no reminder.')}</small></label>
     {#if bad}<p class="bad" role="alert">{bad}</p>{/if}
     <div class="acts">
@@ -121,6 +127,20 @@
   .fld {
     display: grid;
     gap: 4px;
+  }
+  .chk {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .chk input {
+    flex: none;
+    margin-top: 3px;
+  }
+  .chk span {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
   }
   .seg {
     display: flex;

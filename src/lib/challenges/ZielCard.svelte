@@ -8,7 +8,7 @@
    */
   import { Check, Pencil, Target, ChevronDown } from '@lucide/svelte';
   import { toast } from '../flow/ui.svelte.js';
-  import { UNITS, standing, addAmount, undoAmount, untick, missing, handSum } from '../tagesziel.js';
+  import { UNITS, standing, addAmount, undoAmount, untick, missing, handSum, handOnly } from '../tagesziel.js';
   import { addDays } from '../flow.js';
   import { wd } from '../flow/words.js';
   import { t, tn, locale } from '../i18n.svelte.js';
@@ -19,6 +19,9 @@
   const st = $derived(standing(c, today));
   const doneToday = $derived(!!st?.today.done);
   const running = $derived(st?.phase === 'running');
+  const autoToday = $derived(c.auto?.[today] ?? 0);
+  // a day that the sessions alone have reached has nothing to take back by hand
+  const byItself = $derived(doneToday && handOnly(c, today) === 0);
   const week = $derived(Array.from({ length: 7 }, (_, i) => addDays(today, i - 6)).map((day) => ({ day, on: c.from <= day && day <= c.until && handSum(c, day) >= c.goal })));
   const unitText = (n) => (c.unit === 'min' ? t('{n} min', { n }) : c.unit === 'steps' ? tn(n, '{n} step', '{n} steps') : c.word ? `${n} ${c.word}` : t('{n}×', { n }));
   let own = $state('');
@@ -53,7 +56,7 @@
   <span class="mt">
     <span id="zc-{c.id}" class="hd">{c.name}{#if running}<span class="no"> · {t('Day {n} of {total}', { n: st.dayNo, total: st.total })}</span>{:else if st.phase === 'soon'}<span class="no"> · {t('starts on {day}', { day: new Date(`${c.from}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'long', timeZone: 'UTC' }) })}</span>{:else}<span class="no"> · {t('over')}</span>{/if}</span>
     {#if running}
-      <small data-ziel-now>{doneToday ? t('Done today: {have} of {goal}', { have: unitText(st.today.total), goal: unitText(c.goal) }) : t('{have} of {goal} today', { have: unitText(st.today.total), goal: unitText(c.goal) })}</small>
+      <small data-ziel-now>{doneToday ? t('Done today: {have} of {goal}', { have: unitText(st.today.total), goal: unitText(c.goal) }) : t('{have} of {goal} today', { have: unitText(st.today.total), goal: unitText(c.goal) })}{#if autoToday}{` · ${t('{n} min from meditation', { n: autoToday })}`}{/if}</small>
     {:else}
       <small>{tn(st.doneN, '{n} day reached', '{n} days reached')} · {tn(st.total, 'of {n} day', 'of {n} days')}</small>
     {/if}
@@ -65,9 +68,9 @@
   {#if st.streak > 1}<span class="ser">{tn(st.streak, '{n} day in a row', '{n} days in a row')}</span>{/if}
   {#if running}
     <span class="acts">
-      <button type="button" class="btn" class:hi={!doneToday} aria-pressed={doneToday} onclick={tickIt} data-ziel-tick>
+      <button type="button" class="btn" class:hi={!doneToday} aria-pressed={doneToday} onclick={tickIt} disabled={byItself} data-ziel-tick>
         <Check size={16} aria-hidden="true" />
-        {doneToday ? t('Ticked · take back') : t('Tick off|habit')}
+        {byItself ? t('Ticked by itself') : doneToday ? t('Ticked · take back') : t('Tick off|habit')}
       </button>
       <button type="button" class="l" aria-expanded={more} onclick={() => (more = !more)} data-ziel-more><ChevronDown size={14} aria-hidden="true" />{t('More')}</button>
     </span>

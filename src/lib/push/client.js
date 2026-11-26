@@ -69,8 +69,10 @@ export async function readData() {
   const [push, ownValues, merken, homePlace, air, lends, eatRemind, outdoor, challengeask, tagesziele, rennatlas, budget, calm] = settings.map((r) => r?.value ?? null);
   // «Draussen» PR 2: today's activities (the daily reminder is left out once the day is reached)
   const todayActs = outdoor ? await readLite(db, (T) => T.where('day').equals(from).toArray()).catch(() => []) : [];
+  // «Challenges» (Belongs to: Meditation): today's meditation minutes, so a day the sessions reached sends no reminder
+  const medToday = Array.isArray(tagesziele) && tagesziele.some((c) => c?.link === 'meditation') ? await db.flowLog.where('actId').equals('meditation').and((l) => l.day === from).toArray().catch(() => []) : [];
   // Paket H: supplies (items with a best-before date) and lent things (settings 'lends')
-  return { trips, repairs, bikes, notes, events: events ?? [], visits, kmBook, rain: rain ?? null, griff: griff?.value ?? null, items: items.filter((i) => i.expires), lends: Array.isArray(lends) ? lends : [], todayActs, settings: { push, ownValues, merken, homePlace, air, eatRemind, outdoor, challengeask, tagesziele, rennatlas, budget, calm }, lastBackup: meta?.at ?? null, now: new Date() };
+  return { trips, repairs, bikes, notes, events: events ?? [], visits, kmBook, rain: rain ?? null, griff: griff?.value ?? null, items: items.filter((i) => i.expires), lends: Array.isArray(lends) ? lends : [], todayActs, medToday, settings: { push, ownValues, merken, homePlace, air, eatRemind, outdoor, challengeask, tagesziele, rennatlas, budget, calm }, lastBackup: meta?.at ?? null, now: new Date() };
 }
 
 /** The subscription of this phone (made when missing). Throws { code } when it cannot. */
