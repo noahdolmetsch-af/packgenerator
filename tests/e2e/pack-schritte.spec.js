@@ -23,9 +23,15 @@ test('Packing list: Steps view with «Next», arrows and a remembered view', asy
   await heads.first().click();
   const next = page.locator('[data-step-next]').first();
   await expect(next).toContainText(T('Next: {step}', { step: names[1] }));
+  // Noah 24.11.2026 «a»: the two arrows that move a step stand at its heading (a row of their own beside the title), not under the items
+  const firstGroup = page.locator('.bag-group').first();
+  await expect(firstGroup.locator('.bag-head-row [data-step-up]')).toBeVisible();
+  await expect(firstGroup.locator('.bag-head-row [data-step-down]')).toBeVisible();
+  await expect(firstGroup.locator('[data-step-nav] [data-step-up]')).toHaveCount(0);
   if (process.env.SHOTS) {
     mkdirSync(process.env.SHOTS, { recursive: true });
-    await heads.first().scrollIntoViewIfNeeded();
+    await heads.first().evaluate((el) => { el.scrollIntoView({ block: 'start' }); window.scrollBy(0, -230); });
+    await page.waitForTimeout(300);
     await page.screenshot({ path: `${process.env.SHOTS}/schritte-${info.project.name === 'phone' ? 390 : 1440}.png` });
   }
   await next.click();
