@@ -140,7 +140,7 @@
             <ul class="rows">
               {#each gaps as g (g.key)}
                 <li class="gap">
-                  <span>{g.name}{g.rain ? ` · ${t('rainproof')}` : ''}</span>
+                  <span>{t(g.name)}{g.rain ? ` · ${t('rainproof')}` : ''}</span>
                   {#if g.fix}<button type="button" class="btn sm" onclick={() => takeAlong(g.fix, t('{name} is on the list.', { name: nameOf(g.fix) }))} data-vs-fix={g.key}>{t('Add {name}', { name: nameOf(g.fix) })}</button>{:else}<a class="btn sm" href="#/wardrobe">{t('To the wardrobe')}</a>{/if}
                 </li>
               {/each}
