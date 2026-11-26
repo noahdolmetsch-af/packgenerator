@@ -174,6 +174,10 @@ const GEAR1 = {
 };
 const GEAR2 = { kind: 'gear-import', version: 1, items: [{ sourceId: 'G9', name: `${P}Kettenoel`, category: 'tools', weightG: 60, owned: true }] };
 
+// «Übernehmen» also labels the name suggestions of Ich › Daten (data-name-take), which are still on screen
+// while the import page replaces them: only the import's own button counts (Wackler 25.11., e2e-part 4)
+const apply = (page) => page.getByRole('button', { name: T('Apply|import'), exact: true }).and(page.locator(':not([data-name-take])'));
+
 async function stage(page, info, data, name) {
   const file = info.outputPath(name);
   writeFileSync(file, JSON.stringify(data));
@@ -217,7 +221,7 @@ test('SN5+ Import pruefen: weight, bag, Schon da, Letzte Importe, undo of an old
   await box.getByRole('button', { name: T(BAG.bar) }).click();
   await expect(pill).toContainText(T(BAG.bar));
 
-  await page.getByRole('button', { name: T('Apply|import'), exact: true }).click();
+  await apply(page).click();
   await expect(page.locator('.done')).toBeVisible();
   const items = await table(page, 'items');
   expect(items.find((i) => i.sourceId === 'G2').defaultBag).toBe('bar');
@@ -225,7 +229,7 @@ test('SN5+ Import pruefen: weight, bag, Schon da, Letzte Importe, undo of an old
 
   // A second import, then «Rückgängig» on the OLDER one: its items go, the newer one stays.
   await stage(page, info, GEAR2, 'nachtrag.json');
-  await page.getByRole('button', { name: T('Apply|import'), exact: true }).click();
+  await apply(page).click();
   await expect(page.locator('.done')).toBeVisible();
   const hist = page.locator('[data-sec="history"]');
   await expect(hist.locator('li')).toHaveCount(2);

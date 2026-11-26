@@ -31,3 +31,6 @@ Ein Wackler ist ein Test, der ohne Änderung an der App mal grün und mal rot is
 | ride-running 320 px, gt20-touren:67, uebergaenge:138, pf Szenario 3, pinmarks:52 | – | 24.11. | unklar, je einmal gesehen | – | beobachten |
 
 Ältere, behobene Fälle (rund 30 seit 23.11.2026) mit Ursache: Notiz des Wackel-Threads im Projektordner (`notes/wackel-tests/`).
+| sonnen-ausfahrt.spec.js:145 | Handy | 25.11. (PR 1782, volle Prüfung) | kein Wackler: seit PR 1769 öffnet sich das Morgenfenster nicht mehr von selbst, der Test wartete darauf (3 von 3 rot, lokal Bisect 1766 grün / 1769 rot) | #1782 | stabil |
+| ski.spec.js:121 | Handy | 25.11. (PR 1782, volle Prüfung) | las `[data-group]` gleich nach der Überschrift, die Gruppen waren noch nicht gebaut (leere Liste, im Retry grün) | #1782 | stabil |
+| sn5plus.spec.js:186 | Handy | 25.11. (PR 1782, volle Prüfung) | «Übernehmen» gibt es auch bei den Namensvorschlägen (Ich › Daten), beim Seitenwechsel noch im Bild: 10 Treffer statt 1 (strict mode, im Retry grün) | #1782 | stabil |
