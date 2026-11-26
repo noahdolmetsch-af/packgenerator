@@ -9,7 +9,7 @@
 
   let { map } = $props();
   const W = 600;
-  const H = 300;
+  const H = 240;
   const PAD = 18;
   const view = $derived.by(() => {
     const b = map.box;

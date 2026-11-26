@@ -48,7 +48,9 @@ test('Touren: title with the count line, Weitermachen band, tiles, Wetter-Fenste
   // «Geplant» is not said twice: the band goes, its card there leads into Packen
   const band = page.locator('[data-pack-band]');
   await expect(band).toHaveCount(0);
-  await expect(page.locator('section[data-planned] a[data-in-pack-mode]')).toContainText(T('Open packing'));
+  // «Touren-Seite klarer» (Noah 25.11.2026 «3a»): the card on top («Continue with …») leads into Packen, «Geplant» has no second «Open packing»
+  await expect(page.locator('section[data-planned] a[data-in-pack-mode]')).toHaveCount(0);
+  await expect(page.locator('[data-pack-card] [data-pack-continue]').first()).toBeVisible();
   // «Geplant» as cards with «Neue Tour»; Bestwerte now in «In Zahlen», the weather in the tile «Gute Tage für eine Tour»
   const planning = page.locator('section[data-planned]').filter({ has: page.locator('#trips-plan') });
   await expect(planning.locator('li.pc').first()).toBeVisible();

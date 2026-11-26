@@ -21,6 +21,20 @@ export function nextStepOf(trip, items, order = []) {
 }
 
 /**
+ * The ids of the trips that get a card (the same filter, order and limit as packCards, without the items). «Touren-Seite klarer»
+ * (Noah 25.11.2026 «3a»): a race that has a card is not shown a second time as the row «Your race».
+ */
+export function cardIds(trips = [], today, max = MAX_CARDS) {
+  return new Set(
+    trips
+      .filter((tr) => isPreparing(tr, today))
+      .sort((a, b) => a.startDate.localeCompare(b.startDate) || String(a.title).localeCompare(String(b.title)))
+      .slice(0, max)
+      .map((tr) => tr.id),
+  );
+}
+
+/**
  * The cards: { id, title, pct (0–100 of the items packed), days (until the start), startDate, n (items), step (key or null),
  * kind: 'start' (no list yet) | 'continue' (a step waits) | 'done' (everything packed) }, the nearest start first.
  */

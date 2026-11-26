@@ -15,6 +15,7 @@ export default {
   // the small extra of the pill
   'on the way|state': 'unterwegs',
   'date passed': 'Datum vorbei',
+  'date passed|list': 'Datum vorbei, gefahren?',
   'debrief started': 'Rückblick angefangen',
   'debrief missing': 'Rückblick fehlt',
   // «What the app can do» (features.js f.tripstate)

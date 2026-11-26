@@ -400,7 +400,8 @@
       <button type="button" class="btn k" onclick={() => (pick = true)} aria-haspopup="dialog"><LayoutGrid size={16} aria-hidden="true" /><span class="kl">{t('Blocks')}</span></button>
     </div>
   </div>
-  {#if tours && shownGroups.length}
+  {#if tours && shownGroups.length && anyOpen}
+    <!-- «Touren-Seite klarer» (Noah 25.11.2026 «4a»): the bar only helps while groups are open; with all closed it repeated the five rows below it -->
     <!-- SN4h: the jump bar, it stays on top while the long page scrolls -->
     <nav class="jump" aria-label={t('Jump to a group')} data-jump>
       {#each shownGroups as g (g.key)}

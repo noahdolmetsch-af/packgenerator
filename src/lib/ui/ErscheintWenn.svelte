@@ -52,6 +52,7 @@
 {#if items.length}
   <details class="ew" data-erscheint-wenn-fold>
     <summary>{t('Shows up later, when it fits · {n}', { n: items.length })}</summary>
+    <p class="ewl">{t('These parts of the app show up by themselves as soon as the situation fits.')}</p>
     <ul>
       {#each items as e (e.id)}
         <li data-erscheint-wenn={e.id}>
@@ -68,6 +69,9 @@
     margin: 16px 0 0;
     font-size: var(--fs-small);
     color: var(--ink-2);
+  }
+  .ewl {
+    margin: 0 0 var(--sp-2);
   }
   summary {
     min-height: 44px;

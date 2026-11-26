@@ -12,11 +12,18 @@
   import { openTrip, openNew } from '../nav.js';
   import { packCards } from './packkarten.js';
   import { SETTING, STEP, cleanChoice } from './schritte.js';
+  import { racesQuery } from '../race/store.js';
+  import { raceTrips } from '../race/race.js';
+  import { raceHref } from '../race/parts.js';
+  import { Flag } from '@lucide/svelte';
 
   const dataQ = liveQuery(async () => {
     const [trips, items, s] = await Promise.all([db.trips.toArray(), db.items.toArray(), db.settings.get(SETTING)]);
     return { trips, items, order: cleanChoice(s?.value).order };
   });
+  // «Touren-Seite klarer» (Noah 25.11.2026 «3a»): the card of a race carries the way to its race page, so «Your race» needs no row of its own
+  const racesQ = racesQuery();
+  const raceIds = $derived(new Set(raceTrips($dataQ?.trips ?? [], $racesQ ?? {}, localDay()).coming.map((x) => x.id)));
   const cards = $derived($dataQ ? packCards({ ...$dataQ, today: localDay() }) : []);
   const dayText = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short' });
   const when = (c) => (c.days === 0 ? t('Today') : c.days === 1 ? t('Tomorrow') : t('In {n} days', { n: c.days }));
@@ -51,6 +58,7 @@
               <span class="pk-done">{t('Everything is packed.')}</span>
             {/if}
             <button type="button" class="pk-open" onclick={() => go(c)}>{t('Open|trip')}</button>
+            {#if raceIds.has(c.id)}<a class="pk-open pk-race" href={raceHref(c.id)} data-pack-race><Flag size={16} aria-hidden="true" />{t('Race page')}</a>{/if}
           </div>
         </div>
       </article>
@@ -144,6 +152,12 @@
     border: 1px solid var(--line);
     background: var(--paper);
     color: var(--ink);
+  }
+  .pk-race {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
   }
   .pk-done {
     color: var(--ink-2);

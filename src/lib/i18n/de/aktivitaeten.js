@@ -21,7 +21,7 @@ export default {
   'Strava: {name}': 'Strava: {name}',
   '1 activity': '1 Aktivität',
   'no Strava activity': 'keine Strava-Aktivität',
-  'Trips you packed in the app: what came along and what proved itself': 'Touren, die du in der App gepackt hast: was mit war und was sich bewährt hat',
+  'Packed in the app or ridden with live navigation: what came along and what proved itself': 'In der App gepackt oder mit Live-Navigation gefahren: was mit war und was sich bewährt hat',
   '{n} item in the list': '{n} Teil in der Liste',
   '{n} items in the list': '{n} Teile in der Liste',
   // part 2: «Filter» of the activities (actfilter.js, ActFilterSheet.svelte)

@@ -54,7 +54,9 @@ export const HINTS = {
       ['bag', 'Before you leave', 'the card says how much is packed'],
       ['book', 'After the ride', 'a debrief keeps what you learned'],
     ],
-    jumps: [['Planned|group', 'trips-plan'], ['With packing list|section', 'trips-done']], // Gesamttest 20.10.2026 B3
+    // «Touren-Seite klarer» (Noah 25.11.2026 «4a»): the legend and the note that stood under the list, a paragraph in the «?» window (HintCard)
+    read: ['Reading the list', 'green rows have a debrief, grey ones do not yet (a tap opens them anyway). Times, pace, heart rate and power come from Strava, without it from the uploaded ride; weather and temperature from the forecast saved with the trip. A value without data is left out. Only to look at, no rating.'],
+    jumps: [['Planned|group', 'trips-plan'], ['My trips|section', 'trips-done'], ['In numbers', 'iz-h'], ['More|tiles', 'more-h']], // Gesamttest 20.10.2026 B3, «Touren-Seite klarer» 25.11.2026 «4a»
   },
   pack: {
     lead: ['Here the packing list of one trip comes together.', 'The app suggests what fits the trip and the weather; you decide.'],

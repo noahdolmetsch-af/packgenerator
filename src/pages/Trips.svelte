@@ -82,8 +82,10 @@
   import { tripFacts, periodOf, withActs } from '../lib/review/rueckblick.js';
   import { factStates, factCounts, matchesState, waitingCount } from '../lib/review/state.js';
   import { testTrips } from '../lib/home/heute.js';
-import { listTrips, hiddenExamples, findDoubles, joinedGroups, extraCount, shortTimeS } from '../lib/touren/aufraeumen.js';
+import { listTrips, hiddenExamples, findDoubles, joinedGroups, extraCount, shortTimeS, testLooking } from '../lib/touren/aufraeumen.js';
 import DoppelteSheet from '../lib/touren/DoppelteSheet.svelte';
+import AufraeumKarte from '../lib/touren/AufraeumKarte.svelte';
+import { cardIds } from '../lib/pack/packkarten.js';
 import { normState, skKey } from '../lib/sk/tiles.js';
   import TestDataSheet from '../lib/testdata/TestDataSheet.svelte';
   import { loadPastActs, zonesOf, zoneValues } from '../lib/review/actdata.js';
@@ -168,6 +170,8 @@ import { normState, skKey } from '../lib/sk/tiles.js';
   const nExamples = $derived(hiddenExamples($tripsQ ?? []));
   const doubles = $derived($tripsQ ? findDoubles($tripsQ, $debriefsQ ?? []) : []);
   const nDoubled = $derived(extraCount(doubles));
+  const testRows = $derived(testLooking($tripsQ ?? []));
+  const packCardIds = $derived(cardIds($tripsQ ?? [], today));
   const nJoined = $derived(joinedGroups($tripsQ ?? []).reduce((s, g) => s + g.ids.length, 0));
   let openRows = $state(new Set());
   const toggleRow = (id) => {
@@ -404,7 +408,7 @@ import { normState, skKey } from '../lib/sk/tiles.js';
   const wx = $derived({ window: weatherWindow(forecast, today), tried: wxTried, place: !!$placeQ?.value });
   const tileData = $derived(tileRows(rows, states));
   const map = $derived(routeMap(tileData.map));
-  const tileExtra = (r) => stateExtraText(states[r.id]?.extra);
+  const tileExtra = (r) => stateExtraText(states[r.id]?.extra, { list: true });
 </script>
 
 {#snippet actList()}
@@ -571,7 +575,7 @@ import { normState, skKey } from '../lib/sk/tiles.js';
         <aside class="tside" aria-label={t('Beside the trips')} data-trips-side>
           {#if !tableOn}
             <section class="card sidef" aria-labelledby="trips-side-f" data-side-filter>
-              <h2 id="trips-side-f">{t('Period and filter')}</h2>
+              <h2 id="trips-side-f">{t('Filter the list')}</h2>
               {@render filterTools()}
             </section>
           {/if}
@@ -639,12 +643,13 @@ import { normState, skKey } from '../lib/sk/tiles.js';
                   <span class="pr"><span class="num">{t(r.state.label, r.state)}</span></span>
                 {/if}
                 <!-- B4: the band above no longer repeats this trip, so its card is the way into Packen -->
-                {#if bandRow?.tripId === r.tripId && (!ride || ride.tripId !== r.tripId)}
+                {#if bandRow?.tripId === r.tripId && (!ride || ride.tripId !== r.tripId) && !packCardIds.has(r.tripId)}
                   <a class="inpm go-pm" href={PACK_HREF} onclick={(e) => (e.preventDefault(), switchTrip(r.tripId, PACK_HREF))} data-in-pack-mode><Backpack size={14} aria-hidden="true" />{t('being packed')} · {t('Open packing')}<ChevronRight size={14} aria-hidden="true" /></a>
                 {/if}
                 <!-- UI-Prüfung T2: the ways of the trip by its phase (Packen, Wetter, Form; after the trip Rückblick, Form) -->
                 {#if r.kind === 'trip' && byId[r.tripId]}
-                  {@const hasPm = bandRow?.tripId === r.tripId && (!ride || ride.tripId !== r.tripId)}
+                  <!-- «Touren-Seite klarer» (Noah 25.11.2026 «3a»): a trip with a packing card on top gets no second «Open packing» here -->
+                  {@const hasPm = (bandRow?.tripId === r.tripId && (!ride || ride.tripId !== r.tripId)) || packCardIds.has(r.tripId)}
                   <nav class="pways" aria-label="{t('Ways for this trip')}: {r.title}" data-plan-ways>
                     {#each tripWays(byId[r.tripId], today).filter((w) => !(w.key === 'pack' && hasPm)) as w (w.key)}
                       <a class="pway" href={w.href} onclick={w.key === 'pack' ? (e) => (e.preventDefault(), switchTrip(r.tripId, w.href)) : undefined} data-way={w.key}>{t(w.label)}<ChevronRight size={14} aria-hidden="true" /></a>
@@ -664,29 +669,30 @@ import { normState, skKey } from '../lib/sk/tiles.js';
            Gesamttest 20.10.2026 B3: the Strava activities above it moved to the tab «Fahrten»; one quiet row below leads there. -->
       {#if phone.matches && !packOpen}
         <!-- 0.163.0: on a phone the list is one line with its count and what waits for a rating -->
-        <button type="button" class="phone-more extras" aria-expanded="false" onclick={() => (packOpen = true)} data-packmode-open><Backpack size={16} aria-hidden="true" /><span><b>{t('With packing list|section')}</b><small class="num">{[$dataQ ? tn(inPeriod.length, '{n} trip', '{n} trips') : '', stCounts.done ? tn(stCounts.done, '{n} waits for your review', '{n} wait for your review') : ''].filter(Boolean).join(' · ')}</small></span><ChevronRight size={16} aria-hidden="true" /></button>
+        <button type="button" class="phone-more extras" aria-expanded="false" onclick={() => (packOpen = true)} data-packmode-open><Backpack size={16} aria-hidden="true" /><span><b>{t('My trips|section')}</b><small class="num">{[$dataQ ? tn(inPeriod.length, '{n} trip', '{n} trips') : '', stCounts.done ? tn(stCounts.done, '{n} waits for your review', '{n} wait for your review') : ''].filter(Boolean).join(' · ')}</small></span><ChevronRight size={16} aria-hidden="true" /></button>
       {:else}
       <section class="done" aria-labelledby="trips-done" data-finished data-packmode>
         <div class="sh">
           <div>
-            <h2 id="trips-done"><Backpack size={20} aria-hidden="true" />{t('With packing list|section')}</h2>
-            <p class="ss">{t('Trips you packed in the app: what came along and what proved itself')}</p>
+            <h2 id="trips-done"><Backpack size={20} aria-hidden="true" />{t('My trips|section')}</h2>
+            <p class="ss">{t('Packed in the app or ridden with live navigation: what came along and what proved itself')}</p>
             <p class="ss" data-list-sub>{filtered ? t('{n} of {all} · filtered', { n: num(rows.length), all: num(inPeriod.length) }) : `${tn(inPeriod.length, '{n} trip', '{n} trips')} · ${t('newest first, by month')}`}</p>
             <!-- «Touren-Liste aufräumen» (Noah 23.11.2026): doubled trips are only suggested, the made-up examples can be shown again -->
-            {#if nDoubled}<p class="ss tidy" data-doubles-line>{tn(nDoubled, '{n} trip looks doubled', '{n} trips look doubled')} · <button type="button" class="btn btn-link" onclick={() => (doublesOpen = true)} data-doubles-open>{t('Check doubles')}</button></p>
-            {:else if nJoined}<p class="ss tidy" data-doubles-line>{tn(nJoined, '{n} doubled trip hidden', '{n} doubled trips hidden')} · <button type="button" class="btn btn-link" onclick={() => (doublesOpen = true)} data-doubles-open>{t('Take doubles apart')}</button></p>{/if}
+            {#if !nDoubled && nJoined}<p class="ss tidy" data-doubles-line>{tn(nJoined, '{n} doubled trip hidden', '{n} doubled trips hidden')} · <button type="button" class="btn btn-link" onclick={() => (doublesOpen = true)} data-doubles-open>{t('Take doubles apart')}</button></p>{/if}
             {#if nExamples}<p class="ss tidy" data-examples-line>{showExamples ? t('The made-up examples are shown.') : tn(nExamples, '{n} made-up example hidden', '{n} made-up examples hidden')} · <button type="button" class="btn btn-link" onclick={() => (showExamples = !showExamples)} data-examples-toggle>{showExamples ? t('Hide examples') : t('Show examples')}</button></p>{/if}
           </div>
-          <a class="btn btn-link more" href="#/pack/past">{t('As a table')}<ChevronRight size={16} aria-hidden="true" /></a>
           <!-- Paket H «3a und b»: change several trips at once (shared table) -->
           <button type="button" class="btn btn-link more" aria-pressed={tableOn} onclick={() => setTable(!tableOn)} data-trip-table>{tableOn ? t('Done') : phone.matches ? t('Change several') : t('Edit as a table')}</button>
         </div>
         <!-- «Computer-Breite» (Noah 26.10.2026 «1a»): from 1200 px period and filter stand in the right column -->
+        <AufraeumKarte {doubles} tests={testRows} onlook={() => (doublesOpen = true)} />
         {#if !side}{@render filterTools()}{/if}
         {@render activeRow()}
 
         {#if tableOn}
           <TripTable trips={$tripsQ ?? []} onclose={() => setTable(false)} />
+          <!-- «Touren-Seite klarer» (Noah 25.11.2026 «1-5a», Fehler 6): one «Edit as a table» button; the page of past trips as a table is one link under the table -->
+          <a class="btn btn-link more" href="#/pack/past" data-past-table-link>{t('All past trips as a table')}<ChevronRight size={16} aria-hidden="true" /></a>
         {:else if !$dataQ}
           <Skeleton rows={3} />
         {:else if !rows.length}
@@ -715,7 +721,7 @@ import { normState, skKey } from '../lib/sk/tiles.js';
                   <li class="tr st-{s?.state}" class:open={isOpen} data-row={r.id} data-state={s?.state}>
                     <span class="ric" aria-hidden="true">{#if s?.state === 'rated'}<Star size={20} fill="currentColor" />{:else}<Flag size={20} />{/if}</span>
                     <div class="rm">
-                      <div class="rt"><a class="rn" href={rowHref(r)} onclick={() => openRow(r)}>{r.title}</a>{#if r.live}<LiveLabel />{/if}<TripState state={s?.state} extra={stateExtraText(s?.extra)} /></div>
+                      <div class="rt"><a class="rn" href={rowHref(r)} onclick={() => openRow(r)}>{r.title}</a>{#if r.live}<LiveLabel />{/if}<TripState state={s?.state} extra={stateExtraText(s?.extra, { list: true })} /></div>
                       <p class="rs">{[dates(r.start, r.end), what(r), bike].filter(Boolean).join(' · ')}</p>
                       <!-- «Touren-Liste aufräumen» (Noah 23.11.2026): one compact row; a value without data is left out -->
                       {#if stats}<p class="rk num" data-row-stats>{stats}</p>{/if}
@@ -738,11 +744,7 @@ import { normState, skKey } from '../lib/sk/tiles.js';
           {#if moreN}
             <button type="button" class="phone-more" onclick={showMore} data-pack-phone-more><ChevronDown size={16} aria-hidden="true" />{tn(moreN, 'Show {n} more trip', 'Show {n} more trips')}</button>
           {/if}
-          <ul class="legend hide-phone" aria-label={t('What the colours mean')}>
-            <li><i class="lg rated"></i>{t('highlighted: with a Rückblick (Rated)')}</li>
-            <li><i class="lg done"></i>{t('grey: no Rückblick yet (Completed), a tap opens it anyway')}</li>
-          </ul>
-          <p class="rv-note hint hide-phone"><Info size={16} aria-hidden="true" /><span>{t('Times, pace, heart rate and power come from Strava; without Strava the times come from the uploaded ride. Weather and temp. from the forecast saved with the trip. A value without data is left out. Only to look at, no rating.')}</span></p>
+          <!-- «Touren-Seite klarer» (Noah 25.11.2026 «4a»): the legend of the colours and the note about where the values come from live in the «?» window now («Reading the list», hints.js) -->
         {/if}
       </section>
       {/if}
@@ -1550,6 +1552,13 @@ import { normState, skKey } from '../lib/sk/tiles.js';
       overscroll-behavior: contain;
       scrollbar-width: thin;
       padding: 2px;
+      /* «Nie abgeschnitten» (Noah 24.11.2026): a soft shadow at the edge where more is hidden, as in the windows (app.css, dialog.sheet) */
+      --tside-ground: var(--tint, var(--ground));
+      background:
+        linear-gradient(var(--tside-ground) 30%, transparent) top / 100% 28px no-repeat local,
+        linear-gradient(transparent, var(--tside-ground) 70%) bottom / 100% 28px no-repeat local,
+        radial-gradient(farthest-side at 50% 0, color-mix(in srgb, var(--shadow) 70%, transparent), transparent) top / 100% 10px no-repeat scroll,
+        radial-gradient(farthest-side at 50% 100%, color-mix(in srgb, var(--shadow) 70%, transparent), transparent) bottom / 100% 10px no-repeat scroll;
     }
     .tside .sidef {
       display: grid;

@@ -87,15 +87,17 @@ test('a) the pack draft is said once, at its card in «Geplant»; «Geplant» as
   const card = planned.locator(`li[data-trip="${NEXT.id}"]`);
   await expect(card).toContainText(NEXT.title);
   await expect(card).toContainText(T('{done} of {n} packed', { done: NEXT.entries.filter((e) => e.packed).length, n: NEXT.entries.length }));
-  const pill = card.locator('a[data-in-pack-mode]');
-  await expect(pill).toHaveText(`${T('being packed')} · ${T('Open packing')}`);
-  expect((await pill.boundingBox()).height).toBeGreaterThanOrEqual(44);
+  // «Touren-Seite klarer» (Noah 25.11.2026 «3a»): the trip has its card on top (PackKarten) with «Continue with …» or «Open», so «Geplant» carries no second «Open packing»
+  await expect(card.locator('a[data-in-pack-mode]')).toHaveCount(0);
+  await expect(card.locator('[data-way="pack"]')).toHaveCount(0);
   await expect(card.locator('.tst[data-state="plan"]')).toBeVisible();
   await shot(page, info, 'SN4g-touren-liste-entwurf');
   await noSideways(page);
-  // a tap on the pill opens Packen (the packing day of that trip)
-  await pill.click();
-  await expect(page).toHaveURL(/#\/pack\?day$/);
+  // the card on top opens Packen (the list of that trip)
+  const top = page.locator(`[data-pack-card="${NEXT.id}"]`);
+  await expect(top).toBeVisible();
+  await top.getByRole('button', { name: T('Open|trip') }).click();
+  await expect(page).toHaveURL(/#\/pack$/);
   expect(await page.evaluate(() => localStorage.getItem('pack.currentTrip'))).toBe(NEXT.id);
   expect(errors).toEqual([]);
 });
@@ -127,7 +129,7 @@ test('b) every finished trip of the period by month with its values; grey rows k
   const phone = info.project.name === 'phone';
   // AT1 (Noah 14.10.2026 21:19): «Abgeschlossene Touren» lists the Strava activities (tests/e2e/at1.spec.js);
   // the trips packed in the app are the section «Mit Packliste» (was «Packmodus»), with their values (answer 4a, 14.10.2026 «1-5a»)
-  await expect(page.locator('section[data-finished]').getByRole('heading', { level: 2, name: T('With packing list|section') })).toBeVisible();
+  await expect(page.locator('section[data-finished]').getByRole('heading', { level: 2, name: T('My trips|section') })).toBeVisible();
   // the month heads, newest first
   const heads = await list(page).locator('h3.mh').allTextContents();
   expect(heads.length).toBeGreaterThan(3);
@@ -164,7 +166,7 @@ test('b) every finished trip of the period by month with its values; grey rows k
     await expect(ski.locator('[data-no-power]')).toHaveCount(0);
     await expect(page.locator('[data-no-ride]')).toContainText(T('Upload ride'));
   }
-  if (!phone) await expect(page.getByText(T('highlighted: with a Rückblick (Rated)'))).toBeVisible(); // 0.163.0: no legend on a phone
+  await expect(page.getByText(T('highlighted: with a Rückblick (Rated)'))).toHaveCount(0); // «Touren-Seite klarer» 25.11.2026 «4a»: the legend is in the «?» window, no longer under the list
   await shot(page, info, 'SN4g-touren-werte');
   // «Alle» shows more trips than 12 months (the 2025 ones)
   const n12 = await list(page).locator('li[data-row]').count();
@@ -272,12 +274,16 @@ test('d) «In Zahlen»: five groups folded at first (Paket M #1002), «Alle aufk
   await iz.locator('[data-group="records"]').scrollIntoViewIfNeeded();
   await page.mouse.wheel(0, 400);
   await expect.poll(async () => (await jump.boundingBox()).y).toBeLessThan(200);
-  // «Alle zuklappen», then a jump opens its group again
+  // «Alle zuklappen»: the jump bar goes too (it only repeated the rows, «Touren-Seite klarer» 25.11.2026 «4a»); a group opens by its own row, then the bar is back
   await iz.locator('[data-fold-all]').click();
   for (const g of TOUR_GROUPS) await expect(iz.locator(`[data-group="${g.key}"] .gh button`)).toHaveAttribute('aria-expanded', 'false');
   await expect(iz.locator('[data-fold-all]')).toHaveText(T('Open all'));
-  await jump.locator('[data-jump-to="body"]').click();
+  await expect(jump).toHaveCount(0);
+  await iz.locator('[data-group="body"] .gh button').click();
   await expect(iz.locator('[data-group="body"] .gh button')).toHaveAttribute('aria-expanded', 'true');
+  await expect(jump.locator('[data-jump-to="body"]')).toBeVisible();
+  await jump.locator('[data-jump-to="records"]').click();
+  await expect(iz.locator('[data-group="records"] .gh button')).toHaveAttribute('aria-expanded', 'true');
   await noSideways(page);
   expect(errors).toEqual([]);
 });

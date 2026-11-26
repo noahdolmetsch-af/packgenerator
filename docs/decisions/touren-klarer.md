@@ -1,0 +1,10 @@
+# Touren-Seite klarer
+
+25.11.2026 · Auftrag: Noah «1-5a» (Thread «Touren-Seite klarer machen»), nach seinem Ganzseiten-Screenshot der Übersicht
+
+- 1a: Doppelte und Testfahrten stehen als eine sichtbare Karte «Aufräumen» über der Liste, mit «Zusammenlegen», «Erst ansehen» und «Als Test markieren», immer mit Rückgängig; nichts geschieht von selbst (verworfen: nur die kleine graue Zeile lassen).
+- 2a: Die Liste heisst **«Meine Touren»** statt «Mit Packliste» (sie enthält gepackte Touren und Fahrten aus GPX; verworfen: «Gefahrene Touren»). Ersetzt «Mit Packliste» vom 14.10.2026 (AT1) und 20.10.2026 (Gesamttest B3).
+- 3a: Die Pack-Karte und «Dein Rennen» sind eine Karte (die Pack-Karte eines Rennens trägt «Zum Rennen»); der zweite «Packen öffnen» bei «Geplant» fehlt. Die zwei Filter (Suche oben mit Jahr/Velo/Art/Distanz, «Liste filtern» rechts) bleiben, aber der rechte Kasten heisst jetzt «Liste filtern». Beide wirklich zu einem Filter zu machen berührt die «Suche am Ort» (Noah 22.11.2026 «2a», «3b») und bleibt eine offene Frage an Noah.
+- 4a: Die Farben-Legende und die Fussnote («Zeiten, Tempo, Puls …») stehen im «?»-Fenster («So liest du die Liste»), nicht unter der Liste; «Auf dieser Seite» springt zu allen vier Teilen; die zweite Chip-Leiste bei «In Zahlen» erscheint nur, solange eine Gruppe offen ist. **Nicht verschoben:** «Gehört zu …» und «Tipps für diese Seite ›» sind Bausteine aller Seiten (Noah 28.10.2026 «Heute als Begleiter», 15.10.2026 «Hilfen 3b»); sie nur auf Touren zu entfernen würde diese Seite von den anderen trennen. Offene Frage an Noah, ob sie überall ins «?»-Fenster wandern.
+- 5a: Die Karte aller Touren ist niedriger (die Zeichnung passt sich schon an die Strecken an, die grosse leere Fläche kommt von weit auseinanderliegenden Strecken); «Kommt später, wenn es passt» sagt mit einem Satz, was es ist (gilt für alle Seiten).
+- Kleine Fehler: «Weiter: Kleider» statt «Weiter mit Kleider»; «Beste Tage: Do, Fr und So»; im Listenzeilen-Etikett «Datum vorbei, gefahren?» (der Tourkopf behält «Datum vorbei. Bist du gefahren?»); weicher Schatten am unteren Rand der rechten Spalte («Nie abgeschnitten»).

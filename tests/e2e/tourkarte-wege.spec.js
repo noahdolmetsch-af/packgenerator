@@ -41,7 +41,9 @@ test('Touren: a planned card has Packen, Wetter and Form; the Wetter way opens t
   // Packen is there unless the card already says «wird gepackt · Packen öffnen» (the same way, said once)
   const pack = ways.locator('[data-way="pack"]');
   const inPm = card.locator('[data-in-pack-mode]');
-  expect((await pack.count()) + (await inPm.count())).toBe(1);
+  // «Touren-Seite klarer» (Noah 25.11.2026 «3a»): a trip that has its pack card on top has neither (the card on top says it)
+  const onTop = await page.locator('[data-pack-card="test_data_gtp_trip27"]').count();
+  expect((await pack.count()) + (await inPm.count())).toBe(onTop ? 0 : 1);
   expect(await wide(page)).toBeLessThanOrEqual(0);
   await weather.click();
   await expect(page).toHaveURL(/#\/wetter\?trip=test_data_gtp_trip27/);

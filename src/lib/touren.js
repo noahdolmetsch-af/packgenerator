@@ -152,3 +152,12 @@ export function rideBand(planRows = [], trips = [], today = null) {
   }
   return null;
 }
+
+/**
+ * «Touren-Seite klarer» (Noah 25.11.2026 «1-5a», Fehler 7): a list of words as one sentence, «Do, Fr und So»
+ * instead of «Do und Fr und So». `and` is the already translated word. Pure (tests/touren-klarer.test.js).
+ */
+export function listAnd(words = [], and = 'and') {
+  const w = words.filter(Boolean);
+  return w.length < 2 ? (w[0] ?? '') : `${w.slice(0, -1).join(', ')} ${and} ${w[w.length - 1]}`;
+}

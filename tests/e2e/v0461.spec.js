@@ -215,7 +215,7 @@ test('7: Touren opens the overview of all trips; a row opens its trip at the nex
     // SN4g «Touren-Seite, Runde 2»: «Geplant» and «Abgeschlossene Touren», «Bestwerte» as a block of «In Zahlen»;
     // AT1 (14.10.2026): «Abgeschlossene Touren» are the Strava activities, the trips packed in the app «Packmodus»;
     // Gesamttest 20.10.2026 B3 (Noah «3a»): the activities moved to the tab «Fahrten», the trips packed in the app are «Mit Packliste»
-    await expect(page.locator('section[data-planned], section[data-activities], section[data-finished]').locator('h2')).toHaveText([/Geplant/, /Mit Packliste/]);
+    await expect(page.locator('section[data-planned], section[data-activities], section[data-finished]').locator('h2')).toHaveText([/Geplant/, /Meine Touren/]);
     await expect(page.locator('a[data-to-rides]')).toContainText('Fahrten aus Strava');
     // Paket M (#1002, Noah «5a»): «In Zahlen» starts folded; «Alle aufklappen» shows the blocks
     const all = page.locator('[data-fold-all]').filter({ hasText: 'Alle aufklappen' });

@@ -5,8 +5,10 @@
 import { t, tn, locale } from './i18n.svelte.js';
 
 /** The words of stateExtra (English keys for t(), German in i18n/de/tz1.js); '' for nothing. */
-export function stateExtraText(x) {
+export function stateExtraText(x, { list = false } = {}) {
   if (!x) return '';
+  // «Touren-Seite klarer» (Noah 25.11.2026 «1-5a», Fehler 8): in a list row «Datum vorbei» alone did not say what is open; the trip header has its own question
+  if (list && x.key === 'ask') return t('date passed|list');
   if (x.key === 'days') return tn(x.n, 'in {n} day', 'in {n} days');
   if (x.key === 'on') return new Date(`${x.date}T12:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short' });
   const WORDS = { today: 'Today', tomorrow: 'Tomorrow', under: 'on the way|state', ask: 'date passed', gpx: 'GPX', strava: 'Strava', draft: 'debrief started', missing: 'debrief missing' };
