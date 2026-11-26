@@ -4,13 +4,14 @@ export default {
   lead: 'You can now filter the tour suggestions by kind and by distance from home, and choose which reasons you see.',
   points: [
     { text: 'Filter by kind: single trail, downhill, gravel and paths, round trip', go: { href: '#/trips/vorschlaege', steps: [{ sel: '[data-vs-arts]' }], where: 'Trips › Dreams › Tour suggestions, under «Region».' } },
-    { text: 'With a home place you can limit how far the start may be', go: { href: '#/trips/vorschlaege', steps: [{ sel: '[data-vs-start]' }] } },
+    { text: 'With a home place you can limit how far the start may be', go: { href: '#/trips/vorschlaege', steps: [{ sel: '[data-vs-start]' }], where: 'Trips › Dreams › Tour suggestions; the start filter shows once you have a home place.' } },
     { text: 'In «Why this suggestion?» you choose which lines you want to see', go: { href: '#/trips/vorschlaege/sm-332', steps: [{ sel: '[data-vs-lines] summary' }] } },
   ],
   small: [],
   test: ['Open Trips › Dreams › Tour suggestions and tap «Downhill»: only the downhill stays.', 'Open a tour, open «Choose the lines» and untick «Snow»: the snow line is gone from «Why this suggestion?».'],
   since: [],
   de: {
+    'Trips › Dreams › Tour suggestions; the start filter shows once you have a home place.': 'Touren › Träume › Tourenvorschläge; der Start-Filter erscheint, sobald du einen Wohnort hast.',
     'Tour suggestions: kind and start': 'Tourenvorschläge: Art und Start',
     'You can now filter the tour suggestions by kind and by distance from home, and choose which reasons you see.': 'Du kannst die Tourenvorschläge jetzt nach Art und nach Abstand von zu Hause filtern und wählen, welche Gründe du siehst.',
     'Filter by kind: single trail, downhill, gravel and paths, round trip': 'Filtere nach Art: Singletrail, Abfahrt, Schotter und Wege, Runde',

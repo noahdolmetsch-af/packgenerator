@@ -76,14 +76,13 @@ test('FE1 Daumen-Zone: the main button at the bottom on a phone, Save stays in s
   await dlg.locator('details.more > summary').click();
   const save = dlg.getByRole('button', { name: T('Save'), exact: true });
   await expect(save).toBeInViewport();
+  // «Nie abgeschnitten» (PR 1762, Noah 24.11.2026): the footer of every window stays fixed, on a computer too
+  await expect(dlg.locator('.daumen-foot')).toHaveCSS('position', 'sticky');
   if (phoneOf(info)) {
-    await expect(dlg.locator('.daumen-foot')).toHaveCSS('position', 'sticky');
     const d = await dlg.boundingBox();
     const s = await save.boundingBox();
     expect(s.y + s.height).toBeLessThanOrEqual(d.y + d.height);
     expect(await dlg.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
-  } else {
-    await expect(dlg.locator('.daumen-foot')).not.toHaveCSS('position', 'sticky');
   }
   await shot(page, info, 'fe1-dialog');
   expect(errors).toEqual([]);

@@ -4,7 +4,7 @@ export default {
   lead: 'Analyse now says what stands out, compares with before and keeps the own diagram calm.',
   points: [
     { text: 'On the overview, up to three sentences say what stands out, and every box says how it stands against the days before', go: { href: '#/auswerten/analyse', steps: [{ sel: '[data-overview]' }], where: 'Auswerten › Analyse › Overview, at the top.' } },
-    { text: '«Every day a field» fills the whole width with 12 weeks; the running week is dashed and left out of the mean', go: { href: '#/auswerten/analyse', steps: [{ sel: '[data-heat]' }] } },
+    { text: '«Every day a field» fills the whole width with 12 weeks; the running week is dashed and left out of the mean', go: { href: '#/auswerten/analyse', steps: [{ sel: '[data-heat]' }], where: 'Auswerten › Analyse › Overview; the field shows once there are days with data.' } },
     { text: 'In the own diagram the choices stand above the chart, the trips are one calm band and point at a day shows all values', go: { href: '#/auswerten/analyse', steps: [{ sel: '[data-tab="diagramm"]' }, { sel: '[data-dg-change]' }] } },
   ],
   small: [
@@ -18,6 +18,7 @@ export default {
   ],
   since: [],
   de: {
+    'Auswerten › Analyse › Overview; the field shows once there are days with data.': 'Auswerten › Analyse › Übersicht; das Feld erscheint, sobald es Tage mit Daten gibt.',
     'Analyse made clearer': 'Analyse übersichtlicher',
     'Analyse now says what stands out, compares with before and keeps the own diagram calm.': 'Analyse sagt jetzt, was auffällt, vergleicht mit davor und hält das eigene Diagramm ruhig.',
     'On the overview, up to three sentences say what stands out, and every box says how it stands against the days before': 'Auf der Übersicht sagen bis zu drei Sätze, was auffällt, und jede Kachel sagt, wie sie gegen die Tage davor steht',
