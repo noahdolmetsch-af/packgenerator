@@ -60,3 +60,11 @@ test('without a challenge the line shows only the meditation', async ({ page, co
   await shot(page, info, 'zeile-nur-meditation');
   expect(errors).toEqual([]);
 });
+
+test('the best window today: one quiet sentence under Outdoors from the hourly rain, dry until 19 in the fixture', async ({ page, context }, info) => {
+  const errors = await open(page, context, info, true);
+  const line = page.locator('[data-section="haken"] [data-challenge-line]');
+  await expect(line.locator('[data-cl-window]')).toHaveText(T('Dry until {h}:00 today.', { h: 19 }));
+  await shot(page, info, 'zeile-fenster');
+  expect(errors).toEqual([]);
+});

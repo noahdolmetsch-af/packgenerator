@@ -14,6 +14,9 @@
   import { SLEEP_Q, MOOD_Q, weekFive, weekSums, hasAnything, diffText } from '../weekreview.js';
   import { dayDots, usualWeek } from '../weekrhythm.js';
   import { normAct, tripDays } from '../flow.js';
+  import { isMedAct } from '../flow/hobby/medstart.js';
+  import { OUTDOOR_KEY, outdoorOf } from '../outdoor.js';
+  import { weekStand } from './wochenstand.js';
   import { PLAN_KEY, planOf, hmm, shiftDay } from '../training.js';
   import { homeTrips } from './heute.js';
   import { dayOfStamp as dayOf } from './windows.js';
@@ -36,7 +39,7 @@
   const dataQ = $derived(
     week
       ? liveQuery(async () => {
-          const [acts, flowActs, log, checks, answers, plan, trips] = await Promise.all([
+          const [acts, flowActs, log, checks, answers, plan, trips, outdoor] = await Promise.all([
             readLite(db, (T) => T.toArray()),
             db.flowActs.toArray(),
             db.flowLog.toArray(),
@@ -44,9 +47,10 @@
             db.abAnswers.where('qid').anyOf([SLEEP_Q, MOOD_Q]).toArray(),
             db.settings.get(PLAN_KEY),
             db.trips.toArray(),
+            db.settings.get(OUTDOOR_KEY),
           ]);
           const more = await weekSources(db, today); // rides, usual durations and Fitbit days of the shared week calculation (weekcalc.js)
-          return { ...more, acts, flowActs: flowActs.map(normAct), log, checks, answers, sessions: planOf(plan?.value), tripDays: tripDays(homeTrips(trips), today) };
+          return { ...more, acts, flowActs: flowActs.map(normAct), log, checks, answers, sessions: planOf(plan?.value), outdoor: outdoorOf(outdoor?.value), tripDays: tripDays(homeTrips(trips), today) };
         })
       : null,
   );
@@ -61,6 +65,8 @@
   const calc = $derived(data && week ? weekSums(data, week.monday, shiftDay(week.monday, 6)) : null);
   const dots = $derived(calc && week ? dayDots(calc, week.monday, today) : null);
   const usual = $derived(data && week ? usualWeek(data, week.monday, shiftDay(week.monday, 6)) : null);
+  // «Wochenstand» (Noah 24.11.2026 «1-3»): one quiet line, Outdoors and meditation of the finished week, only to look at
+  const stand = $derived(data && week ? weekStand({ rec: data.outdoor, acts: data.acts, log: data.log, medIds: data.flowActs.filter(isMedAct).map((a) => a.id), monday: week.monday, sunday: week.sunday }) : null);
   let whereOpen = $state(false);
   const open = $derived(src && week?.isSunday ? cardOpen(weekClose(buildWeek({ ...src, forecast: null, monday: week.monday, today }).days, week.monday, today)) : { n: 0, titles: [] });
   const news = $derived(week ? cardNews(NEWS_INDEX_ALL, week) : 0);
@@ -93,6 +99,13 @@
         <p class="ln dotsrow" data-wk-days>
           <span class="dots" aria-hidden="true">{#each dots.dots as d (d.day)}<i class:on={d.active} class:fut={d.future} data-wk-day={d.day} data-on={d.active ? '1' : '0'}></i>{/each}</span>
           <span>{tn(dots.of, 'Active on {n} of {m} day.', 'Active on {n} of {m} days.', { n: dots.active, m: dots.of })}</span>
+        </p>
+      {/if}
+      {#if stand?.outdoor || stand?.med}
+        <p class="ln" data-wk-stand>
+          {#if stand.outdoor}<span data-wk-stand-out>{tn(stand.outdoor.of, 'Outdoors on {n} of {m} day', 'Outdoors on {n} of {m} days', { n: stand.outdoor.days, m: stand.outdoor.of })}</span>{/if}
+          {#if stand.outdoor && stand.med}{' · '}{/if}
+          {#if stand.med}<span data-wk-stand-med>{tn(stand.med.days, 'Meditation on {n} day', 'Meditation on {n} days')}</span>{/if}
         </p>
       {/if}
       {#if usual}
@@ -187,6 +200,9 @@
     font-size: var(--fs-body);
     color: var(--ink-2);
     overflow-wrap: break-word;
+  }
+  [data-wk-stand] span {
+    white-space: nowrap;
   }
   .acts {
     display: flex;

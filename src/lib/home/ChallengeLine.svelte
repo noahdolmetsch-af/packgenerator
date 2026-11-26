@@ -7,7 +7,10 @@
    * data as the cards further down (OutdoorCard, MedCard) and stores nothing of its own; the big cards stay as the details.
    */
   import { liveQuery } from 'dexie';
-  import { TreePine, Flower2, Check, Timer as TimerIcon } from '@lucide/svelte';
+  import { TreePine, Flower2, Check, Timer as TimerIcon, CloudSun } from '@lucide/svelte';
+  import { homeForecast } from '../home-weather.js';
+  import { localDay } from '../localday.js';
+  import { dryWindow } from './fenster.js';
   import { db } from '../db.js';
   import { putSetting } from '../flowdb.js';
   import { toast, actName, clockState } from '../flow/ui.svelte.js';
@@ -55,6 +58,29 @@
     toast(t('+{n} min added for today.', { n }), () => save(undoMin(next, today)));
   }
 
+  /* «The best window today» (Noah 24.11.2026 «1-3»): one quiet sentence from the hourly rain, only while the day is open */
+  let fc = $state(null);
+  $effect(() => {
+    if (!running || running.today.done) return;
+    let on = true;
+    homeForecast(db)
+      .then((f) => on && (fc = f))
+      .catch(() => {});
+    return () => (on = false);
+  });
+  const win = $derived(running && !running.today.done && fc ? dryWindow(fc, localDay(), new Date().getHours()) : null);
+  const winText = $derived(
+    !win
+      ? ''
+      : win.kind === 'dry'
+        ? win.until
+          ? t('Dry until {h}:00 today.', { h: win.until })
+          : t('Dry for the rest of the day.')
+        : win.kind === 'later'
+          ? t('Wet now, dry from {h}:00.', { h: win.from })
+          : t('Wet today: a short meditation fits.'),
+  );
+
   /* the meditation */
   const fq = $derived(flowQuery(today));
   const mst = $derived($fq ? (flowStates($fq.acts, $fq.log, today, $fq.tripDays).find((s) => isMedAct(s.act) && !s.act.paused) ?? null) : null);
@@ -91,6 +117,7 @@
         {#if !running.today.done}<button type="button" class="btn sm go" onclick={(ev) => add(30, ev)} data-cl-add="30">{t('+{n} min', { n: 30 })}</button>{/if}
       </div>
     {/if}
+    {#if winText}<p class="win" data-cl-window><CloudSun size={14} aria-hidden="true" />{winText}</p>{/if}
     {#if showMed}
       <div class="row" data-cl-med>
         <span class="ic" aria-hidden="true"><Flower2 size={20} /></span>
@@ -155,6 +182,14 @@
     margin: -10px 0 -8px;
   }
   .tx small {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .win {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: -2px 0 4px 44px;
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
