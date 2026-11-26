@@ -1,6 +1,6 @@
 # Heimat-Test: auf das Notiz-Fenster warten, und sagen, wenn es nie aufgeht
 
-PR #NNNN · 26.11.2026 · Auftrag: möglicher neuer Wackler aus der Handy-Prüfung von PR 1807 (Koordinator), Wackel-Wächter
+PR #1810 · 26.11.2026 · Auftrag: möglicher neuer Wackler aus der Handy-Prüfung von PR 1807 (Koordinator), Wackel-Wächter
 
 ## Was ist neu
 - Nichts Sichtbares geändert, nur Test für `heimat.spec.js` («every function is visible on its home page», Handy).
