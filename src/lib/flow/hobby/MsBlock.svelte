@@ -110,23 +110,13 @@
     height: 44px;
     transform: translateY(-50%);
   }
+  /* as many columns as fit at 13rem each (not by screen width: beside the side column the page is narrower than the screen,
+     and «Hingebungsvoll» broke in the middle at 1366 px) */
   .grid,
   .recent {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 13rem), 1fr));
     gap: 12px;
-  }
-  @media (max-width: 899px) {
-    .grid,
-    .recent {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  @media (max-width: 599px) {
-    .grid,
-    .recent {
-      grid-template-columns: minmax(0, 1fr);
-    }
   }
   .ra {
     color: var(--ink-2);
