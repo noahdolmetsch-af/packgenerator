@@ -1,6 +1,6 @@
 # Kleider: deine Kleider vor der Wunschliste
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Noah «1-5a» (impeccable ganze App, Paket 10; Thread «Packen nach Taschen am Bike ausbauen»)
+PR #1804 · 24.11.2026 · Auftrag: Noah «1-5a» (impeccable ganze App, Paket 10; Thread «Packen nach Taschen am Bike ausbauen»)
 
 ## Was ist neu
 - Auf der Seite Kleider stehen am Handy zuerst «Velo · Alltag · Alle», die Figur «Deine Zwiebel», «Noch einordnen» und «Aufräumen», dann die Schichten und die Kleider-Sets. Die Wunschliste steht am Ende des Inhalts. Bisher standen «Aufräumen» und die Wunschliste (mit je einem Knopf pro Teil) vor allem anderen; die Figur begann erst nach etwa 1500 Pixeln.
