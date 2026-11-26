@@ -15,6 +15,7 @@
   import { backClose } from '../ui/backclose.js';
   import HintCard from '../pageinfo/HintCard.svelte';
   import SeitenInhaltListe from '../ui/SeitenInhaltListe.svelte';
+  import GehoertDazu from '../know/GehoertDazu.svelte';
   import { helpRows, pagePattern } from '../seiteninhalt.js';
   import { loadWissen } from '../wissen/load.js';
   import { loadHandbook } from '../handbook/load.js';
@@ -83,6 +84,7 @@
         {/each}
       </ul>
     {/if}
+    <GehoertDazu {hash} onpick={close} />
     {#if !helpHere.hint && !rows.length && !here.length && !isHome}<p class="none">{t('This page has no own help yet. Everything else is in «Help and functions».')}</p>{/if}
     <div class="more">
       <a class="go" href="#/features" onclick={close} data-help-all><b>{t('Help and functions')}</b><small>{t('Everything the app can do, the handbook and how it decides')}</small><ChevronRight size={20} aria-hidden="true" /></a>

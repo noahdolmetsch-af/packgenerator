@@ -4,6 +4,12 @@ import { expect } from '@playwright/test';
 
 /** Opens the card with this id ('gd:pack', 'ah:bikes') when it shows as a line; waits for the card or the line first. */
 export async function openCard(page, id) {
+  // «Belongs to …» is a part of the «?» window since 26.11.2026 (Noah «Ja», Touren-Seite klarer): open the window
+  if (id.startsWith('gd:')) {
+    await page.locator('[data-help-open]:visible').first().click();
+    await expect(page.locator('dialog[data-help] [data-gehoert]').first()).toBeVisible();
+    return;
+  }
   const line = page.locator(`[data-card-line="${id}"]`);
   const card = page.locator(id.startsWith('ah:') ? `[data-all-here="${id.slice(3)}"]` : '[data-gehoert]').first();
   await expect(line.or(card)).toBeVisible();

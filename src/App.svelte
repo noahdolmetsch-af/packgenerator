@@ -1,12 +1,10 @@
 <script>
   import Home from './pages/Home.svelte';
   import LazyPage from './lib/nav/LazyPage.svelte';
-  import GehoertDazu from './lib/know/GehoertDazu.svelte'; // «Heute als Begleiter» PR 7
-  import SeitenInhalt from './lib/ui/SeitenInhalt.svelte'; // «Wegweiser statt Katalog» PR 11
+    import SeitenInhalt from './lib/ui/SeitenInhalt.svelte'; // «Wegweiser statt Katalog» PR 11
   import SearchHere from './lib/suche/SearchHere.svelte'; // «Suche am Ort» (Warteliste 1, V2)
   import { hereKind } from './lib/suche/ort.js';
-  import { showsRow } from './lib/know/gehoert.js';
-  import { warmUp } from './lib/nav/lazy.js';
+    import { warmUp } from './lib/nav/lazy.js';
   import { noteHashMove } from './lib/nav/herkunft.svelte.js';
   import SkiTurn from './lib/ski/SkiTurn.svelte';
   import { parseBetween } from './lib/phase.js';
@@ -579,13 +577,11 @@
   {#if ops.path && place && page !== 'home' && !calm && !guest && !mini}<PathLine {place} {hash} />{/if}
   <!-- ER1/ER2: «Soll ich dich erinnern?» on top of the next page, in the page (never over its buttons) -->
   {#if !guest && page !== 'home'}<RemindCard /><RuhigLine {hash} />{/if}
-  <!-- «Heute als Begleiter» PR 7: «Belongs to …», the functions of the same moment, on top of the page -->
-  <!-- «Seitenkopf schlanker» (Noah 23.11.2026 «ja», Velos): on a phone «Belongs to …» and «What you can do here» are ONE row behind the title -->
-  {#if !guest && !mini && showsRow(page, hash) && !(phone.matches && page === 'bikes')}<GehoertDazu {page} {hash} />{/if}
+  <!-- «Heute als Begleiter» PR 7: «Belongs to …» is a part of the «?» window since 26.11.2026 (know/GehoertDazu.svelte, nav/HelpButton) -->
   <!-- «Suche am Ort» (Noah «2a»): a field of its own behind the title of Ich, Touren and Auswerten -->
   {#if !guest && !mini && hereKind(hash)}<SearchHere {hash} />{/if}
   <!-- «Wegweiser statt Katalog» PR 11: what you can do on this page, with what for and how it works (switched on page by page) -->
-  {#if !guest && !mini && page !== 'home'}<SeitenInhalt {hash}>{#snippet side()}{#if phone.matches && page === 'bikes' && showsRow(page, hash)}<GehoertDazu {page} {hash} inline />{/if}{/snippet}</SeitenInhalt>{/if}
+  {#if !guest && !mini && page !== 'home'}<SeitenInhalt {hash}>{#snippet side()}{/snippet}</SeitenInhalt>{/if}
   <svelte:boundary onerror={onfail}>
   {#key `${switchN}-${listsReady.v}`}
   {#if lost}

@@ -1,7 +1,8 @@
 <script>
   /**
    * «Heute als Begleiter» PR 7 (Noah 28.10.2026 «1a 2a 3a»): «Belongs to packing». Small jump links to the functions of the
-   * same moment, on top of the page. Only a suggestion: «Hide» puts it away for this page (kept on this device).
+   * same moment. Since 26.11.2026 (Noah «Ja» to «Touren-Seite klarer», open question 2) the row no longer stands on the page:
+   * it is a part of the «?» window (nav/HelpButton), so every page starts with its content (Content first). Only a suggestion.
    */
   import { liveQuery } from 'dexie';
   import { t } from '../i18n.svelte.js';
@@ -10,62 +11,36 @@
   import { goFeature } from './featureRun.js';
   import { momentName } from '../home/momentcard.js';
   import { NOT_KEY, notForMeOf } from '../ruhig/weniger.js';
-  import { PAGE_MOMENT, HUB_ONLY, gehoertDazu, allHref } from './gehoert.js';
-  import CardFold from '../ui/CardFold.svelte';
-  import { afterTitle } from '../ui/nachtitel.js';
+  import { PAGE_MOMENT, HUB_ONLY, gehoertDazu, allHref, showsRow } from './gehoert.js';
+  import { pageOf } from '../nav.js';
+  import { parseBikesHash } from '../bikes.js';
 
-  // inline: the card stands in the row of «What you can do here» (Velos on a phone, App.svelte): it keeps its place there
-  let { page = '', hash = '', inline = false } = $props();
-  const moment = $derived(PAGE_MOMENT[page] ?? null);
+  // hash: the page the «?» window belongs to; onpick: the window closes when a link is taken
+  let { hash = '', onpick = () => {} } = $props();
+  const page = $derived(pageOf(hash, parseBikesHash(hash).tab === 'care'));
+  const moment = $derived(showsRow(page, hash) ? (PAGE_MOMENT[page] ?? null) : null);
   const dataQ = liveQuery(featureData);
   const notQ = liveQuery(async () => notForMeOf((await db.settings.get(NOT_KEY))?.value));
   const row = $derived(moment && $dataQ && $notQ ? gehoertDazu({ moment, here: `#/${page}`, used: usedOf($dataQ), notForMe: $notQ, under: HUB_ONLY.includes(page) }) : null);
 </script>
 
-<!-- Durchklick-Fund 2 (Noah «2a»): the card is a closed line behind the title and behind the line «What you can do here» -->
-<div class="gd-host" class:inline data-gehoert-host use:afterTitle={inline ? { skip: true } : { behind: '[data-seiteninhalt-host], [data-suchehier-host]' }}>
 {#if row && row.items.length}
-  <CardFold id="gd:{page}" label={t('Belongs to {moment}', { moment: t(momentName(moment)) })} count={row.total} always>
   <nav class="gd" aria-labelledby="gd-h" data-gehoert={moment}>
-    <h2 id="gd-h">{t('Belongs to {moment}', { moment: t(momentName(moment)) })}</h2>
+    <h3 id="gd-h">{t('Belongs to {moment}', { moment: t(momentName(moment)) })}</h3>
     <ul>
       {#each row.items as f (f.id)}
-        <li><button type="button" class="chip" onclick={() => goFeature(f, {})} data-gehoert-item={f.id}>{t(f.title)}</button></li>
+        <li><button type="button" class="chip" onclick={() => { onpick(); goFeature(f, {}); }} data-gehoert-item={f.id}>{t(f.title)}</button></li>
       {/each}
-      {#if row.total > row.items.length}<li><a class="chip more" href={allHref(moment)} data-gehoert-all>{t('all {n} ›', { n: row.total })}</a></li>{/if}
+      {#if row.total > row.items.length}<li><a class="chip more" href={allHref(moment)} onclick={onpick} data-gehoert-all>{t('all {n} ›', { n: row.total })}</a></li>{/if}
     </ul>
   </nav>
-  </CardFold>
 {/if}
-</div>
 
 <style>
-  /* the host only carries the place: no box of its own, hidden until nachtitel.js has put it behind the title */
-  .gd-host {
-    display: contents;
-  }
-  .gd-host:not([data-placed]) {
-    display: none;
-  }
-  .gd-host.inline,
-  .gd-host.inline:not([data-placed]) {
-    display: contents;
-  }
   .gd {
-    margin: 0 0 12px;
-    padding: 10px 14px;
-    border: 1px solid var(--card-line);
-    border-radius: var(--radius-card);
-    background: var(--paper);
-    box-shadow: var(--card-shadow);
+    margin: 0;
   }
-  /* a phone held sideways keeps its few lines for the page (landscape.spec: the band right under the top bar) */
-  @media (max-height: 500px) {
-    .gd {
-      display: none;
-    }
-  }
-  h2 {
+  h3 {
     margin: 0 0 6px;
     font: 600 var(--fs-small)/1.3 var(--font-body);
     color: var(--ink-2);
@@ -84,7 +59,7 @@
     min-height: 44px;
     padding: 0 14px;
     border: 1px solid var(--line);
-    border-radius: 999px;
+    border-radius: var(--r-pill);
     background: var(--paper);
     color: var(--ink);
     font: 500 var(--fs-small) var(--font-body);
