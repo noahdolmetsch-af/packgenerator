@@ -78,11 +78,14 @@ export function light(el, id = '') {
     if (tall) scrollBy(0, -96);
   };
   show();
-  // a window or edit mode that just opened may still move the page: look once more when it has settled
-  setTimeout(() => {
-    const r = el.isConnected && el.getBoundingClientRect();
-    if (r && (r.bottom < 0 || r.top > innerHeight)) show();
-  }, 400);
+  // a window, edit mode or page that just opened may still move the content above the spot (a list that fills in
+  // late): look again several times while it settles and bring the spot back when it slipped off the screen
+  for (const ms of [400, 800, 1200, 1700]) {
+    setTimeout(() => {
+      const r = el.isConnected && el.getBoundingClientRect();
+      if (r && (r.bottom < 0 || r.top > innerHeight)) show();
+    }, ms);
+  }
   el.dataset.spotOn = id || '1';
   const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const ring = '0 0 0 4px color-mix(in srgb, var(--accent, #276a43) 55%, transparent)';
