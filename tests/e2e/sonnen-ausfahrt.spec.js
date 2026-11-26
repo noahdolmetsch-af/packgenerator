@@ -152,11 +152,8 @@ test('After clearly short sleep the card also shows the shortest ride, without a
   await expect(short).toContainText('Kurzer Kamm');
   await expect(short).toContainText('16 km');
   await expect(card).not.toContainText(/Schlaf/i);
-  // the morning questions of the Fitbit values open on top: put them aside first
-  await page.locator('dialog[data-round][open]').waitFor({ timeout: 15_000 });
-  await page.keyboard.press('Escape');
-  await expect(page.locator('dialog[data-round][open]')).toHaveCount(0);
-  await page.waitForTimeout(500); // the window must stay away, it is quiet for the day now
+  // since «Wi gaht's? am Abend» (PR 1769) the morning questions window opens only when asked, no longer by itself:
+  // it must stay away here, the card is all there is
   await expect(page.locator('dialog[data-round][open]')).toHaveCount(0);
   await page.locator('[data-heute-wetter]').screenshot({ path: info.outputPath(`sonne-kurz-${info.project.name}.png`) });
   await card.locator('[data-heute-sonne-short-show]').click();

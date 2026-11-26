@@ -55,7 +55,9 @@ test('Wochenplan: a Recovery Day from TrainingPeaks stays free, the plan says so
   await page.reload();
   await ready(page);
   await expect(root.locator(`[data-wp-week] .day[data-day="${busy}"] [data-unit*="#"]`)).toHaveCount(0);
-  await expect(root.locator('[data-wp-tp]', { hasText: 'freien Tag' })).toHaveCount(1);
+  // «Wochenplan verlässlich» (PR 1783): the hint on the free day lives in the fold «Mehr dazu» now, no longer as its own line
+  await root.locator('[data-wp-more] summary').click();
+  await expect(root.locator('[data-wp-more] .hint', { hasText: 'freien Tag' })).toHaveCount(1);
   await shot(page, info, 'recovery-nachher');
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
   expect(errors).toEqual([]);

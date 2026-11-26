@@ -123,6 +123,7 @@ test('Rucksack-Check: the five groups in order, a tap packs, n of m counts', asy
   await page.getByRole('link', { name: T('Open the backpack check') }).click();
   await expect(page).toHaveURL(new RegExp(`#/ski/check/${NEXT}$`));
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(T('Backpack check'));
+  await expect(page.locator('[data-group]')).toHaveCount(SKI_GROUPS.length); // the groups are built after the heading
   const order = await page.locator('[data-group]').evaluateAll((els) => els.map((e) => e.dataset.group));
   expect(order.sort()).toEqual(SKI_GROUPS.map((g) => g.key).sort());
   // the order a phone shows them in (top to bottom) is Noah's order
