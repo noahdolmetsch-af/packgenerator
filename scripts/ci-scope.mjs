@@ -15,7 +15,7 @@
 // The «Kern» (CORE_SPECS) runs with every scoped PR, so a broken start or trip loop never slips through.
 // The night run (volle-pruefung.yml) runs everything: a mistake the quick check misses shows there the next morning.
 import { execFileSync } from 'node:child_process';
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 
 const SPEC = /^tests\/e2e\/(?:[\w-]+\/)*[\w.-]+\.spec\.js$/;
 const SAFE = [
@@ -113,6 +113,73 @@ export function quickStage(files, map = null, all = allSpecFiles()) {
   return { mode: 'specs', specs, parts: partsFor(specs) };
 }
 
+/**
+ * Shared parts (Noah «1-8» 26.11.2026, step 5 of the test plan, thread «Tests schneller machen»): the side bar, the tabs, the page
+ * head, the window system (sheet form, delete/rename/move sheets, the fixed foot) and the global styles are loaded by every
+ * page. The map (scripts/ci-map.mjs) cannot narrow them, so until now such a PR ran the Kern alone, and the tests of OTHER
+ * areas that hang on them went red only in the night run (the 20 red tests of 26.11.: PR 1759 side bar, PR 1762 fixed foot,
+ * PR 1783 «Mehr dazu»). Now a change to one of these parts also runs the Wächter that look at every page and every window, and every
+ * spec whose own text names what the part draws (`probe`, read from the spec files, no hand-kept list of specs).
+ * A part that is renamed must be fixed here: tests/ci-scope.test.js checks that every pattern still matches a file.
+ */
+export const SHARED_PARTS = [
+  {
+    name: 'nav',
+    files: [
+      /^src\/lib\/nav\/(?:SideBar|PlaceTabs|PlaceBar|PlaceIcon|MiniBar|TabTitle|SkipLink|MeButton|HelpButton)\.svelte$/,
+      /^src\/lib\/nav\/(?:seiten|tabtitle|tabinfo|zurueck|wege)(?:\.svelte)?\.js$/,
+      /^src\/lib\/ui\/(?:PageHead|PathHead|Crumbs|Pfad)\.svelte$/,
+    ],
+    probe: /ptabs|\.side\b|minibar|crumbs|breadcrumb|PlaceTabs|SideBar|tabs:visible/i,
+  },
+  {
+    name: 'fenster',
+    files: [
+      /^src\/lib\/ui\/(?:Form|DeleteSheet|GroupDeleteSheet|MoveSheet|RenameSheet|ShiftSheet|ChallengeSheet|MainBar)\.svelte$/,
+      /^src\/lib\/ui\/(?:daumen|fe-seiten|touch)\.css$/,
+      /^src\/lib\/ui\/(?:backdrop|backclose)\.js$/,
+      /^src\/lib\/flow\/\w+Sheet\.svelte$/,
+    ],
+    probe: /\.sheet\b|sheet-|daumen|form-foot/,
+  },
+  { name: 'stil', files: [/^src\/app\.css$/], probe: null },
+];
+/** The Wächter that look at every page and window: they run with every shared part. */
+export const SHARED_WAECHTER = [
+  'tests/e2e/fenster-nie-abgeschnitten.spec.js', 'tests/e2e/wege-waechter.spec.js', 'tests/e2e/a11y.spec.js',
+  'tests/e2e/daumen.spec.js', 'tests/e2e/seitengroesse.spec.js', 'tests/e2e/bedienregeln.spec.js',
+];
+
+/** A helper imported by more specs than this is not a narrow link (settle.js, clock.js are in nearly every spec). */
+export const HELPER_MAX = 60;
+
+/** The helper files of tests/e2e (a locator kept in one place, like placetab.js), not specs. */
+function helperFiles(dir = 'tests/e2e') {
+  return readdirSync(dir, { withFileTypes: true }).filter((e) => e.isFile() && /\.js$/.test(e.name) && !SPEC.test(`${dir}/${e.name}`)).map((e) => `${dir}/${e.name}`);
+}
+
+/**
+ * The shared parts a PR changes, and the extra specs they ask for (`all` = the spec files a PR run can pick from).
+ * A spec counts when its own text matches the probe, or when it imports a helper (`./placetab.js`) whose text does: the
+ * tabs of the side bar are looked up in one helper, and the five red tests of PR 1759 reached them only through it.
+ */
+export function sharedSpecs(files, all = allSpecFiles(), read = (f) => readFileSync(f, 'utf8'), helpers = helperFiles()) {
+  const list = files.map((f) => f.trim()).filter(Boolean);
+  const hit = SHARED_PARTS.filter((p) => list.some((f) => p.files.some((re) => re.test(f))));
+  if (!hit.length) return { parts: [], specs: [] };
+  const specs = new Set(SHARED_WAECHTER.filter((f) => all.includes(f)));
+  for (const p of hit) {
+    if (!p.probe) continue;
+    const names = helpers.filter((h) => p.probe.test(read(h))).map((h) => h.slice(h.lastIndexOf('/') + 1));
+    const texts = new Map(all.map((f) => [f, read(f)]));
+    const uses = (text, h) => text.includes(`'./${h}'`) || text.includes(`"./${h}"`);
+    // a helper that most specs import (settle.js) cannot narrow anything: it is left out
+    const viaHelper = names.filter((h) => [...texts.values()].filter((t) => uses(t, h)).length <= HELPER_MAX);
+    for (const [f, text] of texts) if (p.probe.test(text) || viaHelper.some((h) => uses(text, h))) specs.add(f);
+  }
+  return { parts: hit.map((p) => p.name), specs: [...specs].sort() };
+}
+
 export const partsFor = (specs) => Math.min(5, Math.max(1, Math.ceil(specs.length / SPECS_PER_PART)));
 
 // «Ausprobieren» (tests/e2e/ausprobieren.spec.js) taps every line of «Was ist neu»; that grows with every PR
@@ -162,10 +229,17 @@ if (process.argv[1] && process.argv[1].endsWith('ci-scope.mjs')) {
   // «Schwer»: still everything after the map had its say (data, backup, sync, api/, build files, not understood)
   const schwer = r.mode === 'all';
   if (schwer && !voll) r = quickStage(lines, await map());
+  // a shared part (side bar, window system, styles) also runs the Wächter and the specs that name what it draws (not when everything runs)
+  const shared = r.mode === 'specs' ? sharedSpecs(lines) : { parts: [], specs: [] };
+  if (shared.specs.length) {
+    const merged = [...new Set([...r.specs, ...shared.specs])].sort();
+    r = { ...r, specs: merged, parts: partsFor(merged) };
+  }
   const specs = r.specs.filter((f) => existsSync(f)); // a spec deleted in the PR is not run
   console.log(`mode=${r.mode === 'specs' && !specs.length ? 'none' : r.mode}`);
   console.log(`specs=${specs.join(' ')}`);
   console.log(`parts=${r.parts}`);
   console.log(`news=${newsScope(lines, existsSync)}`);
+  console.log(`shared=${shared.parts.join(',')}`);
   console.log(`schwer=${schwer ? 'yes' : 'no'}`); // yes: «e2e (phone)» is green only with the label «voll» and its full run
 }

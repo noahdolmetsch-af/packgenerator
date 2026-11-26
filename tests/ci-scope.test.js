@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { existsSync } from 'node:fs';
-import { scope, newsScope, NEWEST_LINES, partsFor, quickStage, allSpecFiles, DATA_SPEC_NAME, CORE_SPECS, MAX_SPECS } from '../scripts/ci-scope.mjs';
+import { existsSync, readdirSync } from 'node:fs';
+import { scope, newsScope, NEWEST_LINES, partsFor, quickStage, allSpecFiles, DATA_SPEC_NAME, CORE_SPECS, MAX_SPECS, SHARED_PARTS, SHARED_WAECHTER, HELPER_MAX, sharedSpecs } from '../scripts/ci-scope.mjs';
 
 describe('ci-scope: which phone tests a PR needs', () => {
   it('docs and news only: no phone tests', () => {
@@ -153,5 +153,46 @@ describe('ci-scope: the quick stage of a «Schwer» PR (Noah 24.11.2026 «a»)',
   });
   it('allSpecFiles leaves out what a PR never runs (Gesamttest, night walk, live, probes)', () => {
     for (const f of allSpecFiles()) expect(f).not.toMatch(/gesamttest|nachtrundgang|\/live\/|tmp-durchklick/);
+  });
+});
+
+describe('ci-scope: shared parts run the Wächter and the specs that hang on them (Noah «1-8» 26.11.2026, step 5)', () => {
+  const walk = (dir) => readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(`${dir}/${e.name}`) : [`${dir}/${e.name}`]));
+  const src = walk('src');
+  it('every pattern still matches a file of the app (a renamed part must be fixed here), and every Wächter exists', () => {
+    for (const part of SHARED_PARTS) for (const re of part.files) expect(src.some((f) => re.test(f)), `${part.name}: ${re}`).toBe(true);
+    for (const f of SHARED_WAECHTER) expect(existsSync(f), f).toBe(true);
+  });
+  it('an ordinary file adds nothing', () => {
+    expect(sharedSpecs(['src/lib/ui/Fold.svelte', 'src/pages/Lend.svelte'], ['tests/e2e/a11y.spec.js'], () => '', [])).toEqual({ parts: [], specs: [] });
+  });
+  it('a shared part adds the Wächter and the specs whose text, or whose narrow helper, names what it draws', () => {
+    const files = {
+      'tests/e2e/a11y.spec.js': '', 'tests/e2e/daumen.spec.js': '', 'tests/e2e/own-tabs.spec.js': "page.locator('nav.ptabs')",
+      'tests/e2e/via-helper.spec.js': "import { TABS } from './placetab.js';", 'tests/e2e/via-wide.spec.js': "import { ready } from './settle.js';",
+      'tests/e2e/unrelated.spec.js': "page.goto('#/pack')", 'tests/e2e/placetab.js': 'nav.ptabs:visible', 'tests/e2e/settle.js': '.side .tabs',
+    };
+    const all = Object.keys(files).filter((f) => f.endsWith('.spec.js'));
+    // settle.js is imported by more specs than HELPER_MAX: not a narrow link
+    const wide = Object.fromEntries(Array.from({ length: HELPER_MAX + 1 }, (_, i) => [`tests/e2e/w${i}.spec.js`, "import './settle.js'"]));
+    const read = (f) => files[f] ?? wide[f];
+    const r = sharedSpecs(['src/lib/nav/SideBar.svelte'], [...all, ...Object.keys(wide)], read, ['tests/e2e/placetab.js', 'tests/e2e/settle.js']);
+    expect(r.parts).toEqual(['nav']);
+    expect(r.specs).toContain('tests/e2e/own-tabs.spec.js');
+    expect(r.specs).toContain('tests/e2e/via-helper.spec.js');
+    expect(r.specs).toContain('tests/e2e/a11y.spec.js');
+    expect(r.specs).not.toContain('tests/e2e/unrelated.spec.js');
+    expect(r.specs).not.toContain('tests/e2e/via-wide.spec.js');
+  });
+  it('the global styles run the Wächter only', () => {
+    const r = sharedSpecs(['src/app.css'], ['tests/e2e/a11y.spec.js', 'tests/e2e/x.spec.js'], () => '.side', []);
+    expect(r).toEqual({ parts: ['stil'], specs: ['tests/e2e/a11y.spec.js'] });
+  });
+  it('the PRs of the red night of 26.11. would have run their dependents (side bar: 1759; window foot: 1762)', () => {
+    const nav = sharedSpecs(['src/lib/nav/SideBar.svelte']).specs;
+    for (const n of ['ausstattung', 'taschen-setups', 'setup-rig', 'velos-material-bereich', 'head', 'bedienregeln']) expect(nav, n).toContain(`tests/e2e/${n}.spec.js`);
+    const win = sharedSpecs(['src/lib/ui/Form.svelte']).specs;
+    for (const n of ['daumen', 'fenster-nie-abgeschnitten']) expect(win, n).toContain(`tests/e2e/${n}.spec.js`);
+    expect(nav.length).toBeLessThan(120); // narrow enough: not the whole suite
   });
 });
