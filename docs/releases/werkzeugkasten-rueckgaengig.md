@@ -1,6 +1,6 @@
 # Werkzeugkasten-Test: «Rückgängig» erst nach der Lösch-Meldung
 
-PR #NNN · 26.11.2026 · Auftrag: Wackler aus der CI (Bündler-Hinweis), Wackel-Wächter
+PR #1798 · 26.11.2026 · Auftrag: Wackler aus der CI (Bündler-Hinweis), Wackel-Wächter
 
 ## Was ist neu
 - Nichts Sichtbares geändert, nur Test für `werkzeugkasten.spec.js:323` («Werkzeuge und Links: suggestions with the trip, switch off and back, own link, groups»).
