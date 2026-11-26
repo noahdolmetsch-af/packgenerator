@@ -28,7 +28,7 @@
   import { mondayOf, shiftDay } from '../training.js';
   import { azmWeek, addDays } from '../health.js';
   import { health } from '../health/client.svelte.js';
-  import { readLite } from '../actlite.js';
+  import { liteAll } from '../actlite.js';
 
   let { today, rides = [], isnew = false } = $props();
   const q = $derived(flowQuery(today));
@@ -40,7 +40,7 @@
   const actQ = liveQuery(() => bikeActs(db)); // 0.136.0: Strava rides before a bike's start point
   // «Alle Sportarten» (Noah 22.11.2026, Schritt E): a run or a hike from Strava without a tick counts as a day of the week too
   const othQ = liveQuery(async () => {
-    const [activities, usual, ticks] = await Promise.all([readLite(db, (T) => T.toArray()), db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY)]);
+    const [activities, usual, ticks] = await Promise.all([liteAll(db), db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY)]);
     return { activities, usual: usualMap(usual?.value), map: prefsOf(ticks?.value).map };
   });
   const others = $derived($othQ ? stravaOthers({ log: data?.log ?? [], acts: data?.acts ?? [], ...$othQ }) : []);

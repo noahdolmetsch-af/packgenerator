@@ -7,13 +7,13 @@ import { normAct } from '../flow.js';
 import { withStrava } from '../analyse/alle.js';
 import { USUAL_KEY, usualMap } from '../flow/usualmin.js';
 import { TICKS_KEY, prefsOf } from '../stravaticks.js';
-import { readLite } from '../actlite.js';
+import { liteAll } from '../actlite.js';
 
 export async function countedActs(db) {
   const [acts, log, activities, usual, ticks] = await Promise.all([
     db.flowActs.toArray(),
     db.flowLog.toArray(),
-    db.activities ? readLite(db, (T) => T.toArray()) : [],
+    db.activities ? liteAll(db) : [],
     db.settings.get(USUAL_KEY),
     db.settings.get(TICKS_KEY),
   ]);
