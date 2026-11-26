@@ -11,7 +11,7 @@ PR #<Nummer> · 24.11.2026 · Auftrag: Noah «1-5a» (impeccable ganze App, Pake
 ## Selbst entschieden
 - Die Wunschliste steht hinter der Legende («°C von …») ganz am Ende, direkt vor «Passt hier», nicht zwischen Schichten und Kits.
 - Kein Text und keine Adresse ändern sich. «Was du hier tun kannst 1» (Fund 9, Zahl 1 wirkt leer) bleibt für ein eigenes Paket.
-- Wächter: `tests/e2e/kleider-eigene-zuerst.spec.js` prüft die Reihenfolge am Handy und am Computer und «Hauptsache vor 700 px» (die Figur steht im ersten Bildschirm).
+- Wächter: `tests/e2e/kleider-eigene-zuerst.spec.js` prüft die Reihenfolge am Handy und am Computer und «Figur im ersten Bildschirm» (am Handy beginnt sie nach dem Hinweis unter «Velo · Alltag · Alle», vor dem unteren Rand des ersten Bildschirms).
 
 ## Entscheide (eigene Datei `docs/decisions/kleider-eigene-zuerst.md`)
 - 24.11.2026: eigene Kleider vor der Wunschliste (Noah «1-5a»)

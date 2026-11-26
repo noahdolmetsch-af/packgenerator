@@ -59,7 +59,8 @@ test('Wardrobe order - own clothes before tidy up, the wishlist ends the content
     expect(onion).toBeLessThan(tidy); // the figure before «Aufräumen»
     expect(tidy).toBeLessThan(cols); // «Aufräumen» before the layers
     expect(await topOf(page, '.sort')).toBeLessThan(tidy); // «Noch einordnen» right before «Aufräumen»
-    expect(onion).toBeLessThan(700); // Hauptsache vor 700 px: the figure is in the first screens, not behind the wishlist
+    // Hauptsache im ersten Bildschirm: the figure is on the first screen (the note under «Velo · Alltag · Alle» stands above it now), not behind the wishlist
+    await expect.poll(() => topOf(page, '.onion')).toBeLessThan(page.viewportSize().height);
   }
   expect(cols).toBeLessThan(wishes); // phone and computer: the wishes stand after the layers
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
