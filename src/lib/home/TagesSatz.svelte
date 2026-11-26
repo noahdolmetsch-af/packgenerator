@@ -25,6 +25,35 @@
       else clearTimeout(id);
     };
   });
+  // «Welcher Berg ruft?»: on a dry day with good form the real summit (the sums of the Gipfelbuch thread load only then, and only once the page is calm)
+  let ruf = $state(null);
+  $effect(() => {
+    const d = today;
+    if (!show || dry !== true || (level !== 'hard' && level !== 'normal')) return void (ruf = null);
+    let live = true;
+    const lv = level;
+    const run = async () => {
+      try {
+        const [{ bergRuft, ruftSatz }, { loadCatalog }, gb, { homeOf }] = await Promise.all([
+          import('../gipfelbuch-ruft.js'),
+          import('../gipfelkatalog.js'),
+          import('../gipfelbuch.js'),
+          import('../dayride.js'),
+        ]);
+        const [row, home, catalog] = await Promise.all([db.settings.get(gb.GB_KEY), db.settings.get('homePlace'), loadCatalog()]);
+        const r = bergRuft({ level: lv, wx: { rainMm: 0 }, home: homeOf(home?.value), book: gb.bookOf(row?.value), catalog, today: d });
+        if (live) ruf = r ? { kind: r.kind, href: r.href, text: ruftSatz(r) } : null;
+      } catch {
+        if (live) ruf = null;
+      }
+    };
+    const id = typeof requestIdleCallback === 'function' ? requestIdleCallback(run, { timeout: 5000 }) : setTimeout(run, 2000);
+    return () => {
+      live = false;
+      if (typeof cancelIdleCallback === 'function' && typeof requestIdleCallback === 'function') cancelIdleCallback(id);
+      else clearTimeout(id);
+    };
+  });
   const stored = (() => {
     try {
       return localStorage.getItem(NOT_TODAY_KEY);
@@ -33,7 +62,7 @@
     }
   })();
   let away = $state(stored);
-  const line = $derived(show && !putAway(away, today) ? tagesSatz({ level, azm: level ? loadHint({ health: $hq ?? [], today }) : null, dry }) : null);
+  const line = $derived(show && !putAway(away, today) ? tagesSatz({ level, azm: level ? loadHint({ health: $hq ?? [], today }) : null, dry, ruf }) : null);
   function putDown() {
     away = today;
     try {
@@ -46,7 +75,7 @@
 
 {#if line}
   <p class="day" data-say-day data-kind={line.kind}>
-    <a class="jump" href={line.href}>{t(line.text)}</a>
+    <a class="jump" href={line.href}>{line.raw ? line.text : t(line.text)}</a>
     <button type="button" class="away" data-say-day-away onclick={putDown} aria-label={t('Not today')}><X size={14} aria-hidden="true" /></button>
   </p>
 {/if}
