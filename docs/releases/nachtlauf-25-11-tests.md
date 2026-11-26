@@ -1,6 +1,6 @@
 # Nachtlauf 25.11.: veraltete Tests und zwei Wackler wieder grün
 
-PR #NNN · 26.11.2026 · Auftrag: Nachtlauf-Meldung (Issue 1779) sortieren, Tests reparieren (Koordinator, Vorrang)
+PR #1793 · 26.11.2026 · Auftrag: Nachtlauf-Meldung (Issue 1779) sortieren, Tests reparieren (Koordinator, Vorrang)
 
 ## Was ist neu
 - Nichts Sichtbares geändert, nur Tests (und sechs Hinweistexte alter «Was ist neu»-Zeilen, siehe unten). Der Nachtlauf vom 25.11. lief zum ersten Mal ganz durch und fand Tests, die wegen des Zeitlimits nie drankamen; fast alle waren nach bewussten App-Umbauten veraltet.
