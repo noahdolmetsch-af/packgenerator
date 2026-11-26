@@ -7,7 +7,7 @@
  *   { v: 1, weeks: { 'YYYY-MM-DD' (the Monday): { done: { [unitId]: 'YYYY-MM-DD' (the day it was ticked) },
  *                    no: [Strava activity ids that were said «not this unit»],
  *                    pins: { [unitId]: { d, t } } (part 4: the units moved by hand in this week),
- *                    mode: { light?, hard?, ski?, rain?, hit?, kraft? } (part 5: this week is lighter, a ski tour week, a rainy week; hit/kraft: the focus intervals or strength),
+ *                    mode: { light?, hard?, ski?, rain?, hit?, kraft?, std? } (part 5: this week is lighter, a ski tour week, a rainy week; hit/kraft: the focus intervals or strength; std: back to the standard week, nothing is taken over from the weeks before),
  *                    released: [unitId] (part 5: units let go on purpose; they do not count for the week's star),
  *                    snap: { saved, hours, units: [{ id, type, d, t, mins }] } } } }
  * - A tick belongs to the stable id of a unit (`tennis@1`, `bikeOut#2`, never «Tennis 2»), so a change of the plan
@@ -66,7 +66,7 @@ export function pinsOf(raw) {
 /** The modes of a week, cleaned: only the ones that are on stay. */
 export function modeOf(raw) {
   const out = {};
-  for (const k of ['light', 'hard', 'ski', 'rain', 'hit', 'kraft']) if (raw?.[k] === true) out[k] = true;
+  for (const k of ['light', 'hard', 'ski', 'rain', 'hit', 'kraft', 'std']) if (raw?.[k] === true) out[k] = true;
   if (out.hard && out.light) delete out.light; // a week is lighter or harder, never both
   if (out.hit && out.kraft) delete out.kraft; // the focus is intervals or strength, never both
   return out;
@@ -74,6 +74,31 @@ export function modeOf(raw) {
 
 /** One week of the log (empty when there is none). */
 export const weekLog = (log, monday) => log.weeks[monday] ?? { done: {}, no: [], pins: {}, mode: {}, released: [], snap: null };
+
+/** How many weeks back a move is taken over (a move that nobody repeats for this long is forgotten). */
+export const CARRY_WEEKS = 6;
+
+/**
+ * The moves of a week as the plan sees them (Noah 26.11.2026 «3a»): what was moved by hand in the weeks before is proposed again, until the person
+ * moves it again or presses «Back to the standard week» (mode `std`: that week and the following start from the standard week, nothing is taken over).
+ * { pins: the moves that count (own moves win), carried: the ids that come from an earlier week and were not moved in this one }.
+ * A move belongs to the stable id of a unit, so it only applies to the same unit (`gym@2`, `bikeOut#1`); a unit that is gone is simply not found.
+ */
+export function weekPins(log, monday, depth = CARRY_WEEKS) {
+  const w = weekLog(log, monday);
+  if (w.mode?.std || depth <= 0) return { pins: { ...w.pins }, carried: [] };
+  const before = weekPins(log, shiftDay(monday, -7), depth - 1);
+  const pins = { ...before.pins, ...w.pins };
+  return { pins, carried: Object.keys(before.pins).filter((id) => !w.pins[id]) };
+}
+
+/** The log with the week set back to the standard week: nothing is taken over from earlier weeks, the moves of this week stay. */
+export function backToStandard(log, monday, today) {
+  if (isPast(monday, today)) return log;
+  const w = weekLog(log, monday);
+  if (w.mode?.std) return log;
+  return { ...log, weeks: { ...log.weeks, [monday]: { ...w, mode: { ...w.mode, std: true } } } };
+}
 
 /** Is the week over (Sunday is past)? A past week is frozen. */
 export const isPast = (monday, today) => shiftDay(monday, 7) <= today;
@@ -209,12 +234,12 @@ export function progress(units, done, released = []) {
 }
 
 /** The plan of a week from the stored goals of its season; mode: a lighter week, a ski tour week, a rainy week; sessions: the sessions of `training.plan` (TrainingPeaks takes its share). */
-export function weekFor(stored, monday, pins = {}, mode = {}, sessions = []) {
+export function weekFor(stored, monday, pins = {}, mode = {}, sessions = [], carried = []) {
   const p = planOf(stored);
   const summer = isSummer(monday);
   const base = summer ? p.summer : p.winter;
   const cfg = modeCfg(base, summer, mode);
-  return { cfg, base, week: planWeek(cfg, { monday, pins, ski: !!mode.ski, rain: !!mode.rain, focus: focusOf(mode), sessions }) };
+  return { cfg, base, week: planWeek(cfg, { monday, pins, ski: !!mode.ski, rain: !!mode.rain, focus: focusOf(mode), carried, sessions }) };
 }
 
 /**
@@ -227,7 +252,8 @@ export function dueToday(stored, rawLog, today, sessions = []) {
   const d = (new Date(`${today}T12:00:00Z`).getUTCDay() + 6) % 7;
   const log = logOf(rawLog);
   const w = weekLog(log, monday);
-  const { cfg, week } = weekFor(stored, monday, w.pins, w.mode, sessions);
+  const wp = weekPins(log, monday);
+  const { cfg, week } = weekFor(stored, monday, wp.pins, w.mode, sessions, wp.carried);
   const done = w.done;
   const open = week.units.filter((u) => u.d === d && !QUIET.includes(u.type) && !done[u.id] && !w.released.includes(u.id));
   if (!open.length) return null;

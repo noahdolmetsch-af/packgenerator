@@ -44,7 +44,7 @@
   import { weekQuery } from '../../lib/woche/load.js'; // «Zeitplan»: the dates of the week stand in the schedule
   import { buildWeek } from '../../lib/woche.js';
   import { WEEKPLAN_KEY, planOf as weekplanOf, isSummer, modeCfg, planWeek, focusOf } from '../../lib/training/wochenplan.js'; // «Zeitplan»: the suggestions of the weekly plan
-  import { WEEKLOG_KEY, logOf, weekLog, setMode } from '../../lib/training/wochenlog.js';
+  import { WEEKLOG_KEY, logOf, weekLog, weekPins, setMode } from '../../lib/training/wochenlog.js';
   import YourStand from '../../lib/training/YourStand.svelte'; // V4b2: the card «Your status»
   import { restLine } from '../../lib/training/dein-stand.js';
   import WeekModes from '../../lib/training/WeekModes.svelte'; // V4b2: «Lighter», «Harder», rain, ski on top
@@ -240,9 +240,11 @@
     if ($wpQ == null || monday < mondayOf(today) || monday > shiftDay(mondayOf(today), 7)) return null;
     const sum = isSummer(monday);
     const cfgs = weekplanOf($wpQ);
-    const log = weekLog(logOf($wlQ), monday);
+    const wlog = logOf($wlQ);
+    const log = weekLog(wlog, monday);
+    const wp = weekPins(wlog, monday);
     const cfg = modeCfg(sum ? cfgs.summer : cfgs.winter, sum, log.mode);
-    const wk = planWeek(cfg, { monday, pins: log.pins, ski: !!log.mode.ski, rain: !!log.mode.rain, focus: focusOf(log.mode), sessions: plannerSessions($planQ, teamSessions(spPrefsOf($spQ))) });
+    const wk = planWeek(cfg, { monday, pins: wp.pins, carried: wp.carried, ski: !!log.mode.ski, rain: !!log.mode.rain, focus: focusOf(log.mode), sessions: plannerSessions($planQ, teamSessions(spPrefsOf($spQ))) });
     return { wk, log, cfg };
   });
   const suggested = $derived.by(() => {

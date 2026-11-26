@@ -8,7 +8,7 @@
  */
 import { addDays } from '../flow.js';
 import { mondayOf, shiftDay } from '../training.js';
-import { weekFor, logOf, weekLog } from '../training/wochenlog.js';
+import { weekFor, logOf, weekLog, weekPins } from '../training/wochenlog.js';
 import { soonList } from '../flowms.js';
 
 /** Which units of the Wochenplan belong to a sport, by the sport's icon. Sports without a unit get no plan line. */
@@ -50,8 +50,10 @@ export function planFor(r, act, plan, rawLog, today, sessions = []) {
   if (!types) return null;
   const monday = mondayOf(today);
   const dNow = (new Date(`${today}T12:00:00Z`).getUTCDay() + 6) % 7;
-  const w = weekLog(logOf(rawLog), monday);
-  const { week } = weekFor(plan, monday, w.pins, w.mode, sessions);
+  const log = logOf(rawLog);
+  const w = weekLog(log, monday);
+  const wp = weekPins(log, monday);
+  const { week } = weekFor(plan, monday, wp.pins, w.mode, sessions, wp.carried);
   const open = week.units.filter((u) => types.includes(u.type) && u.d >= dNow && !w.done[u.id] && !w.released.includes(u.id)).sort((a, b) => a.d - b.d || a.t.localeCompare(b.t));
   if (!open.length) return null;
   const left = leftOf(r);

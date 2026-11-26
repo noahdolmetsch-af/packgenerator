@@ -59,6 +59,7 @@ export const NOTE_TEXT = {
   'focus-kraft': 'Focus strength: {n} gym sessions, the bike stays easy.',
   'focus-kraft-none': 'Focus strength: there is no room for more gym sessions this week.',
   'focus-swap': 'To make room, {n} × «{type}» is left out.',
+  'wish-missed': 'A wish for «{type}» did not fit this week (busy, a free day or the ski tour): the plan took the best other place.',
 };
 
 /** Warnings of the planner: what does not fit. `w` is one warning of planWeek().warnings. */
@@ -89,6 +90,8 @@ export function whyOf(why) {
 const WHY_TEXT = {
   fixed: 'A fixed day you chose.',
   pinned: 'Moved by you.',
+  carried: 'Like last week: you moved it then, so it is proposed here again.',
+  wish: 'Your wish: the place was free.',
   rest: 'Before or after a hard day, on a day with little else.',
   'after-gym': 'Right after the gym.',
   'stretch-after': 'Right after the unit.',
@@ -96,6 +99,14 @@ const WHY_TEXT = {
   rain: 'Rain week: indoors instead of outdoors.',
 };
 export const WHY_KEYS = ['best', 'intervals', 'ski', ...Object.keys(WHY_TEXT)];
+
+/** The four parts of a day the window of a slot offers as one tap, with the start time each stands for. */
+export const TIME_PARTS = [
+  { t: '08:00', name: 'Morning' },
+  { t: '12:30', name: 'Midday' },
+  { t: '16:00', name: 'Afternoon' },
+  { t: '19:00', name: 'Evening' },
+];
 
 /** The start times offered for a unit: every half hour from 06:00 to 21:30, plus the current one when it falls between. */
 export function timeChoices(current) {
