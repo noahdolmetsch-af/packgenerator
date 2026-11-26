@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { tageszieleOf, newZiel, addAmount, undoAmount, standing, running, untick, missing, putZiel, removeZiel, handSum, UNITS, MAX_ZIELE, remindDays, okTime } from '../src/lib/tagesziel.js';
+import { tageszieleOf, newZiel, addAmount, undoAmount, standing, running, untick, missing, putZiel, removeZiel, handSum, UNITS, MAX_ZIELE, remindDays, okTime, withAuto, LINKS } from '../src/lib/tagesziel.js';
 
 const mk = (over = {}) => newZiel({ today: '2026-11-22', name: 'Stretching', unit: 'min', goal: 10, days: 14, id: 'tz-1', ...over });
 
@@ -83,5 +83,48 @@ describe('daily goals (Challenges page)', () => {
     expect(remindDays({ ...c, remindAt: '' }, '2026-11-22')).toEqual([]);
     expect(remindDays({ ...c, stopped: true }, '2026-11-22')).toEqual([]);
     expect(remindDays(c, '2026-11-22', 1).map((d) => d.day)).toEqual(['2026-11-23']);
+  });
+});
+
+describe('belongs to Meditation: the sessions count by themselves', () => {
+  const log = [
+    { actId: 'meditation', day: '2026-11-22', min: 6 },
+    { actId: 'meditation', day: '2026-11-22', min: 5 },
+    { actId: 'meditation', day: '2026-11-23', min: 4 },
+    { actId: 'meditation', day: '2026-12-20', min: 10 },
+    { actId: 'yoga', day: '2026-11-22', min: 30 },
+    { actId: 'meditation', day: '2026-11-24', min: 0 },
+  ];
+  it('keeps the link only for minutes and only for a known page', () => {
+    expect(LINKS).toEqual(['meditation']);
+    expect(mk({ link: 'meditation' }).link).toBe('meditation');
+    expect(mk({ link: 'meditation', unit: 'steps' }).link).toBe('');
+    expect(mk({ link: 'other' }).link).toBe('');
+    expect(mk().link).toBe('');
+  });
+  it('adds the minutes of the sessions of each day inside the days of the goal', () => {
+    const [c] = withAuto([mk({ link: 'meditation' })], log);
+    expect(c.auto).toEqual({ '2026-11-22': 11, '2026-11-23': 4 });
+    expect(handSum(c, '2026-11-22')).toBe(11);
+    expect(standing(c, '2026-11-23').doneN).toBe(1);
+    expect(standing(c, '2026-11-23').today).toMatchObject({ total: 4, left: 6, done: false });
+  });
+  it('adds the sessions to the minutes added by hand, and a session reaching the goal ticks the day', () => {
+    let c = addAmount(withAuto([mk({ link: 'meditation' })], log)[0], '2026-11-23', 6);
+    expect(handSum(c, '2026-11-23')).toBe(10);
+    expect(missing(c, '2026-11-23')).toBe(0);
+    expect(handSum(undoAmount(c, '2026-11-23'), '2026-11-23')).toBe(4);
+  });
+  it('leaves a goal without the link alone and does not store the sessions', () => {
+    const plain = mk();
+    expect(withAuto([plain], log)[0]).toBe(plain);
+    expect(withAuto([plain], null)[0]).toBe(plain);
+    const saved = tageszieleOf(withAuto([mk({ link: 'meditation' })], log));
+    expect(saved[0].auto).toBeUndefined();
+    expect(saved[0].link).toBe('meditation');
+  });
+  it('sends no reminder for a day the sessions have reached', () => {
+    const c = withAuto(tageszieleOf([{ ...mk({ link: 'meditation' }), remindAt: '18:00' }]), log)[0];
+    expect(remindDays(c, '2026-11-22', 2).map((d) => d.day)).toEqual(['2026-11-23', '2026-11-24']);
   });
 });

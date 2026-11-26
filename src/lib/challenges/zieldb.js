@@ -8,7 +8,7 @@ import { putSetting } from '../flowdb.js';
 import { toast } from '../flow/ui.svelte.js';
 import { askDelete, deleteWithUndo } from '../ui/ask.js';
 import { t } from '../i18n.svelte.js';
-import { TAGESZIELE_KEY, tageszieleOf, putZiel, removeZiel } from '../tagesziel.js';
+import { TAGESZIELE_KEY, tageszieleOf, putZiel, removeZiel, withAuto } from '../tagesziel.js';
 import { PUSH_KEY } from '../push/schedule.js';
 import { zielRemindOn } from '../zielpush.js';
 import { resyncPhone } from '../ruhig/store.js';
@@ -16,12 +16,17 @@ import { resyncPhone } from '../ruhig/store.js';
 // with the phone reminder on, the phone gets its new list (a day that reaches the goal sends none)
 const resync = async () => (zielRemindOn((await db.settings.get(PUSH_KEY))?.value) ? resyncPhone() : undefined);
 
-/** The list of goals, live (undefined while reading). */
-export const zieleQuery = () => liveQuery(async () => tageszieleOf((await db.settings.get(TAGESZIELE_KEY))?.value));
+/** The list of goals, live (undefined while reading). A goal that belongs to Meditation also reads the sessions (`auto`). */
+export const zieleQuery = () =>
+  liveQuery(async () => {
+    const list = tageszieleOf((await db.settings.get(TAGESZIELE_KEY))?.value);
+    if (!list.some((c) => c.link === 'meditation')) return list;
+    return withAuto(list, await db.flowLog.where('actId').equals('meditation').toArray());
+  });
 /** One goal added or changed (read again at the moment of saving, so two quick taps do not lose one). */
 export async function saveOne(c) {
   const list = tageszieleOf((await db.settings.get(TAGESZIELE_KEY))?.value);
-  await putSetting(db, TAGESZIELE_KEY, putZiel(list, c));
+  await putSetting(db, TAGESZIELE_KEY, tageszieleOf(putZiel(list, c)));
   await resync();
 }
 /** One goal removed. */

@@ -32,7 +32,7 @@ import { wetOf } from '../inspect/rain.js';
 import { bundleMorning, morningOn } from './morning.js';
 import { outdoorOf, remindDays } from '../outdoor.js';
 import { askDay, ASK_AT } from '../challengeask.js';
-import { tageszieleOf, remindDays as zielDays } from '../tagesziel.js';
+import { tageszieleOf, withAuto, remindDays as zielDays } from '../tagesziel.js';
 import { wakeRows, wakeDays } from '../race/atlas-wecker.js';
 import { keyOf as raceKeyOf } from '../race/atlas.js';
 
@@ -418,7 +418,7 @@ export function buildList(data) {
   }
   // «Challenges»: the reminder of each own challenge that has a time (a day that reaches the goal sends none)
   if (on('ziele'))
-    for (const c of tageszieleOf(data.settings?.tagesziele))
+    for (const c of withAuto(tageszieleOf(data.settings?.tagesziele), data.medToday))
       for (const { day } of zielDays(c, today, AHEAD_DAYS))
         add({ key: `ziel:${c.id}:${day}`, at: atMs(day, c.remindAt), title: t('Challenges|page'), body: t('{name}: today\'s goal is still open.', { name: c.name }), url: '#/' });
   // «Challenges» PR 4: one message on the day the question is due (not repeated when it is left unanswered; the card waits on the page)
