@@ -1,6 +1,6 @@
 # «Tipps für diese Seite» ins «?»-Fenster
 
-PR #(folgt) · 26.11.2026 · Auftrag: Noah «Ja» (26.11.2026 18:07) auf die offene Frage 2 aus «Touren-Seite klarer» (Thread «Touren-Seite klarer machen»); zweites Folge-Paket nach «Gehört zu ins ?-Fenster»
+PR #1816 · 26.11.2026 · Auftrag: Noah «Ja» (26.11.2026 18:07) auf die offene Frage 2 aus «Touren-Seite klarer» (Thread «Touren-Seite klarer machen»); zweites Folge-Paket nach «Gehört zu ins ?-Fenster»
 
 ## Was ist neu
 - Der leise Link «Tipps für diese Seite ›» am Seitenende (`src/lib/pageinfo/PageMore.svelte`) steht jetzt im «?»-Fenster, in der Reihe unten bei «Handbuch · Suche · Etwas fehlt?» (`src/lib/nav/HelpButton.svelte`, `data-help-tips`). Ein Tipp schliesst das Fenster und öffnet das Fenster «Alle Tipps» der Seite (`TipsSheet.svelte`) wie bisher.
