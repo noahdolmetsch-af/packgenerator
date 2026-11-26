@@ -549,11 +549,20 @@
             {@const next = grouping === 'steps' ? nextGroup(groups, group.key) : null}
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <section class="bag-group" class:open={isOpen} aria-label={zoneTitle(group)} ondragover={(e) => { if (grouping === 'bags' && !fixed) e.preventDefault(); }} ondrop={(e) => { if (grouping !== 'bags' || fixed) return; e.preventDefault(); const id = e.dataTransfer.getData('text/plain'); if (id) actions.addTo(group.key, id); }}>
+              <div class="bag-head-row">
               <button class="bag-heading" aria-expanded={isOpen} aria-controls={`calm-bag-${group.key}`} onclick={() => flip(group.key)}>
                 <Icon size={20} strokeWidth={1.8} aria-hidden="true" /><strong>{zoneTitle(group)}</strong>
                 <small class="num">{#if full}<i class="tp-badge">{t('over {cap} L', { cap: num(full.cap) })}</i> {/if}{tn(group.entries.length, '{n} item', '{n} items')}{group.entries.length ? ` · ${miss === group.entries.length ? t('not weighed') : (miss ? '~' : '') + formatWeight(g)}` : ''}</small>
                 {#if isOpen}<ChevronDown size={20} aria-hidden="true" />{:else}<ChevronRight size={20} aria-hidden="true" />{/if}
               </button>
+              <!-- Noah 24.11.2026 «a»: the two arrows move the whole step, so they stand at its heading, not under the items. -->
+              {#if grouping === 'steps' && !fixed && stepChoice}
+                <span class="step-move" data-step-move>
+                  <button type="button" class="tp-icon" onclick={() => keepChoice({ order: moveStep(stepChoice.order, group.step, -1, groups.map((x) => x.step)) })} aria-label={t('Move step up: {name}', { name: zoneTitle(group) })} data-step-up={group.step}><ArrowUp size={16} aria-hidden="true" /></button>
+                  <button type="button" class="tp-icon" onclick={() => keepChoice({ order: moveStep(stepChoice.order, group.step, 1, groups.map((x) => x.step)) })} aria-label={t('Move step down: {name}', { name: zoneTitle(group) })} data-step-down={group.step}><ArrowDown size={16} aria-hidden="true" /></button>
+                </span>
+              {/if}
+              </div>
               {#if !isOpen && group.entries.length}<p class="preview">{preview(group)}</p>{/if}
               <!-- v0.37.0 (Noah 3a): a trip without a bike still on a general bag: a quiet way to the real one. -->
               {#if grouping === 'bags' && group.bag?.pack && !group.bag.real && !fixed}<p class="real-pack"><button type="button" class="tp-link quiet-link" onclick={() => show('bags')}>{t('Choose a real backpack')}</button></p>{/if}
@@ -598,10 +607,6 @@
                   </ul>
                   {#if grouping === 'steps'}
                     <p class="step-nav" data-step-nav>
-                      {#if !fixed && stepChoice}
-                        <button type="button" class="tp-link" onclick={() => keepChoice({ order: moveStep(stepChoice.order, group.step, -1, groups.map((x) => x.step)) })} aria-label={t('Move step up: {name}', { name: zoneTitle(group) })} data-step-up={group.step}><ArrowUp size={16} aria-hidden="true" />{t('Earlier')}</button>
-                        <button type="button" class="tp-link" onclick={() => keepChoice({ order: moveStep(stepChoice.order, group.step, 1, groups.map((x) => x.step)) })} aria-label={t('Move step down: {name}', { name: zoneTitle(group) })} data-step-down={group.step}><ArrowDown size={16} aria-hidden="true" />{t('Later')}</button>
-                      {/if}
                       {#if next}<button type="button" class="tp-link next-step" onclick={() => goNext(group.key, next.key)} data-step-next>{t('Next: {step}', { step: zoneTitle(next) })} ›</button>{/if}
                     </p>
                   {/if}
@@ -775,6 +780,11 @@
   .bag-heading strong { flex: 1 1 auto; }
   .preview { margin: 0 0 4px 32px; font-size: var(--fs-small); line-height: 1.5; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: break-word; }
   .addrow { margin: 4px 0 0 32px; }
+  .bag-head-row { display: flex; align-items: center; gap: 4px; }
+  .bag-head-row .bag-heading { flex: 1 1 auto; width: auto; min-width: 0; }
+  .step-move { display: inline-flex; flex: none; }
+  .step-move .tp-icon { display: inline-flex; align-items: center; justify-content: center; min-width: 40px; min-height: 44px; border: 0; background: none; color: var(--ink-2); cursor: pointer; border-radius: var(--r-s, 8px); }
+  .step-move .tp-icon :global(svg) { color: inherit; }
   .step-nav { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 4px 0 0 32px; }
   .step-nav .tp-link { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; }
   .real-pack { margin: 0 0 4px 32px; }
