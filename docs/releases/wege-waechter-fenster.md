@@ -1,6 +1,6 @@
 # Wege-Wächter: Zurück-Prüfung ohne Neuladen
 
-PR #NNN · 26.11.2026 · Auftrag: Wackler aus dem Nachtlauf 25.11. (Wackel-Wächter, Vorrang beim Bündler)
+PR #1796 · 26.11.2026 · Auftrag: Wackler aus dem Nachtlauf 25.11. (Wackel-Wächter, Vorrang beim Bündler)
 
 ## Was ist neu
 - Nichts Sichtbares geändert, nur Test für den Wege-Wächter (`tests/e2e/wege-waechter.spec.js`).
