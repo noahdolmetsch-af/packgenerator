@@ -1,6 +1,6 @@
 # Fokus auf Intervalle oder Kraft für eine Woche
 
-PR #<Nummer> · 26.11.2026 · Auftrag: Noah «3a» (Thread «Wochenplan-Vorschläge verlässlich machen»)
+PR #1795 · 26.11.2026 · Auftrag: Noah «3a» (Thread «Wochenplan-Vorschläge verlässlich machen»)
 
 ## Was ist neu
 - Training › Wochenplan, Karte «Diese Woche»: zwei neue Schalter neben «Leichtere Woche», «Härtere Woche», «Skitour-Woche» und «Regenwoche»: «Fokus Intervalle» und «Fokus Kraft».
