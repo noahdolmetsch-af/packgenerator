@@ -37,10 +37,10 @@ describe('BF4 copies before an update', () => {
     expect(shouldSnapshot({ last: '0.1.0', current: '0.2.0', hasData: true, on: false })).toBe(false);
   });
 
-  it('keeps the newest 3 update copies and 1 restore copy', () => {
+  it('keeps the newest update copy and 1 restore copy', () => {
     const list = [1, 2, 3, 4, 5].map((id) => ({ id, kind: 'update', at: `2026-10-0${id}T10:00:00Z` })).concat([{ id: 6, kind: 'restore', at: '2026-10-01T00:00:00Z' }, { id: 7, kind: 'restore', at: '2026-10-02T00:00:00Z' }]);
-    expect(pruneIds(list).sort()).toEqual([1, 2, 6]);
-    expect(KEEP).toEqual({ update: 3, restore: 1, import: 3, sync: 1, reset: 1 }); // P3b (rule 5a): also 3 copies before an import; P8: one before the first sync; Paket H: one before «Start fresh»
+    expect(pruneIds(list).sort()).toEqual([1, 2, 3, 4, 6]);
+    expect(KEEP).toEqual({ update: 1, restore: 1, import: 3, sync: 1, reset: 1 }); // P3b (rule 5a): also 3 copies before an import; P8: one before the first sync; Paket H: one before «Start fresh»
   });
 
   it('a first install keeps nothing and notes the version', async () => {
@@ -81,10 +81,10 @@ describe('BF4 copies before an update', () => {
     expect((await db.items.toArray()).map((i) => i.id).sort()).toEqual(['EL01', 'NEW1']);
   });
 
-  it('takeSnapshot prunes to the newest 3 updates', async () => {
+  it('takeSnapshot prunes to the newest update', async () => {
     await db.items.put(item('EL01'));
     for (let i = 1; i <= 5; i++) await takeSnapshot(db, sdb, { version: `0.${i}.0`, to: `0.${i + 1}.0`, now: new Date(`2026-10-0${i}T08:00:00Z`) });
-    expect((await listSnapshots(sdb)).map((s) => s.version)).toEqual(['0.5.0', '0.4.0', '0.3.0']);
+    expect((await listSnapshots(sdb)).map((s) => s.version)).toEqual(['0.5.0']);
   });
 
   // Noah 24.11.2026: each copy holds all data (~140 MB); the page «Data» read every copy to show a list line (4.5 s with 3 copies)
@@ -94,7 +94,7 @@ describe('BF4 copies before an update', () => {
     const get = vi.spyOn(sdb.snaps, 'get');
     const toArray = vi.spyOn(sdb.snaps, 'toArray');
     const list = await readSnapshotList(sdb);
-    expect(list.map((s) => s.version)).toEqual(['0.4.0', '0.3.0', '0.2.0']);
+    expect(list.map((s) => s.version)).toEqual(['0.4.0']);
     expect((await snapshotFor(sdb, '0.5.0'))?.version).toBe('0.4.0');
     expect(list[0]).toEqual({ id: expect.any(Number), at: '2026-10-04T08:00:00.000Z', version: '0.4.0', to: '0.5.0', kind: 'update', rows: expect.any(Number) });
     expect(list[0]).not.toHaveProperty('data');
@@ -111,8 +111,8 @@ describe('BF4 copies before an update', () => {
     expect(get).not.toHaveBeenCalled();
     expect(toArray).not.toHaveBeenCalled();
     // the notes of pruned copies go with them
-    expect(await sdb.meta.where('key').startsWith(HEAD).count()).toBe(3);
-    expect((await readSnapshotList(sdb)).map((s) => s.version)).toEqual(['0.5.0', '0.4.0', '0.3.0']);
+    expect(await sdb.meta.where('key').startsWith(HEAD).count()).toBe(1);
+    expect((await readSnapshotList(sdb)).map((s) => s.version)).toEqual(['0.5.0']);
   });
 
   it('a copy from before the notes existed gets its note once, and nothing is lost', async () => {
@@ -124,6 +124,21 @@ describe('BF4 copies before an update', () => {
     expect(await readSnapshotList(sdb)).toEqual([{ id, at: '2026-09-01T08:00:00.000Z', version: '0.1.0', to: '0.2.0', kind: 'update', rows: 1 }]);
     expect((await sdb.snaps.get(id)).data).toEqual(data); // the copy itself is untouched
     expect((await listSnapshots(sdb)).map((s) => s.id)).toEqual([id]);
+  });
+
+  // Noah 24.11.2026 (card «Vor Updates»: «Nur 1 Kopie»): copies beyond the new limit go at the next start, not only at the next update
+  it('the start drops older update copies beyond the limit and keeps the newest, other kinds stay', async () => {
+    for (let i = 1; i <= 3; i++) await takeSnapshot(db, sdb, { version: `0.${i}.0`, to: `0.${i + 1}.0`, now: new Date(`2026-10-0${i}T08:00:00Z`) });
+    await sdb.snaps.bulkAdd([
+      { at: '2026-09-01T08:00:00.000Z', version: '0.0.1', to: '0.0.2', kind: 'update', rows: 1, data: {} },
+      { at: '2026-09-02T08:00:00.000Z', version: '0.0.2', kind: 'import', rows: 1, data: {} },
+    ]);
+    await ensureHeads(sdb);
+    await snapshotOnStart(db, { sdb, current: '0.9.0', seen: '0.9.0' }); // same version: no new copy, only the tidy-up
+    const list = await readSnapshotList(sdb);
+    expect(list.filter((s) => s.kind === 'update').map((s) => s.version)).toEqual(['0.3.0']);
+    expect(list.filter((s) => s.kind === 'import')).toHaveLength(1);
+    expect(await sdb.snaps.count()).toBe(2);
   });
 
   it('the note of a copy that is gone is dropped', async () => {
