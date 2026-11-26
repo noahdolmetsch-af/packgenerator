@@ -43,7 +43,7 @@
   import { DREAMS_KEY, storeOf as dreamStore, dreamList } from '../../lib/dreams.js'; // «Tour einplanen»
   import { weekQuery } from '../../lib/woche/load.js'; // «Zeitplan»: the dates of the week stand in the schedule
   import { buildWeek } from '../../lib/woche.js';
-  import { WEEKPLAN_KEY, planOf as weekplanOf, isSummer, modeCfg, planWeek } from '../../lib/training/wochenplan.js'; // «Zeitplan»: the suggestions of the weekly plan
+  import { WEEKPLAN_KEY, planOf as weekplanOf, isSummer, modeCfg, planWeek, focusOf } from '../../lib/training/wochenplan.js'; // «Zeitplan»: the suggestions of the weekly plan
   import { WEEKLOG_KEY, logOf, weekLog, setMode } from '../../lib/training/wochenlog.js';
   import YourStand from '../../lib/training/YourStand.svelte'; // V4b2: the card «Your status»
   import { restLine } from '../../lib/training/dein-stand.js';
@@ -242,7 +242,7 @@
     const cfgs = weekplanOf($wpQ);
     const log = weekLog(logOf($wlQ), monday);
     const cfg = modeCfg(sum ? cfgs.summer : cfgs.winter, sum, log.mode);
-    const wk = planWeek(cfg, { monday, pins: log.pins, ski: !!log.mode.ski, rain: !!log.mode.rain, sessions: plannerSessions($planQ, teamSessions(spPrefsOf($spQ))) });
+    const wk = planWeek(cfg, { monday, pins: log.pins, ski: !!log.mode.ski, rain: !!log.mode.rain, focus: focusOf(log.mode), sessions: plannerSessions($planQ, teamSessions(spPrefsOf($spQ))) });
     return { wk, log, cfg };
   });
   const suggested = $derived.by(() => {

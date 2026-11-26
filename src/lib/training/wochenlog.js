@@ -7,7 +7,7 @@
  *   { v: 1, weeks: { 'YYYY-MM-DD' (the Monday): { done: { [unitId]: 'YYYY-MM-DD' (the day it was ticked) },
  *                    no: [Strava activity ids that were said «not this unit»],
  *                    pins: { [unitId]: { d, t } } (part 4: the units moved by hand in this week),
- *                    mode: { light?, hard?, ski?, rain? } (part 5: this week is lighter, a ski tour week, a rainy week),
+ *                    mode: { light?, hard?, ski?, rain?, hit?, kraft? } (part 5: this week is lighter, a ski tour week, a rainy week; hit/kraft: the focus intervals or strength),
  *                    released: [unitId] (part 5: units let go on purpose; they do not count for the week's star),
  *                    snap: { saved, hours, units: [{ id, type, d, t, mins }] } } } }
  * - A tick belongs to the stable id of a unit (`tennis@1`, `bikeOut#2`, never «Tennis 2»), so a change of the plan
@@ -17,7 +17,7 @@
  * - Strava only suggests (Noah «2a»): a matching activity of the same day is offered, a tick is always by hand.
  */
 import { shiftDay, mondayOf, doneBy } from '../training.js';
-import { planOf, isSummer, planWeek, modeCfg } from './wochenplan.js';
+import { planOf, isSummer, planWeek, modeCfg, focusOf } from './wochenplan.js';
 
 export const WEEKLOG_KEY = 'training.weeklog';
 /** How many weeks the log keeps (older ones go on write). */
@@ -66,8 +66,9 @@ export function pinsOf(raw) {
 /** The modes of a week, cleaned: only the ones that are on stay. */
 export function modeOf(raw) {
   const out = {};
-  for (const k of ['light', 'hard', 'ski', 'rain']) if (raw?.[k] === true) out[k] = true;
+  for (const k of ['light', 'hard', 'ski', 'rain', 'hit', 'kraft']) if (raw?.[k] === true) out[k] = true;
   if (out.hard && out.light) delete out.light; // a week is lighter or harder, never both
+  if (out.hit && out.kraft) delete out.kraft; // the focus is intervals or strength, never both
   return out;
 }
 
@@ -213,7 +214,7 @@ export function weekFor(stored, monday, pins = {}, mode = {}, sessions = []) {
   const summer = isSummer(monday);
   const base = summer ? p.summer : p.winter;
   const cfg = modeCfg(base, summer, mode);
-  return { cfg, base, week: planWeek(cfg, { monday, pins, ski: !!mode.ski, rain: !!mode.rain, sessions }) };
+  return { cfg, base, week: planWeek(cfg, { monday, pins, ski: !!mode.ski, rain: !!mode.rain, focus: focusOf(mode), sessions }) };
 }
 
 /**

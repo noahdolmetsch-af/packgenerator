@@ -53,6 +53,12 @@ export const NOTE_TEXT = {
   'soll-over': 'With TrainingPeaks and team dates this week is still about {m} h above your {h} h. Below you can set your own goal for such weeks.',
   'soll-over-own': 'With TrainingPeaks and team dates this week is still about {m} h above your goal of {h} h for such weeks.',
   'tp-over': 'TrainingPeaks alone is above your {h} h. Nothing else in the plan is taken away.',
+  'focus-hit': 'Focus intervals: the hard bike units are intervals, the rest stays easy.',
+  'focus-hit-tp': 'Focus intervals: TrainingPeaks brings the bike sessions this week, the plan only adds what is missing.',
+  'focus-hit-none': 'Focus intervals: no bike unit fits this week.',
+  'focus-kraft': 'Focus strength: {n} gym sessions, the bike stays easy.',
+  'focus-kraft-none': 'Focus strength: there is no room for more gym sessions this week.',
+  'focus-swap': 'To make room, {n} × «{type}» is left out.',
 };
 
 /** Warnings of the planner: what does not fit. `w` is one warning of planWeek().warnings. */

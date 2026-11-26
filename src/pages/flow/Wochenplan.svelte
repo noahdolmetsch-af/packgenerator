@@ -26,7 +26,7 @@
   import { mondayOf, shiftDay, PLAN_KEY, planValue, plannerSessions as sessionsOf } from '../../lib/training.js';
   import { oldSuggestions, withoutOldSuggestions } from '../../lib/training/suggest.js';
   import { SP_KEY, prefsOf as spPrefsOf, teamSessions } from '../../lib/spielerplus.js';
-  import { WEEKPLAN_KEY, GOAL_TYPES, FIXABLE, MAX_COUNT, MIN_HOURS, MAX_HOURS, LIGHT_SHARE, HARD_SHARE, TYPES, planOf, isSummer, defaultsFor, setHours, stepCount, toggleFix, setFixTime, modeCfg, followsHours, planWeek, plannedMins, countsMins } from '../../lib/training/wochenplan.js';
+  import { WEEKPLAN_KEY, GOAL_TYPES, FIXABLE, MAX_COUNT, MIN_HOURS, MAX_HOURS, LIGHT_SHARE, HARD_SHARE, TYPES, planOf, isSummer, defaultsFor, setHours, stepCount, toggleFix, setFixTime, modeCfg, focusOf, followsHours, planWeek, plannedMins, countsMins } from '../../lib/training/wochenplan.js';
   import { startUnitDone } from '../../lib/flow/ui.svelte.js';
   import { timedrag } from '../../lib/ui/timedrag.js';
   import { needsSheet as needsUnitSheet, removeUnitEntries } from '../../lib/flow/unitdone.js';
@@ -70,7 +70,7 @@
   const modeShown = $derived(shownLog?.mode ?? {});
   // a lighter week shows 60 % of the hours for this one week; the goals themselves stay as they are
   const cfgW = $derived(modeCfg(cfg, summer, modeShown));
-  const week = $derived(planWeek(cfgW, { monday, pins: pinsShown, ski: !!modeShown.ski, rain: !!modeShown.rain, sessions: isNow ? sessions : [] }));
+  const week = $derived(planWeek(cfgW, { monday, pins: pinsShown, ski: !!modeShown.ski, rain: !!modeShown.rain, focus: focusOf(modeShown), sessions: isNow ? sessions : [] }));
   // TrainingPeaks counts on the hours (Noah «1a»): the plan plus what TrainingPeaks brings this week
   const mins = $derived(plannedMins(week.units) + week.tp.reduce((a, x) => a + x.mins, 0));
   // the goal of this week: its own goal when TrainingPeaks or team dates are in it and one is set (Noah «2b»)
@@ -103,7 +103,7 @@
   const nowSummer = $derived(isSummer(realMonday));
   const nowLog = $derived(weekLog(log ?? logOf(null), realMonday));
   const nowCfg = $derived(modeCfg(nowSummer ? plan.summer : plan.winter, nowSummer, nowLog.mode));
-  const nowWeek = $derived(planWeek(nowCfg, { monday: realMonday, pins: nowLog.pins, ski: !!nowLog.mode.ski, rain: !!nowLog.mode.rain, sessions }));
+  const nowWeek = $derived(planWeek(nowCfg, { monday: realMonday, pins: nowLog.pins, ski: !!nowLog.mode.ski, rain: !!nowLog.mode.rain, focus: focusOf(nowLog.mode), sessions }));
   const done = $derived(nowLog.done);
   const released = $derived(nowLog.released);
   const prog = $derived(progress([...nowWeek.units, ...tpSnapUnits(nowWeek.tp)], done, released));
@@ -259,6 +259,8 @@
   const MODES = [
     { key: 'light', name: 'Lighter week', hint: 'Shows {share} percent of your hours for this week only.' },
     { key: 'hard', name: 'Harder week', hint: 'Shows {share} percent of your hours for this week only.' },
+    { key: 'hit', name: 'Focus intervals', hint: 'Two bike units are intervals, the others easy. Small units make room, your hours stay.' },
+    { key: 'kraft', name: 'Focus strength', hint: 'Three gym sessions, the bike stays easy. Small units make room, your hours stay.' },
     { key: 'ski', name: 'Ski tour week', hint: 'The ski tour takes the weekend and replaces cycling, running and the mini workout.' },
     { key: 'rain', name: 'Rainy week', hint: 'Cycling outdoors moves indoors.' },
   ];
@@ -269,6 +271,8 @@
     const turn = { ...before, [key]: !before[key] };
     if (turn[key] && key === 'hard') delete turn.light; // a week is lighter or harder, never both
     if (turn[key] && key === 'light') delete turn.hard;
+    if (turn[key] && key === 'hit') delete turn.kraft; // the focus is intervals or strength, never both
+    if (turn[key] && key === 'kraft') delete turn.hit;
     const next = setMode(cur, at, turn, today);
     if (next === cur) return;
     history = [...history.slice(-19), { mode: before, monday: at }];
@@ -441,7 +445,8 @@
               {/each}
             </div>
             {#each MODES.filter((m) => modeShown[m.key]) as m (m.key)}<p class="hint" data-wp-mode-hint={m.key}>{t(m.hint, { share: Math.round((m.key === 'hard' ? HARD_SHARE : LIGHT_SHARE) * 100) })}</p>{/each}
-            {#if !Object.keys(modeShown).length}<p class="hint">{t('Switch the week to lighter, a ski tour or rain. It changes this week only, your goals stay.')}</p>{/if}
+            {#if modeShown.ski && focusOf(modeShown)}<p class="hint" data-wp-focus-ski>{t('In a ski tour week the focus does not apply.')}</p>{/if}
+            {#if !Object.keys(modeShown).length}<p class="hint">{t('Switch the week to lighter, harder, a focus on intervals or strength, a ski tour or rain. It changes this week only, your goals stay.')}</p>{/if}
           </section>
         {/if}
 
