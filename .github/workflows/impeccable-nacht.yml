@@ -1,0 +1,89 @@
+# Impeccable-Nachtbericht (Noah «1-8» 26.11.2026, Schritt 7 des Test-Plans, thread «Tests auf den neuen App-Stand bringen»).
+# Every night a robot opens every address of docs/app-stand.md on a phone (390×844), a laptop (1440×800) and a computer (1440×900)
+# with the fictional data only (tests/fixtures/gesamttest) and measures the app (tests/e2e/impeccable/sweep.spec.js):
+# does it load, errors, sideways scroll, cut-off controls, English text, very long pages, small tap areas.
+# NO RED (Noah: «ohne Rot, nur Funde»): the jobs never fail because of a finding, no issue and no mail. The report is the
+# summary of the run and the artifact «impeccable-bericht» (3 days, like the other night runs). The coordinator reads it in the
+# morning round. Only GITHUB_TOKEN, no secret. Free on a public repository.
+# The judgement «is it clear and beautiful?» is not measured here: that is the daily impeccable check of the live app.
+name: Impeccable-Nachtbericht
+
+on:
+  schedule:
+    # 03:40 UTC = 04:40 in Zurich in winter (the time Noah asked for the daily check); GitHub may start it later in the night
+    - cron: '40 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: impeccable-nacht
+  cancel-in-progress: false
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    # The tag must match @playwright/test in package.json (tests/ci-image.test.js).
+    container:
+      image: mcr.microsoft.com/playwright:v1.65.1-noble
+      options: --ipc=host
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [phone, desktop]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # the whole history: scripts/news.mjs numbers versions by the order of merges
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Measure every address
+        continue-on-error: true # a crash of the robot must not turn the night red either; the report says that a part is missing
+        run: npx playwright test tests/e2e/impeccable/ --project=${{ matrix.project }} --workers=1 --retries=0
+        env:
+          IMPECCABLE: '1'
+          E2E_SKIP_GESAMTTEST: '1'
+      - name: Keep the measurements
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: impeccable-${{ matrix.project }}
+          path: test-results/impeccable/
+          retention-days: 3 # Noah 11.10.2026: 0 costs, small storage
+          if-no-files-found: warn
+
+  report:
+    needs: sweep
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: impeccable-*
+          merge-multiple: true
+          path: found
+      - name: Write the report
+        run: |
+          if ls found/phone.json found/desktop.json >/dev/null 2>&1 || ls found/*.json >/dev/null 2>&1; then
+            node scripts/impeccable-bericht.mjs found | tee -a "$GITHUB_STEP_SUMMARY"
+          else
+            echo "### Impeccable-Nachtbericht: kein Messergebnis (der Lauf brach vor dem Schreiben ab: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})." | tee -a "$GITHUB_STEP_SUMMARY"
+            mkdir -p found
+          fi
+      - name: Keep the report
+        uses: actions/upload-artifact@v7
+        with:
+          name: impeccable-bericht
+          path: found/
+          retention-days: 3
+          if-no-files-found: warn

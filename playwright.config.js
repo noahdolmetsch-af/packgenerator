@@ -21,6 +21,9 @@ const ignore = [
   // 7 parts and runs them as their own parts (volle-pruefung.yml, job «ausprobieren»); otherwise part 1 had an hour of work for 45 minutes.
   ...(process.env.E2E_SKIP_AUSPROBIEREN ? ['**/ausprobieren.spec.js'] : []),
   ...(process.env.RUNDGANG ? [] : ['**/nachtrundgang/**']),
+  // 26.11.2026 (Noah «1-8», Schritt 7 des Test-Plans): the nightly report of every address at three sizes (tests/e2e/impeccable) runs only in
+  // .github/workflows/impeccable-nacht.yml (IMPECCABLE=1), never in a pull request.
+  ...(process.env.IMPECCABLE ? [] : ['**/impeccable/**']),
   ...(process.env.LIVE ? [] : ['**/live/**']),
   // 06.11.2026: tests/e2e/tmp-durchklick are the Etappe-5 probes (click-through, fuzz, repro, shots; 30 to 60 minute
   // timeouts, they write to /tmp, nothing asserts). They came onto main with #990 by mistake and slowed every phone
