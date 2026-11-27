@@ -17,6 +17,7 @@
   import { suggestPlaces, applyPlaces, dismissPlace } from '../lib/bagsuggest.js';
   import PlaceSuggest from '../lib/pack/PlaceSuggest.svelte';
   import { RIDES, layerSuggest, openRows, waterOn } from '../lib/layers.js';
+  import { weatherByBag } from '../lib/pack/wetterbag.js'; // «Fürs Wetter noch in diese Tasche»
   import { applyContext, hasContext, carryHint, activeBlocks, OFFER_ONLY } from '../lib/context.js';
   import { ridesIntoDark } from '../lib/blockplan.js';
   import { aidLevel, aidChosen } from '../lib/firstaid.js';
@@ -657,7 +658,7 @@
   const swapAlt = (slot, from, to) => change((cur) => {
     const has = cur.entries.some((e) => e.itemId === to);
     const entries = has ? cur.entries.filter((e) => e.itemId !== from) : cur.entries.map((e) => (e.itemId === from ? { ...e, itemId: to, packed: false } : e));
-    return { entries, layerPick: { ...(cur.layerPick ?? {}), [slot]: to === slot ? null : to } };
+    return { entries, layerPick: { ...(cur.layerPick ?? {}), [slot]: to } }; // «back to the usual one» is kept as a pick too, so a favourite does not take over again
   });
   let blockNote = $state('');
   async function addBlock(block) {
@@ -928,6 +929,19 @@
   // v0.25.0 (M3, Noah 8a): "Buy … on the way?" for amounts over more days or above what you can carry.
   const carry = $derived(new Set(trip && bikeTrip ? carryHint(trip, items).map((i) => i.id) : []));
   const openLayers = $derived(trip ? openRows(suggestion, trip) : []);
+  // Packvorschläge nach Wetter und Lieblingsteilen (Noah 24.11.2026 «1-5»): per open bag the weather pieces still missing (a tap adds, with Undo)
+  const weatherBags = $derived(trip && bikeTrip && !fixed && trip.status !== 'done' ? weatherByBag({ trip, rows: suggestion, itemsById, slotOf: (i) => tripSlot(i, trip.setup) }) : {});
+  async function weatherAdd(key, id) {
+    const row = openLayers.find((r) => r.id === id);
+    const item = itemsById[id];
+    if (!row || !item || onTrip(trip).has(id)) return;
+    await setEntries((es) => [...es, { itemId: id, slot: key, qty: row.qty || 1, packed: false }]);
+    offerDone(t('«{name}» is on the list now.', { name: nameOf(item) }), undoLast);
+  }
+  async function weatherSkip(slotKey) {
+    await change((cur) => ({ layerPick: { ...(cur.layerPick ?? {}), [slotKey]: 'none' } }));
+    offerDone(t('Not suggested again on this trip.'), undoLast);
+  }
   // What a kind of ride adds, in words (Noah did not understand the drop-down, 4.10.2026).
   // Every ride < Daily < Training: each kind also brings what the ones before it bring.
   const rideHint = $derived.by(() => {
@@ -1146,12 +1160,12 @@
   {#if packTab}
     <PackDay top={fixed ? null : blocksCard} onread={!fixed && trip.entries.some((e) => !e.packed) ? () => (reading = true) : null} {trip} {fixed} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip && !fixed ? wxGap : null} wxd={bikeTrip && !fixed ? wxd : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} onmove={moveTo} spare={spareSteps} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} {reminders} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
   {:else}
-  <CalmPack jumpBefore={beforeOpen} {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={locked ? null : factEdit} {fixed} {readyCount} {readyTotal} {over} {phaseOpts} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} onroute={changeContext} onstages={(fn) => change(fn)} onlist={(fn) => change(fn)} prep={before} onprep={before ? openBefore : null} lessons={learningsFor(trip, $learnQ ?? [], 3)} {reminders} power={charge.length > 0 && !over} {ampel} onampel={ampelAct} {onionLine} bind:q bind:zoneKey bind:review
+  <CalmPack jumpBefore={beforeOpen} {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {weatherBags} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={locked ? null : factEdit} {fixed} {readyCount} {readyTotal} {over} {phaseOpts} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} onroute={changeContext} onstages={(fn) => change(fn)} onlist={(fn) => change(fn)} prep={before} onprep={before ? openBefore : null} lessons={learningsFor(trip, $learnQ ?? [], 3)} {reminders} power={charge.length > 0 && !over} {ampel} onampel={ampelAct} {onionLine} bind:q bind:zoneKey bind:review
     actions={{
       // v0.25.0 (M3): an amount set by hand stays when the trip's context changes (qtyManual).
       // v0.26.1 (Noah 18b): a packed item stays packed when its amount changes (setQty).
       choose, addTo, addMany, qty: (id, qty) => setEntries(es => setQty(es, id, qty)),
-      move: moveTo, remove: removeEntry, helperAdd, undo: undoLast, swap: swapAlt, undoRow, undoWx, swapWear, takeOff,
+      move: moveTo, remove: removeEntry, helperAdd, weatherAdd, weatherSkip, undo: undoLast, swap: swapAlt, undoRow, undoWx, swapWear, takeOff,
       apply: choices => change(cur => acceptReview(cur, items, choices)),
       edit: () => dialog = { trip }, newTrip: () => dialog = { trip: null },
       pack: goPack, ride: goRide, packAndGo, end: endTrip,
