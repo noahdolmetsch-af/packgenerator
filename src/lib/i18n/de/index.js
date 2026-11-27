@@ -575,6 +575,7 @@ import nebelroute from './nebelroute.js';
 import profilfarben from './profilfarben.js'; // «Höhenprofil überall» (Noah 23.11.2026 «1-5a»)
 import nebelpush from './nebelpush.js';
 import sonnenfahrt from './sonnenfahrt.js'; // «Sonnen-Ausfahrt» (Noah 06.11.2026 «1-5a»)
+import nebelrueckblick from './nebelrueckblick.js'; // «Warst du über dem Nebel?» im Rückblick (Noah 27.11.2026)
 import nachtpush from './nachtpush.js';
 // Paket W «Von der Haustür bis zurück» (Noah 20.10.2026 «1a 2a 3a 4a»)
 import haustuer from './haustuer.js';
@@ -1047,6 +1048,7 @@ const ORDERED = [
   profilfarben,
   nebelpush,
   sonnenfahrt,
+  nebelrueckblick,
   nachtpush,
   wetterfenster,
   energie,
