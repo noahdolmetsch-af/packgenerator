@@ -38,12 +38,25 @@ export function createDictation(o = {}) {
   let media = null;
   // Einzelidee 37 «Sprachfrage als Text weiterführen»: the words still being heard when the microphone fails
   let heard = '';
+  // after stop or hold the words still being heard became text at once; what the browser finalises
+  // afterwards is the same sentence and is left out (otherwise it would stand twice)
+  let muted = false;
 
   const set = (s, e = error) => {
     state = s;
     error = e;
     emit();
   };
+
+  /** The words still being heard become text now (nothing said is lost on stop, hold or a pause). */
+  function flush() {
+    const h = heard.trim();
+    heard = '';
+    o.oninterim?.('');
+    if (!h) return;
+    lastFinal = h;
+    o.onwords?.(h);
+  }
 
   function finish(e = '') {
     want = false;
@@ -66,6 +79,7 @@ export function createDictation(o = {}) {
       rec.interimResults = true;
       rec.maxAlternatives = 1;
       rec.onresult = (e) => {
+        if (muted) return;
         quick = 0;
         const { final, interim } = split(e);
         const add = fresh(lastFinal, final);
@@ -82,7 +96,9 @@ export function createDictation(o = {}) {
         // 'no-speech' and 'aborted': the end that follows starts it again
       };
       rec.onend = () => {
-        if (!want || held) heard = '';
+        // the browser ended on its own (a pause): a begun sentence that never became final is text now
+        if (want && !held && !muted) flush();
+        heard = '';
         o.oninterim?.('');
         rec = null;
         if (!want || held) return;
@@ -91,6 +107,7 @@ export function createDictation(o = {}) {
         listen();
       };
       lastFinal = '';
+      muted = false;
       begun = now();
       rec.start();
     } catch {
@@ -156,6 +173,8 @@ export function createDictation(o = {}) {
       clearTimeout(timer);
       if (o.engine === 'whisper') return writeOut();
       held = false;
+      flush();
+      muted = true;
       try {
         rec?.stop();
       } catch {
@@ -167,6 +186,8 @@ export function createDictation(o = {}) {
     hold() {
       if (state !== 'listening' || o.engine === 'whisper') return;
       held = true;
+      flush();
+      muted = true;
       try {
         rec?.abort();
       } catch {
@@ -181,6 +202,8 @@ export function createDictation(o = {}) {
     /** Stop at once without writing anything (the field closes). */
     cancel() {
       want = false;
+      heard = '';
+      muted = true;
       try {
         rec?.abort();
       } catch {

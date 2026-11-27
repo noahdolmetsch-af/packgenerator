@@ -31,6 +31,7 @@
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import SpeakButton from '../lib/ui/SpeakButton.svelte';
   import { appendSpoken } from '../lib/speak.js';
+  import { flushDictation } from '../lib/dictation.svelte.js';
   import { Camera, Link2, ListChecks, Search, Inbox, ChevronRight, Download, Check, Star, Image as ImageIcon, NotebookPen, Pencil, ChartColumn, BookHeart } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import { NOTE_TPL_KEY, templatesOf, tplName, tplText, renameTemplate, removeTemplate, qrToNote, isKeepNote, keepImport } from '../lib/noteformats.js';
@@ -232,6 +233,7 @@
   function spoken(w) {
     text = appendSpoken(text, w);
     dictated = true;
+    msg = ''; // an old «write a few words» no longer holds once words came in
   }
   async function addPhoto(e) {
     const f = e.currentTarget.files[0];
@@ -252,6 +254,7 @@
     if (saving) return;
     saving = true;
     try {
+      await flushDictation(); // a running microphone ends first: what was said is in the field
       await saveNow();
     } finally {
       saving = false;

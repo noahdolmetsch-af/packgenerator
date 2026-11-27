@@ -133,3 +133,33 @@ test('Meine KI-Projekte: add, rename, delete with Undo', async ({ page, context 
   await expect(page.locator('[data-aip]')).toHaveCount(1);
   expect(errors).toEqual([]);
 });
+
+// Noah 27.11.2026: «Speichern» while the microphone still runs lost the spoken words (Android gives them final
+// only after a pause). The words still being heard become text on the tap, and then the note is saved.
+test('Notes: Save while the microphone runs keeps the words still being heard', async ({ page, context }) => {
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+  await context.addInitScript(() => {
+    window.SpeechRecognition = class {
+      start() {
+        // only «interim» words, never final, as long as it listens
+        setTimeout(() => this.onresult?.({ resultIndex: 0, results: [Object.assign([{ transcript: 'Kette quietscht' }], { isFinal: false })] }), 20);
+      }
+      stop() {}
+      abort() {}
+    };
+  });
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('./#/notes');
+  await ready(page);
+  const form = page.locator('form.cap');
+  await form.locator('[data-speak-field]').click();
+  await expect(form.locator('[data-speak-interim]')).toHaveText('Kette quietscht');
+  await expect(form.locator('textarea:not([data-ask-text])').first()).toHaveValue('');
+  await form.getByRole('button', { name: T('Save') }).click();
+  await expect(form.locator('p.err')).toHaveCount(0);
+  await expect(page.locator('[data-note-id]').first()).toContainText('Kette quietscht');
+  await expect(form.locator('[data-speak-live]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
