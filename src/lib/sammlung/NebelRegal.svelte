@@ -108,7 +108,7 @@
 
 <section class="card shelf" aria-labelledby="wa-fog" data-shelf="fog">
   <div class="sh">
-    <h2 id="wa-fog"><CloudFog size={18} aria-hidden="true" />{t('Fog sea')}{#if days.length}<span class="cnt num">{days.length}</span>{/if}</h2>
+    <h2 id="wa-fog"><CloudFog size={20} aria-hidden="true" />{t('Fog sea')}{#if days.length}<span class="cnt num">{days.length}</span>{/if}</h2>
     <button type="button" class="btn sm" onclick={() => open()} data-fog-add><Plus size={16} aria-hidden="true" />{t('Add a day')}</button>
   </div>
 
@@ -123,7 +123,7 @@
           {#if thumbs.get(d.photoId)}
             <img class="thumb" src={thumbs.get(d.photoId)} alt={t('Photo of {name}', { name: d.title || dayText(d.date) })} loading="lazy" />
           {:else}
-            <button type="button" class="thumb none" onclick={() => choosePhoto(d.id)} aria-label={t('Add a photo')} data-fog-photo={d.id}><Camera size={18} aria-hidden="true" /></button>
+            <button type="button" class="thumb none" onclick={() => choosePhoto(d.id)} aria-label={t('Add a photo')} data-fog-photo={d.id}><Camera size={20} aria-hidden="true" /></button>
           {/if}
           <div class="txt">
             <b>{d.title || t('Fog sea')}</b>

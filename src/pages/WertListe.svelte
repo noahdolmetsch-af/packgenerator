@@ -157,7 +157,7 @@
     </ul>
 
     <div class="acts">
-      <button type="button" class="btn hi" disabled={busy || !tot.n} onclick={makePdf} data-wl-pdf><FileText size={18} aria-hidden="true" />{busy ? t('Making the PDF …') : t('Make PDF')}</button>
+      <button type="button" class="btn hi" disabled={busy || !tot.n} onclick={makePdf} data-wl-pdf><FileText size={20} aria-hidden="true" />{busy ? t('Making the PDF …') : t('Make PDF')}</button>
     </div>
     {#if note}<p class="warn" role="alert">{note}</p>{/if}
     {#if made}
