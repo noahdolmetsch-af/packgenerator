@@ -1204,7 +1204,6 @@ export default {
   'Example: sheet 2 «Target setup»: the frame bag holds the rain jacket and the head torch, 150 g empty.': 'Beispiel: Blatt 2 «Soll-Setup»: in der Rahmentasche sind Regenjacke und Stirnlampe, leer 150 g.',
   'Open Trips › Dreams › White spots nearby.': 'Öffne Touren › Träume › Weisse Flecken in der Nähe.',
   'Choose 10 to 100 km, or type your own radius.': 'Wähle 10 bis 100 km oder tippe einen eigenen Umkreis ein.',
-  'Below the map: the directions with the most new places.': 'Unter der Karte: die Richtungen mit den meisten neuen Orten.',
   'Tap a place on the map or in the list: its name and distance.': 'Tippe einen Ort auf der Karte oder in der Liste an: Name und Entfernung.',
   'Example: 25 km around Zürich → 209 municipalities never visited, the nearest 5 km away.': 'Beispiel: 25 km um Zürich → 209 Gemeinden noch nie besucht, die nächste 5 km entfernt.',
   // Idee A1 «Eine Nachricht am Morgen» (27.10.2026)

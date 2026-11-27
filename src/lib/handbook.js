@@ -1301,7 +1301,7 @@ const LISTED = {
   },
   'f.whitespots': {
     on: 'Needs your home place.',
-    steps: ['Open Trips › Dreams › White spots nearby.', 'Choose 10 to 100 km, or type your own radius.', 'Tap a place on the map or in the list: its name and distance.', 'Below the map: the directions with the most new places.'],
+    steps: ['Open Trips › Dreams › White spots nearby.', 'Choose 10 to 100 km, or type your own radius.', 'Tap a place on the map or in the list: its name and distance.'],
     example: 'Example: 25 km around Zürich → 209 municipalities never visited, the nearest 5 km away.',
   },
   'f.triptips': {
