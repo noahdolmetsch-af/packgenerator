@@ -7,11 +7,13 @@
    */
   import { t } from '../i18n.svelte.js';
   import { parseMinutes, MAX_MIN } from './feel.js';
+  import TypoZeile from '../typo/TypoZeile.svelte';
 
   let { value = null, chips = [], onset, id = 'own-min' } = $props();
   const own = $derived(Number.isFinite(value) && value > 0 && !chips.includes(value) ? String(value) : '');
   let draft = $state('');
   let bad = $state(false);
+  let left = $state(false); // Tippfehler-Frage (Noah 22.11.2026 «1-5 a»): the quiet line shows after the field was left
   $effect(() => {
     draft = own;
     bad = false;
@@ -33,6 +35,7 @@
     maxlength="4"
     placeholder={t('e.g. 75')}
     bind:value={draft}
+    onblur={() => (left = true)}
     aria-invalid={bad}
     aria-describedby="{id}-hint"
     onkeydown={(e) => e.key === 'Enter' && (e.preventDefault(), save())}
@@ -41,6 +44,7 @@
   <span class="u">{t('min|unit')}</span>
   <button type="button" class="set" onclick={save} data-own-min-set>{t('Set|min')}</button>
   <small id="{id}-hint" class:bad data-own-min-hint>{bad ? t('Whole minutes from 1 to {max}.', { max: MAX_MIN }) : ''}</small>
+  <TypoZeile kind="minutes" text={draft} shown={left && !bad} onuse={(v) => (draft = String(v))} />
 </div>
 
 <style>

@@ -36,6 +36,8 @@ export const PASST_HIER = {
   docs: ['f.ablage', 'f.qr', 'f.trash'],
   // Training › Aktivitäten: older rides from Zwift or a Garmin as files, the plan you keep in TrainingPeaks (Noah 19.11.2026)
   training: ['f.kmimport', 'f.trainingpeaks'],
+  // Velos › Diebstahl-Blatt: the list of values of all velos and gear for the insurance (Noah 22.11.2026 «1-5 a»)
+  theft: ['f.wertliste', 'f.docs'],
   // Kleider: give every piece its temperature, layer and zone (Noah 21.11.2026 «5a»: at the end, not above the content)
   wardrobe: ['f.wardrobesetup', 'f.wardrobetryon', 'f.laundry'],
   // Woche planen: fewer things at once, and the evening
