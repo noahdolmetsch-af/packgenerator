@@ -43,8 +43,10 @@ export function steps(pts, step = STEP_M) {
 /**
  * New km of every bike line. lines: heatLines() output (any order). → Map(line id → { km, newKm }).
  * Lines are taken oldest first; on the same day by id, so the result does not depend on the order given.
+ * With `segments` every entry also has `segs`: the new stretches as lines [[lat, lon], …] (a run of new steps, cut where
+ * a known step comes), to draw them on the map (Noah 27.11.2026 «Neue Kilometer auf der Karte»).
  */
-export function newKmOf(lines = [], { near = NEAR_M, step = STEP_M } = {}) {
+export function newKmOf(lines = [], { near = NEAR_M, step = STEP_M, segments = false } = {}) {
   const grid = new Map(); // «x/y» → [[lat, lon, lineNo, stepNo], …]
   const out = new Map();
   const bikes = lines.filter((l) => l?.kind === 'bike' && l.pts?.length > 1).sort((a, b) => (a.day < b.day ? -1 : a.day > b.day ? 1 : String(a.id).localeCompare(String(b.id))));
@@ -52,6 +54,8 @@ export function newKmOf(lines = [], { near = NEAR_M, step = STEP_M } = {}) {
   bikes.forEach((l, no) => {
     let all = 0;
     let fresh = 0;
+    const segs = [];
+    let run = null;
     steps(l.pts, step).forEach((p, k) => {
       const m = merc(p);
       const gx = Math.floor(m.x * N);
@@ -68,13 +72,27 @@ export function newKmOf(lines = [], { near = NEAR_M, step = STEP_M } = {}) {
         }
       all += p[2];
       if (!known) fresh += p[2];
+      if (segments) {
+        if (known) run = null;
+        else {
+          if (!run) segs.push((run = []));
+          run.push([Math.round(p[0] * 1e4) / 1e4, Math.round(p[1] * 1e4) / 1e4]);
+        }
+      }
       const key = `${gx}/${gy}`;
       const cell = grid.get(key);
       if (cell) cell.push([p[0], p[1], no, k]);
       else grid.set(key, [[p[0], p[1], no, k]]);
     });
-    out.set(l.id, { km: Math.round(all / 100) / 10, newKm: Math.round(fresh / 100) / 10 });
+    out.set(l.id, { km: Math.round(all / 100) / 10, newKm: Math.round(fresh / 100) / 10, ...(segments ? { segs: segs.filter((q) => q.length > 1) } : {}) });
   });
+  return out;
+}
+
+/** The new stretches of the rides of one year ('all' = every year) as lines for the map. byId: newKmOf(lines, { segments: true }). */
+export function newSegments(lines = [], byId, year = 'all') {
+  const out = [];
+  for (const l of lines) if (year === 'all' || l.year === year) out.push(...(byId.get(l.id)?.segs ?? []));
   return out;
 }
 

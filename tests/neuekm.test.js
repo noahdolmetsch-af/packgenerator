@@ -1,6 +1,6 @@
 // «Neue Kilometer» (Träume und Neuland N4, Noah 27.10.2026 «1-5 a»): km on roads ridden for the first time.
 import { describe, it, expect } from 'vitest';
-import { steps, newKmOf, newKmSummary, NEAR_M } from '../src/lib/neuland/neuekm.js';
+import { steps, newKmOf, newKmSummary, newSegments, NEAR_M } from '../src/lib/neuland/neuekm.js';
 
 // fictional straight roads: 0.01° latitude ≈ 1.11 km
 const north = (lat0, lat1, lon = 8.3) => [[lat0, lon], [lat1, lon]];
@@ -65,5 +65,29 @@ describe('the summary per year', () => {
     expect(s.years[0].newKm).toBe(2);
     expect(s.years[0].km).toBe(9);
     expect(s.rides.map((r) => r.id)).toEqual(['b', 'a']); // c brought nothing new
+  });
+});
+
+describe('the new stretches for the map', () => {
+  it('gives only the new part of a longer ride as a line, and nothing for a known road', () => {
+    const lines = [line('a', '2025-05-01', north(47.0, 47.02)), line('b', '2026-06-01', north(47.0, 47.04)), line('c', '2026-06-02', north(47.0, 47.02))];
+    const byId = newKmOf(lines, { segments: true });
+    expect(byId.get('a').segs.length).toBe(1);
+    expect(byId.get('b').segs.length).toBe(1);
+    const b = byId.get('b').segs[0];
+    expect(b[0][0]).toBeGreaterThan(47.019); // starts where the road was known
+    expect(b[b.length - 1][0]).toBeGreaterThan(47.035);
+    expect(byId.get('c').segs).toEqual([]);
+    expect(newSegments(lines, byId, '2026').length).toBe(1);
+    expect(newSegments(lines, byId, '2025').length).toBe(1);
+    expect(newSegments(lines, byId, 'all').length).toBe(2);
+  });
+
+  it('keeps the same numbers with or without the lines', () => {
+    const lines = [line('a', '2026-05-01', north(47.0, 47.02)), line('b', '2026-06-01', north(47.0, 47.04))];
+    const w = newKmOf(lines, { segments: true });
+    const o = newKmOf(lines);
+    expect(w.get('b').newKm).toBe(o.get('b').newKm);
+    expect(o.get('b').segs).toBeUndefined();
   });
 });

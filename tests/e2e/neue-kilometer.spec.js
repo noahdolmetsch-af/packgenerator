@@ -72,6 +72,17 @@ test('New kilometres: per year and the latest rides on roads ridden for the firs
   await expect(rides.first()).toContainText(T('{km} of {all} km new', { km: '4', all: '9' }));
   await expect(card).not.toContainText(`${P}Wieder gleich`);
   await expect(card).not.toContainText(`${P}Lauf`);
+  // the map: the new stretches of the newest year, then of all years (Noah 27.11.2026 «Neue Kilometer auf der Karte»)
+  const map = card.locator('[data-nk-map]');
+  await map.scrollIntoViewIfNeeded();
+  await expect(map.locator('svg.nmap')).toBeVisible();
+  await expect(map.locator('polyline.route-new')).toHaveCount(1); // only the far end of «Weiter hinaus»
+  if (now !== last) {
+    await card.locator('[data-nk-chips]').getByRole('button', { name: T('All years') }).click();
+    await expect(map.locator('polyline.route-new')).toHaveCount(2);
+    await card.locator('[data-nk-chips]').getByRole('button', { name: last }).click();
+    await expect(map.locator('polyline.route-new')).toHaveCount(1);
+  }
   await card.scrollIntoViewIfNeeded();
   await shot(card, info, 'NK1-neue-km');
   await noSideways(page);
