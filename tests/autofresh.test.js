@@ -1,5 +1,5 @@
 // src/lib/autofresh.js (Noah 27.10.2026 «1-5 a», question 4): a newer online version that has not arrived is
-// loaded fresh once per version, never while typing, during a ride or in the background.
+// loaded fresh once per version, only in the background (27.11.2026), never on a visible page or during a ride.
 import { describe, it, expect, vi } from 'vitest';
 import { autoFresh, KEY } from '../src/lib/autofresh.js';
 
@@ -17,7 +17,7 @@ const opts = (o = {}) => ({ running: '0.235.0', base: '/', reload: vi.fn(async (
 
 describe('autofresh', () => {
   it('loads fresh once when a newer version is online, then not again for that version', async () => {
-    const w = win('0.236.0');
+    const w = win('0.236.0', { visible: false });
     const o = opts();
     expect(await autoFresh(w, o)).toBe(true);
     expect(o.reload).toHaveBeenCalledTimes(1);
@@ -31,17 +31,17 @@ describe('autofresh', () => {
 
   it('does nothing when up to date or offline', async () => {
     const o = opts();
-    expect(await autoFresh(win('0.235.0'), o)).toBe(false);
-    expect(await autoFresh({ ...win('0.236.0'), navigator: { onLine: false } }, o)).toBe(false);
+    expect(await autoFresh(win('0.235.0', { visible: false }), o)).toBe(false);
+    expect(await autoFresh({ ...win('0.236.0', { visible: false }), navigator: { onLine: false } }, o)).toBe(false);
     expect(o.reload).not.toHaveBeenCalled();
   });
 
-  it('waits while typing, during a ride, in the background or without storage', async () => {
+  it('waits while visible, during a ride or without storage', async () => {
     const o = opts();
-    expect(await autoFresh(win('0.236.0', { active: { tagName: 'INPUT' } }), o)).toBe(false);
-    expect(await autoFresh(win('0.236.0'), { ...o, held: () => true })).toBe(false);
-    expect(await autoFresh(win('0.236.0', { visible: false }), o)).toBe(false);
-    expect(await autoFresh(win('0.236.0', { ls: false }), o)).toBe(false);
+    expect(await autoFresh(win('0.236.0', { visible: true }), o)).toBe(false);
+    expect(await autoFresh(win('0.236.0', { visible: true, active: { tagName: 'INPUT' } }), o)).toBe(false);
+    expect(await autoFresh(win('0.236.0', { visible: false }), { ...o, held: () => true })).toBe(false);
+    expect(await autoFresh(win('0.236.0', { visible: false, ls: false }), o)).toBe(false);
     expect(o.reload).not.toHaveBeenCalled();
   });
 });

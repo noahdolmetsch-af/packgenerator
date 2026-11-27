@@ -1,0 +1,10 @@
+# Eine neue Version schaltet sich nur im Hintergrund ein
+
+27.11.2026 · Auftrag: Noah (Thread «Server-Klicks/Setup / Wächter»): «die app lädt von alleine immer wieder neu … der nutzer soll davon nichts mitkriegen»
+
+- Ursache (nachgestellt, `tests/e2e/live/update.spec.js`): Der Service-Worker hat sich bei jeder neuen Version sofort eingeschaltet (`registerType: 'autoUpdate'`, also `skipWaiting`), und `swupdate.js` hat die offene Seite daraufhin neu geladen, sobald kein Feld in Eingabe war. Bei 20 und mehr Merges am Tag heisst das: mehrmals täglich ein Neuladen mitten in der Arbeit. Alter Stand im Test: Die sichtbare Seite lädt sich nach etwa 12 Sekunden neu.
+- Entscheid: Die neue Version wird im Hintergrund gespeichert und wartet (`registerType: 'prompt'`, `skipWaiting: false`). `swupdate.js` schaltet sie erst ein (Nachricht `SKIP_WAITING`), wenn die App aus dem Blick geht (Bildschirm aus, andere App, anderer Tab). Eine sichtbare Seite wird nie neu geladen, auch nicht beim Schreiben, auch nicht kurz nach dem Start (`autofresh.js` läuft nur noch im Hintergrund). Während einer Aufzeichnung wartet alles wie bisher (`holdreload.js`).
+- Der Balken «Version X ist da» erscheint nicht mehr, solange eine neue Version gespeichert wartet; er bleibt für den Fall, dass sie sich nicht speichern lässt (festhängendes Gerät).
+- Nach einem Neuladen (neue Version, oder das Handy hat die App aus dem Speicher geworfen) geht die Seite an ihre gemerkte Scrollposition zurück; die Position wird beim Verlassen des Bildschirms gespeichert, nicht erst bei `pagehide`.
+- Übergang: Geräte, die noch den alten Code haben, bekommen die erste neue Version ohne Hintergrund-Umschalter. Sie wartet dort, bis die App ganz geschlossen wird; bis dahin kann nach 2 Minuten einmalig der bestehende Balken «Jetzt laden» erscheinen.
+- Nicht belegt: ob Noahs Handy die App zusätzlich wegen knappen Speichers aus dem Speicher wirft. Das lässt sich im Code nicht sehen; die Rückkehr an dieselbe Stelle fängt es ab, offene Fenster nicht.

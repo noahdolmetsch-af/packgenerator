@@ -2,18 +2,14 @@
 // is online that has still not arrived after 30 seconds (the normal update had its time), the app loads itself
 // fresh from the internet once (freshreload.js; the data stays). At most once per online version, so a server
 // that still hands out old files can never make it load again and again. Never while a ride is recorded
-// (holdreload.js) or while the person types, and only when the app is on the screen.
+// (holdreload.js). 27.11.2026 (Noah: «die App lädt von alleine immer wieder neu»): only while the app is in the background
+// (swupdate.js calls it then), never on a visible page, so the person never sees it.
 import { onlineVersion, newer } from './behind.js';
 import { freshReload } from './freshreload.js';
 import { held as heldNow } from './holdreload.js';
 
 export const KEY = 'pg-autofresh';
 export const AFTER = 30_000;
-
-const typing = (d) => {
-  const el = d?.activeElement;
-  return !!el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName));
-};
 
 /**
  * Loads fresh once when a newer version is online. Returns true when it started loading.
@@ -22,7 +18,7 @@ const typing = (d) => {
 export async function autoFresh(w = globalThis, { running = __APP_VERSION__, base = import.meta.env.BASE_URL, reload = freshReload, held = heldNow } = {}) {
   const live = await onlineVersion(w, { base });
   if (!live || !newer(live, running)) return false;
-  if (held() || typing(w.document) || w.document?.visibilityState === 'hidden') return false;
+  if (held() || w.document?.visibilityState !== 'hidden') return false;
   let ls = null;
   try { ls = w.localStorage ?? null; } catch { /* none */ }
   if (!ls) return false; // without a place to remember it, it could load again and again

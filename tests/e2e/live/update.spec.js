@@ -18,6 +18,7 @@ const OLD = '0.0.1';
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2' };
 
 let folder = 'dist-old';
+let brokenWorker = false; // true: the address answers the new service worker with an error (an update that cannot be stored)
 let server;
 let base;
 
@@ -29,6 +30,7 @@ test.beforeAll(async () => {
   server = createServer((req, res) => {
     const url = new URL(req.url, 'http://x');
     if (!url.pathname.startsWith('/packgenerator/')) return res.writeHead(404).end();
+    if (brokenWorker && url.pathname.endsWith('/sw.js')) return res.writeHead(500).end();
     let file = normalize(join(ROOT, folder, decodeURIComponent(url.pathname.slice('/packgenerator/'.length)) || 'index.html'));
     if (!file.startsWith(join(ROOT, folder))) return res.writeHead(403).end();
     if (existsSync(file) && statSync(file).isDirectory()) file = join(file, 'index.html');
@@ -50,6 +52,15 @@ const version = async (page) => {
   return page.locator('main').innerText();
 };
 
+// The phone takes the app out of sight (screen off, other app): the quiet moment in which a stored new version is switched on.
+const toBackground = (page) =>
+  page
+    .evaluate(() => {
+      Object.defineProperty(document, 'visibilityState', { get: () => 'hidden', configurable: true });
+      document.dispatchEvent(new Event('visibilitychange'));
+    })
+    .catch(() => {}); // the page may already be loading anew: that is the point
+
 test('Update: the stored old app becomes the new one after the next start, and works offline', async ({ page, context }) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
@@ -61,7 +72,12 @@ test('Update: the stored old app becomes the new one after the next start, and w
   let text = '';
   for (let i = 0; i < 12 && !text.includes(`Version ${NEW}`); i++) {
     text = await version(page);
-    if (!text.includes(`Version ${NEW}`)) await page.waitForTimeout(5_000);
+    // 27.11.2026: the new version waits quietly and is switched on when the app goes to the background
+    if (!text.includes(`Version ${NEW}`)) {
+      await page.waitForTimeout(3_000);
+      await toBackground(page);
+      await page.waitForTimeout(3_000);
+    }
   }
   expect(text, 'nach dem Update zeigt Ich die neue Version').toContain(`Version ${NEW}`);
 
@@ -73,17 +89,39 @@ test('Update: the stored old app becomes the new one after the next start, and w
   expect(errors).toEqual([]);
 });
 
-test('Update on an app left open: coming back to the screen brings the new version, without a new start', async ({ page }) => {
+// 27.11.2026 (Noah: «die App lädt von alleine immer wieder neu, mitten in der Arbeit»): a new version never loads a
+// visible page anew. It is stored quietly and waits; only when the app goes to the background does it take over.
+test('Update on an app left open: the visible page is never reloaded; the new version comes in the background', async ({ page }) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   folder = 'dist-old';
   expect(await version(page)).toContain(`Version ${OLD}`);
   await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker?.controller), { timeout: 60_000 }).toBe(true);
+  // work in the page: a mark that only a reload removes, a text typed, a scroll position
+  await page.evaluate(() => {
+    window.__stays = 'still the same page';
+    document.body.style.minHeight = '3000px';
+    window.scrollTo(0, 400);
+  });
 
-  folder = 'dist'; // the new version is online; the app stays open, nobody reloads it
-  // the phone brings the app back to the screen (Android: back from the background)
-  await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')));
-  await expect.poll(() => page.locator('main').innerText(), { timeout: 60_000, message: 'die offene App lädt die neue Version von selbst' }).toContain(`Version ${NEW}`);
+  folder = 'dist'; // the new version is online; the app stays open
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'visibilityState', { get: () => 'visible', configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  // the new version is stored and waits ...
+  await expect.poll(() => page.evaluate(async () => !!(await navigator.serviceWorker.getRegistration())?.waiting), { timeout: 60_000, message: 'die neue Version wartet im Hintergrund' }).toBe(true);
+  // ... and the page the person works in does not change for a long moment (before: it loaded anew within seconds)
+  await page.waitForTimeout(10_000);
+  expect(await page.evaluate(() => window.__stays), 'die sichtbare Seite wurde nicht neu geladen').toBe('still the same page');
+  expect(await page.evaluate(() => window.scrollY), 'die Scrollposition blieb').toBe(400);
+  expect(await page.locator('main').innerText()).toContain(`Version ${OLD}`);
+  expect(await page.locator('[data-behind-bar]').count(), 'kein Balken: die neue Version ist gespeichert').toBe(0);
+
+  // the app goes to the background: now the new version takes over
+  await toBackground(page);
+  await expect.poll(() => page.locator('main').innerText().catch(() => ''), { timeout: 60_000, message: 'im Hintergrund kommt die neue Version' }).toContain(`Version ${NEW}`);
+  expect(await page.evaluate(() => window.__stays)).toBeUndefined();
   expect(errors).toEqual([]);
 });
 
@@ -97,6 +135,7 @@ test('The bar «Load now»: a tap on a touch screen loads the new version, data 
   await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker?.controller), { timeout: 60_000 }).toBe(true);
   await page.evaluate(() => localStorage.setItem('pg-keep', 'still here'));
   folder = 'dist';
+  brokenWorker = true; // the update cannot be stored: this is the «stuck» case the bar is for (a stored update waits quietly, without a bar)
   // the device has known for a long time that a newer version is online (the bar waits two minutes)
   await page.evaluate((v) => localStorage.setItem('pg-behind', JSON.stringify({ v, at: 1 })), NEW);
   await page.evaluate(() => {
@@ -108,6 +147,7 @@ test('The bar «Load now»: a tap on a touch screen loads the new version, data 
   const btn = bar.locator('button').first();
   const box = await btn.boundingBox();
   await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
+  brokenWorker = false;
   await expect(page.locator('[data-behind-bar]')).toHaveCount(0, { timeout: 30_000 });
   await page.locator('main').waitFor({ timeout: 30_000 });
   await expect.poll(() => page.evaluate(() => document.body.innerText), { timeout: 30_000 }).not.toContain(`Version ${OLD}`);

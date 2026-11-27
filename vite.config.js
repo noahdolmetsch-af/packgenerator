@@ -79,7 +79,9 @@ export default defineConfig({
       },
     },
     VitePWA({
-      registerType: 'autoUpdate', // a new version replaces the old one on the next start
+      // 27.11.2026 (Noah: «die App lädt von alleine immer wieder neu»): a new service worker WAITS (no skipWaiting) and is only
+      // switched on while the app is in the background (src/lib/swupdate.js sends SKIP_WAITING), so the open page never changes under the person's hands.
+      registerType: 'prompt',
       includeAssets: ['icons/*.svg', 'icons/*.png'],
       manifest: {
         name: 'Pack Generator',
@@ -124,6 +126,8 @@ export default defineConfig({
         },
       },
       workbox: {
+        skipWaiting: false,
+        clientsClaim: true,
         // Everything the app needs is stored on the device at install time.
         // v0.44.1 (AP22): the Latin fonts too (about 350 KB), else offline the app falls back to the system font.
         // Paket NE: mjs too (the PDF reader's worker), so PDFs in notes open offline.

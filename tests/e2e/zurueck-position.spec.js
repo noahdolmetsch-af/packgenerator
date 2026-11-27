@@ -45,3 +45,48 @@ test('ohne ?at= bleibt eine Seite am Anfang', async ({ page, context }) => {
   await open(page, context, '#/me/look');
   expect(await page.evaluate(() => Math.round(window.scrollY))).toBe(0);
 });
+
+// 27.11.2026 (Noah: «die App lädt von alleine immer wieder neu, mitten in der Arbeit»): after a reload (a new version, or a phone that
+// took the app out of memory) the page is at the place where it was; a fresh start from the icon still opens at the top.
+test('nach einem Neuladen ist die lange Seite wieder an derselben Stelle', async ({ page, context }) => {
+  await open(page, context, '#/me/look');
+  await expect(page.locator('#look-ops')).toBeAttached();
+  await page.evaluate(() => window.scrollTo(0, 1400));
+  await expect.poll(() => page.evaluate(() => Math.round(window.scrollY))).toBeGreaterThan(1000);
+  const before = await page.evaluate(() => Math.round(window.scrollY));
+  await page.waitForTimeout(250);
+  // the app goes out of sight (the phone may now throw it away): the position is written
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'visibilityState', { get: () => 'hidden', configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  await page.reload();
+  await ready(page);
+  await expect.poll(() => page.evaluate(() => Math.round(window.scrollY)), { timeout: 6000 }).toBeGreaterThan(before - 120);
+  expect(await page.evaluate(() => Math.round(window.scrollY))).toBeLessThan(before + 120);
+});
+
+// Nothing the app does by itself in the background may load the page anew (the page and its place stay): back to the screen,
+// network back, a new check for a version.
+test('Zurück in die App und Netz zurück laden die sichtbare Seite nicht neu', async ({ page, context }) => {
+  await open(page, context, '#/me/look');
+  await expect(page.locator('#look-ops')).toBeAttached();
+  await page.evaluate(() => {
+    window.__stays = 'same page';
+    window.scrollTo(0, 900);
+  });
+  await expect.poll(() => page.evaluate(() => Math.round(window.scrollY))).toBeGreaterThan(700);
+  const before = await page.evaluate(() => Math.round(window.scrollY));
+  await page.evaluate(() => {
+    for (const hidden of [true, false]) {
+      Object.defineProperty(document, 'visibilityState', { get: () => (hidden ? 'hidden' : 'visible'), configurable: true });
+      document.dispatchEvent(new Event('visibilitychange'));
+    }
+    window.dispatchEvent(new Event('offline'));
+    window.dispatchEvent(new Event('online'));
+    window.dispatchEvent(new Event('focus'));
+  });
+  await page.waitForTimeout(4000);
+  expect(await page.evaluate(() => window.__stays), 'die Seite wurde nicht neu geladen').toBe('same page');
+  expect(Math.abs((await page.evaluate(() => Math.round(window.scrollY))) - before)).toBeLessThan(40);
+});
