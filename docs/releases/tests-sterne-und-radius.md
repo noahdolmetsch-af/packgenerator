@@ -1,6 +1,6 @@
 # Tests «Sterne auf den Karten» und «eigener Radius»: auf den gespeicherten Zustand warten
 
-PR #NNNN · 27.11.2026 · Auftrag: Meldungen des Bündlers (e2e-Teil 3 rot auf PR 1842 und 1838; pinmarks auf reinem main rot)
+PR #1855 · 27.11.2026 · Auftrag: Meldungen des Bündlers (e2e-Teil 3 rot auf PR 1842 und 1838; pinmarks auf reinem main rot)
 
 ## Was ist neu
 - Nichts Sichtbares geändert, nur Test für `tests/e2e/pinmarks.spec.js` («pins on the cards: pin, unpin, switch off») und `tests/e2e/poipanel.spec.js` («an own radius: typed, checked, used for the query and remembered»).
