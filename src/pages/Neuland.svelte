@@ -103,6 +103,28 @@
   // «Show on the map» (Noah 27.11.2026 «1»): the map zooms to that entry; n counts the taps
   let focus = $state({ id: null, n: 0 });
   let mapBox = $state(null);
+  // the collection chips are one row; when they do not all fit the row scrolls sideways and fades out at the edge
+  let chipBox = $state(null);
+  function fits(node) {
+    const seg = () => node.querySelector('.seg');
+    const check = () => {
+      const el = seg();
+      if (!el) return;
+      node.dataset.over = el.scrollWidth > el.clientWidth + 2 ? 'yes' : 'no';
+      node.dataset.end = el.scrollLeft + el.clientWidth >= el.scrollWidth - 2 ? 'yes' : 'no';
+    };
+    const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(check);
+    ro?.observe(node);
+    const el = seg();
+    el?.addEventListener('scroll', check, { passive: true });
+    check();
+    return { destroy: () => (ro?.disconnect(), el?.removeEventListener('scroll', check)) };
+  }
+  $effect(() => {
+    // the chosen chip stays in view
+    cur?.id;
+    chipBox?.querySelector?.('[aria-pressed="true"]')?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+  });
   function locate(it) {
     focus = { id: it.id, n: focus.n + 1 };
     mapBox?.scrollIntoView?.({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
@@ -162,9 +184,11 @@
   // «Rückmeldungen»: the one calm note at the bottom, «… · Undo» for 4 s (rename.svelte.js), also above an open window
   const withUndo = (text, before) => offerDone(text, () => save(before));
 
-  const maybes = $derived(cur && result ? maybeOf(cur, result.tracks, state.nope[cur.id] ?? {}) : []);
-  const maybeYes = (m) => save(tick(state, cur.id, m.id, m.day, m.tripId));
-  const maybeNo = (m) => save(untick(state, cur.id, m.id, { found: true, day: today }));
+  // «Maybe ridden» (Noah 27.11.2026 «6»): the passes to confirm stand at the top of the page, whichever collection is chosen
+  const passCol = $derived(on.find((c) => c.id === 'passes') ?? null);
+  const maybes = $derived(passCol && result ? maybeOf(passCol, result.tracks, state.nope[passCol.id] ?? {}) : []);
+  const maybeYes = (m) => save(tick(state, passCol.id, m.id, m.day, m.tripId));
+  const maybeNo = (m) => save(untick(state, passCol.id, m.id, { found: true, day: today }));
 
   function toggle(c, it) {
     const v = c.visited.get(it.id);
@@ -249,12 +273,11 @@
 </script>
 
 <div class="rv-page nl">
-  <PathHead crumbs={[{ label: t('Analysis|place'), href: '#/auswerten' }]} title={t('New ground')} sub={t('What you experienced for the first time. The app finds it from your routes and rides; you can tick everything yourself. After a ride, «New since yesterday» shows what is new; «New kilometres» counts new roads. «Towers, bridges, waterfalls» come from OpenStreetMap, once a week by themselves.')}>
-    <button type="button" class="btn" aria-haspopup="dialog" onclick={() => (colsOpen = true)}><SlidersHorizontal size={16} aria-hidden="true" />{t('Choose collections')}</button>
+  <PathHead crumbs={[{ label: t('Analysis|place'), href: '#/auswerten' }]} title={t('New ground')} sub={t('What you experienced for the first time, found from your routes and rides.')}>
+    <button type="button" class="btn sm" aria-haspopup="dialog" onclick={() => (colsOpen = true)}><SlidersHorizontal size={16} aria-hidden="true" />{t('Choose collections')}</button>
     <!-- «Heatmap» (Noah 20.10.2026 «1a und b»): all rides on one map, its own page -->
-    <a class="btn" href="#/heatmap" data-neuland-heatmap><Flame size={16} aria-hidden="true" />{t('Heatmap')}</a>
+    <a class="btn sm" href="#/heatmap" data-neuland-heatmap><Flame size={16} aria-hidden="true" />{t('Heatmap')}</a>
   </PathHead>
-  <AreaIntro place="neuland" />
 
   {#if failed}
     <Empty icon={Info} text={t("The maps couldn't be loaded. Reload the page; your ticks are safe.")} />
@@ -264,6 +287,7 @@
     <Empty icon={Compass} title={t('No collection switched on')} text={t('Switch on what you want to collect: cantons, passes, huts, peaks, lakes or your own.')} action={{ label: t('Choose collections'), onclick: () => (colsOpen = true) }} />
   {:else}
     {#if summary}<p class="nl-sum">{summary}</p>{/if}
+    <MaybeList list={maybes} onyes={maybeYes} onno={maybeNo} onopen={(m) => (itemOpen = { cid: 'passes', id: m.id })} />
     {#if fresh?.n}
       <div class="nl-fresh" data-nl-fresh>
         <b>{fresh.text}</b>
@@ -278,9 +302,9 @@
       <p class="nl-hint card"><Info size={20} aria-hidden="true" /><span>{t('Nothing found yet. Upload a ride or give a trip a GPX route: the app then colours in where you were. You can also tick by hand.')} <a href="#/debrief/ride">{t('Upload a ride')}</a></span></p>
     {/if}
 
-    <FundList {result} book={$rawQ?.book} {year} />
-
-    <Seg chips full={false} label={t('Collections')} value={cur?.id} onchange={choose} options={on.map((c) => ({ key: c.id, name: name(c), n: `${c.items.filter((i) => c.visited.has(i.id)).length}` }))} />
+    <div class="nl-chips" bind:this={chipBox} use:fits data-nl-chips>
+      <Seg chips full={false} label={t('Collections')} value={cur?.id} onchange={choose} options={on.map((c) => ({ key: c.id, name: name(c), n: `${c.items.filter((i) => c.visited.has(i.id)).length}` }))} />
+    </div>
 
     {#if cur}
       <section class="rv-sec nl-sec" aria-labelledby="nl-h">
@@ -315,7 +339,6 @@
           </div>
 
           <div class="nl-col">
-            <MaybeList list={maybes} onyes={maybeYes} onno={maybeNo} onopen={(m) => (itemOpen = { cid: cur.id, id: m.id })} />
             <div class="rv-box nl-list">
               <label class="find"><Search size={16} aria-hidden="true" /><input type="search" bind:value={q} placeholder={t('Search in {name}', { name: name(cur) })} aria-label={t('Search in {name}', { name: name(cur) })} autocomplete="off" /></label>
               {#if !cur.items.length && defOf(cur.id)?.osm}
@@ -369,7 +392,11 @@
         </div>
       </section>
     {/if}
+    <!-- Noah 27.11.2026 «5»: the chosen collection first, the list of finds below it -->
+    <FundList {result} book={$rawQ?.book} {year} />
   {/if}
+  <!-- Noah 27.11.2026 «4»: «So geht's» stands at the end, not on top of the content -->
+  <AreaIntro place="neuland" />
   <PasstHier place="neuland" />
 
   <NeueKm {today} />
@@ -450,6 +477,34 @@
 </div>
 
 <style>
+  .nl-chips {
+    position: relative;
+    margin: 0 0 14px;
+  }
+  .nl-chips :global(.seg.chips) {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 2px 0;
+  }
+  .nl-chips :global(.seg.chips)::-webkit-scrollbar {
+    display: none;
+  }
+  .nl-chips :global(.chips button) {
+    min-height: 40px;
+    padding-inline: 12px;
+  }
+  /* the row does not fit: the last chip fades out at the edge, so it is clear that more follows */
+  .nl-chips:global([data-over='yes'][data-end='no'])::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 36px;
+    background: linear-gradient(to right, transparent, var(--tint, var(--ground)));
+    pointer-events: none;
+  }
   .nl-fresh {
     display: grid;
     gap: 8px;
