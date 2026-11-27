@@ -8,7 +8,7 @@
  * watch is never asked (Noah 27.11.2026), pieces of one workout are asked once.
  */
 import { WORD_FEEL } from '../training.js';
-import { coveredBy, isWalk, joinPieces } from './dieselbe.js';
+import { coveredBy, fitFamily, isWalk, joinPieces } from './dieselbe.js';
 
 export const HEALTH_FEEL_KEY = 'training.healthfeel';
 const MAX = 200;
@@ -33,10 +33,10 @@ export const wordOfEx = (value, date, e) => mapOf(value)[exKey(date, e)]?.w ?? n
 export const onStrava = (date, e, acts = []) => !!coveredBy(date, e, acts);
 
 /**
- * The newest workout of the last 3 days without an answer and not on Strava, or null.
- * → { key, date, ...workout }
+ * The workouts of the last 3 days without an answer and not on Strava, newest first (Noah 27.11.2026 «3b»: the open ones stand as a small list).
+ * → [{ key, date, ...workout }]
  */
-export function healthToAsk(rows = [], acts = [], value = null, today = '', shift = (d) => d) {
+export function healthAllToAsk(rows = [], acts = [], value = null, today = '', shift = (d) => d) {
   const from = shift(today, -3);
   const map = mapOf(value);
   const list = [];
@@ -49,8 +49,11 @@ export function healthToAsk(rows = [], acts = [], value = null, today = '', shif
       list.push({ key, date: r.date, ...e });
     }
   }
-  return list.sort((a, b) => `${b.date} ${b.start ?? ''}`.localeCompare(`${a.date} ${a.start ?? ''}`))[0] ?? null;
+  return list.sort((a, b) => `${b.date} ${b.start ?? ''}`.localeCompare(`${a.date} ${a.start ?? ''}`));
 }
+
+/** The newest of them, or null. */
+export const healthToAsk = (rows, acts, value, today, shift) => healthAllToAsk(rows, acts, value, today, shift)[0] ?? null;
 
 /**
  * The new setting value after a tap: a word is kept; the same word again takes it back; 'later' asks no more.
@@ -66,4 +69,22 @@ export function withAnswer(value, key, answer) {
   const keys = Object.keys(map).sort();
   for (const k of keys.slice(0, Math.max(0, keys.length - MAX))) delete map[k];
   return { v: 1, map };
+}
+
+/**
+ * The answers to the bike workouts of the watch as numbers per day (Noah 27.11.2026 «1a»: Fitbit answers count like Strava's, here in the
+ * «felt effort of rides» of Auswerten; a word counts as the middle of its numbers, training.js WORD_FEEL).
+ * rows: [{ date, exercises }] (the days of the table). → Map day → number[]
+ */
+export function fitFeelByDay(rows = [], value = null) {
+  const out = new Map();
+  for (const r of rows) {
+    if (!r?.date || !Array.isArray(r.exercises)) continue;
+    for (const e of joinPieces(r.exercises)) {
+      if (fitFamily(e) !== 'bike') continue;
+      const w = wordOfEx(value, r.date, e);
+      if (w) out.set(r.date, [...(out.get(r.date) ?? []), WORD_FEEL[w]]);
+    }
+  }
+  return out;
 }

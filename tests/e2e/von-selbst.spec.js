@@ -6,6 +6,7 @@ import { ready } from './settle.js';
 import DE from '../../src/lib/i18n/de/index.js';
 
 const SHOTS = process.env.SHOTS || '';
+const T = (en) => DE[en] ?? en.replace(/\|[a-z ]+$/, '');
 const zurichToday = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
 const day = (n) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString().slice(0, 10)))(new Date(`${zurichToday()}T12:00:00Z`));
 
@@ -182,13 +183,38 @@ test('a workout that Strava has as well is asked once (by Strava); «Später» o
   await put(page, run({ id: '8010', name: 'Beispiel-Strava-Lauf', time: '06:45', movingS: 2850 }));
   await openAktiv(page);
   const ask = page.locator('[data-section="feel-ask"]');
-  // the evening gym workout is newest and only on the watch: asked first
-  await expect(ask).toContainText('Beispiel-Gym');
-  await ask.locator('[data-feel-skip]').click();
-  // next: Strava's own run (the watch copy of it is not asked)
-  await expect(ask).toContainText(DE['New from Strava|feel']);
-  await expect(ask).toContainText('Beispiel-Strava-Lauf');
-  await ask.locator('[data-feel-word="good"]').click();
+  const rows = ask.locator('[data-feel-row]');
+  // the open ones stand as a small list, newest first: the evening gym workout (only on the watch), then Strava's own run; the watch copy of the run is not asked
+  await expect(rows).toHaveCount(2);
+  await expect(rows.nth(0)).toContainText('Beispiel-Gym');
+  await expect(rows.nth(1)).toContainText(DE['New from Strava|feel']);
+  await expect(rows.nth(1)).toContainText('Beispiel-Strava-Lauf');
+  await rows.nth(0).locator('[data-feel-skip]').click();
+  await expect(rows).toHaveCount(1);
+  await expect(rows.nth(0)).toContainText('Beispiel-Strava-Lauf');
+  await rows.nth(0).locator('[data-feel-word="good"]').click();
   await expect(ask).toHaveCount(0);
   expect((await readSetting(page, 'training.healthfeel')).map[`${day(0)}|18:00|WEIGHTS`]).toEqual({ skip: true });
+});
+
+// Noah 27.11.2026 «2a 3b»: the open ones as a small list (three, then «n weitere zeigen»); every answer shows «Gespeichert» with Undo
+test('four open workouts: three are shown, the rest behind a button; an answer shows Undo that takes it back', async ({ page, context }) => {
+  await start(page, context);
+  const rowsOf = (n) => Array.from({ length: n }, (_, i) => ({ ...fitRun, type: 'TENNIS', name: `Beispiel-Tennis ${i + 1}`, start: `${String(8 + i * 2).padStart(2, '0')}:00`, end: `${String(9 + i * 2).padStart(2, '0')}:00`, min: 50, km: undefined }));
+  await putTable(page, 'healthDays', { date: day(0), exercises: rowsOf(4) });
+  await openAktiv(page);
+  const ask = page.locator('[data-section="feel-ask"]');
+  const rows = ask.locator('[data-feel-row]');
+  await expect(rows).toHaveCount(3);
+  await expect(ask.locator('[data-feel-more]')).toHaveText(DE['Show {n} more'].replace('{n}', '1'));
+  await ask.locator('[data-feel-more]').click();
+  await expect(rows).toHaveCount(4);
+  await expect(ask.locator('[data-feel-more]')).toHaveCount(0);
+  await rows.nth(0).locator('[data-feel-word="good"]').click();
+  await expect(rows).toHaveCount(3);
+  const toast = page.locator('.rtoast');
+  await expect(toast).toContainText(DE['Kept: {word}.'].replace('{word}', DE['good|feel']));
+  await toast.getByRole('button', { name: T('Undo') }).click();
+  await expect(rows).toHaveCount(4);
+  expect(await readSetting(page, 'training.healthfeel')).toBeNull(); // taken back: nothing is kept
 });

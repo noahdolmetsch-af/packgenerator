@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { exKey, mapOf, wordOfEx, onStrava, healthToAsk, withAnswer, HEALTH_FEEL_KEY } from '../src/lib/flow/healthfeel.js';
+import { exKey, mapOf, wordOfEx, onStrava, healthToAsk, healthAllToAsk, fitFeelByDay, withAnswer, HEALTH_FEEL_KEY } from '../src/lib/flow/healthfeel.js';
+import { feelAllToAsk, feelToAsk } from '../src/lib/training/plans.js';
+import { feelDay } from '../src/lib/analyse/catalog.js';
 import { stravaFacts, healthFacts, clock } from '../src/lib/flow/actfacts.js';
 import { shiftDay } from '../src/lib/training.js';
 
@@ -83,5 +85,32 @@ describe('more facts about an activity', () => {
   it('the clock shows minutes and seconds', () => {
     expect(clock(312)).toBe('5:12');
     expect(clock(305)).toBe('5:05');
+  });
+});
+
+// Noah 27.11.2026 «1a 3b»: the open ones as a list; answers of the watch count in the felt effort
+describe('the open ones as a list and the answers of the watch', () => {
+  const tennis = { type: 'TENNIS', name: 'Tennis', start: '18:00', end: '19:00', min: 60 };
+  const bike = { type: 'OUTDOOR_BIKE', name: 'Radfahren', start: '07:10', end: '07:58', min: 48 };
+  it('lists all of them newest first, the first one is what the single call gives', () => {
+    const r = rows([bike, tennis]);
+    expect(healthAllToAsk(r, [], null, today, shiftDay).map((x) => x.start)).toEqual(['18:00', '07:10']);
+    expect(healthToAsk(r, [], null, today, shiftDay).start).toBe('18:00');
+    const acts = [{ id: 'a', day: today, time: '09:00', type: 'Run', movingS: 100 }, { id: 'b', day: today, time: '08:00', type: 'Run', movingS: 100, feelSkip: true }, { id: 'c', day: today, time: '10:00', type: 'Run', movingS: 100, feelWord: 'good' }];
+    expect(feelAllToAsk(acts, today).map((a) => a.id)).toEqual(['a']);
+    expect(feelToAsk(acts, today).id).toBe('a');
+  });
+  it('the answers to bike workouts of the watch become numbers per day (a word is the middle of its numbers)', () => {
+    let v = withAnswer(null, exKey(today, bike), 'hard');
+    v = withAnswer(v, exKey(today, tennis), 'good');
+    const m = fitFeelByDay(rows([bike, tennis]), v);
+    expect([...m]).toEqual([[today, [8]]]); // tennis is no bike workout
+    expect(fitFeelByDay(rows([bike]), null).size).toBe(0);
+  });
+  it('the felt effort of a day mixes the rides of Strava and the bike workouts of the watch', () => {
+    expect(feelDay([{ kind: 'bike', feelWord: 'light' }], [8])).toBe(5);
+    expect(feelDay([], [8])).toBe(8);
+    expect(feelDay([], [])).toBeNull();
+    expect(feelDay([{ kind: 'run', feelWord: 'hard' }], undefined)).toBeNull();
   });
 });
