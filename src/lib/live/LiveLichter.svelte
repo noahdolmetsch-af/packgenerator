@@ -89,7 +89,7 @@
         <fieldset class="lt-f" data-live-light-set={l.id}>
           <div class="lt-row">
             <input class="inp lt-grow" type="text" maxlength="40" value={l.name} placeholder={t('Light|lamp')} aria-label={t('Name of the light')} onchange={(e) => patch(l.id, { name: e.currentTarget.value.trim() })} data-live-light-name />
-            <button type="button" class="lt-ic" onclick={() => drop(l)} aria-label={t('Delete light')} data-live-light-del><Trash2 size={18} aria-hidden="true" /></button>
+            <button type="button" class="lt-ic" onclick={() => drop(l)} aria-label={t('Delete light')} data-live-light-del><Trash2 size={20} aria-hidden="true" /></button>
           </div>
           {#each l.modes as m (m.id)}
             <div class="lt-row" data-live-light-modeset={m.id}>
@@ -162,7 +162,7 @@
     margin: 6px 0 0;
     padding: 8px;
     border: 1px solid var(--line);
-    border-radius: 10px;
+    border-radius: var(--r-ctl);
     min-width: 0;
   }
   .lt-row {
