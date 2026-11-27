@@ -708,6 +708,69 @@ export function build(today = DEFAULT_TODAY) {
   return { data, summary };
 }
 
+/* ---------- the «Aktiv» layer (Gesamttest round 2) ---------- */
+
+/**
+ * Rows for the pages that came after round 1 and have no data in build(): Fitbit daily values (95 days), Strava activities,
+ * «Im Flow» ticks and sessions (sauna, gym, hockey, tennis, meditation, yoga, push-ups, bike), the daily check (sleep,
+ * energy, mood) and the km book of the fictional bikes. Kept apart from build() on purpose: round 1 (pages, scenarios,
+ * consistency) and its integrity checks run on build() alone and stay as they were; round 2 (alle-seiten.spec.js)
+ * merges this layer into the backup. Fictional only, relative to the day, never real values.
+ */
+export function aktivLayer(today = DEFAULT_TODAY, bikeIds = []) {
+  const r = rng(20261124);
+  const D = (n) => addDays(today, -n);
+  const healthDays = [];
+  for (let i = 0; i < 95; i++) {
+    const date = D(i);
+    const azm = Math.round(20 + 50 * r());
+    healthDays.push({
+      date,
+      azm,
+      restingHr: 48 + Math.round(4 * r()),
+      hrvMs: 45 + Math.round(15 * r()),
+      steps: 5000 + Math.round(6000 * r()),
+      sleep: { asleepMin: Math.round(380 + 60 * r()), deepMin: 70, remMin: 85, lightMin: 220, awakeMin: 20, start: '23:20', end: '06:50', efficiency: 88 + Math.round(6 * r()) },
+      spo2: 95 + Math.round(2 * r()),
+      breath: 14,
+      kcal: 2100 + Math.round(500 * r()),
+      kcalActive: 550,
+      hrMax: 135 + Math.round(30 * r()),
+      src: 'google',
+      at: `${date}T08:00:00Z`,
+    });
+  }
+  const activities = [];
+  for (let i = 1; i < 90; i += 3) {
+    const day = D(i);
+    activities.push({
+      id: `${P}act${i}`, day, time: '17:10', start: `${day}T15:10:00Z`, name: `${P}Ausfahrt ${i}`, type: 'Ride', kind: 'bike', km: 25 + (i % 5) * 6, hm: 300, movingS: 4800, elapsedS: 5100, gearId: null,
+      hrAvg: 132, hrMax: 160, commute: false, trainer: false, wAvg: null, wMax: null, wDevice: false, spdAvg: null, spdMax: null, cad: 85, tempAvg: 12, wNorm: null, kj: null, effort: 60, line: null, workout: null, prs: 0, achv: 0, elevHigh: null, elevLow: null, kcal: 800,
+    });
+  }
+  const flowLog = [];
+  const flowSessions = [];
+  const tick = (actId, i, extra = {}) => flowLog.push({ id: `${P}${actId}_${i}`, actId, day: D(i), at: `${D(i)}T18:00:00+02:00`, ...extra });
+  for (let i = 0; i < 60; i++) {
+    if (i % 4 === 1) tick('sauna', i, { min: 36 });
+    if (i % 5 === 2) tick('gym', i, { min: 60 });
+    if (i % 7 === 3) tick('hockey', i, { min: 120 });
+    if (i % 9 === 4) tick('tennis', i, { min: 60 });
+    if (i % 3 === 0) tick('yoga', i, { min: 60 });
+    if (i % 2 === 1) tick('pushups', i, { n: 20 });
+    if (i % 4 === 0) tick('bike', i, { via: 'commute', n: 1 });
+    if (i % 2 === 0) {
+      tick('meditation', i, { min: 15 });
+      flowSessions.push({ id: `${P}meditation_${i}`, actId: 'meditation', day: D(i), at: `${D(i)}T18:00:00+02:00`, min: 15, marks: [], art: ['omahhung', 'bodyscan', 'count'][i % 3], depth: 3 + (i % 3), helped: i % 4 === 0 ? ['early'] : [], note: '' });
+    }
+  }
+  const flowChecks = [];
+  for (let i = 0; i < 90; i++) flowChecks.push({ day: D(i), sleep: 5 + Math.round(4 * r()), energy: 4 + Math.round(5 * r()), mood: 5 + Math.round(4 * r()) });
+  const kmBook = [];
+  if (bikeIds.length) for (let i = 1; i < 84; i += 2) kmBook.push({ id: `${P}kb${i}`, bikeId: bikeIds[i % bikeIds.length], date: D(i), km: 20 + (i % 5) * 7, kind: 'ride', state: 'counted', at: `${D(i)}T18:00:00Z` });
+  return { healthDays, activities, flowLog, flowSessions, flowChecks, kmBook };
+}
+
 /* ---------- a recorded ride (GPX) ---------- */
 
 /** Points of a fictional ride: { lat, lon, ele, t (ms) } every 30 s, with one pause. */

@@ -3,7 +3,7 @@
 # Noah 03.11.2026 «2a» (thread «Prüfen: Warum die Tests langsam sind»): since then only once a night
 # (21:17 UTC since 24.11.2026) or by hand («Run workflow»). After every merge it took 9 of the 20 GitHub computers on top of
 # the pull request checks, and the queue was 40 minutes long. It runs the phone and computer browser tests
-# (7 parts each since 21.11.2026) and the Gesamttest (phone and computer, 2 parts each) on main as it is then.
+# (7 parts each since 21.11.2026) and the Gesamttest (phone and computer, 6 parts each since 26.11.2026) on main as it is then.
 # Only on a failure it opens an issue (or adds to the open one), so Noah gets a mail and Claude repairs
 # it (or Noah says «zurück»). When all is fine again, it closes the issue. Only GITHUB_TOKEN, no secret.
 name: Volle Prüfung
@@ -87,7 +87,10 @@ jobs:
       fail-fast: false
       matrix:
         project: [phone, desktop]
-        shard: [1, 2]
+        # 6 parts since 26.11.2026 (test plan «Tests auf den neuen App-Stand bringen», step 3): the Gesamttest now also opens every address
+        # of the app's code (alle-seiten.spec.js, about 220 cases: 16 minutes on the computer, 24 on the phone with 3 workers) and the window
+        # test with four times of day. With 2 parts the phone parts would pass the 30 minutes.
+        shard: [1, 2, 3, 4, 5, 6]
     steps:
       - uses: actions/checkout@v7
         with:
@@ -97,7 +100,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx playwright test tests/e2e/gesamttest --project=${{ matrix.project }} --shard=${{ matrix.shard }}/2
+      - run: npx playwright test tests/e2e/gesamttest --project=${{ matrix.project }} --shard=${{ matrix.shard }}/6
       - if: always()
         run: node scripts/test-summary.mjs pw-report.json "gesamttest ${{ matrix.project }} ${{ matrix.shard }}" rot-gesamttest-${{ matrix.project }}-${{ matrix.shard }}.txt wackel-gesamttest-${{ matrix.project }}-${{ matrix.shard }}.txt
       - uses: actions/upload-artifact@v7
@@ -215,8 +218,8 @@ jobs:
           prev_sha=''
           [ -n "$prev" ] && prev_sha=$(gh run view "$prev" --json headSha --jq .headSha || true)
           echo "prev_sha=$prev_sha" >> "$GITHUB_OUTPUT"
-          # 24 jobs leave a list: 14 browser parts + 4 Gesamttest parts + 6 Ausprobieren parts
-          node scripts/nacht-vergleich.mjs rot "${prev:+vorher/rot-liste.txt}" rot-liste.txt 24 > vergleich.md
+          # 32 jobs leave a list: 14 browser parts + 12 Gesamttest parts + 6 Ausprobieren parts
+          node scripts/nacht-vergleich.mjs rot "${prev:+vorher/rot-liste.txt}" rot-liste.txt 32 > vergleich.md
           cat vergleich.md >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v7
         if: always()

@@ -15,6 +15,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { openHome } from './home0460-fixture.js';
 import { STRICT_ROUTES } from '../../scripts/style-lint.mjs';
+import { adressen } from './wege-lib.js';
 
 const ROUTES = [
   ['#/', 'Heute'],
@@ -125,6 +126,15 @@ const ROUTES = [
   // «Quick Links» (Noah 28.10.2026): the new place
   ['#/quick', 'Quick Links'],
 ];
+// The one list of addresses (tests/e2e/wege-lib.js, test plan step 3, 26.11.2026): this list of routes is written by hand with titles and a
+// baseline, so it can rot. Every page here must still be an address the app's code names (a renamed page fails at once, not by «not found»);
+// the pages that are not here are opened every night by the Gesamttest (alle-seiten.spec.js) and the Rundgang.
+test('guard routes are addresses the app still names (the one list of addresses)', () => {
+  const listed = new Set(adressen().map((h) => h.replace(/[?&].*$/, '')));
+  const gone = ROUTES.map(([h]) => h.replace(/[?&].*$/, '')).filter((h) => h !== '#/' && !h.includes('test_data_') && !listed.has(h));
+  expect(gone, 'guard routes the code does not name any more').toEqual([]);
+  console.log(`Wächter: ${new Set(ROUTES.map(([h]) => h.replace(/[?&].*$/, ''))).size} of ${listed.size} addresses of the app are in the guard list; the rest runs at night`);
+});
 const FAIL_RULES = ['hscroll', 'wordbreak', 'target', 'h1'];
 const REPORT_RULES = ['primary'];
 const UPDATE = !!process.env.GUARD_UPDATE;
