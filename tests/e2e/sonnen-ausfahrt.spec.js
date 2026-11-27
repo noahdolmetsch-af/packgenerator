@@ -2,6 +2,7 @@
 // Open-Meteo is mocked, everything else outside is blocked (openHome). Today is 07:00 here; the fog clears at 11 h.
 import { test, expect } from './clock.js';
 import { openHome, homeFixture, day, trip, openWetterFold } from './home0460-fixture.js';
+import { mkdirSync } from 'node:fs';
 
 const OFF = 7200;
 const LEVELS = { 1000: 110, 975: 330, 950: 550, 925: 780, 900: 1000, 850: 1500 };
@@ -205,6 +206,11 @@ test('Remember today keeps the day and the Sammel-Wand shelf can change and remo
   await page.getByRole('button', { name: /Rückgängig/ }).click();
   await expect(shelf.locator('[data-fog-day]')).toHaveCount(1);
   await shelf.screenshot({ path: info.outputPath(`nebel-regal-${info.project.name}.png`) });
+  if (process.env.SHOTS) {
+    mkdirSync(process.env.SHOTS, { recursive: true });
+    await shelf.scrollIntoViewIfNeeded();
+    await page.screenshot({ path: `${process.env.SHOTS}/nebel-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  }
 });
 
 test('A day can be added by hand with a photo, and the photo is in the album', async ({ page, context }, info) => {
