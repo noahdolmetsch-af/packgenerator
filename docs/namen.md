@@ -68,5 +68,9 @@ Verbindlich seit 08.11.2026 (Noah «namen ok»; Zeile 1 mit «b»). Quelle: UX-T
 | 60 | Die Karte mit den Minuten pro Tag, alle Aktivitäten zusammen, in Auswerten › Woche | Tagessumme, Tageswert, Minuten pro Tag | **«Tagestotal»** (Noah 27.11.2026, eigenes Wort) |
 | 61 | Die Karte mit den Stunden pro Woche gegen die Vorwoche in Auswerten › Woche | Wochensumme, Wochenvergleich, Wochenumfang | **«Wochenpensum»** (Noah 27.11.2026, eigenes Wort); «Wochenplan» bleibt die geplante Woche |
 | 62 | Nach einem Update jede Neuheit prüfen und dem Logbuch sagen, ob es klappt | Abnahme, Release-Test, QA | **«Testrunde»**; die zwei Antworten **«Klappt»** und **«Klappt nicht»**; die Anleitung dazu **«So testest du es»** (Noah 27.11.2026 «1b 2a 3b 4b 5a») |
+| 63 | Der Satz oder die zwei Sätze, die nach einem Haken sagen, was er für diese Aktivität heisst (Serie, Pause, wie oft diese Woche) | Auswertungs-Satz, Kommentar zum Haken, Feedback | **«Der Satz nach dem Haken»** (Noah 27.11.2026 «1b 2a»); auf der Seite Geschafft steht er als erste Karte «Was dieser Haken sagt» |
+| 64 | Das Auswahlfeld einer Sportart: Kraft, Ausdauer, Beweglichkeit, Erholung | Kategorie, Typ, Trainingsart, Sportkategorie | **«Art»** (Noah 27.11.2026 «3b», «a»); eine Liste in «Listen und Typen» («Arten der Sportarten»), das Sammelfenster heisst «Art der Sportart» |
+| 65 | Die Karte oben in Auswerten › Woche über den Tag, die Woche, die Mischung der Arten, die Pause, freie Tage, Takt und Vorjahr | Tagesauswertung, Wochen-Check, Dashboard | **«Dein Tag und deine Woche»** (Noah 27.11.2026, eigenes Wort) |
+| 66 | Die Karte in Auswerten › Woche mit Ruhepuls und Schlaf nach harten Tagen | Belastungsfolgen, Erholungsmuster | **«Nach harten Tagen»**; ein harter Tag ist dein oberes Viertel (Regel des Ruhetag-Hinweises) |
 
 Umgesetzt wird die Umbenennung in eigenen kleinen PRs (nach Bereich). Die Zeilen oben gelten ab heute auch für alles Neue.

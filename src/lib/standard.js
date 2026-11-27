@@ -37,6 +37,7 @@ import { DAY_SPORTS_STD } from './tourplan/prep.js';
 import { SAYINGS_STD } from './logo/sayings.js';
 import { REASONS_STD } from './gruende.js';
 import { TECH_STD } from './technik.js';
+import { ARTEN_STD } from './flow/arten.js';
 
 /** The settings record of a person's changes: { [list key]: { names, hidden, order, own, deleted, icons, areas } }. */
 export const OVERRIDES_KEY = 'listOverrides';
@@ -96,6 +97,8 @@ export const STANDARD_LISTS = [
   // Persönliches Lernen Idee 4 (Noah 04.11.2026 «2a»): why a tour went differently
   { key: 'changeReasons', area: 'review', name: 'Reasons for a different tour', entries: () => REASONS_STD },
   { key: 'techniques', area: 'review', name: 'Riding techniques', entries: () => TECH_STD },
+  // «Art der Sportart» (Noah 27.11.2026 «3b a»): Strength, Endurance, Mobility, Recovery, for the mix of «Dein Tag und deine Woche»
+  { key: 'sportArts', area: 'active', name: 'Kinds of sport', entries: () => ARTEN_STD },
 ];
 export const STANDARD_LIST = Object.fromEntries(STANDARD_LISTS.map((l) => [l.key, l]));
 

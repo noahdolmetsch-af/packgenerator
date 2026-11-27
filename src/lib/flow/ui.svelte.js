@@ -17,6 +17,7 @@ import { saveSession } from '../flowdb.js';
 import { offerActivity, offerActivityById } from '../remind/ask.svelte.js';
 import { starsAfterTick } from './starcheck.js';
 import { almostOf } from './almost.js';
+import { actFacts, satzShort } from './satz.js';
 import { UNITACTS_KEY, actForUnit, setUnitTick } from './unitdone.js';
 
 // sessionOpen: hobby pages 2, the running session in full (B7)
@@ -58,9 +59,10 @@ let toastTimer = null;
 // it stays until it is tapped or closed
 // hint { m, k, left }: «Fast geschafft» under the message, the next star is near (PR 4)
 // next [{ href, text }]: «Als Nächstes» under the message (Aktiv und Auswerten 7): where one tap goes on after a tick
-export function toast(text, undo = null, link = null, hint = null, next = null) {
+// satz: «Der Satz nach dem Haken» (Noah 27.11.2026 «2a»), the first line of the page «Geschafft» as a short line under the message
+export function toast(text, undo = null, link = null, hint = null, next = null, satz = '') {
   clearTimeout(toastTimer);
-  ui.toast = { text, undo, link, hint, next, id: Date.now() };
+  ui.toast = { text, undo, link, hint, next, satz, id: Date.now() };
   toastLeft = null;
   toastEnd = Date.now() + UNDO_MS;
   if (!link) toastTimer = setTimeout(() => (ui.toast = null), UNDO_MS);
@@ -166,8 +168,17 @@ export async function tickWith(a, opts) {
     undone.delete(e.id);
   };
   undone.set(e.id, undo);
+  // «Der Satz nach dem Haken» (Noah 27.11.2026 «2a»): the strongest line about this tick, short, under the message (the page «Geschafft» has two lines)
+  let satz = '';
+  if (opts.via !== 'commute') {
+    try {
+      satz = satzShort(actFacts({ act: a, acts: [], log: await db.flowLog.toArray(), entry: e }), actName(a));
+    } catch {
+      satz = ''; // a line is a bonus: the tick itself is saved
+    }
+  }
   // «Geschafft» (Noah 19.11.2026 «1-5a», T1): the page after a tick holds what the two links «Dein Verlauf» and «Meilensteine» held; nothing jumps by itself
-  toast(what, undo, null, near ? { m: near.r.m, k: near.k, left: near.left } : null, [{ href: `#/flow/geschafft?e=${encodeURIComponent(e.id)}`, text: t('What you did|next') }]);
+  toast(what, undo, null, near ? { m: near.r.m, k: near.k, left: near.left } : null, [{ href: `#/flow/geschafft?e=${encodeURIComponent(e.id)}`, text: t('What you did|next') }], satz);
   if (won.length) ui.star = { entryId: e.id, actId: a.id, act: actName(a), icon: a.icon, stars: won.map((s) => ({ id: s.id, msId: s.msId, star: s.star, m: s.r?.m ?? null, value: s.r?.value ?? null, target: s.r?.steps?.[s.star - 1] ?? null, next: s.r?.next ?? null, nextTarget: s.r?.next ? (s.r.steps?.[s.r.next - 1] ?? null) : null, left: s.r?.next && s.r.steps?.[s.r.next - 1] != null ? Math.max(0, Math.round((s.r.steps[s.r.next - 1] - s.r.value) * 10) / 10) : null })) };
   // ER1 (Noah 14.10.2026 «er1-er3 freigabe»): once per activity «Soll ich dich in Zukunft erinnern?»
   if (opts.via !== 'commute') offerActivity(a, actName(a));

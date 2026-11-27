@@ -12,11 +12,13 @@
   import { Dumbbell, ChevronRight } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import PeriodBar from '../lib/flow/PeriodBar.svelte';
+  import TagWocheKarte from '../lib/flow/TagWocheKarte.svelte';
   import HakenVerlauf from '../lib/flow/HakenVerlauf.svelte';
   import HakenHinweise from '../lib/flow/HakenHinweise.svelte';
   import HakenZeitraum from '../lib/flow/HakenZeitraum.svelte';
   import TagesTotal from '../lib/flow/TagesTotal.svelte';
   import WochenPensum from '../lib/flow/WochenPensum.svelte';
+  import HakenErholung from '../lib/flow/HakenErholung.svelte';
   import GesundheitKarte from '../lib/flow/GesundheitKarte.svelte';
   import BarChart from '../lib/charts/BarChart.svelte';
   import NormalBand from '../lib/auswerten/NormalBand.svelte';
@@ -132,11 +134,13 @@
   </header>
 
   {#if d}
+    <TagWocheKarte {units} acts={d.acts} log={d.log} activities={d.activities} health={d.health} {today} />
     <HakenZeitraum />
     <HakenVerlauf acts={d.acts} log={d.log} {today} />
     <TagesTotal {units} {today} />
     <WochenPensum {units} {today} />
     <GesundheitKarte table={d.table} health={d.health} activities={d.activities} {today} />
+    <HakenErholung table={d.table} {units} log={d.log} {today} />
     <HakenHinweise acts={d.acts} log={d.log} {today} />
   {/if}
 

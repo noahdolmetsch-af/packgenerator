@@ -65,7 +65,7 @@
   {#key ui.toast.id}
     <div class="ftoast" role="status" onpointerenter={pauseFlowToast} onpointerleave={resumeFlowToast} onfocusin={pauseFlowToast} onfocusout={resumeFlowToast}>
       <Check size={20} aria-hidden="true" />
-      <span>{ui.toast.text}{#if ui.toast.hint}<small class="fth" data-toast-hint>{almostLine(ui.toast.hint)}</small>{/if}</span>
+      <span>{ui.toast.text}{#if ui.toast.satz}<small class="fth" data-toast-satz>{ui.toast.satz}</small>{/if}{#if ui.toast.hint}<small class="fth" data-toast-hint>{almostLine(ui.toast.hint)}</small>{/if}</span>
       {#if ui.toast.undo}<button type="button" class="undo" onclick={runUndo}>{t('Undo')}</button>{/if}
       {#if ui.toast.link}
         <a class="undo lk" href={ui.toast.link.href} onclick={closeToast} data-toast-link>{ui.toast.link.text}<ChevronRight size={16} aria-hidden="true" /></a>
