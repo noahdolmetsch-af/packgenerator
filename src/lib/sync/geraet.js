@@ -57,6 +57,7 @@ export const GERAET_DATEIEN = {
   'lib/flow/NachtragHint.svelte': 'gemerkt',
   'lib/flow/hobby/MsHow.svelte': 'gemerkt',
   'lib/flow/ui.svelte.js': 'laufend',
+  'lib/flow/haken-zeitraum.svelte.js': 'ansicht',
   'lib/flow/zeitraum.svelte.js': 'ansicht',
   'lib/frei/Nacht.svelte': 'ansicht',
   'lib/frei/Naechstes.svelte': 'ansicht',
