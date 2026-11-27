@@ -1,6 +1,6 @@
 // «Position merken» and «Link auf den Abschnitt» (thread «Navigation ohne Sackgassen»): the pure parts.
 import { describe, it, expect } from 'vitest';
-import { remember } from '../src/lib/nav/scrollmem.js';
+import { remember, restartOf } from '../src/lib/nav/scrollmem.js';
 import { atOf, atHref } from '../src/lib/nav/at.js';
 
 describe('remember: the kept positions', () => {
@@ -17,6 +17,15 @@ describe('remember: the kept positions', () => {
     let m = {};
     for (let i = 1; i <= 5; i++) m = remember(m, `#/p${i}`, i * 100, 3);
     expect(Object.keys(m)).toEqual(['#/p3', '#/p4', '#/p5']);
+  });
+});
+
+describe('restartOf: a start that should return to the kept place', () => {
+  it('a reload and a restored tab do, a fresh start does not', () => {
+    expect(restartOf('reload')).toBe(true);
+    expect(restartOf('back_forward')).toBe(true);
+    expect(restartOf('navigate')).toBe(false);
+    expect(restartOf(undefined)).toBe(false);
   });
 });
 

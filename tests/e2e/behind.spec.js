@@ -40,16 +40,29 @@ test('a device behind the online version for a while gets the bar; an up-to-date
   expect(await page.evaluate((k) => localStorage.getItem(k), KEY)).toBe(null);
 });
 
-test('a newer version online that has not arrived loads the app fresh once, 30 seconds after the start', async ({ page, context }) => {
+// 27.11.2026 (Noah: «die App lädt von alleine immer wieder neu»): a visible page is never loaded anew by itself; only when the app is
+// out of sight does it load fresh, once per version.
+test('a newer version online that has not arrived never loads a visible page; in the background it loads fresh once', async ({ page, context }) => {
   test.setTimeout(120_000);
   await context.route(/\/version\.json/, (route) => route.fulfill({ contentType: 'application/json', body: JSON.stringify({ version: '9.9.9' }) }));
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   let loads = 0;
   page.on('load', () => loads++);
   await page.goto('./#/');
-  await expect.poll(() => loads, { timeout: 45_000 }).toBe(2);
+  await page.waitForTimeout(35_000); // the old rule loaded the page anew after 30 seconds
+  expect(loads, 'die sichtbare Seite lädt sich nicht von selbst neu').toBe(1);
+  // the app goes out of sight: now it may load fresh
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'visibilityState', { get: () => 'hidden', configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  await expect.poll(() => loads, { timeout: 30_000 }).toBe(2);
   await expect.poll(() => page.evaluate((f) => localStorage.getItem(f), FRESH)).toBe('9.9.9');
-  // only once per version: no further load
-  await page.waitForTimeout(35_000);
+  // only once per version: going out of sight again does not load again
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'visibilityState', { get: () => 'hidden', configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  await page.waitForTimeout(10_000);
   expect(loads).toBe(2);
 });

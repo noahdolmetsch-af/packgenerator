@@ -51,10 +51,13 @@ describe('no reload in the middle of a ride', () => {
     on['d:visibilitychange']();
     expect(w.location.reload).toHaveBeenCalledTimes(1);
   });
-  it('without a ride it reloads at once as before', () => {
-    const { w, on } = fakeWindow();
+  it('without a ride a visible page still waits for the background (27.11.2026)', () => {
+    const { w, on, d } = fakeWindow();
     watchUpdates(w, { behind: async () => {} });
     on.controllerchange();
+    expect(w.location.reload).not.toHaveBeenCalled();
+    d.visibilityState = 'hidden';
+    on['d:visibilitychange']();
     expect(w.location.reload).toHaveBeenCalledTimes(1);
   });
   it('a missing page part does not reload during a ride', async () => {

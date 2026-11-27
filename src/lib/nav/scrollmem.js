@@ -47,6 +47,9 @@ function keep() {
   if (current) mem = remember(mem, current, window.scrollY);
 }
 
+/** 27.11.2026 (Noah: the app loads anew by itself, or the phone throws it out of memory): a start that came from a reload or a restored tab. Pure. */
+export const restartOf = (type) => type === 'reload' || type === 'back_forward';
+
 /** Start keeping the position of the page shown (call once). Returns a function that stops it. */
 export function trackScroll() {
   const onScroll = () => {
@@ -54,9 +57,19 @@ export function trackScroll() {
   };
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('pagehide', write);
+  // a phone often takes a hidden app out of memory without a pagehide: write the position when the app goes out of sight
+  const onHide = () => {
+    if (document.visibilityState !== 'hidden') return;
+    if (raf) cancelAnimationFrame(raf);
+    raf = 0;
+    keep();
+    write();
+  };
+  document.addEventListener('visibilitychange', onHide);
   return () => {
     window.removeEventListener('scroll', onScroll);
     window.removeEventListener('pagehide', write);
+    document.removeEventListener('visibilitychange', onHide);
   };
 }
 
@@ -125,8 +138,13 @@ export function arrivePage(hash, back) {
   requestAnimationFrame(step);
 }
 
-/** The first page of the visit: mark its entry and start keeping; the browser restores a reload itself. */
-export function startPage(hash) {
+/**
+ * The first page of the visit: mark its entry and start keeping. After a reload (a new version, a phone that took the app out of
+ * memory) the page goes back to its kept position, waiting for the page to be long enough (pages load later; the browser's own
+ * restoring comes too early and is clamped). A new start from the icon opens at the top, as before.
+ */
+export function startPage(hash, type = globalThis.performance?.getEntriesByType?.('navigation')?.[0]?.type) {
+  if (restartOf(type) && mem[hash] > 0) return arrivePage(hash, true);
   mark();
   current = hash;
 }
