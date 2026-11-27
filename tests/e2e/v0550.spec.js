@@ -190,7 +190,7 @@ test('old blocks are updated once; «Bausteine prüfen» keeps, takes out, moves
   await expect.poll(() => setsOf(page, 'LI02')).not.toContain('lights');
   expect(await wide(page)).toBe(0);
   await page.setViewportSize({ width: 320, height: 720 });
-  expect(await wide(page)).toBe(0);
+  await expect.poll(() => wide(page)).toBe(0); // the page reflows after the resize: wait for the state, not for a time
 
   // 7. Also reachable from Material (•••).
   await page.goto('./#/gear');
