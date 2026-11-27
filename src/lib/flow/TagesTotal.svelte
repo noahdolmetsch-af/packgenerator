@@ -50,6 +50,11 @@
     rows: [...days].reverse().map((d) => ({ key: d.day, cells: [dayTxt(d.day, { weekday: 'short', day: 'numeric', month: 'short' }), d.min ? hoursMin(d.min) : '–'] })),
   });
   const aria = $derived(days.map((d) => `${dayTxt(d.day, { weekday: 'short', day: 'numeric', month: 'short' })}: ${hoursMin(d.min)}`).join(', '));
+  // the readout starts on the newest day with movement, not on a quiet today
+  const initial = $derived.by(() => {
+    for (let i = days.length - 1; i >= 0; i--) if (days[i].min > 0) return i;
+    return null;
+  });
   const hasEstimate = $derived(days.some((d) => d.ca > 0));
 
   const lead = $derived.by(() => {
@@ -71,7 +76,7 @@
   {#if none}
     <p class="det" data-tt-none>{t('No movement in the last 90 days yet. Tick a sport on Active or connect Strava, and this chart fills itself.')} <a href="#/flow">{t('To Active')}</a></p>
   {:else}
-    <BarChart id="tagestotal" {cols} {readout} {table} unit="min" goal={res.typical != null ? { v: res.typical, text: t('typical day') } : null} label={t('Minutes of movement per day: {list}', { list: aria })} hint={t('Point at a bar for its numbers.')} />
+    <BarChart id="tagestotal" {initial} {cols} {readout} {table} unit="min" goal={res.typical != null ? { v: res.typical, text: t('typical day') } : null} label={t('Minutes of movement per day: {list}', { list: aria })} hint={t('Point at a bar for its numbers.')} />
     {#if hasEstimate}
       <ul class="lg" data-tt-legend>
         <li><i style:background={MEASURED}></i>{t('measured')}</li>

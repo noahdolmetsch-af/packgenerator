@@ -33,7 +33,7 @@
   const cols = $derived(
     weeks.map((w, i) => ({
       key: w.key,
-      x: few ? ((weeks.length - 1 - i) % 2 === 0 ? `${dnum(w.key)}.${Number(w.key.slice(5, 7))}.` : '') : i && monthOf(weeks[i - 1].key) !== monthOf(w.key) && (monthOf(w.key) - 1) % 2 === 0 ? dayTxt(addDays(w.key, 3), { month: 'short' }).replace('.', '') : '',
+      x: few ? ((weeks.length - 1 - i) % 3 === 0 ? `${dnum(w.key)}.${Number(w.key.slice(5, 7))}.` : '') : i && monthOf(weeks[i - 1].key) !== monthOf(w.key) && (monthOf(w.key) - 1) % 2 === 0 ? dayTxt(addDays(w.key, 3), { month: 'short' }).replace('.', '') : '',
       top: few && w.min >= 30 ? hrs(w.min) : '',
       dashed: w.current && w.min > 0,
       parts: [
@@ -55,6 +55,11 @@
     rows: [...weeks].reverse().map((w) => ({ key: w.key, cells: [dayTxt(w.key, { day: 'numeric', month: 'short' }), w.min ? hoursMin(w.min) : '–'] })),
   });
   const aria = $derived(weeks.map((w) => `${dayTxt(w.key, { day: 'numeric', month: 'short' })}: ${hoursMin(w.min)}`).join(', '));
+  // the readout starts on the newest week with movement, not on a week that has only begun
+  const initial = $derived.by(() => {
+    for (let i = weeks.length - 1; i >= 0; i--) if (weeks[i].min > 0 && !(weeks[i].current && res.dayIdx <= 1)) return i;
+    return null;
+  });
   const hasEstimate = $derived(weeks.some((w) => w.ca > 0));
   const none = $derived(weeks.every((w) => w.min === 0));
 
@@ -84,7 +89,7 @@
       <li><b class="num">{hrs(res.prevSame)} h</b><small>{t('Last week at the same point')}</small></li>
       <li><b class="num" data-wp-prev>{hrs(res.prev)} h</b><small>{sinceWeek == null ? t('Whole last week') : t('Whole last week, {p} against the week before', { p: pct(sinceWeek) })}</small></li>
     </ul>
-    <BarChart id="wochenpensum" {cols} {readout} {table} unit="h" steps={null} goal={res.mean != null ? { v: res.mean / 60, text: t('mean of 12 weeks') } : null} label={t('Hours of movement per week: {list}', { list: aria })} hint={t('Point at a bar for its numbers.')} />
+    <BarChart id="wochenpensum" {initial} {cols} {readout} {table} unit="h" steps={null} goal={res.mean != null ? { v: res.mean / 60, text: t('mean of 12 weeks') } : null} label={t('Hours of movement per week: {list}', { list: aria })} hint={t('Point at a bar for its numbers.')} />
     {#if hasEstimate}
       <ul class="lg" data-wp-legend>
         <li><i style:background={MEASURED}></i>{t('measured')}</li>

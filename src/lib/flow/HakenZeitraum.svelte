@@ -19,7 +19,7 @@
 <section class="card hz" aria-labelledby="hz-h" data-haken-zeitraum>
   <h2 id="hz-h" class="h2">{t('Period for everything here')}</h2>
   <ChipChoice options={OPTIONS} value={hakenSpan.v} onchange={pickSpan} aria-label={t('Period of the tick history')} data-hz-span />
-  <p class="det">{t('One switch for the tick history, the day total, the week volume and your health.')}</p>
+  <p class="det">{t('One switch for the tick history, the day total and the week volume.')}</p>
 </section>
 
 <style>
