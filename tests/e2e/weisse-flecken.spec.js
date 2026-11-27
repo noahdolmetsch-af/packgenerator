@@ -106,6 +106,30 @@ test('White spots nearby: home place, map, radius, nearest never visited', async
   await ws.getByRole('button', { name: /Alle \d+ zeigen/ }).click();
   await ws.locator('[data-ws-row]').last().click();
   await expect(ws.locator('[data-ws-train]')).toContainText(T('Train there, bike home'));
+  // the map zooms (Noah 27.11.2026 «karte zoombar»): the buttons, a tap on the list shows the place, the whole map is back, full screen closes with Esc
+  const wsMap = ws.locator('[data-ws-map]');
+  const zoomOf = async () => Number(await wsMap.getAttribute('data-zoom'));
+  await expect.poll(zoomOf).toBeGreaterThan(1); // the tap on a place of the list above zoomed there
+  await ws.locator('[data-zoom-reset]').click();
+  await expect.poll(zoomOf).toBe(1);
+  await ws.locator('[data-zoom-in]').click();
+  await ws.locator('[data-zoom-in]').click();
+  await expect.poll(zoomOf).toBeGreaterThan(2);
+  await ws.locator('[data-zoom-reset]').click();
+  await expect.poll(zoomOf).toBe(1);
+  await ws.locator('[data-zoom-full]').click();
+  await expect(page.locator('[data-zoom-close]')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('[data-zoom-close]')).toHaveCount(0);
+  // the mouse on a municipality shows its name (Noah 27.11.2026 «bei mouseover erscheint der name»)
+  if (info.project.name === 'desktop') {
+    const bb = await wsMap.boundingBox();
+    await page.mouse.move(bb.x + bb.width * 0.5, bb.y + bb.height * 0.5);
+    for (let i = 1; i <= 8 && !(await page.locator('[data-map-tip]').count()); i++) await page.mouse.move(bb.x + bb.width * (0.5 + i * 0.03), bb.y + bb.height * 0.5);
+    await expect(page.locator('[data-map-tip]').first()).toBeVisible();
+    await page.mouse.move(bb.x - 40, bb.y - 40);
+    await expect(page.locator('[data-map-tip]')).toHaveCount(0);
+  }
   // the link to New ground, and the link from there back (it scrolls to this part)
   await expect(ws.locator('[data-ws-neuland]')).toHaveAttribute('href', '#/neuland');
   await page.goto('./#/neuland');

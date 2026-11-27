@@ -36,12 +36,17 @@ test('W1: after an update a banner names the versions since the last visit, View
   // «Banner Was ist neu» (Noah 23.11.2026 «1-5a», changed on purpose): ONE line on Today, «since your last visit», not under Ich
   await expect.poll(() => page.evaluate(() => localStorage.getItem('wasneu.update'))).not.toBeNull();
   const banner = page.locator('[data-news-banner]');
-  await expect(banner.getByRole('heading', { name: T('New in {v}|banner', { v: shortVersion(since[0].version) }) })).toBeAttached();
-  await expect(banner.locator('[data-news-title]')).toContainText(T('New: {title}', { title: T(since[0].title) }));
-  await expect(banner.locator('[data-news-more]')).toContainText(T('and {n} more things', { n: since.length - 1 }));
+  // «Testrunde» (Noah 27.11.2026 «1b 2a 3b 4b 5a», changed on purpose): the line became a small card, the two newest news each with PR,
+  // the first test step and the answers; «+N more» for the rest
+  await expect(banner.getByRole('heading', { name: T('New since your last visit') })).toBeAttached();
+  await expect(banner.locator('[data-news-title]').first()).toContainText(T('New: {title}', { title: T(since[0].title) }));
+  await expect(banner.locator('[data-news-item]')).toHaveCount(2);
+  await expect(banner.locator('[data-test-works]').first()).toBeVisible();
+  await expect(banner.locator('[data-test-fails]').first()).toBeVisible();
+  await expect(banner.locator('[data-news-more]')).toContainText(T('+{n} more', { n: since.length - 2 }));
   await noSideways(page);
   await shot(page, info, 'W1-neu-banner');
-  await banner.locator('[data-news-title]').click();
+  await banner.locator('[data-news-title]').first().click();
   await expect.poll(() => new URL(page.url()).hash).toBe('#/me/news');
   // the page holds the newest on top and the versions since then in the open group (SL1: rows by day)
   await expect(page.locator(`article[data-version="${since[0].version}"]`).first()).toBeAttached();

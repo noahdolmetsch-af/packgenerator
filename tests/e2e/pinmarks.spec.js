@@ -5,27 +5,37 @@ import { openHome } from './home0460-fixture.js';
 
 test('pins on the cards: pin, unpin, switch off', async ({ page, context }, info) => {
   const T = await openHome(page, context, info);
-  const marks = page.locator('[data-pinmark]');
-  await expect(marks.first()).toBeVisible({ timeout: 10_000 });
+  // «Favoriten» (Noah 27.11.2026 «1-5a»): a bare link or button is a chip and gets no star, so Today (all chips) shows none once it stands;
+  // the test pins on Notes, whose card keeps its star. Before, it grabbed the first star Today showed while it was still drawing.
+  await page.goto('./#/notes');
+  const id = 'f.notes';
+  const mark = page.locator(`[data-pinmark="${id}"]`);
+  await expect(mark).toBeVisible({ timeout: 10_000 });
 
-  // pin the first card: the pin turns on, Quick Links has it in the first group
-  const first = marks.first();
-  const id = await first.getAttribute('data-pinmark');
-  if ((await first.getAttribute('aria-pressed')) === 'true') await first.click(); // a suggested pin already: take it out first
-  await expect(page.locator(`[data-pinmark="${id}"]`)).toHaveAttribute('aria-pressed', 'false');
-  await page.locator(`[data-pinmark="${id}"]`).click();
-  await expect(page.locator(`[data-pinmark="${id}"]`)).toHaveAttribute('aria-pressed', 'true');
-  const name = await page.locator(`[data-pinmark="${id}"]`).getAttribute('data-pinname');
+  // pin the card: the star turns on, Quick Links has it in the first group
+  if ((await mark.getAttribute('aria-pressed')) === 'true') await mark.click(); // a suggested pin already: take it out first
+  await expect(mark).toHaveAttribute('aria-pressed', 'false');
+  await mark.click();
+  await expect(mark).toHaveAttribute('aria-pressed', 'true');
+  const name = await mark.getAttribute('data-pinname');
   await expect(page.getByText(T('«{name}» is in your Quick Links. A tap there brings you right back here.', { name }))).toBeVisible();
   await page.goto('./#/quick');
   await expect(page.locator(`[data-quick-group="s1"] [data-quick-pin="${id}"]`)).toBeVisible();
   await expect(page.locator('[data-pinmark]')).toHaveCount(0); // no pins on the pins page
 
-  // switch them off: Heute shows none
+  // switch them off: the card shows none (wait until the switch is stored, then for the page itself)
   await page.locator('[data-quick-marks] input').uncheck();
-  await page.goto('./#/');
+  await expect
+    .poll(() => page.evaluate(() => new Promise((ok) => {
+      const r = indexedDB.open('pack-generator');
+      r.onsuccess = () => {
+        const g = r.result.transaction('settings').objectStore('settings').get('quickLinks.marks');
+        g.onsuccess = () => (r.result.close(), ok(g.result?.value));
+      };
+    })))
+    .toBe(false);
+  await page.goto('./#/notes');
   await expect(page.locator('main h1')).toBeVisible();
-  await page.waitForTimeout(800);
   await expect(page.locator('[data-pinmark]')).toHaveCount(0);
 });
 

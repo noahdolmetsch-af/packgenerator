@@ -227,8 +227,8 @@ test('I11b: the message after an update: the banner closes with × until the nex
   await expect(page.locator('dialog.news[open]')).toHaveCount(0);
   // «Banner Was ist neu» (Noah 23.11.2026 «1-5a», changed on purpose): the banner is ONE line on Today again
   const banner = page.locator('[data-news-banner]');
-  await expect(banner.getByRole('heading', { name: T('New in {v}|banner', { v: V }) })).toBeAttached();
-  await expect(banner.locator('[data-news-title]')).toContainText(T(NEWEST.title));
+  await expect(banner.getByRole('heading', { name: T('New since your last visit') })).toBeAttached(); // «Testrunde» (Noah 27.11.2026, changed on purpose): the line became a small card
+  await expect(banner.locator('[data-news-title]').first()).toContainText(T(NEWEST.title));
   await shot(page, info, 'I11b-meldung');
   await noSideways(page);
   await banner.getByRole('button', { name: T('Close the hint') }).click();
@@ -264,8 +264,8 @@ test('I11e: after an update Today keeps its wall, one line New under the chips, 
   await expect(page.locator('.wall [data-tile]').first()).toBeVisible();
   const banner = page.locator('[data-news-banner]');
   await expect(banner).toBeVisible();
-  await expect(banner.getByRole('heading', { name: T('New in {v}|banner', { v: V }) })).toBeAttached();
-  await expect(banner.locator('[data-news-title]')).toHaveAttribute('href', '#/me/news');
+  await expect(banner.getByRole('heading', { name: T('New since your last visit') })).toBeAttached(); // «Testrunde» (Noah 27.11.2026, changed on purpose): the line became a small card
+  await expect(banner.locator('[data-news-title]').first()).toHaveAttribute('href', '#/me/news');
   await expect(page.locator('.wall [data-tile="news"]')).toHaveCount(0);
   await expect(page.locator('[data-news-row]')).toHaveCount(0);
   await expect.poll(() => ids(page)).toEqual(SHOWN.map((x) => x.id));

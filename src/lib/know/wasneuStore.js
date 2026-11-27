@@ -5,7 +5,7 @@
  */
 import { db } from '../db.js';
 import { demoState } from '../demo.js';
-import { USES_KEY, MUTE_KEY, UPDATE_KEY, PIN_KEY, TESTED_KEY, bumpUse, usesOf, HOME_FEATURE } from './wasneu.js';
+import { USES_KEY, MUTE_KEY, UPDATE_KEY, PIN_KEY, TESTED_KEY, RESULTS_KEY, bumpUse, usesOf, HOME_FEATURE } from './wasneu.js';
 import { WHATS_NEW } from '../whatsnew.js';
 import { openApp, opensOf, addSnap, snapsOf } from './sn6plus.js';
 
@@ -69,6 +69,26 @@ export function readTested(version) {
 }
 export function writeTested(version, steps) {
   writeJson(TESTED_KEY, { [version]: steps });
+}
+
+/** «Testrunde»: Map version → { result: 'ok' | 'fail', at } on this device (a light index, so Today never reads the log with its photos). */
+export function readResults() {
+  const all = readJson(RESULTS_KEY);
+  const out = new Map();
+  if (all && typeof all === 'object') for (const [v, x] of Object.entries(all)) if (x?.r === 'ok' || x?.r === 'fail') out.set(v, { result: x.r, at: String(x.at ?? '') });
+  return out;
+}
+/** Keep an answer (null takes it back, for Undo). Tells the open pages. */
+export function writeResult(version, result, at = new Date().toISOString()) {
+  const all = readJson(RESULTS_KEY) ?? {};
+  if (result == null) delete all[version];
+  else all[version] = { r: result, at };
+  writeJson(RESULTS_KEY, Object.keys(all).length ? all : null);
+  try {
+    window.dispatchEvent(new CustomEvent('pg:tested'));
+  } catch {
+    /* no window (tests) */
+  }
 }
 
 /* ---------- SN6+ (rules in sn6plus.js): the app openings and the day records of the used count ---------- */

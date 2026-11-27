@@ -26,7 +26,7 @@
     if (dialog && !dialog.open) dialog.showModal();
   });
   // svelte-ignore state_referenced_locally
-  let art = $state(entry?.art ?? '');
+  let art = $state(entry?.art ?? context?.art ?? '');
   // svelte-ignore state_referenced_locally
   let urgent = $state(entry?.urgent ?? 'later');
   // svelte-ignore state_referenced_locally
@@ -45,6 +45,7 @@
       ? [
           t('Page «{title}» ({address})', { title: context.pageTitle || context.page, address: context.page }),
           keepBlock && context.block ? t('Block «{name}»', { name: context.block }) : '',
+          context.release ? (context.release.pr ? t('Release {v}, PR {n}', { v: context.release.version, n: context.release.pr }) : t('Release {v}', { v: context.release.version })) : '',
           when,
           `${context.device === 'computer' ? t('Computer|logbuch') : t('Phone|logbuch')} (${context.width} px)`,
         ]
@@ -62,7 +63,7 @@
     event.preventDefault();
     if (!art && !(entry && entry.art === '')) return (msg = t('Pick a kind first.')); // an entry whose kind was deleted may stay without a kind
     if (!text.trim()) return (msg = t('Write one sentence about it.'));
-    onsave?.(context ? { art, urgent, text, page: context.page, pageTitle: context.pageTitle, block: keepBlock ? context.block : '', state, photo: context.photo ?? null, photoNote: context.photoNote ?? null } : { art, urgent, text, page, block, state });
+    onsave?.(context ? { art, urgent, text, page: context.page, pageTitle: context.pageTitle, block: keepBlock ? context.block : '', state, photo: context.photo ?? null, photoNote: context.photoNote ?? null, release: context.release ?? null } : { art, urgent, text, page, block, state });
     dialog.close();
   }
   // «Change kinds»: on the log page the window for the kinds opens over it, from another page the link goes there

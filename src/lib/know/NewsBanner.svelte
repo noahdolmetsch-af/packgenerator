@@ -1,23 +1,26 @@
 <script>
   /**
    * v0.127.0 A-U1 «Update-Hinweis als Banner statt Fenster» (Noah 13.10.2026 «3a»), moved under Ich on 20.10.2026
-   * («Heute neu» A 5b). «Banner Was ist neu» (Noah 23.11.2026 «1-5a»): back on Today, as ONE narrow line right
-   * under the chips (the Heute owner's wish: «Abhaken» stays on top). «New: <newest> · and 3 more things», once
-   * «since your last visit» (almost every merge is a version, so not one banner per version). «Show me» jumps to
-   * the new place (the «Try it» of Was ist neu, know/newsRun.js), a tap on the text opens the whole list, × closes
-   * it until the next update; after BANNER_DAYS days it goes by itself (wasneu.js messageOn).
+   * («Heute neu» A 5b). «Banner Was ist neu» (Noah 23.11.2026 «1-5a»): back on Today under the chips, once «since your last
+   * visit» (almost every merge is a version, so not one banner per version). × closes it until the next update; after
+   * BANNER_DAYS days it goes by itself (wasneu.js messageOn).
+   * «Testrunde» (Noah 27.11.2026 «1b 2a 3b 4b 5a»): the line became a small card with the two newest news, each with its PR number,
+   * the first step of how to test it, «Show me», «Works» and «Does not work» (know/TestRow.svelte); «+N more» opens the window
+   * with every news since the last visit and all its steps (NeuSeitSheet, view by version); «All news with test steps» goes to
+   * Me › What is new. The text is never cut: a title wraps (Noah 27.11.2026 «Text abgeschnitten»).
    */
   import { shortVersion } from '../whatsnew.js';
   import { NEWS_HREF } from './wasneu.js';
-  import { writeMute } from './wasneuStore.js';
+  import { writeMute, readResults } from './wasneuStore.js';
+  import TestRow from './TestRow.svelte';
   import { t, tn } from '../i18n.svelte.js';
   import { X, Sparkles } from '@lucide/svelte';
   import { liveQuery } from 'dexie';
   import { snapDb, snapshotFor } from '../maintenance/snapshots.js';
 
   let { entries = [], from = null, onclose } = $props();
-  // «Zwei Neuheiten-Hinweise» (Noah 25.11.2026 «b»): a tap on «and N more things» opens the same window as the card at the end of Today
-  // (know/NeuSeitSheet.svelte, the news by place), so there is one way into the list. Closing it counts the news as seen.
+  // «Zwei Neuheiten-Hinweise» (Noah 25.11.2026 «b»): «+N more» opens the same window as the card at the end of Today
+  // (know/NeuSeitSheet.svelte); closing it counts the news as seen.
   let sheet = $state(false);
   function sheetClosed() {
     sheet = false;
@@ -27,16 +30,21 @@
   // «App-Wartung» BF4 (Noah 13.10.2026): one calm line when the app kept a copy before this update
   const snapQ = liveQuery(() => snapshotFor(snapDb(), typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : ''));
   const e = $derived(entries[0] ?? null);
-  const more = $derived(entries.length - 1);
-  // × «Show me» and a tap on the text all close it for this version (until the next update; back under Ich › Was ist neu)
+  const items = $derived(entries.filter((x) => x.title).slice(0, 2).length ? entries.filter((x) => x.title).slice(0, 2) : entries.slice(0, 1));
+  const more = $derived(entries.length - items.length);
+  let results = $state(readResults());
+  $effect(() => {
+    const again = () => (results = readResults());
+    window.addEventListener('pg:tested', again);
+    return () => window.removeEventListener('pg:tested', again);
+  });
+  // × and the tap on a title close it for this version (until the next update; back under Ich › Was ist neu)
   function done() {
     if (e) writeMute(e.version);
     onclose?.();
   }
   // the jump and the catalogue load on the tap only, so Today stays light (like the tile «New»)
-  async function show(ev) {
-    ev.preventDefault();
-    const entry = e;
+  async function show(entry) {
     done();
     const { goNews, tryOf } = await import('./newsRun.js');
     const row = tryOf(entry);
@@ -47,104 +55,54 @@
 
 {#if e}
   <aside class="nbanner" aria-labelledby="nb-h" data-news-banner>
-    <Sparkles size={20} aria-hidden="true" class="nb-i" />
-    <h2 id="nb-h" class="sr">{t('New in {v}|banner', { v: shortVersion(e.version) })}</h2>
-    <div class="nb-t">
-      <a class="nb-title" href={NEWS_HREF} onclick={done} data-news-title><b>{t('New: {title}', { title: t(e.title) })}</b></a>
-      {#if more > 0}{@const word = tn(more, 'and {n} more thing', 'and {n} more things')}<button type="button" class="nb-more" aria-label={word} onclick={() => (sheet = true)} data-news-more><span class="nb-long">{word}</span><span class="nb-short" aria-hidden="true">+{more}</span></button>{/if}
+    <div class="nb-head">
+      <Sparkles size={20} aria-hidden="true" class="nb-i" />
+      <h2 id="nb-h">{t('New since your last visit')}</h2>
+      <button type="button" class="nb-x" aria-label={t('Close the hint')} onclick={done} data-news-close><X size={20} aria-hidden="true" /></button>
     </div>
-    <a class="nb-go" href={NEWS_HREF} onclick={show} data-news-go>{t('Show me')}</a>
-    <button type="button" class="nb-x" aria-label={t('Close the hint')} onclick={done}><X size={20} aria-hidden="true" /></button>
+    {#each items as it (it.version)}
+      <div class="nb-item" data-news-item={it.version}>
+        <a class="nb-title" href={NEWS_HREF} onclick={done} data-news-title><b>{t('New: {title}', { title: t(it.title ?? '') })}</b></a>
+        <small class="nb-pr num" data-news-pr>{it.pr ? t('PR {n}', { n: it.pr }) : ''}{it.pr ? ' · ' : ''}{t('Version {v}', { v: shortVersion(it.version) })}</small>
+        <TestRow e={it} pr={it.pr ?? null} result={results.get(it.version)?.result ?? null} compact onshow={() => show(it)} />
+      </div>
+    {/each}
+    <div class="nb-foot">
+      {#if more > 0}<button type="button" class="nb-more" aria-label={tn(more, 'and {n} more thing', 'and {n} more things')} onclick={() => (sheet = true)} data-news-more>{t('+{n} more', { n: more })}</button>{/if}
+      <a class="nb-all" href={NEWS_HREF} onclick={done} data-news-all>{t('All news with test steps')} ›</a>
+    </div>
     {#if $snapQ}<p class="nb-snap" data-news-snapshot>{t('Your data was backed up before the update. Something wrong?')} <a href="#/me/data?at=before-updates">{t('Back to the state before the update')}</a></p>{/if}
   </aside>
 {/if}
 {#if sheet}
-  {#await import('./NeuSeitSheet.svelte') then m}<m.default {from} onclose={sheetClosed} />{/await}
+  {#await import('./NeuSeitSheet.svelte') then m}<m.default {from} view="version" onclose={sheetClosed} />{/await}
 {/if}
 
 <style>
+  /* «Nie abgeschnitten» (Noah 27.11.2026): titles and steps wrap to as many lines as they need */
   .nbanner {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0 var(--sp-2);
     margin: var(--sp-2) 0;
-    padding: 0 6px 0 var(--sp-3);
-    min-height: 44px;
+    padding: 4px 14px 6px;
     border-radius: var(--radius-card);
     background: var(--ok-soft);
     color: var(--ink);
   }
-  .nbanner :global(.nb-i) {
-    flex: none;
-  }
-  .nb-t {
-    flex: 1 1 0;
-    min-width: 0;
+  .nb-head {
     display: flex;
     align-items: center;
-    gap: 6px;
-  }
-  .nb-title {
-    flex: 0 1 auto;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: var(--ink);
-    font-size: var(--fs-body);
-    text-decoration: none;
-  }
-  .nb-title b {
-    font-weight: 600;
-  }
-  .nb-more {
-    flex: 0 1 auto;
-    min-width: 0;
+    gap: var(--sp-2);
     min-height: 44px;
-    padding: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    border: 0;
-    background: none;
-    color: var(--ink-2);
-    font: inherit;
-    font-size: var(--fs-body);
-    cursor: pointer;
-    text-decoration: underline;
-    text-underline-offset: 3px;
   }
-  .nb-short {
-    display: none;
-  }
-  /* a phone: the title keeps its room, «and 15 more things» becomes a «+15» to tap */
-  @media (max-width: 520px) {
-    .nb-long {
-      display: none;
-    }
-    .nb-short {
-      display: inline;
-      font-weight: 600;
-    }
-    .nb-more {
-      flex: none;
-      min-width: 44px;
-      padding: 0 6px;
-      color: var(--ink);
-      text-decoration: none;
-    }
-  }
-  .nb-go {
+  .nb-head :global(.nb-i) {
     flex: none;
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    padding: 0 6px;
-    color: var(--ink);
+  }
+  h2 {
+    flex: 1 1 0;
+    min-width: 0;
+    margin: 0;
+    font-size: var(--fs-body);
     font-weight: 600;
-    text-decoration: underline;
-    text-underline-offset: 3px;
+    overflow-wrap: break-word;
   }
   .nb-x {
     flex: none;
@@ -152,6 +110,7 @@
     place-items: center;
     width: 44px;
     height: 44px;
+    margin-right: -10px;
     border: 0;
     border-radius: 50%;
     background: transparent;
@@ -161,8 +120,53 @@
   .nb-x:hover {
     background: color-mix(in srgb, var(--ink) 8%, transparent);
   }
+  .nb-item {
+    padding: 8px 0 0;
+    border-top: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  }
+  .nb-title {
+    display: block;
+    color: var(--ink);
+    font-size: var(--fs-body);
+    line-height: 1.3;
+    text-decoration: none;
+    overflow-wrap: break-word;
+  }
+  .nb-title b {
+    font-weight: 600;
+  }
+  .nb-pr {
+    display: block;
+    margin-top: 2px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .nb-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 var(--sp-3);
+    border-top: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  }
+  .nb-more,
+  .nb-all {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .nb-more {
+    color: var(--ink-2);
+  }
   .nb-snap {
-    flex: 1 0 100%;
     margin: 0 0 var(--sp-2);
     color: var(--ink-2);
     font-size: var(--fs-small);
