@@ -46,6 +46,8 @@
   import { comesLine } from '../lib/gear/detail.js';
   import MatCard from '../lib/gear/MatCard.svelte';
   import WishPause from '../lib/gear/WishPause.svelte'; // Paket A part 4, UC-007-I2: a buying pause on a wish
+  import { waitWish } from '../lib/gear/wishwait.svelte.js'; // «Wait 30 days» is the first entry in the card's «…»
+  import { wishPauseState, PAUSE_DAYS } from '../lib/stand/stand.js';
   import NeverWhy from '../lib/gear/NeverWhy.svelte'; // Paket A part 4, UC-008-I1: why it was not used
   import OwnViews from '../lib/einzeln/OwnViews.svelte'; // Einzelidee 22 «Kategorien als Ansichten»
   import { inOwnView, ownViewsOf, VIEWS_KEY } from '../lib/einzeln/material.js';
@@ -56,7 +58,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import { catIcon } from '../lib/gear/caticon.js';
   import { localDay } from '../lib/localday.js';
-  import { List, TrendingUp, Trophy, Star, PackageX, Package, Scale, Heart, SlidersHorizontal, Plus, ChevronRight, ChevronLeft, ChevronDown, Check, Search, Ellipsis, ExternalLink, Link2, Pencil } from '@lucide/svelte';
+  import { List, TrendingUp, Trophy, Star, PackageX, Package, Scale, Heart, SlidersHorizontal, Plus, ChevronRight, ChevronLeft, ChevronDown, Check, Search, Ellipsis, ExternalLink, Link2, Pencil, Hourglass } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import SoSiehts from '../lib/firststart/SoSiehts.svelte';
   import { t, tn, nameOf, locale } from '../lib/i18n.svelte.js';
@@ -635,7 +637,9 @@
   const shopOn = $derived(linkOn(skLinks.off, 'x7'));
   const shopLink = (item) => (shopOn ? skLinks.own[slotOf('x7', item.id)] ?? null : null);
   let shopFor = $state(null); // the wish whose link window is open
+  // Impeccable «Wunschliste» (Noah 24.11.2026 «1-5a», Fund 2): one row of buttons per wish, «Bought» and «…»; «Wait 30 days» is the first entry here
   const wishActions = (item) => [
+    ...(wishPauseState(item, today) ? [] : [{ name: t('Wait {n} days', { n: PAUSE_DAYS }), explain: t('Then the app asks if you still need it'), icon: Hourglass, run: () => waitWish(item) }]),
     ...(shopOn ? [shopLink(item) ? { name: t('Change shop link'), explain: t('Your own link to the shop'), icon: Pencil, run: () => (shopFor = item) } : { name: t('Enter shop link'), explain: t('Your own link to the shop'), icon: Link2, run: () => (shopFor = item) }] : []),
     { name: t('Open|item'), explain: t('Open and edit'), icon: ExternalLink, run: () => open(item) },
   ];
@@ -766,7 +770,7 @@
             </div>
           </details>
           <!-- FE1: on a phone «+ Item» sits at the bottom (not while the selection bar is there) -->
-          <span class="daumen" class:off={selecting || !!undo}><button type="button" class="btn hi addb" aria-label={t('Add item')} onclick={() => addItem()}><Plus size={20} aria-hidden="true" />{t('Item|add')}</button></span>
+          <span class="daumen" class:off={selecting || !!undo}><button type="button" class="btn hi addb" aria-label={tab === 'wishlist' ? t('Add a wish') : t('Add item')} onclick={() => addItem()}><Plus size={20} aria-hidden="true" />{tab === 'wishlist' ? t('Wish|add') : t('Item|add')}</button></span>
           <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
           <details class="gmore" bind:this={gmoreEl} onkeydown={(e) => e.key === 'Escape' && closeMenu(e, gmoreEl)}>
             <summary class="btn" aria-label={t('More for Gear')}><Ellipsis size={20} aria-hidden="true" /></summary>

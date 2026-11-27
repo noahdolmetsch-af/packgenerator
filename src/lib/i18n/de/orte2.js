@@ -37,5 +37,4 @@ export default {
   'Period': 'Zeitraum',
   started: 'angefangen',
   Write: 'Schreiben',
-  'Shopping|tab': 'Einkauf',
 };

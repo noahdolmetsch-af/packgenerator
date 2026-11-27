@@ -70,7 +70,6 @@ export default {
   'Enter and weigh': 'Erfassen und wiegen',
   'Name, weight and bag. Weigh later: the app counts what is still missing.': 'Name, Gewicht und Tasche. Wiegen geht auch später: die App zählt, was noch fehlt.',
   'Packages like «Rain» or «Repair». One tap adds them to a trip.': 'Pakete wie «Regen» oder «Reparatur». Ein Tipp nimmt sie in eine Tour.',
-  Shopping: 'Einkauf',
   'A wish list with prices, for the next purchase.': 'Eine Wunschliste mit Preisen, für den nächsten Einkauf.',
   'You see the weight per bag, what never came along and what is with you most often.': 'Du siehst das Gewicht pro Tasche, was nie mitkam und was am häufigsten dabei ist.',
   'How to use {place}': 'So nutzt du {place}',
@@ -100,7 +99,7 @@ export default {
   'Weigh the heavy things first: three items often make half of the base weight.': 'Wiege zuerst die schweren Dinge: drei Teile machen oft die Hälfte des Basisgewichts aus.',
   'Give each item its usual bag. Packing then shows the weight per bag.': 'Gib jedem Teil seine übliche Tasche. Beim Packen siehst du dann das Gewicht pro Tasche.',
   'Three items you always take together make a good building block.': 'Drei Teile, die du immer zusammen mitnimmst, ergeben einen guten Baustein.',
-  'Note what you want to buy on the wish list, with the price: the shopping tab adds it up.': 'Schreib auf die Wunschliste, was du kaufen willst, mit Preis: der Reiter Einkauf zählt es zusammen.',
+  'Note what you want to buy on the wish list, with the price: the shopping tab adds it up.': 'Schreib auf die Wunschliste, was du kaufen willst, mit Preis: der Reiter Wunschliste zählt es zusammen.',
   'In bikepacking and hiking a base weight under 4.5 kg (10 lb) is usually called «ultralight».': 'Beim Bikepacking und Wandern gilt ein Basisgewicht unter 4,5 kg (10 lb) meist als «ultraleicht».',
   'common definition of the ultralight community': 'übliche Definition der Ultraleicht-Szene',
   // «What the app can do», Handbook, how-to (f.tour)

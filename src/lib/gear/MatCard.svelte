@@ -59,7 +59,7 @@
   {#if wish && onbought}
     <!-- Impeccable (18.10.2026): «Bought» on a wish, as in the list of «Shopping» -->
     <div class="acts">
-<WishPause {item} />
+<WishPause {item} button />
             <button type="button" class="btn sm" aria-label={t('Bought: {name}', { name: nameOf(item) })} onclick={() => onbought(item)}>{t('Bought|shop')}</button>
     </div>
   {/if}

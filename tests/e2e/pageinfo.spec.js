@@ -74,11 +74,13 @@ test('Auswerten: tip of the day, all tips, the fold, then the tiles', async ({ p
   await fits(page, 'Alle Tipps');
   await page.screenshot({ path: `qa/pageinfo-tips-${test.info().project.name}.png` });
 
-  // tips off everywhere: no tip line, «Tipps für diese Seite» brings the list back
+  // tips off everywhere: no tip line, «Tipps für diese Seite» (in the «?» window) brings the list back
   await sheet.locator('[data-tips-all]').uncheck();
   await sheet.getByRole('button', { name: T('Close') }).click();
   await expect(line).toHaveCount(0);
-  await main.getByRole('button', { name: T('Tips for this page ›') }).click();
+  // «Tipps für diese Seite» is in the «?» window since 26.11.2026 (Noah «Ja»), no longer at the page end
+  await page.locator('[data-help-open]:visible').first().click();
+  await page.locator('dialog[data-help] [data-help-tips]').click();
   await sheet.locator('[data-tips-all]').check();
   await sheet.getByRole('button', { name: T('Close') }).click();
   await expect(line).toBeVisible();

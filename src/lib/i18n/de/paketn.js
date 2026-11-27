@@ -253,7 +253,6 @@ export default {
   'Diary|tpl': 'Tagebuch',
   'Ideas|tpl': 'Ideen',
   'Bike check|tpl': 'Velo-Check',
-  'Shopping': 'Einkauf',
   'What was good:': 'Was gut war:',
   'What I learned:': 'Was ich gelernt habe:',
   'Tomorrow:': 'Morgen:',
