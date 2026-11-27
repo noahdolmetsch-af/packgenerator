@@ -11,6 +11,8 @@
    * most new?» per direction; far places hint at «Train there, bike home»; a link to New ground (and back: #/trips/dreams?spots=1
    * scrolls here).
    */
+  import { createZoom } from './kartezoom.svelte.js';
+  import ZoomBox from './ZoomBox.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { readRaw, computeFrom } from './store.js';
@@ -66,8 +68,15 @@
     for (const x of spots.near) b = [Math.min(b[0], x.bbox[0]), Math.min(b[1], x.bbox[1]), Math.max(b[2], x.bbox[2]), Math.max(b[3], x.bbox[3])];
     const vb = `${(b[0] * k).toFixed(4)} ${(-b[3]).toFixed(4)} ${((b[2] - b[0]) * k).toFixed(4)} ${(b[3] - b[1]).toFixed(4)}`;
     const r = ((b[2] - b[0]) * k) / 70;
-    return { vb, r, home: [Number(home.lon) * k, -Number(home.lat)], areas: spots.near.map((x) => ({ id: x.id, been: x.been, d: pathOf(x.rings, k, 4) })) };
+    return { vb, base: [b[0] * k, -b[3], (b[2] - b[0]) * k, b[3] - b[1]], k, r, home: [Number(home.lon) * k, -Number(home.lat)], areas: spots.near.map((x) => ({ id: x.id, been: x.been, d: pathOf(x.rings, k, 4) })) };
   });
+  // Noah 27.11.2026 «karte zoombar»: + − «Whole map», Ctrl and wheel, two fingers, drag, full screen (kartezoom.svelte.js, ZoomBox.svelte)
+  const zoom = createZoom({ base: () => map?.base ?? [0, 0, 1, 1] });
+  // a tap on a place in the list: the map zooms there
+  function showSpot(x) {
+    picked = x.id;
+    if (map) zoom.to(x.lon * map.k, -x.lat, 4);
+  }
   // a tap on the map: the list below does the same for the keyboard
   function tapMap(e) {
     const id = e.target?.closest?.('[data-ws-area]')?.getAttribute('data-ws-area');
@@ -108,12 +117,15 @@
       </div>
       {#if map}
         <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
-        <svg class="ws-map" viewBox={map.vb} role="img" aria-label={t('Map of the municipalities around your home')} onclick={tapMap} data-ws-map>
-          {#each map.areas as a (a.id)}
-            <path d={a.d} class:been={a.been} class:on={a.id === picked} stroke-width={map.r / 6} data-ws-area={a.id}></path>
-          {/each}
-          <circle cx={map.home[0]} cy={map.home[1]} r={map.r} class="home" stroke-width={map.r / 2.5}></circle>
-        </svg>
+        <ZoomBox {zoom} title={t('Map of the municipalities around your home')}>
+          <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions, a11y_no_noninteractive_tabindex -->
+          <svg class="ws-map" class:zoomed={zoom.zoomed} viewBox={zoom.vb} role="img" aria-label={t('Map of the municipalities around your home')} tabindex="0" use:zoom.attach {...zoom.events} onclick={zoom.tap(tapMap)} style:--zk={1 / zoom.z} data-ws-map data-zoom={zoom.z.toFixed(2)}>
+            {#each map.areas as a (a.id)}
+              <path d={a.d} class:been={a.been} class:on={a.id === picked} stroke-width={map.r / 6 / zoom.z} data-ws-area={a.id}></path>
+            {/each}
+            <circle cx={map.home[0]} cy={map.home[1]} r={map.r / Math.pow(zoom.z, 0.7)} class="home" stroke-width={map.r / 2.5 / Math.pow(zoom.z, 0.7)}></circle>
+          </svg>
+        </ZoomBox>
         <p class="ws-legend"><span><span class="ws-sw been"></span>{t('Been there')}</span><span><span class="ws-sw open"></span>{t('Never been')}</span><span><span class="ws-sw home"></span>{t('Home|spots')}</span></p>
       {/if}
       {#if pick}
@@ -138,7 +150,7 @@
         <h3 class="ws-lh">{t('Nearest never visited')}</h3>
         <ul class="ws-list">
           {#each showAll ? spots.open : spots.open.slice(0, LIST) as x (x.id)}
-            <li><button type="button" class="ws-row" class:on={x.id === picked} onclick={() => (picked = x.id)} data-ws-row={x.id}><span>{x.name}</span><small class="num">{kmText(x)}</small></button></li>
+            <li><button type="button" class="ws-row" class:on={x.id === picked} onclick={() => showSpot(x)} data-ws-row={x.id}><span>{x.name}</span><small class="num">{kmText(x)}</small></button></li>
           {/each}
         </ul>
         {#if spots.open.length > LIST}
@@ -223,14 +235,24 @@
   .ws-map {
     display: block;
     width: 100%;
-    max-height: 360px;
+    max-height: min(62vh, 520px);
     border-radius: var(--r-ctl);
     background: var(--paper-2);
+  }
+  .ws-map:focus {
+    outline: none;
+  }
+  .ws-map:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .ws-map.zoomed {
+    touch-action: none; /* zoomed in: a finger moves the map */
   }
   .ws-map path {
     fill: var(--paper);
     stroke: var(--hi);
-    stroke-dasharray: 0.004 0.003;
+    stroke-dasharray: calc(0.004px * var(--zk, 1)) calc(0.003px * var(--zk, 1));
     cursor: pointer;
   }
   .ws-map path.been {
