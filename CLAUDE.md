@@ -14,6 +14,7 @@ Noah writes German and is not a developer. Write replies to him in simple German
 |---|---|
 | What does the app do? | `docs/app-stand.md` |
 | How do we work, what is allowed when? | `docs/regeln.md` |
+| Which tests are there, how are they ordered? | `docs/tests.md` (numbers: `node scripts/test-landkarte.mjs`) |
 | Why does the app exist, which goals? | `docs/vorhaben.md` (the planned projects; since 24.11.2026 the measure is only Klarheit and Auffindbarkeit plus the Leitfaden, not the six goals), `docs/leitfaden.md` (Noah's vision 23.11.2026; every change serves it) |
 | What is a thing called? | `docs/namen.md` |
 | What was decided, what was replaced? | `docs/decisions/<name>.md` (own file per PR), `docs/regeln-archiv.md` |

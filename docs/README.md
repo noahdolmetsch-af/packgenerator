@@ -14,6 +14,7 @@
 | Was wurde seit 0.96 besprochen, entschieden, gebaut und spezifiziert? | [Zwischenstand 14.10.2026](zwischenstand/README.md) | Datierter Schnappschuss für Aussenstehende, sechs Dokumente |
 | Wie sind die Orte der App verbunden, welche Wege führen wohin? | [App-Landkarte](app-landkarte.md) | Skizze (Mermaid) der Orte, Reiter und Absprünge und drei Wege von Anfang bis Ende; aus `nav.js` gelesen, ohne Zählung |
 | Wie heisst welche Sache in der App? | [Namensliste](namen.md) | Ein Wort pro Sache, verbindlich seit 08.11.2026; jeder neue Text nimmt das Wort aus der Liste |
+| Welche Tests gibt es, wie sind sie geordnet, wie bringen wir sie auf den heutigen Stand? | [Tests](tests.md) | Die vier Test-Etagen, die Bereiche, der Plan (Noah «1-8» 26.11.2026); die Zahlen liefert `node scripts/test-landkarte.mjs` |
 | Wie arbeiten wir, was ist wann erlaubt (Ziele, PRs, Stau, Freigabe, Bilder, Tests)? | [Regeln](regeln.md) | **Zuerst lesen, vor jeder Abfrage** (Noah, 24.11.2026). Die eine Quelle der Arbeitsregeln, je Regel mit Datum und Quelle; ersetzte Fassungen stehen im [Regeln-Archiv](regeln-archiv.md) |
 | Was muss Claude bei jeder Arbeit beachten? | [CLAUDE.md](../CLAUDE.md) | Kurzanleitung für jede Claude-Sitzung: Regeln für den Code, Datenschutz, Dateien jedes PR, Tests (die Arbeitsweise steht in den [Regeln](regeln.md)) |
 | Was ist geplant und warum? Sind wir auf Kurs? | [Geplante Vorhaben](vorhaben.md) | Alle Vorhaben mit Warum, Beispiel und Stand; Kurs-Check vor jedem Paket |
