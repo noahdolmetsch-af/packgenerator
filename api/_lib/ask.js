@@ -4,8 +4,8 @@
  * hands back the answer. Three jobs: `ask` (a plain answer), `report` (a spoken trip report cut into points) and
  * `command` (a sentence → actions the app shows first and only does after a tap).
  *
- * Nothing is stored or logged here. Only the question and the photo go out, never the person's data: the app adds
- * names (bikes, trips) only when the person ticked it for that question.
+ * Nothing is stored here, and nothing of the question is logged (only the model names and HTTP codes of a failed call). Only the
+ * question and the photo go out, never the person's data: the app adds names (bikes, trips) only when the person ticked it.
  */
 import { ApiError } from './core.js';
 
@@ -121,14 +121,34 @@ export function modelsOf(e = process.env) {
   return [...new Set([first, ...(more.length ? more : DEFAULT_FALLBACKS)])];
 }
 
+/** The newest working model found by the last model list (kept while the server is warm, so the list is asked once). */
+let remembered = '';
+/** For tests: forget the remembered model. */
+export const forgetModel = () => { remembered = ''; };
+
+/** The «gemini-N-flash» models the key may use, newest first (flash before flash-lite of the same version), from the model list. */
+export function flashModelsOf(list) {
+  const out = [];
+  for (const m of Array.isArray(list?.models) ? list.models : []) {
+    const hit = /^models\/(gemini-(\d+(?:\.\d+)?)-flash(-lite)?)$/.exec(String(m?.name ?? ''));
+    if (!hit || !(m.supportedGenerationMethods ?? []).includes('generateContent')) continue;
+    out.push({ name: hit[1], version: Number(hit[2]), lite: !!hit[3] });
+  }
+  return out.sort((a, b) => b.version - a.version || Number(a.lite) - Number(b.lite)).map((m) => m.name);
+}
+
 /**
- * Asks Gemini, trying the next model when one is unknown (404), busy (429) or down (5xx).
- * → { text } or an ApiError: 503 not_set_up (no key), 429 busy (every model over its free limit), 502 ai_unavailable.
+ * Asks Gemini, trying the next model when one is unknown (404), refused (400, 403), busy (429) or down (5xx). Models are
+ * retired now and then (and a new key may not get the old ones): when every listed model fails, the key's own model list is
+ * read and the newest flash model that works is used (and remembered).
+ * → { text } or an ApiError: 503 not_set_up (no key), 429 busy (every model over its free limit), 502 ai_unavailable
+ * (with `tried`: the model names and HTTP codes, nothing else, so a failure can be understood).
  */
 export async function askGemini(req, { key, models = modelsOf(), doFetch = (...a) => fetch(...a), timeout = 20_000 } = {}) {
   if (!key) throw new ApiError(503, 'not_set_up', 'Gemini is not set up on the server.');
   let busy = false;
-  for (const model of models) {
+  const tried = [];
+  const attempt = async (model) => {
     const ctl = new AbortController();
     const timer = setTimeout(() => ctl.abort(), timeout);
     let res;
@@ -140,21 +160,45 @@ export async function askGemini(req, { key, models = modelsOf(), doFetch = (...a
         signal: ctl.signal,
       });
     } catch {
-      continue; // timeout or network: the next model
+      tried.push(`${model}:net`);
+      return '';
     } finally {
       clearTimeout(timer);
     }
-    if (res.status === 429) {
-      busy = true;
-      continue;
+    if (res.status === 429) busy = true;
+    if (!res.ok) {
+      tried.push(`${model}:${res.status}`);
+      return '';
     }
-    if (res.status === 404 || res.status >= 500) continue;
-    if (!res.ok) throw new ApiError(502, 'ai_unavailable', 'Gemini refused the question.');
     const text = answerText(await res.json().catch(() => null));
+    if (!text) tried.push(`${model}:empty`);
+    return text;
+  };
+  for (const model of [...new Set([remembered, ...models].filter(Boolean))]) {
+    const text = await attempt(model);
     if (text) return { text };
   }
-  if (busy) throw new ApiError(429, 'busy', 'Gemini is busy or its free limit for now is used up.');
-  throw new ApiError(502, 'ai_unavailable', 'Gemini did not answer.');
+  if (!busy) {
+    // every listed model failed for another reason than the free limit: ask the key which models it has
+    let found = [];
+    try {
+      const res = await doFetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200', { headers: { 'x-goog-api-key': key } });
+      if (res.ok) found = flashModelsOf(await res.json().catch(() => null));
+      else tried.push(`list:${res.status}`);
+    } catch {
+      tried.push('list:net');
+    }
+    for (const model of found.filter((m) => !tried.some((t) => t.startsWith(`${m}:`))).slice(0, 3)) {
+      const text = await attempt(model);
+      if (text) {
+        remembered = model;
+        return { text };
+      }
+    }
+  }
+  if (busy) throw new ApiError(429, 'busy', 'Gemini is busy or its free limit for now is used up.', { tried });
+  console.error(`ask: no model answered (${tried.join(' ')})`); // names and codes only, never the question
+  throw new ApiError(502, 'ai_unavailable', 'Gemini did not answer.', { tried });
 }
 
 /** The answer for the app: { ok, text } | { ok, points } | { ok, actions }. */

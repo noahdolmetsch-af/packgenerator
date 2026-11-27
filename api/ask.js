@@ -7,7 +7,7 @@
  *       command: { ok, actions: [{ kind: 'remind'|'list'|'note'|'value', … }] }
  *
  * The key (GEMINI_API_KEY) lives only in Vercel. Only the app and the previews may call it (origin check, CORS), at most
- * 150 times a day (daycap.js), nothing is stored or logged. Without a card on the Gemini key it cannot cost anything:
+ * 150 times a day (daycap.js), nothing is stored and nothing of a question is logged (a failed call logs model names and codes). Without a card on the Gemini key it cannot cost anything:
  * when the free limit is used up Gemini answers «busy» and the app offers «Weiter fragen bei …» instead.
  */
 import { route, json, ApiError, allowedOrigin, pick } from './_lib/core.js';

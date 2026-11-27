@@ -17,11 +17,15 @@ describe('client', () => {
   });
   it('names the reason of a failure', async () => {
     expect(await askGemini({ text: 'a' }, { doFetch: async () => { throw new Error('x'); } })).toEqual({ ok: false, reason: 'offline' });
-    expect(await askGemini({ text: 'a' }, { doFetch: async () => res(429, { code: 'busy' }) })).toEqual({ ok: false, reason: 'busy' });
+    expect(await askGemini({ text: 'a' }, { doFetch: async () => res(429, { code: 'busy' }) })).toMatchObject({ ok: false, reason: 'busy' });
     expect(reasonOf(429, 'daily_cap')).toBe('busy');
     expect(reasonOf(503, 'not_set_up')).toBe('not_set_up');
     expect(reasonOf(413, 'image_too_big')).toBe('too_big');
     expect(reasonOf(502, 'ai_unavailable')).toBe('failed');
+  });
+  it('hands on what the server says about a failure (code, models tried), nothing else', async () => {
+    const r = await askGemini({ text: 'a' }, { doFetch: async () => res(502, { code: 'ai_unavailable', tried: ['m1:404', 'm2:403'], message: 'secret-ish' }) });
+    expect(r).toEqual({ ok: false, reason: 'failed', detail: '502 ai_unavailable m1:404 m2:403' });
   });
 });
 
