@@ -85,7 +85,7 @@
   const sportName = (a) => (a ? (lang.v === 'de' && a.nameDe ? a.nameDe : a.name) || t('Activity') : '');
   const sportById = (id) => ($actsQ ?? []).find((a) => a.id === id);
   const sportDone = (s) => !!s.sport && ($logQ ?? []).some((e) => e.actId === s.sport && e.day === s.day);
-  const doneOf = (s, day) => (s.sport ? (sportDone(s) ? { day: s.day, kind: s.kind, byHand: true } : s.done ? { day: s.day, kind: s.kind, byHand: true } : null) : doneBy(s, day));
+  const doneOf = (s, day) => (s.sport ? (sportDone(s) ? { day: s.day, kind: s.kind, byHand: true } : s.done ? { day: s.day, kind: s.kind, byHand: true } : null) : doneBy(s, day, plan.filter((x) => !x.sport)));
   const planName = (s) => s.name || (s.sport ? sportName(sportById(s.sport)) : '') || t(KIND_NAMES[s.kind]);
   let newSport = $state(null); // the name of a sport being added, or null
   async function addSport() {

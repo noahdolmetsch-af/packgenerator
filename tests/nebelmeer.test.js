@@ -1,7 +1,7 @@
 // «Nebelmeer-Tage» (Noah 06.11.2026 «4a»): the days above the fog, kept on the Sammel-Wand.
 import { describe, it, expect } from 'vitest';
 import { DEVICE_SETTINGS } from '../src/lib/backup.js';
-import { KEY, cleanDay, daysOf, valueOf, hasDay, addDay, patchDay, removeDay, winterOf, winterCount, MAX_DAYS } from '../src/lib/sammlung/nebelmeer.js';
+import { KEY, cleanDay, daysOf, valueOf, hasDay, addDay, patchDay, removeDay, winterOf, winterCount, MAX_DAYS, ASK_KEY, askStateOf, declineAsk, reopenAsk, askDays } from '../src/lib/sammlung/nebelmeer.js';
 
 describe('cleanDay', () => {
   it('keeps the known fields and rounds the height', () => {
@@ -82,5 +82,38 @@ describe('backup', () => {
     expect(daysOf(undefined)).toEqual([]);
     const copy = JSON.parse(JSON.stringify({ key: KEY, value: valueOf([{ id: 'a', date: '2026-11-06', title: 'Hochplateau' }]) }));
     expect(daysOf(copy.value)).toHaveLength(1);
+  });
+});
+
+describe('«Warst du über dem Nebel?» im Rückblick', () => {
+  const trip = { id: 't1', startDate: '2026-12-05', days: 1 };
+  it('asks about a winter day that is not kept yet', () => {
+    expect(askDays(trip, [], undefined)).toEqual(['2026-12-05']);
+  });
+  it('asks about nothing in summer, with no start day or without an id', () => {
+    expect(askDays({ ...trip, startDate: '2026-07-05' }, [], undefined)).toEqual([]);
+    expect(askDays({ id: 't1', days: 1 }, [], undefined)).toEqual([]);
+    expect(askDays({ startDate: '2026-12-05', days: 1 }, [], undefined)).toEqual([]);
+  });
+  it('offers each winter day of a longer trip, but not the summer ones or the kept ones', () => {
+    expect(askDays({ id: 't2', startDate: '2026-12-30', days: 3 }, [], undefined)).toEqual(['2026-12-30', '2026-12-31', '2027-01-01']);
+    expect(askDays({ id: 't3', startDate: '2026-03-30', days: 4 }, [], undefined)).toEqual(['2026-03-30', '2026-03-31']);
+    expect(askDays({ id: 't2', startDate: '2026-12-30', days: 3 }, [{ id: 'a', date: '2026-12-31', tripId: null }], undefined)).toEqual(['2026-12-30', '2027-01-01']);
+  });
+  it('does not ask again once a day of the trip is kept or the trip was turned down', () => {
+    expect(askDays(trip, [{ id: 'a', date: '2026-12-05', tripId: 't1' }], undefined)).toEqual([]);
+    expect(askDays(trip, [], { declined: ['t1'] })).toEqual([]);
+    expect(askDays(trip, [], { declined: ['other'] })).toEqual(['2026-12-05']);
+  });
+  it('turns a trip down and back again, and keeps only strings', () => {
+    const off = declineAsk(undefined, 't1');
+    expect(off).toEqual({ declined: ['t1'] });
+    expect(declineAsk(off, 't1')).toEqual({ declined: ['t1'] });
+    expect(reopenAsk(off, 't1')).toEqual({ declined: [] });
+    expect(askStateOf({ declined: ['a', 5, '', null, 'b'] })).toEqual({ declined: ['a', 'b'] });
+    expect(askStateOf('x')).toEqual({ declined: [] });
+  });
+  it('the answers are in every backup (not a device-only setting)', () => {
+    expect(DEVICE_SETTINGS).not.toContain(ASK_KEY);
   });
 });
