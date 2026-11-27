@@ -4,9 +4,11 @@
  * three words, or «Later». Pure functions; the card is src/lib/training/plans/FeelAsk.svelte.
  * The answers live in ONE setting (training.healthfeel, in the backups) because a Fitbit workout has no row of its own:
  * { v: 1, map: { '<day>|<start>|<type>': { w: 'light'|'good'|'hard' } | { skip: true } } }. No new table, no schema change.
- * A workout that Strava has as well (same day, start within 20 minutes) is not asked twice: Strava's card asks.
+ * A workout that Strava has as well (rule: dieselbe.js, Garmin via Strava wins) is not asked twice: Strava's card asks. A plain walk of the
+ * watch is never asked (Noah 27.11.2026), pieces of one workout are asked once.
  */
 import { WORD_FEEL } from '../training.js';
+import { coveredBy, isWalk, joinPieces } from './dieselbe.js';
 
 export const HEALTH_FEEL_KEY = 'training.healthfeel';
 const MAX = 200;
@@ -24,22 +26,11 @@ export function mapOf(value) {
 /** The word kept for a workout, or null. */
 export const wordOfEx = (value, date, e) => mapOf(value)[exKey(date, e)]?.w ?? null;
 
-const minutesOf = (hhmm) => {
-  const m = /^(\d{2}):(\d{2})$/.exec(String(hhmm ?? ''));
-  return m ? Number(m[1]) * 60 + Number(m[2]) : null;
-};
-
-/** True when Strava has the same workout: the same day and a start within 20 minutes (or, without a start, the same length within 10 %). */
-export function onStrava(date, e, acts = []) {
-  const s = minutesOf(e?.start);
-  return acts.some((a) => {
-    if (!a || a.day !== date) return false;
-    const as = minutesOf(a.time);
-    if (s != null && as != null) return Math.abs(as - s) <= 20;
-    const am = (a.movingS || 0) / 60;
-    return am > 0 && e?.min > 0 && Math.abs(am - e.min) / e.min <= 0.1;
-  });
-}
+/**
+ * True when Strava has the same workout (rule: dieselbe.js): the same day and the times touch, or the same sport a little before or after
+ * (up to 30 minutes), or, without a time, the same length within 10 %. The watch may have started late or cut the ride into pieces.
+ */
+export const onStrava = (date, e, acts = []) => !!coveredBy(date, e, acts);
 
 /**
  * The newest workout of the last 3 days without an answer and not on Strava, or null.
@@ -51,8 +42,8 @@ export function healthToAsk(rows = [], acts = [], value = null, today = '', shif
   const list = [];
   for (const r of rows) {
     if (!r || !DAY_RE.test(String(r.date)) || r.date < from || r.date > today || !Array.isArray(r.exercises)) continue;
-    for (const e of r.exercises) {
-      if (!e || !(e.min > 0)) continue;
+    for (const e of joinPieces(r.exercises)) {
+      if (!e || !(e.min > 0) || isWalk(e)) continue;
       const key = exKey(r.date, e);
       if (map[key] || onStrava(r.date, e, acts)) continue;
       list.push({ key, date: r.date, ...e });

@@ -32,7 +32,7 @@ test('Ich: the field finds a setting and leads to it; search everywhere is there
   expect(errors).toEqual([]);
 });
 
-test('Touren: four filter buttons with the sum; Auswerten has its field too', async ({ page, context }, info) => {
+test('Touren: field and four buttons filter the list itself; Auswerten has its field too', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const T = await openHome(page, context, info, { hour: 9 });
@@ -41,7 +41,9 @@ test('Touren: four filter buttons with the sum; Auswerten has its field too', as
   await expect(page.locator('[data-suche-filter]')).toHaveCount(4);
   await page.locator('[data-suche-filter="dist"]').click();
   await page.locator('[data-suche-choice="long"]').click();
-  await expect(page.locator('[data-suche-sum]')).toBeVisible();
+  // «Ein Filter auf Touren» (Noah 26.11.2026 «a»): no second result list; the button sets the list's own filter (the number on «More filters»)
+  await expect(page.locator('[data-filter-n]')).toHaveText('1');
+  await expect(page.locator('[data-suche-sum], .sh-list')).toHaveCount(0);
   await shot(page, info, 'suche-ort-touren');
   await page.goto('./#/auswerten');
   const field = page.locator('[data-suche-hier="auswerten"] input');
