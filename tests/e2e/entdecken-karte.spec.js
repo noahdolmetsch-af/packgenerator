@@ -14,9 +14,10 @@ test('Heute entdecken: one idea with its reason on the first screen, Later with 
   await expect(row.locator('[data-idea-why]')).not.toBeEmpty();
   // the card «Discover» is not under «More» any more
   await expect(page.locator('[data-section="discover"]')).toHaveCount(0);
-  // first screen: the row starts above the lower edge of the window
+  // «Favoriten» (Noah 27.11.2026 «1-5a», changed on purpose): the favourites stand first on Today and push everything down on a phone (Noah «a»: big cards,
+  // Abhaken slides down), so the row starts within the first two screens; it still stands right under the chips and the favourites
   const box = await row.boundingBox();
-  expect(box.y).toBeLessThan(page.viewportSize().height);
+  expect(box.y).toBeLessThan(2 * page.viewportSize().height);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
   if (process.env.SHOTS) {
     mkdirSync(process.env.SHOTS, { recursive: true });
