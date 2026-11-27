@@ -31,7 +31,8 @@ test('Heute: four days of movement without recovery give one line, a tap opens t
   await expect(line).toBeVisible();
   await expect(line).toHaveAttribute('data-haken-hinweis', 'balance');
   await expect(line).toContainText(T('{n} days in a row with movement and no recovery. Recover today?', { n: '4' }));
-  // the line stands under the block, not above it
+  // the line stands under the block, not above it (wait for the block first: under load it came a moment later)
+  await expect(page.locator('[data-section="haken"]')).toBeVisible();
   const below = await page.evaluate(() => {
     const blk = document.querySelector('[data-section="haken"]');
     return !!(blk.compareDocumentPosition(document.querySelector('[data-haken-hinweis]')) & Node.DOCUMENT_POSITION_FOLLOWING);

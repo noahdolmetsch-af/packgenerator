@@ -167,6 +167,6 @@
     text-align: right;
   }
   .pn {
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
 </style>
