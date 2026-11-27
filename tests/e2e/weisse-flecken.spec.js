@@ -108,12 +108,15 @@ test('White spots nearby: home place, map, radius, nearest never visited', async
   await expect(ws.locator('[data-ws-train]')).toContainText(T('Train there, bike home'));
   // the map zooms (Noah 27.11.2026 «karte zoombar»): the buttons, a tap on the list shows the place, the whole map is back, full screen closes with Esc
   const wsMap = ws.locator('[data-ws-map]');
-  await expect(wsMap).toHaveAttribute('data-zoom', '1.00');
-  await ws.locator('[data-zoom-in]').click();
-  await ws.locator('[data-zoom-in]').click();
-  await expect.poll(async () => Number(await wsMap.getAttribute('data-zoom'))).toBeGreaterThan(2);
+  const zoomOf = async () => Number(await wsMap.getAttribute('data-zoom'));
+  await expect.poll(zoomOf).toBeGreaterThan(1); // the tap on a place of the list above zoomed there
   await ws.locator('[data-zoom-reset]').click();
-  await expect(wsMap).toHaveAttribute('data-zoom', '1.00');
+  await expect.poll(zoomOf).toBe(1);
+  await ws.locator('[data-zoom-in]').click();
+  await ws.locator('[data-zoom-in]').click();
+  await expect.poll(zoomOf).toBeGreaterThan(2);
+  await ws.locator('[data-zoom-reset]').click();
+  await expect.poll(zoomOf).toBe(1);
   await ws.locator('[data-zoom-full]').click();
   await expect(page.locator('[data-zoom-close]')).toBeVisible();
   await page.keyboard.press('Escape');
