@@ -82,5 +82,37 @@ test('White spots nearby: home place, map, radius, nearest never visited', async
   await page.reload();
   await ready(page);
   await expect(ws.getByRole('group', { name: T('Radius|spots') }).getByRole('button', { name: '10 km' })).toHaveAttribute('aria-pressed', 'true');
+  // 5. «Weisse Flecken ausbauen» (Noah 27.11.2026 «1b 2a 3a 4a 5b»): five buttons, a typed radius, directions, the way to New ground
+  const group = ws.getByRole('group', { name: T('Radius|spots') });
+  for (const r of ['10', '25', '50', '75', '100']) await expect(group.getByRole('button', { name: `${r} km` })).toBeVisible();
+  await group.getByRole('button', { name: '100 km' }).click();
+  await expect(sum).toContainText('100 km');
+  const n100 = await ws.locator('[data-ws-area]').count();
+  expect(n100).toBeGreaterThan(n25);
+  await expect(ws.locator('[data-ws-where] li').first()).toContainText(/\d+ von \d+/);
+  const own = ws.locator('[data-ws-radius]');
+  await own.fill('60');
+  await own.press('Enter');
+  await own.blur();
+  await expect(sum).toContainText('60 km');
+  await expect(group.locator('button[aria-pressed="true"]')).toHaveCount(0);
+  await own.fill('900'); // too big: the biggest radius
+  await own.blur();
+  await expect(sum).toContainText('200 km');
+  await group.getByRole('button', { name: '100 km' }).click();
+  // a place 50 km away or more hints at the train; a near one does not
+  await ws.locator('[data-ws-row]').first().click();
+  await expect(ws.locator('[data-ws-train]')).toHaveCount(0);
+  await ws.getByRole('button', { name: /Alle \d+ zeigen/ }).click();
+  await ws.locator('[data-ws-row]').last().click();
+  await expect(ws.locator('[data-ws-train]')).toContainText(T('Train there, bike home'));
+  // the link to New ground, and the link from there back (it scrolls to this part)
+  await expect(ws.locator('[data-ws-neuland]')).toHaveAttribute('href', '#/neuland');
+  await page.goto('./#/neuland');
+  await page.getByRole('button', { name: /^Gemeinden/ }).first().click();
+  await page.locator('[data-nl-spots]').click();
+  await expect(page).toHaveURL(/#\/trips\/dreams\?spots=1/);
+  await expect(ws.locator('[data-ws-map]')).toBeVisible({ timeout: 15000 });
+  await expect.poll(() => ws.evaluate((el) => el.getBoundingClientRect().top < innerHeight / 2), { timeout: 10000 }).toBe(true);
   expect(errors).toEqual([]);
 });
