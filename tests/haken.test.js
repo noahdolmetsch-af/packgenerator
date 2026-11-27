@@ -40,18 +40,20 @@ describe('the block on the wall', () => {
   it('is in the catalog, in the first area, the first tile of the ready wall and of the head', () => {
     expect(TILE.haken.sizes).toContain(TILE.haken.size);
     expect(SECTION_OF.haken).toBe('now');
-    expect(ids(READY)[0]).toBe('haken');
-    expect(HEAD_N2[0]).toBe('haken');
+    expect(ids(READY)[0]).toBe('pins'); // «Favoriten» stand even before it (Noah 27.11.2026 «1-5a», 1a)
+    expect(ids(READY)[1]).toBe('haken');
+    expect(HEAD_N2.slice(0, 2)).toEqual(['pins', 'haken']);
     expect(DE[TILE.haken.label]).toBeTruthy();
     expect(DE[TILE.haken.pitch]).toBeTruthy();
-    expect(ids(sectionsOf(READY)[0].tiles)[0]).toBe('haken');
+    expect(ids(sectionsOf(READY)[0].tiles).slice(0, 2)).toEqual(['pins', 'haken']);
   });
   it('a wall of before (v < 23) gets it on top once; taken away or moved after that, it stays so', () => {
     expect(ids(withHaken([{ id: 'body', size: 'l' }, { id: 'week', size: 'l' }]))).toEqual(['haken', 'body', 'week']);
     expect(ids(withHaken([{ id: 'week', size: 'l' }, { id: 'haken', size: 'long' }]))).toEqual(['week', 'haken']);
-    expect(ids(wallOf({ v: 22, tiles: [{ id: 'body', size: 'l' }, { id: 'week', size: 'l' }] }))).toEqual(['haken', 'body', 'week']);
-    expect(ids(wallOf({ v: 23, tiles: [{ id: 'body', size: 'l' }, { id: 'week', size: 'l' }] }))).toEqual(['body', 'week']); // taken away by hand: stays away
-    expect(ids(wallOf({ v: 21, tiles: [{ id: 'body', size: 'l' }, { id: 'week', size: 'l' }] }))).toEqual(['haken', 'body', 'week']);
-    expect(wallRecord([]).v).toBe(23);
+    expect(ids(wallOf({ v: 22, tiles: [{ id: 'body', size: 'l' }, { id: 'week', size: 'l' }] }))).toEqual(['pins', 'haken', 'body', 'week']);
+    expect(ids(wallOf({ v: 23, tiles: [{ id: 'body', size: 'l' }, { id: 'week', size: 'l' }] }))).toEqual(['pins', 'body', 'week']); // «Favoriten» come once on top (v 24); «Heute abhaken» taken away by hand: stays away
+    expect(ids(wallOf({ v: 24, tiles: [{ id: 'body', size: 'l' }, { id: 'week', size: 'l' }] }))).toEqual(['body', 'week']); // both taken away by hand: stay away
+    expect(ids(wallOf({ v: 21, tiles: [{ id: 'body', size: 'l' }, { id: 'week', size: 'l' }] }))).toEqual(['pins', 'haken', 'body', 'week']);
+    expect(wallRecord([]).v).toBe(24);
   });
 });

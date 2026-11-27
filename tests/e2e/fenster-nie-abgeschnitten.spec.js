@@ -6,6 +6,7 @@
 import { test, expect } from './clock.js';
 import { ready } from './settle.js';
 import { newButton } from './newbutton.js';
+import { openHome } from './home0460-fixture.js';
 import DE from '../../src/lib/i18n/de/index.js';
 
 const T = (en) => DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -108,6 +109,13 @@ test.describe('Nie abgeschnitten', () => {
     await check(page, 'window «New place»', async () => {
       await page.locator('[data-sw-add]').first().click();
       await expect(page.locator('[data-sw-sheet]')).toBeVisible();
+    });
+  });
+  test('the window «Favourites» (all favourites by group) fits the screen', async ({ page, context }, info) => {
+    await openHome(page, context, info);
+    await check(page, 'window «Favourites»', async () => {
+      await page.locator('[data-pins-all]').click();
+      await expect(page.locator('[data-fav-all]')).toBeVisible();
     });
   });
   // The morning and evening check («Wi gaht's?») is built and tested by its own thread (tests/e2e/runde-*.spec.js); it uses the same .vd-head / .vd-foot.

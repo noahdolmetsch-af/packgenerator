@@ -26,7 +26,8 @@ async function shot(page, info, name) {
   await page.screenshot({ path: `${process.env.SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
 }
 // «Heute abhaken» stands under the chips, outside the wall, while not customising (Noah 23.11.2026 «1a», changed on purpose): it counts as the first tile
-const ids = (page) => page.locator('[data-haken-top], .wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile ?? 'haken'));
+// «Favoriten» (Noah 27.11.2026 «1-5a»): the tile with the cards stands first, above the habits and outside the wall as well
+const ids = (page) => page.locator('[data-pins-top], [data-haken-top], .wall [data-tile]').evaluateAll((els) => els.map((e) => (e.hasAttribute('data-pins-top') ? 'pins' : (e.dataset.tile ?? 'haken'))));
 const wallStored = (page) =>
   page.evaluate(
     () =>
@@ -51,19 +52,19 @@ test('the ready wall: every tile in its place and size, 8 columns on a computer,
   // 0.155.0 «Im Flow + Balance» (Noah 15.10.2026 «4a», changed on purpose): Im Flow with the balance after it is
   // one card over the whole row; the balance inside keeps its size for customising
   const joined = (x, i) => x.id === 'flow' && SHOWN[i + 1]?.id === 'balance';
-  for (const [i, x] of SHOWN.entries()) if (x.id !== 'haken') await expect(page.locator(`.wall [data-tile="${x.id}"]`)).toHaveAttribute('data-size', joined(x, i) ? 'long' : x.size);
+  for (const [i, x] of SHOWN.entries()) if (x.id !== 'haken' && x.id !== 'pins') await expect(page.locator(`.wall [data-tile="${x.id}"]`)).toHaveAttribute('data-size', joined(x, i) ? 'long' : x.size);
   // the functions are small buttons, the numbers where something waits (0.155.0: the bike care is a line in
   // Important today now, the two open notes stay a number)
   // «Schnell öffnen» (Noah 01.11.2026 «5a», changed on purpose): the 8 small tiles are one tile with the pins
   await expect(page.locator('.wall [data-fn]')).toHaveCount(0);
   // «Heute ruhiger» 1a (changed on purpose): the small tiles are rows of one list, a quarter (computer) or a half (phone) of it
   // (the pins tile has no small rows any more; a small tile added from the catalog still stands in the list «Open quickly», see the test of «+» below)
-  await expect(page.locator('.wall [data-tile="pins"]')).toBeVisible();
+  await expect(page.locator('[data-pins-top] [data-pins-tile]')).toBeVisible(); // «Favoriten» (Noah 27.11.2026 «1-5a»): on top, above the habits, outside the wall
   // the last field is «+»
   await expect(page.locator('.wall .plusw')).toBeVisible();
   await expect(page.locator('.wall > div').last()).toHaveClass(/plusw/);
   // «New» on the new tiles (idea 1), Important today and Im Flow on Today, no «Your data» at the bottom
-  for (const x of SHOWN.filter((y) => TILE[y.id].since && y.id !== 'haken')) await expect(page.locator(`.wall [data-tile="${x.id}"] .nw`)).toHaveCount(isNew(TILE[x.id], D0) ? 1 : 0);
+  for (const x of SHOWN.filter((y) => TILE[y.id].since && y.id !== 'haken' && y.id !== 'pins')) await expect(page.locator(`.wall [data-tile="${x.id}"] .nw`)).toHaveCount(isNew(TILE[x.id], D0) ? 1 : 0);
   await expect(page.locator('[data-section="today"] li[data-row]').first()).toBeVisible();
   await expect(page.locator('details.data')).toHaveCount(0);
   // no sideways scroll
@@ -138,8 +139,8 @@ test('drag a tile by its handle onto another place', async ({ page, context }, i
 test('a long press on a tile opens customising on a phone', async ({ page, context }, info) => {
   test.skip(info.project.name !== 'phone', 'a long press is a finger thing');
   const T = await openHome(page, context, info);
-  // «Schnell öffnen» (Noah 01.11.2026 «5a»): the pins tile is the one that stays on the ready wall near the end
-  const tile = page.locator('.wall [data-tile="pins"] .pt-n');
+  // «Favoriten» stands on top outside the wall now (Noah 27.11.2026 «1-5a»): the long press is tried on the first heading of the wall
+  const tile = page.locator('.wall [data-tile] h2').first();
   await tile.scrollIntoViewIfNeeded();
   const b = await tile.boundingBox();
   await tile.dispatchEvent('pointerdown', { pointerType: 'touch', clientX: b.x + 10, clientY: b.y + 10, isPrimary: true, button: 0 });

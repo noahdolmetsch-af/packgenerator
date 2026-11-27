@@ -214,7 +214,7 @@ export function buildWeek(src) {
       paused.push({ ref: `drop:${s.id}`, kind: 'sport', title: s.name || null, mins: s.mins, sessionKind: s.kind, day: s.day, away: a });
       continue;
     }
-    d.entries.push({ id: `tr:${s.id}`, kind: 'sport', title: s.name || null, sessionKind: s.kind, sub: { mins: s.mins }, time: '', done: !!doneBy(s, acts), own: false, href: '#/flow/training', mins: s.mins, zone: s.zone, sid: s.id });
+    d.entries.push({ id: `tr:${s.id}`, kind: 'sport', title: s.name || null, sessionKind: s.kind, sub: { mins: s.mins }, time: '', done: !!doneBy(s, acts, sessions), own: false, href: '#/flow/training', mins: s.mins, zone: s.zone, sid: s.id });
   }
   for (const d of days) {
     if (d.away?.pause) continue;
@@ -405,7 +405,7 @@ export function reviewOf({ monday, sessions = [], acts = [], items = [], book = 
   if (!plan.length && !done.length && !todos) return null;
   return {
     planned: plan.length,
-    done: plan.filter((s) => doneBy(s, acts)).length,
+    done: plan.filter((s) => doneBy(s, acts, sessions)).length,
     rides: done.length,
     km: Math.round(done.reduce((n, a) => n + (Number(a.km) || 0), 0)),
     mins: Math.round(done.reduce((n, a) => n + (Number(a.movingS) || 0), 0) / 60),

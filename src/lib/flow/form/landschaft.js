@@ -35,7 +35,7 @@ export function plannedByDay(sessions = [], actsByDay = new Map(), today, ahead 
   const last = addDays(today, ahead);
   const out = new Map();
   for (const s of sessions) {
-    if (!s || s.day <= today || s.day > last || doneBy(s, actsByDay.get(s.day) ?? [])) continue;
+    if (!s || s.day <= today || s.day > last || doneBy(s, actsByDay.get(s.day) ?? [], sessions)) continue;
     const l = plannedLoad(s);
     const e = out.get(s.day) ?? { load: 0, sessions: [] };
     e.load += l;

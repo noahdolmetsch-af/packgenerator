@@ -10,12 +10,13 @@ test('Heute: the pins tile shows the suggestions, a tap goes there, the pencil a
   const T = await openHome(page, context, info);
   const tile = page.locator('[data-pins-tile]');
   await tile.scrollIntoViewIfNeeded();
-  // 4a: about 12 favourites; 3b: all pins show; 5a: the 8 small tiles are gone from the wall
-  await expect(tile.locator('[data-pin]')).toHaveCount(STARTER.length);
+  // «1-5a» 27.11.2026: the first 6 show as cards, the rest sits behind «All n ›»; the 8 small tiles are gone from the wall
+  await expect(tile.locator('[data-pin]')).toHaveCount(Math.min(6, STARTER.length));
+  await expect(tile.locator('[data-pins-all]')).toContainText(String(STARTER.length));
   await expect(page.locator('.wall [data-tile^="fn:"]')).toHaveCount(0);
 
   // a tap goes to the function
-  await tile.locator('[data-pin="f.heatmap"]').click();
+  await tile.locator('[data-pin="f.dreams"]').click();
   await expect(page).not.toHaveURL(/#\/$/);
 
   await page.goto('./#/');
@@ -40,7 +41,7 @@ test('Heute: the pins tile shows the suggestions, a tap goes there, the pencil a
   await tile.locator('[data-pins-reset]').click();
   await expect(tile.locator('[data-pin-row]')).toHaveCount(STARTER.length);
   await tile.locator('[data-pins-edit]').click();
-  await expect(tile.locator('[data-pin]')).toHaveCount(STARTER.length);
+  await expect(tile.locator('[data-pin]')).toHaveCount(Math.min(6, STARTER.length));
 });
 
 // Ideen-Doc 05.11.2026 «6a»: a page you open often is suggested right in the tile; «Pin» adds it with Undo, «No, thanks» holds it back.
@@ -70,15 +71,21 @@ test('Heute: the pins tile suggests a page you open often; Pin adds it, No thank
   await expect(tip).toContainText('Kalender');
 
   // Pin: the page becomes a shortcut and the suggestion is gone; Undo takes it back
-  await tip.getByRole('button', { name: T('Pin|quick') }).click();
-  await expect(tile.locator('[data-pin="#/calendar"]')).toBeVisible();
+  await tip.locator('.pt-chip-go').click();
   await expect(tip).toHaveCount(0);
+  await expect(tile.locator('[data-pins-all]')).toContainText(String(STARTER.length + 1));
   await page.getByRole('button', { name: T('Undo') }).first().click();
-  await expect(tile.locator('[data-pin="#/calendar"]')).toHaveCount(0);
+  await expect(tile.locator('[data-pins-all]')).toContainText(String(STARTER.length));
   await expect(tip).toBeVisible();
+  // the window «All» lists the new favourite once it is kept
+  await tip.locator('.pt-chip-go').click();
+  await tile.locator('[data-pins-all]').click();
+  await expect(page.locator('[data-fav-all] [data-fav-row="#/calendar"]')).toBeVisible();
+  await page.locator('[data-fav-done]').click();
+  await page.getByRole('button', { name: T('Undo') }).first().click().catch(() => {});
 
   // No, thanks: the suggestion stays away (it also stays away after a reload)
-  await tip.getByRole('button', { name: T('No, thanks') }).click();
+  await tip.locator('.pt-chip-x').click();
   await expect(tip).toHaveCount(0);
   await page.reload();
   await tile.scrollIntoViewIfNeeded();
