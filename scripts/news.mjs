@@ -52,12 +52,31 @@ export const zurichTime = (iso) => new Intl.DateTimeFormat('de-CH', { timeZone: 
 export function numberHistory(history, start = ANCHOR_VERSION) {
   let version = start;
   const files = {};
+  const ohne = [];
   for (const c of history) {
     const next = bump(version, c.added.length ? 'minor' : 'patch');
-    version = c.pkg && compare(c.pkg, next) > 0 ? c.pkg : next;
-    for (const f of c.added) files[f] = { version, date: c.date, ...(c.time ? { time: c.time } : {}) };
+    const handSet = !!c.pkg && compare(c.pkg, next) > 0;
+    version = handSet ? c.pkg : next;
+    for (const f of c.added) files[f] = { version, date: c.date, ...(c.time ? { time: c.time } : {}), ...(c.pr ? { pr: c.pr } : {}) };
+    // a merge without a news file is a release nobody sees (a test, a rule, a repair): «Nichts zu testen». A hand-set version
+    // (0.233.0, 0.234.0) is an entry of the hand-numbered list, not one of these.
+    if (!c.added.length && !handSet) ohne.push({ version, date: c.date, ...(c.time ? { time: c.time } : {}), ...(c.pr ? { pr: c.pr } : {}), title: c.title ?? '' });
   }
-  return { version, files };
+  return { version, files, ohne };
+}
+
+/** The PR number of a merge commit's subject: «Title (#1815)» (squash) or «Merge pull request #12 …» (old merge commit), else null. */
+export function prOfSubject(subject = '') {
+  const m = /\(#(\d+)\)\s*$/.exec(subject) ?? /^Merge pull request #(\d+)/.exec(subject);
+  return m ? Number(m[1]) : null;
+}
+
+/** A title for a merge whose subject says nothing («Merge pull request #1259 from …/dependabot/…»): the bot's merges have a fixed one. */
+export const botTitle = (subject = '') => (/dependabot/.test(subject) ? 'Bibliotheken aktualisiert (automatisch)' : '');
+
+/** The title of a merge commit's subject without the PR number: «Title (#1815)» → «Title», «Merge pull request #12: Title» → «Title». */
+export function titleOfSubject(subject = '') {
+  return subject.replace(/\s*\(#\d+\)\s*$/, '').replace(/^Merge pull request #\d+ from \S+$/, '').replace(/^Merge pull request #\d+:?\s*/, '').replace(/\s+/g, ' ').trim();
 }
 
 function git(args) {
@@ -69,10 +88,14 @@ export function readHistory() {
   try {
     git(['merge-base', '--is-ancestor', ANCHOR, 'HEAD']);
     const range = `${ANCHOR}..HEAD`;
-    const commits = git(['log', '--first-parent', '--reverse', '--format=%H %cI', range])
+    const commits = git(['log', '--first-parent', '--reverse', '--format=%H\t%cI\t%s', range])
       .split('\n')
       .filter(Boolean)
-      .map((l) => ({ sha: l.slice(0, 40), date: zurichDay(l.slice(41)), time: zurichTime(l.slice(41)), added: [] }));
+      .map((l) => {
+        const [sha, iso, ...subject] = l.split('\t');
+        const s = subject.join('\t');
+        return { sha, date: zurichDay(iso), time: zurichTime(iso), added: [], pr: prOfSubject(s), title: titleOfSubject(s) || botTitle(s) };
+      });
     const bySha = new Map(commits.map((c) => [c.sha, c]));
     let cur = null;
     const added = git(['log', '--first-parent', '--diff-merges=first-parent', '--diff-filter=A', '--name-only', '--format=@%H', range, '--', NEWS_DIR]);
@@ -81,6 +104,22 @@ export function readHistory() {
       else if (cur && line.startsWith(`${NEWS_DIR}/`)) {
         const f = line.slice(NEWS_DIR.length + 1);
         if (NAME.test(f)) cur.added.push(f);
+      }
+    }
+    // a merge whose subject has no title (a branch merged by hand): the heading of the release file it brought
+    const noTitle = new Map(commits.filter((c) => !c.title).map((c) => [c.sha, c]));
+    if (noTitle.size) {
+      let at = null;
+      for (const line of git(['log', '--first-parent', '--diff-merges=first-parent', '--diff-filter=A', '--name-only', '--format=@%H', range, '--', 'docs/releases']).split('\n')) {
+        if (line.startsWith('@')) at = noTitle.get(line.slice(1));
+        else if (at && !at.title && /^docs\/releases\/(?!README)[^/]+\.md$/.test(line)) {
+          try {
+            const h = /^# (.+)$/m.exec(readFileSync(join(ROOT, line), 'utf8'));
+            if (h) at.title = h[1].trim();
+          } catch {
+            /* the file is gone: no title */
+          }
+        }
       }
     }
     const pkgShas = git(['log', '--first-parent', '--diff-merges=first-parent', '--format=%H', range, '--', 'package.json']).split('\n').filter(Boolean);
@@ -133,11 +172,12 @@ function highestNumbered() {
 
 /**
  * The app version and each news file's version and date, newest first.
- * { version, exact, news: [{ file, version, date }] }
+ * { version, exact, news: [{ file, version, date, pr? }], ohne: [{ version, date, time?, pr?, title }] }
+ * ohne: the merges without a news file (releases nobody sees), newest first.
  */
 export function computeNews({ history = readHistory(), files = newsFiles(), today = zurichDay(new Date().toISOString()) } = {}) {
   const exact = history != null;
-  const known = exact ? numberHistory(history) : { version: highestNumbered(), files: {} };
+  const known = exact ? numberHistory(history) : { version: highestNumbered(), files: {}, ohne: [] };
   let version = known.version;
   const news = [];
   // files present here but not (yet) added by a commit on the line: an uncommitted file while
@@ -151,7 +191,8 @@ export function computeNews({ history = readHistory(), files = newsFiles(), toda
     }
   }
   news.sort((a, b) => compare(b.version, a.version));
-  return { version, exact: exact && news.every((n) => known.files[n.file]), news };
+  const ohne = [...known.ohne].sort((a, b) => compare(b.version, a.version));
+  return { version, exact: exact && news.every((n) => known.files[n.file]), news, ohne };
 }
 
 /** The app version (tests and workflows that used package.json's version). */
@@ -168,7 +209,7 @@ const ident = (file) => `n_${file.slice(0, -3).replace(/-/g, '_')}`;
 /** One entry of the generated lists: the file's content plus id, version, day, time and the pictures it has. */
 function entryLine(n) {
   const img = imagesOf(n.file);
-  const extra = [n.time ? `time: ${JSON.stringify(n.time)}` : '', img.image ? `image: ${JSON.stringify(img.image)}` : '', img.imageBefore ? `imageBefore: ${JSON.stringify(img.imageBefore)}` : ''].filter(Boolean).join(', ');
+  const extra = [n.time ? `time: ${JSON.stringify(n.time)}` : '', n.pr ? `pr: ${n.pr}` : '', img.image ? `image: ${JSON.stringify(img.image)}` : '', img.imageBefore ? `imageBefore: ${JSON.stringify(img.imageBefore)}` : ''].filter(Boolean).join(', ');
   return `  { ...${ident(n.file)}, id: ${JSON.stringify(n.file.slice(0, -3))}, version: ${JSON.stringify(n.version)}, date: ${JSON.stringify(n.date)}${extra ? `, ${extra}` : ''}${picsField(n.file)} },`;
 }
 
@@ -318,6 +359,14 @@ function writeNewsSplit(r) {
       '',
     ],
   };
+  // The releases nobody sees (a merge without a news file): version, day, time, PR number and the title of the merge. They load with the
+  // whole list (src/lib/whatsnew-full.js), never with the start, and they are no entries of WHATS_NEW (nothing visible to try).
+  files['ohne.gen.js'] = [
+    '// Written by scripts/news.mjs (vite.config.js, playwright.config.js). Not in git, do not edit.',
+    '/** The releases without a visible change («Nothing to test»), newest first: { version, date, time?, pr?, title }. */',
+    `export const NEWS_OHNE = ${JSON.stringify(r.ohne ?? [])};`,
+    '',
+  ];
   for (const [name, lines] of Object.entries(files)) {
     const out = join(ROOT, NEWS_DIR, name);
     const text = lines.join('\n');

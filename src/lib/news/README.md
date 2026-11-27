@@ -54,7 +54,7 @@ Once only, the **first** PR with a news file changes the `newerThan('0.33.0')` l
 by hand on 27.10.2026 (#282, #290, Touren c, Knöpfe) do not conflict with this change. After that,
 nobody touches that list again.
 
-`index.gen.js` is written at every build and test and is not in git. The same run writes `neu.gen.js` (the newest 10 versions in full, a short line for every version, and the German the rest of the app uses) and `archiv.gen.js` (the older ones in full). The start reads only `neu.gen.js` through `src/lib/whatsnew.js`; the pages that show the whole list import `src/lib/whatsnew-all.js` (Node tests and specs: `whatsnew-full.js`).
+`index.gen.js` is written at every build and test and is not in git. Every entry also carries its GitHub PR number (`pr`, from the merge commit; none without the whole history). The merges **without** a news file (tests, rules, repairs) are not entries; the same run writes them to `ohne.gen.js` (`RELEASES_OHNE` in `whatsnew-full.js`: version, day, time, PR number, title). The PR numbers of the hand-numbered versions (up to 0.234.0) are in `src/lib/whatsnew-alt-pr.js` (`prOf()`). The same run writes `neu.gen.js` (the newest 10 versions in full, a short line for every version, and the German the rest of the app uses) and `archiv.gen.js` (the older ones in full). The start reads only `neu.gen.js` through `src/lib/whatsnew.js`; the pages that show the whole list import `src/lib/whatsnew-all.js` (Node tests and specs: `whatsnew-full.js`).
 
 ## Bilder (Noah 23.11.2026 «1b 2a 3a 4b 5a», thread «Neuheiten in der App besser zeigen»)
 
