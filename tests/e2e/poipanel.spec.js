@@ -299,6 +299,16 @@ test('an own radius: typed, checked, used for the query and remembered', async (
   await own.fill('25');
   await own.press('Enter');
   await expect(own).toHaveValue('25');
+  // the choice is stored a moment after the typing: reload only when it stands in the settings (else a slow machine loses it)
+  await expect
+    .poll(() => page.evaluate(() => new Promise((ok) => {
+      const r = indexedDB.open('pack-generator');
+      r.onsuccess = () => {
+        const g = r.result.transaction('settings').objectStore('settings').get('poi-search');
+        g.onsuccess = () => (r.result.close(), ok(g.result?.value?.radiusKm));
+      };
+    })))
+    .toBe(25);
   // the ride goes on by itself after the reload (live-resume): no start tap
   await page.reload();
   await expect(page.locator('[data-live-resumed-full]')).toBeVisible();
