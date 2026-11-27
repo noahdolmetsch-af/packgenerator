@@ -1,6 +1,6 @@
 # Jede Aktivität auf Heute, auf einen Blick
 
-PR #<Nummer> · 27.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5a» (Thread «Abhaken auf einen Blick verbessern», Schritt 1 von 3)
+PR #1861 · 27.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5a» (Thread «Abhaken auf einen Blick verbessern», Raster auf Heute)
 
 ## Was ist neu
 - «Heute abhaken» auf Heute zeigt **alle** Aktivitäten als kleine Felder (Handy: drei pro Reihe, Computer: so viele wie passen). Vorher standen am Handy nur 4 und am Computer 8 da, der Rest hinter «Alle ›»; die Aktivitäten, die auch als Gewohnheit oben stehen, waren nur in einer Zeile genannt.
@@ -23,7 +23,7 @@ PR #<Nummer> · 27.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5a» (Thread «Abhaken
 - 27.11.2026: Variante A Raster, Chip «Abhaken» entfällt, Reihenfolge der Schritte 1a bis 5a.
 
 ## Stand im Plan (roadmap.md / vorhaben.md)
-- keine Änderung (Schritt 1 von 3: Raster auf Heute; Haken-Verlauf und Hinweise folgen als eigene PRs).
+- keine Änderung (Haken-Verlauf, Hinweise und Zahlen sind mit PR 1842 schon online).
 
 ## Prüfschritte (nach dem Merge auf der echten Seite)
 1. Heute öffnen: «Heute abhaken» zeigt jede Aktivität (Handy drei pro Reihe), oben «x von y».
