@@ -147,8 +147,15 @@ export default {
   'been there': 'schon da gewesen',
   'never been': 'noch nie',
   'Nearest never visited': 'Am nächsten, noch nie besucht',
+  // «Weisse Flecken ausbauen» (Noah 27.11.2026 «1b 2a 3a 4a 5b»)
+  'Other radius': 'Anderer Umkreis',
+  'Far away: by train there and by bike home is easier.': 'Weit weg: mit dem Zug hin und mit dem Velo heim ist einfacher.',
+  'Where is the most new?': 'Wo gibt es am meisten Neues?',
+  'Never visited, of all municipalities within {km} km, by direction.': 'Noch nie besucht, von allen Gemeinden bis {km} km, nach Richtung.',
+  'from {km} km': 'ab {km} km',
+  'All municipalities in New ground': 'Alle Gemeinden in Neuland',
   'You have been to every municipality within {km} km. Try a bigger radius.': 'Du warst in jeder Gemeinde bis {km} km. Versuch einen grösseren Umkreis.',
-  'The municipalities around your home on a map: where you have been and where never; the nearest new ones as a list, within 10, 25 or 50 km.': 'Die Gemeinden um deinen Wohnort auf einer Karte: wo du schon warst und wo noch nie; die nächsten neuen als Liste, bis 10, 25 oder 50 km.',
+  'The municipalities around your home on a map: where you have been and where never; the nearest new ones as a list, within 10 to 100 km or a radius you type.': 'Die Gemeinden um deinen Wohnort auf einer Karte: wo du schon warst und wo noch nie; die nächsten neuen als Liste, bis 10 bis 100 km oder einen Umkreis, den du eintippst.',
   'Scroll to «White spots nearby».': 'Scrolle zu «Weisse Flecken in der Nähe».',
   'Choose the radius and tap a place.': 'Wähle den Umkreis und tippe einen Ort an.',
   // «Herausforderungen mit Ende» (Träume und Neuland N5, Noah 27.10.2026 «1-5 a»)
