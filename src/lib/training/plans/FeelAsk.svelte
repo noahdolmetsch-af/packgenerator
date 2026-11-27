@@ -10,6 +10,8 @@
    * Noah 21.11.2026: the same for a workout the watch recorded (Fitbit via Google Health), asked like Strava; the newer of the two
    * is asked first, a workout that Strava has as well is asked once (healthfeel.js). The card shows more facts: pace or speed, climb,
    * heart rate, kcal, zone minutes (actfacts.js), only what is there.
+   * Noah 27.11.2026 «Eine Fahrt = ein Eintrag»: a workout that Garmin (via Strava) has as well is not asked on the watch side, a plain
+   * walk of the watch is never asked, pieces of one workout are asked once (dieselbe.js).
    */
   import { liveQuery } from 'dexie';
   import { Gauge } from '@lucide/svelte';
@@ -59,7 +61,8 @@
         {/each}
         <button type="button" class="btn btn-link sm" onclick={later} data-feel-skip>{t('Later|feel')}</button>
       </div>
-      <p class="fs">{t('Your answer helps the training plans when there is no heart rate. Only on this device.')}</p>
+      <!-- the answer for a Strava activity counts for the plans; a watch workout is only kept (no plan reads it yet), so the card does not promise more -->
+      <p class="fs">{useWatch ? t('Only on this device.') : t('Your answer helps the training plans when there is no heart rate. Only on this device.')}</p>
     </div>
   </section>
 {/if}

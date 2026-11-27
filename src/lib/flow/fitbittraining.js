@@ -7,6 +7,7 @@
  */
 import { knownType, defaultAct, typeLabel, VIA } from '../fitbitexport.js';
 import { normAct, newEntry, addDays } from '../flow.js';
+import { coveredBy, joinPieces } from './dieselbe.js';
 
 export const HANDLED_KEY = 'fitbit.ticked';
 /** Types that are not suggested (the person can still make a tick by hand). */
@@ -60,20 +61,11 @@ export function suggestions({ health = [], acts = [], log = [], activities = [],
   const logIds = new Set(log.map((e) => e.id));
   const own = new Set(log.filter((e) => e.via !== 'trip').map((e) => `${e.actId}|${e.day}`));
   const fb = log.filter((e) => e.via === VIA).map((e) => Date.parse(e.at)).filter(Number.isFinite);
-  const stravaBy = new Map();
-  for (const a of activities) {
-    if (!a?.day) continue;
-    const s = toMin(a.time);
-    const dur = Math.max(1, Math.round((Number(a.elapsedS) || Number(a.movingS) || 0) / 60));
-    const list = stravaBy.get(a.day) ?? [];
-    list.push({ from: s, to: s == null ? null : s + dur });
-    stravaBy.set(a.day, list);
-  }
   const out = [];
   for (const row of health) {
     const day = row?.date;
     if (!day || day > today || day < from) continue;
-    for (const ex of row.exercises ?? []) {
+    for (const ex of joinPieces(row.exercises ?? [])) {
       if (!(Number(ex?.min) >= MIN_MIN) || !ex.start) continue;
       const k = typeOf(ex);
       if (!k || EXCLUDED.has(k.key)) continue;
@@ -84,10 +76,8 @@ export function suggestions({ health = [], acts = [], log = [], activities = [],
       if (own.has(`${actId}|${day}`)) continue;
       const at = Date.parse(zurichAt(day, ex.start));
       if (fb.some((t) => Math.abs(t - at) <= 2 * 60000)) continue;
-      const f = toMin(ex.start);
-      const e = f + Math.round(ex.min);
-      // the same session as a Strava activity: same day and the times lie within NEAR_MIN; a Strava activity without a time counts as the same
-      if ((stravaBy.get(day) ?? []).some((s) => s.from == null || (s.from - NEAR_MIN < e && f < s.to + NEAR_MIN))) continue;
+      // the same session as a Strava activity (Garmin via Strava wins): one rule for all cards, dieselbe.js
+      if (coveredBy(day, ex, activities)) continue;
       out.push({ id, day, start: ex.start, min: Math.round(ex.min), name: ex.name || typeLabel(k.key).text, key: k.key, label: typeLabel(k.key).text, actId, ...(Number.isFinite(ex.hr) ? { hr: ex.hr } : {}) });
     }
   }
