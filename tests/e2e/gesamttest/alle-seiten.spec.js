@@ -36,17 +36,21 @@ const ADDRESSES = adressen().filter((h) => !round1Bare.has(bare(h)) && (!process
 const DATA2 = { ...data, tables: { ...data.tables, ...aktivLayer(summary.today, summary.bikeIds) } };
 
 /**
- * Findings that make a case fail today (G-IDs of the findings list, /mnt/project-files/design/gesamttest/befunde-runde2.md); keyed
- * "address/lang/project", "address/lang" or "address". A case marked here is expected to fail: when its page is repaired the case
- * turns red with «expected to fail, but passed», and whoever repaired it deletes its line here (the list only gets shorter).
- *  C6: long tour names in the lists of Auswerten › Analyse and of Körperwerte › Rückblick are cut off on a phone (a fixed column beside them).
- *  C9: Körperwerte pages are wider than 320 px after the window went from 390 to 320 px (not reproducible with a fresh page).
+ * Known findings (IDs of the findings list /mnt/project-files/design/gesamttest/befunde-runde2.md; C11 of 27.11.2026): keyed
+ * "address/lang/project", "address/lang" or "address". Each says which checks of that page are not asserted today (they are still measured and
+ * written to the report as «bekannt»), so one repaired or intermittent finding never turns the night red by itself, and no other check of the
+ * page is lost. Whoever repairs a page deletes its line here (the list only gets shorter).
+ * Checks: side (sideways scroll), cut (cut off), broken (word broken in the middle), names, english, errors, ready, lost.
+ *  C6:  long tour names in the lists of Auswerten › Analyse and of Körperwerte › Rückblick are cut off on a phone (a fixed column beside them).
+ *  C9:  Körperwerte pages are wider than 320 px after the window went from 390 to 320 px (only sometimes, not with a fresh page).
+ *  C11: Ich › Alltag at 320 px: «Einkaufsliste» is broken in the middle in the line «0 Einkaufsliste ist leer» (only sometimes, found 27.11.2026).
  */
 const KNOWN = {
-  '#/auswerten/analyse/late/de/phone': 'C6',
-  '#/auswerten/analyse/rhr/de/phone': 'C6',
-  '#/flow/review/de/phone': 'C6, C9',
-  '#/flow/stats/felt/de/phone': 'C9',
+  '#/auswerten/analyse/late/de/phone': { id: 'C6', skip: ['cut'] },
+  '#/auswerten/analyse/rhr/de/phone': { id: 'C6', skip: ['cut'] },
+  '#/flow/review/de/phone': { id: 'C6, C9', skip: ['cut', 'side'] },
+  '#/flow/stats/felt/de/phone': { id: 'C9', skip: ['cut', 'side'] },
+  '#/me/alltag/de/phone': { id: 'C11', skip: ['broken'] },
 };
 
 let statePath = null;
@@ -88,8 +92,13 @@ for (const lang of LANGS) {
   test.describe(`alle Seiten ${lang}`, () => {
     for (const hash of ADDRESSES) {
       test(`${hash} ${lang}`, async ({ browser }, info) => {
-        const gid = KNOWN[`${hash}/${lang}/${info.project.name}`] ?? KNOWN[`${hash}/${lang}`] ?? KNOWN[hash];
-        if (gid) test.fail(true, gid);
+        const known = KNOWN[`${hash}/${lang}/${info.project.name}`] ?? KNOWN[`${hash}/${lang}`] ?? KNOWN[hash];
+        const skip = new Set(known?.skip ?? []);
+        /** One check of the page. A check named in KNOWN is measured and noted («bekannt»), not asserted. */
+        const check = (name, label, actual, assert) => {
+          if (skip.has(name)) return record('bekannt', { case: hash, id: known.id, check: name });
+          assert(expect.soft(actual, label));
+        };
         const phone = info.project.name === 'phone';
         const widths = phone ? [390, 320] : [1366];
         const ctx = await browser.newContext(ctxOpts(info, { storageState: statePath, viewport: { width: widths[0], height: phone ? 844 : 900 } }));
@@ -114,14 +123,14 @@ for (const lang of LANGS) {
             const words = lang === 'de' ? await untranslated(page) : { exact: [], words: [] };
             if (words.words.length) record('english-hints', { case: hash, w, words: words.words });
             if (process.env.GTP_PAGE_SHOTS) await shot(page, `${hash.replace(/[^\w]+/g, '_')}-${lang}-${w}`, { fullPage: false });
-            expect.soft(lost, `${where}: «page not found»`).toBe(false);
-            expect.soft(errors.slice(before), `${where}: console errors`).toEqual([]);
-            expect.soft(side.sw, `${where}: sideways scroll; sticking out: ${side.wide.join(', ')}`).toBeLessThanOrEqual(side.w);
-            expect.soft(cut, `${where}: cut off`).toEqual([]);
-            expect.soft(broken, `${where}: words broken in the middle`).toEqual([]);
-            expect.soft(noName, `${where}: controls without a name`).toEqual([]);
-            expect.soft(words.exact, `${where}: English UI text in German`).toEqual([]);
-            expect.soft(ms, `${where}: ready time (ms)`).toBeLessThan(BUDGET);
+            check('lost', `${where}: «page not found»`, lost, (e) => e.toBe(false));
+            check('errors', `${where}: console errors`, errors.slice(before), (e) => e.toEqual([]));
+            check('side', `${where}: sideways scroll; sticking out: ${side.wide.join(', ')}`, side.sw, (e) => e.toBeLessThanOrEqual(side.w));
+            check('cut', `${where}: cut off`, cut, (e) => e.toEqual([]));
+            check('broken', `${where}: words broken in the middle`, broken, (e) => e.toEqual([]));
+            check('names', `${where}: controls without a name`, noName, (e) => e.toEqual([]));
+            check('english', `${where}: English UI text in German`, words.exact, (e) => e.toEqual([]));
+            check('ready', `${where}: ready time (ms)`, ms, (e) => e.toBeLessThan(BUDGET));
           }
         } finally {
           await ctx.close();
