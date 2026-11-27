@@ -16,7 +16,7 @@
 
   let { crumbs = [], here = '', title, sub = '', children = null, bike = null } = $props();
   // Durchklick-Fund 3: a one-step path names where you came from (zurueck.js)
-  const steps = $derived(crumbs.length ? backCrumbsOf(fitSteps(helpHere.route, crumbs)) : []);
+  const steps = $derived(crumbs.length ? backCrumbsOf(fitSteps(helpHere.route, crumbs, here || title)) : []);
 </script>
 
 <header class="vhead" class:withpic={!!bike}>
