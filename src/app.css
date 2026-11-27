@@ -2101,7 +2101,7 @@ dialog.sheet.vdlg {
 }
 dialog.sheet.vdlg .vd-head {
   position: sticky;
-  top: 0;
+  top: calc(-1 * var(--dlg-pt)); /* sticks flush at the window's edge: the padding of the scrolling window must not leave a strip above it */
   z-index: 3;
   margin: calc(-1 * var(--dlg-pt)) calc(-1 * var(--dlg-px)) 0;
   padding: var(--dlg-pt) var(--dlg-px) 14px;
@@ -2119,7 +2119,7 @@ dialog.sheet.vdlg .vd-head::after {
 }
 dialog.sheet.vdlg .vd-foot {
   position: sticky;
-  bottom: 0;
+  bottom: calc(-1 * var(--dlg-pb));
   z-index: 3;
   margin: 16px calc(-1 * var(--dlg-px)) calc(-1 * var(--dlg-pb));
   padding: 12px var(--dlg-px) var(--dlg-pb);
