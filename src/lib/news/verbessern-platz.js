@@ -3,7 +3,7 @@ export default {
   title: 'The Improve button no longer covers the page end',
   lead: 'The floating Improve button leaves room at the bottom, so the last line of every page stays readable.',
   points: [
-    { text: 'The end of every page lies above the floating «Improve» button, on a phone and on a computer', go: { href: '#/me', steps: [] } },
+    { text: 'The end of every page lies above the floating «Improve» button, on a phone and on a computer', go: null },
   ],
   small: [],
   test: ['Open Today, scroll to the very bottom and look at the last line next to the «Improve» button.', 'Do the same on the page «Me» and on «Ask Gemini».'],
