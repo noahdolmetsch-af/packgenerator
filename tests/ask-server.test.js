@@ -1,6 +1,6 @@
 // «Frag Gemini» (Noah 23.11.2026): /api/ask hands a question to Gemini's free tier. Gemini is replaced by a fake answer here.
 import { describe, it, expect, beforeEach } from 'vitest';
-import { cleanBody, geminiRequest, answerText, parseJson, pointsOf, actionsOf, modelsOf, askGemini, flashModelsOf, forgetModel, shape, instructionFor, DEFAULT_MODEL, MAX_TEXT } from '../api/_lib/ask.js';
+import { cleanBody, geminiRequest, answerText, parseJson, pointsOf, actionsOf, modelsOf, askGemini, flashModelsOf, tryOrder, forgetModel, shape, instructionFor, DEFAULT_MODEL, MAX_TEXT } from '../api/_lib/ask.js';
 import { makeHandler } from '../api/ask.js';
 import { DAY_CAPS } from '../api/_lib/daycap.js';
 
@@ -122,6 +122,25 @@ describe('askGemini', () => {
     expect(await askGemini(req, { key: 'k', models: ['old-a'], doFetch: async (u) => (seen2.push(u), okRes(gem('zwei'))) })).toEqual({ text: 'zwei' });
     expect(seen2).toHaveLength(1);
     expect(seen2[0]).toContain('/models/gemini-3.8-flash:');
+  });
+  it('tries the lite model of a new version first and asks again once when a model is overloaded (503)', async () => {
+    expect(tryOrder(['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.8-flash-lite', 'gemini-3.7-flash-lite', 'gemini-3.6-flash'])).toEqual(['gemini-3.8-flash-lite', 'gemini-3.8-flash', 'gemini-3.7-flash-lite', 'gemini-3.7-flash']);
+    const list = { models: ['gemini-3.8-flash', 'gemini-3.8-flash-lite'].map((n) => ({ name: `models/${n}`, supportedGenerationMethods: ['generateContent'] })) };
+    const calls = [];
+    const doFetch = async (url) => {
+      calls.push(url);
+      if (url.includes('/models?')) return okRes(list);
+      if (url.includes('gemini-3.8-flash-lite:')) return calls.filter((u) => u.includes('gemini-3.8-flash-lite:')).length === 1 ? stat(503) : okRes(gem('lite'));
+      return stat(404);
+    };
+    expect(await askGemini(req, { key: 'k', models: ['old'], doFetch, pause: 1 })).toEqual({ text: 'lite' });
+    expect(calls.filter((u) => u.includes('gemini-3.8-flash-lite:'))).toHaveLength(2);
+    expect(calls.some((u) => u.includes('gemini-3.8-flash:'))).toBe(false);
+  });
+  it('keeps to its time: no new try when the budget is used up', async () => {
+    let n = 0;
+    await expect(askGemini(req, { key: 'k', models: ['a', 'b', 'c'], doFetch: async () => (n++, stat(503)), budget: 1 })).rejects.toMatchObject({ code: 'ai_unavailable' });
+    expect(n).toBeLessThanOrEqual(1);
   });
   it('lists only text models: flash and flash-lite with a version, newest first', () => {
     expect(flashModelsOf({ models: [
