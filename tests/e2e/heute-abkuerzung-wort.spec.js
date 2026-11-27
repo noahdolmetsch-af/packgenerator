@@ -6,9 +6,9 @@ import { openHome } from './home0460-fixture.js';
 test('Heute: a long word on a shortcut stays whole', async ({ page, context }, info) => {
   await openHome(page, context, info);
   await page.goto('./#/');
-  await page.locator('[data-tile="pins"] .pt-pin').first().waitFor({ timeout: 15_000 });
+  await page.locator('[data-pins-tile] .pt-pin').first().waitFor({ timeout: 15_000 });
   const res = await page.evaluate(() => {
-    const b = document.querySelector('[data-tile="pins"] .pt-pin');
+    const b = document.querySelector('[data-pins-tile] .pt-pin');
     b.textContent = 'Werkzeugkasten';
     const cs = getComputedStyle(b);
     const ctx = document.createElement('canvas').getContext('2d');
