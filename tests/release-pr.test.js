@@ -83,8 +83,10 @@ describe('the releases without a visible change, on this checkout', () => {
     for (let i = 1; i < RELEASES_OHNE.length; i++) expect(compare(RELEASES_OHNE[i - 1].version, RELEASES_OHNE[i].version)).toBe(1);
   });
   // with the whole history (GitHub's checks, a full clone) every merge is exactly one release: the numbers add up to the merges on main
+  // the newest commit of a checkout that is not merged yet (the PR's own commit) has no number: GitHub gives it one at the merge
   it.runIf(EXACT)('with the whole history every news entry has its PR number and every merge since 0.232.0 is a release', () => {
-    for (const e of WHATS_NEW) if (compare(e.version, ANCHOR_VERSION) > 0 && !PR_ALT[e.version]) expect(e.pr, e.version).toBeGreaterThan(0);
-    for (const o of RELEASES_OHNE) expect(o.pr, o.version).toBeGreaterThan(0);
+    const all = [...WHATS_NEW.filter((e) => compare(e.version, ANCHOR_VERSION) > 0 && !PR_ALT[e.version]), ...RELEASES_OHNE];
+    const newest = all.reduce((a, b) => (compare(a.version, b.version) >= 0 ? a : b));
+    for (const e of all) if (e !== newest || e.pr) expect(e.pr, e.version).toBeGreaterThan(0);
   });
 });
