@@ -1,6 +1,6 @@
 # Notiz-Fenster bleibt offen, wenn die Seite neu gezeichnet wird
 
-PR #NNNN · 27.11.2026 · Auftrag: Wackler im Test «every function is visible on its home page» (Notiz-Fenster, f.richtext), rot auf PR 1826 und 1827, Meldung des Bündlers
+PR #1832 · 27.11.2026 · Auftrag: Wackler im Test «every function is visible on its home page» (Notiz-Fenster, f.richtext), rot auf PR 1826 und 1827, Meldung des Bündlers
 
 ## Was ist neu
 - Nichts Sichtbares geändert, nur ein Fehler im Hintergrund behoben: Öffnet ein Link eine Notiz (`#/notes?open=…`, zum Beispiel zurück vom Scan in eine Notiz oder aus der Suche), blieb das Notiz-Fenster manchmal zu.
