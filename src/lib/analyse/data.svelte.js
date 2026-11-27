@@ -20,6 +20,7 @@ import { withStrava } from './alle.js';
 import { USUAL_KEY, usualMap } from '../flow/usualmin.js';
 import { TICKS_KEY, prefsOf } from '../stravaticks.js';
 import { localDay } from '../localday.js';
+import { HEALTH_FEEL_KEY, fitFeelByDay } from '../flow/healthfeel.js';
 
 const get = async (k) => (await db.settings.get(k))?.value ?? null;
 // fromStore wants a store whose subscribe returns a function; Dexie's liveQuery returns { unsubscribe }
@@ -47,6 +48,7 @@ export function analyseData({ from = () => localDay() } = {}) {
   const bp = live(() => get(BP_KEY));
   const water = live(() => get(WATER_KEY));
   const trips = live(() => (db.trips ? db.trips.toArray() : []));
+  const hfeel = live(() => get(HEALTH_FEEL_KEY)); // the answers to the workouts of the watch (Noah 27.11.2026 «1a»)
 
   const table = $derived(q.current ?? new Map());
   const ownKeys = $derived(ownBodyKeys(configOf(ab.current?.value).own));
@@ -59,6 +61,7 @@ export function analyseData({ from = () => localDay() } = {}) {
     water: new Map(waterEntries(water.current).map((e) => [e.day, e.l])),
     bp: new Map(bpEntries(bp.current).map((e) => [e.day, e])),
     ab: ownBodyDays(ans.current ?? [], ownKeys),
+    fitFeel: fitFeelByDay([...table].map(([date, r]) => ({ date, exercises: r?.fit?.exercises })), hfeel.current ?? null),
   });
   return {
     today,
