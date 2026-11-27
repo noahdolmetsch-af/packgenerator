@@ -16,7 +16,8 @@
   import { untrack } from 'svelte';
   import { Plus, Minus, Maximize2, LocateFixed, X } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
-  import { zoomAt, clampView, pinch, MAX_ZOOM, visibleBox } from './kartezoom.js';
+  import { zoomAt, clampView, pinch, MAX_ZOOM, visibleBox, tipOf } from './kartezoom.js';
+  import MapTip from './MapTip.svelte';
   import { placeLabels } from '../dotlabels.js';
 
   let { view = 'ch', areas = [], points = [], bg = {}, labels = [], lines = [], title = '', onpick = null, center = null, big = false, span = 0.62, ratio = 1.15, labelSize = 3.4, dotLabels = false, selId = null, zoomable = true, focus = null } = $props();
@@ -91,7 +92,7 @@
   const bgCountries = $derived((bg.countries ?? []).filter((c) => visible(c.bbox)).map((c) => ({ id: c.id, d: path(c.rings) })));
   const bgCantons = $derived((bg.cantons ?? []).map((c) => ({ id: c.id, d: path(c.rings) })));
   const bgLakes = $derived((bg.lakes ?? []).filter((l) => l.rings).map((l) => ({ id: l.id, d: path(l.rings) })));
-  const shapes = $derived(areas.filter((a) => a.rings && visible(a.bbox)).map((a) => ({ id: a.id, st: a.st, d: path(a.rings) })));
+  const shapes = $derived(areas.filter((a) => a.rings && visible(a.bbox)).map((a) => ({ id: a.id, st: a.st, name: a.name, d: path(a.rings) })));
   const dots = $derived(points.map((p) => ({ id: p.id, st: p.st, name: p.name, xy: xy(p.lon, p.lat) })));
   const radius = (p) => (big ? (p.st === 'year' ? unit * 2.4 : p.st === 'old' ? unit * 2.1 : unit * 1.1) : p.st ? unit * 1.1 : unit * 0.75);
   // the names of your places and of the open ones near you stand beside their dots, where no other name or dot is
@@ -119,6 +120,8 @@
   // ---- zoom and move
   let svg = $state(null);
   let hint = $state(false);
+  let tip = $state(null); // the name under the mouse
+  let frameW = $state(0);
   let big_ = $state(false); // the map fills the whole screen
   let kbd = $state(false); // the focus ring shows only after a key, not after a tap or a drag
   let hintTimer;
@@ -256,20 +259,20 @@
 <!-- the list under the map is the way for the keyboard and the screen reader; the map is a picture with taps -->
 <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
 <svelte:window onkeydown={(e) => big_ && e.key === 'Escape' && ((big_ = false), e.stopPropagation())} />
-<div class="nm-wrap" class:zoomed class:full={big_} role={big_ ? 'dialog' : undefined} aria-modal={big_ ? 'true' : undefined} aria-label={big_ ? title || t('Map') : undefined}>
+<div class="nm-wrap" bind:clientWidth={frameW} class:zoomed class:full={big_} role={big_ ? 'dialog' : undefined} aria-modal={big_ ? 'true' : undefined} aria-label={big_ ? title || t('Map') : undefined}>
 {#if big_}<div class="nm-top"><b>{title || t('Map')}</b><button type="button" class="nm-x" onclick={() => (big_ = false)} data-zoom-close aria-label={t('Close')}><X size={20} aria-hidden="true" /></button></div>{/if}
 <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
-<svg bind:this={svg} class="nmap {view}" class:big viewBox={vb} role="img" aria-label={title || t('Map')} onclick={pick} preserveAspectRatio="xMidYMid meet" tabindex={zoomable ? 0 : undefined} onwheel={onwheel} onpointerdown={ondown} onpointermove={onmove} onpointerup={onup} onpointercancel={onup} onkeydown={(e) => ((kbd = true), onkey(e))} class:kbd data-zoom={view_.z.toFixed(2)}>
+<svg bind:this={svg} class="nmap {view}" class:big viewBox={vb} role="img" aria-label={title || t('Map')} onclick={pick} preserveAspectRatio="xMidYMid meet" tabindex={zoomable ? 0 : undefined} onwheel={onwheel} onpointerdown={ondown} onpointermove={(e) => ((tip = pts.size ? null : tipOf(e, svg?.parentElement)), onmove(e))} onpointerleave={() => (tip = null)} onpointerup={onup} onpointercancel={onup} onkeydown={(e) => ((kbd = true), onkey(e))} class:kbd data-zoom={view_.z.toFixed(2)}>
   {#each bgCountries as c (c.id)}<path class="bgc" d={c.d} />{/each}
   {#each bgCantons as c (c.id)}<path class="bgk" d={c.d} />{/each}
-  {#each shapes as a (a.id)}<path class="area {a.st || 'no'}" class:sel={selId === a.id} data-id={a.id} d={a.d} />{/each}
+  {#each shapes as a (a.id)}<path class="area {a.st || 'no'}" class:sel={selId === a.id} data-id={a.id} data-name={a.name} d={a.d} />{/each}
   {#each bgLakes as l (l.id)}<path class="lake" d={l.d} />{/each}
   {#each routes as r, i (i)}<polyline class="route" points={r} />{/each}
   {#each dotNames as l (l.id)}
     <text class="dn" x={l.x} y={l.y} font-size={l.fs} text-anchor={l.anchor} dominant-baseline="central" data-id={l.id} style:stroke-width="{l.fs * 0.28}px">{l.name}</text>
   {/each}
   {#each dots as p (p.id)}
-    <circle class="dot {p.st || 'no'}" class:sel={selId === p.id} data-id={p.id} cx={p.xy[0]} cy={p.xy[1]} r={radius(p)} />
+    <circle class="dot {p.st || 'no'}" class:sel={selId === p.id} data-id={p.id} data-name={p.name} cx={p.xy[0]} cy={p.xy[1]} r={radius(p)} />
   {/each}
   {#each labels as l (l.text)}
     {@const [x, y] = xy(l.lon, l.lat)}
@@ -283,6 +286,7 @@
     <button type="button" aria-label={t('Whole map')} onclick={reset} disabled={!zoomed} data-zoom-reset><LocateFixed size={20} aria-hidden="true" /></button>
     {#if !big_}<button type="button" aria-label={t('Full screen')} onclick={() => (big_ = true)} data-zoom-full><Maximize2 size={16} aria-hidden="true" /></button>{/if}
   </div>
+  <MapTip {tip} width={frameW} />
   {#if hint}<p class="nm-hint" role="status">{t('Ctrl and scroll, or pinch, to zoom')}</p>{/if}
 {/if}
 </div>
