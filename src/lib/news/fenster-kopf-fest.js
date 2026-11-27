@@ -5,7 +5,7 @@ export default {
   points: [
     { text: 'Open «All» under your favourites on Today and scroll: the title and «Done» stay clean at the edges', go: { href: '#/', steps: [{ sel: '[data-pins-all]' }, { sel: '[data-fav-all]' }] } },
   ],
-  small: [{ box: 'fix', text: 'Same for every window with a fixed head and foot' }],
+  small: [{ box: 'fixed', text: 'Same for every window with a fixed head and foot' }],
   test: ['Open Today, tap «All» in the favourites and scroll to the bottom.', 'The title stays at the very top edge, «Done» at the bottom edge, nothing shows above or below them.'],
   since: [],
   de: {
