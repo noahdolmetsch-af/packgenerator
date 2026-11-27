@@ -1,6 +1,6 @@
 # Der Pfad nennt die Seite nur einmal
 
-PR · 27.11.2026 · Auftrag: Noah (impeccable-Fund F-10 vom 26.11., 27.11. «gerne normal einreihen»)
+PR #1841 · 27.11.2026 · Auftrag: Noah (impeccable-Fund F-10 vom 26.11., 27.11. «gerne normal einreihen»)
 
 ## Was ist neu
 - Über der Seite «Wi gaht's?» stand der Pfad «Auswerten › Verlauf › Wi gaht's? › Wi gaht's?»: der Reiter und die Seite haben denselben Namen. Jetzt steht dort «Auswerten › Verlauf › Wi gaht's?», die Seite zuletzt.
