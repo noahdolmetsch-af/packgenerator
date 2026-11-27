@@ -77,6 +77,22 @@ test('when Gemini is busy the page says so and offers «Weiter fragen bei»', as
   await expect(g.locator('[data-gemini-error="busy"]').getByText(T('Ask further at'))).toBeVisible();
 });
 
+test('when Gemini cannot answer the page shows what the server saw, and the floating «Improve» button covers no service button', async ({ page, context }, info) => {
+  await context.addInitScript(() => localStorage.setItem('ops.improve', '1')); // browser tests start without the floating button, this one wants it
+  await start(page, context, () => ({ status: 502, body: { ok: false, code: 'ai_unavailable', tried: ['gemini-x:404', 'list:403'] } }));
+  const g = page.locator('[data-gemini]');
+  await g.locator('[data-gemini-q]').fill('Was war meine längste Tour?');
+  await g.locator('[data-gemini-ask]').click();
+  await expect(g.locator('[data-gemini-error="failed"]')).toContainText('gemini-x:404 list:403');
+  await expect(g.locator('[data-gemini-detail]')).toContainText('502 ai_unavailable');
+  if (info.project.name !== 'phone') return;
+  // the result comes to the top of the screen, so the first service button is clear of the floating button (bottom left, above the bar)
+  const fab = page.locator('[data-improve]');
+  await expect(fab).toBeVisible();
+  const service = g.locator('[data-service]').first();
+  await expect.poll(async () => (await service.boundingBox()).y + (await service.boundingBox()).height, { timeout: 5000 }).toBeLessThan((await fab.boundingBox()).y);
+});
+
 test('«Mach es für mich» shows the plan first, writes only after «Ja, machen», and Undo takes it back', async ({ page, context }) => {
   await start(page, context, () => ({ body: { ok: true, actions: [{ kind: 'remind', text: 'Reifen pumpen', due: '2030-01-04' }, { kind: 'list', name: 'Wochenende', points: ['Sonnencreme', 'Snacks'] }] } }));
   const g = page.locator('[data-gemini]');

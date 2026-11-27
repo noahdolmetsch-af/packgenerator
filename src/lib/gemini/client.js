@@ -16,7 +16,7 @@ export function reasonOf(status, code) {
 
 /**
  * Asks Gemini. mode: 'ask' | 'report' | 'command'. → { ok: true, text } | { ok: true, points } | { ok: true, actions }
- * or { ok: false, reason: 'offline' | 'busy' | 'not_set_up' | 'too_big' | 'failed' }.
+ * or { ok: false, reason: 'offline' | 'busy' | 'not_set_up' | 'too_big' | 'failed', detail? }.
  */
 export async function askGemini({ mode = 'ask', text, image = null, lang = 'de', today = '' }, { doFetch = (...a) => fetch(...a), url = ASK_URL } = {}) {
   let res;
@@ -30,6 +30,11 @@ export async function askGemini({ mode = 'ask', text, image = null, lang = 'de',
     return { ok: false, reason: 'offline' };
   }
   const body = await res.json().catch(() => null);
-  if (!res.ok || !body?.ok) return { ok: false, reason: reasonOf(res.status, body?.code) };
+  if (!res.ok || !body?.ok) {
+    // what the server says about a failure (the HTTP code, its code, the models tried with their codes): no private data in it
+    const tried = Array.isArray(body?.tried) ? body.tried.slice(0, 8).join(' ') : '';
+    const detail = [res.status, typeof body?.code === 'string' ? body.code : '', tried].filter(Boolean).join(' ').slice(0, 200);
+    return { ok: false, reason: reasonOf(res.status, body?.code), detail };
+  }
   return body;
 }
