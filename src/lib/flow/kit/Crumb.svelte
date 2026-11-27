@@ -11,7 +11,8 @@
   import { fitSteps } from '../../nav/wege.svelte.js'; // «Wege»: the path starts with the place and tab of the map of the app
 
   let { path = [], here = '', back = null } = $props(); // back: { href, label } = «‹ Back to Heute», the page you came from (UI-Prüfung A2)
-  const steps = $derived(fitSteps(helpHere.route, path));
+  // the page is named once: where the line shows the page itself (not on a phone), a last step with its name goes («Ideen › Ideen», impeccable F-10)
+  const steps = $derived(fitSteps(helpHere.route, path, phone.matches ? '' : here));
   const shown = $derived(phone.matches ? steps.slice(-1) : steps);
 </script>
 
