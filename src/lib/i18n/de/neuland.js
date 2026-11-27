@@ -278,6 +278,8 @@ export default {
   '{km} km new': '{km} km neu',
   'of {km} km': 'von {km} km',
   'Latest rides with new km': 'Letzte Fahrten mit neuen km',
+  'Where it was new': 'Wo es neu war',
+  'Map: new kilometres': 'Karte: neue Kilometer',
   '{km} of {all} km new': '{km} von {all} km neu',
   'A stretch counts as new when none of your earlier rides passed within {m} m. Rides from Strava, GPX files and your own recordings count.': 'Ein Stück zählt als neu, wenn keine frühere Fahrt näher als {m} m vorbeiführte. Fahrten von Strava, GPX-Dateien und eigene Aufzeichnungen zählen.',
   'Per year and per ride: how many km ran on roads you rode for the first time, in New ground.': 'Pro Jahr und pro Fahrt: wie viele km auf Strassen, die du zum ersten Mal gefahren bist, in Neuland.',

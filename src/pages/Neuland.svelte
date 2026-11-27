@@ -399,7 +399,7 @@
   <AreaIntro place="neuland" />
   <PasstHier place="neuland" />
 
-  <NeueKm {today} />
+  <NeueKm {today} {bg} />
 
   {#if openIt}
     {@const c = openItem}

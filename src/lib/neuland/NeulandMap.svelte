@@ -5,7 +5,7 @@
    * peaks, lakes, own places) are dots on the Swiss cantons or the Alps. Your routes show as thin lines.
    * view: 'ch' | 'alps' | 'europe'; areas: [{ id, rings, st }]; points: [{ id, lat, lon, st }];
    * st: 'year' (new in the chosen year), 'old' (reached before), '' (not yet); bg: { cantons, countries,
-   * lakes } background shapes; labels: [{ lon, lat, text, st }]; lines: [[[lat, lon], …], …];
+   * lakes } background shapes; labels: [{ lon, lat, text, st }]; lines: [[[lat, lon], …], …]; newLines: the same, drawn thicker in the accent colour (the stretches you rode for the first time, «Neue Kilometer»);
    * onpick(id): a tap on an area or a dot. The list below the map does the same for the keyboard.
    * Summit book map (Noah 24.11.2026 «1-5a»): view 'near' shows the surroundings of `center` {lat, lon}, and `big` draws
    * big dots: yours filled, the open ones near you as rings, the rest pale.
@@ -20,7 +20,7 @@
   import MapTip from './MapTip.svelte';
   import { placeLabels } from '../dotlabels.js';
 
-  let { view = 'ch', areas = [], points = [], bg = {}, labels = [], lines = [], title = '', onpick = null, center = null, big = false, span = 0.62, ratio = 1.15, labelSize = 3.4, dotLabels = false, selId = null, zoomable = true, focus = null } = $props();
+  let { view = 'ch', areas = [], points = [], bg = {}, labels = [], lines = [], newLines = [], title = '', onpick = null, center = null, big = false, span = 0.62, ratio = 1.15, labelSize = 3.4, dotLabels = false, selId = null, zoomable = true, focus = null } = $props();
 
   const S = 100; // 1° = 100 units
   const NAMES_AT = 2.5; // from this zoom on the dots show their names
@@ -116,6 +116,7 @@
     return kept.map((l) => ({ ...l, fs }));
   });
   const routes = $derived(lines.map((l) => l.map(([lat, lon]) => xy(lon, lat).join(',')).join(' ')));
+  const fresh = $derived(newLines.map((l) => l.map(([lat, lon]) => xy(lon, lat).join(',')).join(' ')));
 
   // ---- zoom and move
   let svg = $state(null);
@@ -268,6 +269,7 @@
   {#each shapes as a (a.id)}<path class="area {a.st || 'no'}" class:sel={selId === a.id} data-id={a.id} data-name={a.name} d={a.d} />{/each}
   {#each bgLakes as l (l.id)}<path class="lake" d={l.d} />{/each}
   {#each routes as r, i (i)}<polyline class="route" points={r} />{/each}
+  {#each fresh as r, i (i)}<polyline class="route-new" points={r} stroke-width={(unit * 0.55 * Math.pow(view_.z, 0.35)).toFixed(2)} />{/each}
   {#each dotNames as l (l.id)}
     <text class="dn" x={l.x} y={l.y} font-size={l.fs} text-anchor={l.anchor} dominant-baseline="central" data-id={l.id} style:stroke-width="{l.fs * 0.28}px">{l.name}</text>
   {/each}
@@ -454,6 +456,14 @@
     stroke-width: 1.4;
     stroke-opacity: 0.75;
     stroke-linejoin: round;
+    pointer-events: none;
+  }
+  .route-new {
+    fill: none;
+    stroke: var(--accent);
+    stroke-opacity: 0.9;
+    stroke-linejoin: round;
+    stroke-linecap: round;
     pointer-events: none;
   }
   .dot {
