@@ -151,7 +151,7 @@
   }
   .pl li {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 52px 52px 64px;
+    grid-template-columns: minmax(0, 1fr) 52px 52px 76px;
     gap: var(--sp-2);
     align-items: baseline;
     padding: 6px 0;
