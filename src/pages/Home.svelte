@@ -210,7 +210,7 @@
   import { mundartFor } from '../lib/home/mundart.js'; // «Wetter-Sprüche auf Mundart» (Idee 27)
   import HeuteBild from '../lib/home/HeuteBild.svelte'; // «Paket G»: the drawn landscape on top
   import { bildOf, moodOf } from '../lib/home/heutebild.js';
-  import { PartyPopper, Sun, RotateCcw, Route, ChevronRight, SlidersHorizontal, Hand, X, ClipboardList, Flower2, Bike as BikeIcon, LayoutGrid, Check } from '@lucide/svelte';
+  import { PartyPopper, Sun, RotateCcw, Route, ChevronRight, SlidersHorizontal, Hand, X, ClipboardList, Flower2, Bike as BikeIcon, LayoutGrid, Check, Footprints } from '@lucide/svelte';
   import DuTile from '../lib/home/DuTile.svelte'; // «Heute neu» A (Noah 20.10.2026 «3a»): «You today»
   import MedStartSheet from '../lib/flow/MedStartSheet.svelte';
   import NachtragHint from '../lib/flow/NachtragHint.svelte'; // «Heute · Gestern» (Noah 22.11.2026 «b»): the morning hint of Aktiv also on top of Heute
@@ -1505,6 +1505,7 @@
         {#await import('../lib/stops/HeuteStopps.svelte') then m}<m.default {today} top={false} />{:catch}{/await}
         <div class="lkrow">
           <a class="lkb" href="#/me/karte" data-all-areas><LayoutGrid size={16} aria-hidden="true" />{t('All areas|home')}</a>
+          <button type="button" class="lkb" data-tour-end onclick={startStaerken}><Footprints size={16} aria-hidden="true" />{t('Tour of the strengths')}</button>
           <button type="button" class="lkb" data-intro="custom" onclick={() => (editing = true)}><SlidersHorizontal size={16} aria-hidden="true" />{t('Customise the start page')}</button>
         </div>
         <p class="ver"><span class="odot" class:off={!online}></span>{online ? t('Online') : t('Offline')} · v{__APP_VERSION__}</p>

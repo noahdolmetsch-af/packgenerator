@@ -48,6 +48,8 @@ test('Jetzt shows the rain of the next three hours with one sentence, and a row 
   await expect(next).toBeVisible();
   const [a, b] = await Promise.all([page.locator('[data-wx-r3]').boundingBox(), next.boundingBox()]);
   expect(b.y).toBeGreaterThan(a.y);
+  // a way on to another page, also when the forecast is missing (night run 27.11.: Weather was a dead end)
+  await expect(next.locator('[data-wx-next-pack]')).toHaveAttribute('href', '#/pack');
   await page.locator('[data-wx-next-planen]').click();
   await expect(page.locator('[data-wx-tab="planen"]')).toHaveAttribute('aria-selected', 'true');
   await expect(page.locator('[data-wx-next="planen"] [data-wx-next-neuland]')).toHaveAttribute('href', '#/neuland');

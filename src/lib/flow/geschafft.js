@@ -6,7 +6,7 @@
  * No new data: it reads flowLog, flowActs, db.activities and the settings training.goal / training.weekplan / training.weeklog.
  */
 import { mondayOf, shiftDay, goalOf, planOf, zoneSecs, mainZone } from '../training.js';
-import { planOf as weekplanOf, isSummer } from '../training/wochenplan.js';
+import { weekHours } from '../training/wochenplan.js';
 import { weekFor, logOf, weekLog, weekPins, QUIET } from '../training/wochenlog.js';
 import { weekGoals } from '../flowweek.js';
 
@@ -54,16 +54,11 @@ export function weekNumbers(log = [], acts = [], day) {
 export const hhmm = (mins) => `${Math.floor(mins / 60)}:${String(Math.round(mins % 60)).padStart(2, '0')}`;
 
 /**
- * The weekly hours the person set (Training › «Stundenziel» = training.goal, else the hours of the weekly plan), or null.
+ * The weekly hours the person set: the hours of the weekly plan, else Training › «Stundenziel» (training.goal) while its day has not passed (`weekHours`), or null.
  * Nothing invented: no goal set, no bar.
  */
 export function hoursGoal({ goal = null, weekplan = null } = {}, day) {
-  const g = goalOf(goal)?.hours;
-  if (g) return g;
-  if (weekplan == null) return null;
-  const p = weekplanOf(weekplan);
-  const h = (isSummer(day) ? p.summer : p.winter).hours;
-  return h > 0 ? h : null;
+  return weekHours({ goal: goalOf(goal), weekplan }, day);
 }
 
 /**

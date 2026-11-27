@@ -8,6 +8,7 @@ import { liveQuery } from 'dexie';
 import { db } from '../db.js';
 import { ITEMS_KEY, TIMES_KEY, timesOf, AWAY_KEY, HIDE_KEY, NO_KEY, SG_OPEN_KEY, SG_OFF_KEY, SG_NEVER_KEY, SEASON_KEY, neverOf, PLANNED_KEY, CAL_KEY, itemsOf, awayOf, calEntries } from '../woche.js';
 import { PLAN_KEY as TRAIN_KEY, GOAL_KEY, planOf, goalOf } from '../training.js';
+import { WEEKPLAN_KEY, weekHours } from '../training/wochenplan.js';
 import { FIXED_KEY, PLAN_KEY as FLOW_PLAN_KEY, fixedList } from '../flowweek.js';
 import { sortBikes } from '../bikes.js';
 import { withVisits } from '../workshop.js';
@@ -19,7 +20,7 @@ import { TEMPLATES_KEY, templatesOf } from '../tag/vorlage.js';
 
 const shiftBack = (day, n) => new Date(Date.parse(`${day}T00:00:00Z`) - n * 864e5).toISOString().slice(0, 10);
 
-const KEYS = [AGENDA_KEY, ITEMS_KEY, TIMES_KEY, AWAY_KEY, HIDE_KEY, NO_KEY, SG_OPEN_KEY, SG_OFF_KEY, SG_NEVER_KEY, SEASON_KEY, PLANNED_KEY, CAL_KEY, TRAIN_KEY, GOAL_KEY, FIXED_KEY, FLOW_PLAN_KEY, SP_KEY, TEMPLATES_KEY];
+const KEYS = [AGENDA_KEY, ITEMS_KEY, TIMES_KEY, AWAY_KEY, HIDE_KEY, NO_KEY, SG_OPEN_KEY, SG_OFF_KEY, SG_NEVER_KEY, SEASON_KEY, PLANNED_KEY, CAL_KEY, TRAIN_KEY, GOAL_KEY, WEEKPLAN_KEY, FIXED_KEY, FLOW_PLAN_KEY, SP_KEY, TEMPLATES_KEY];
 
 /** The raw sources of the week (a liveQuery); today: YYYY-MM-DD for the bike care. */
 export function weekQuery(today) {
@@ -60,6 +61,7 @@ export function weekQuery(today) {
       cal: calEntries(s[CAL_KEY]),
       sessions: planOf(s[TRAIN_KEY]),
       goal: goalOf(s[GOAL_KEY]),
+      goalHours: weekHours({ goal: s[GOAL_KEY], weekplan: s[WEEKPLAN_KEY] ?? null }, today), // one hours goal: the weekly plan's, else the training goal's while it lasts
       fixed: fixedList(s[FIXED_KEY]),
       plans: Array.isArray(s[FLOW_PLAN_KEY]) ? s[FLOW_PLAN_KEY] : [],
       trips: trips.filter((tr) => tr.startDate && !tr.skipped).map((tr) => ({ id: tr.id, title: tr.title ?? tr.name ?? '', startDate: tr.startDate, days: tr.days })),

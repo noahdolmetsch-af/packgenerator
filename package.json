@@ -13,7 +13,7 @@
   },
   "devDependencies": {
     "@playwright/test": "1.65.1",
-    "@sveltejs/vite-plugin-svelte": "^7.3.1",
+    "@sveltejs/vite-plugin-svelte": "^7.3.2",
     "fake-indexeddb": "^6.2.8",
     "read-excel-file": "^9.3.20",
     "svelte": "^5.59.1",
@@ -30,7 +30,7 @@
     "@fontsource/manrope": "^5.3.0",
     "@fontsource/nunito-sans": "^5.3.0",
     "@fontsource/source-sans-3": "^5.3.1",
-    "@lucide/svelte": "^1.77.0",
+    "@lucide/svelte": "^1.78.0",
     "dexie": "^4.4.7",
     "heic2any": "0.0.4",
     "html-to-image": "^1.11.13",

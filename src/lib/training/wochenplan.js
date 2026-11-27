@@ -145,6 +145,24 @@ export function configOf(raw, summer) {
 /** The stored setting made safe: { v, winter, summer }. Always a full value, also for nothing at all. */
 export const planOf = (raw) => ({ v: 1, winter: configOf(raw?.winter, false), summer: configOf(raw?.summer, true) });
 
+/**
+ * ONE hours goal for a week (Noah 26.11.2026 «ja» to «ein Wochenziel statt zwei»): the hours of the weekly plan when one is saved (that is
+ * the plan the person sees and ticks off), else the hours of the training goal («Dein Trainingsziel») while its day has not passed.
+ * An old goal stays stored and untouched, it just stops counting after its day. null = no hours goal at all.
+ * `goal` is the stored training goal (or null), `weekplan` the stored setting (or null = no weekly plan yet), `day` a day of the week.
+ */
+export function weekHours({ goal = null, weekplan = null } = {}, day) {
+  if (weekplan != null) {
+    const p = planOf(weekplan);
+    const h = (isSummer(day) ? p.summer : p.winter).hours;
+    if (h > 0) return h;
+  }
+  const g = Number(goal?.hours);
+  const until = typeof goal?.until === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(goal.until) ? goal.until : null;
+  if (g >= 0.5 && g <= 40 && !(until && day && until < day)) return g;
+  return null;
+}
+
 // ---- hours → units -------------------------------------------------------------------------------------------------
 
 const WINTER_LADDER = ['hockey', 'tennis', 'yoga', 'gym', 'yoga', 'sauna', 'bikeOut', 'tennis', 'gym', 'runOut', 'bikeIn', 'tennis', 'runIn', 'mini', 'bikeOut', 'runOut', 'bikeIn', 'bikeOut', 'runIn', 'mini'];

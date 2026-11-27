@@ -6,7 +6,7 @@ import { test, expect } from './clock.js';
 import { READY } from '../../src/lib/home/tiles.js';
 import { D0, homeFixture, openHome, trip, entries } from './home0460-fixture.js';
 import { greetFor } from '../../src/lib/home/hallo.js';
-import { WINDOWS_ON } from './settle.js';
+import { WINDOWS_ON, settle } from './settle.js';
 
 // Heute's windows by the clock, as in the app (the other specs keep them quiet)
 test.use({ storageState: WINDOWS_ON });
@@ -24,6 +24,8 @@ const noSideScroll = async (page, what) => {
   for (const w of [390, 320]) {
     const vp = page.viewportSize();
     await page.setViewportSize({ width: w, height: vp.height });
+    // the page lays itself out again for the new width: measure after two frames, not in the middle of the change
+    await page.evaluate(() => new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(ok))));
     const sw = await page.evaluate(() => document.documentElement.scrollWidth);
     expect(sw, `no sideways scroll at ${w} px: ${what}`).toBeLessThanOrEqual(w);
     await page.setViewportSize(vp);
@@ -204,6 +206,9 @@ test('colour worlds and dark mode in More; every choice stays', async ({ page, c
   await expect(html).toHaveAttribute('data-theme', 'dark');
   // Today itself, in the dark
   await page.goto('./#/');
+  // Today shows its sections a moment after the address changes (the tidy-up first, then the data): wait until it has decided
+  // what to show, like the other pages do, before the width is measured (it was measured on the half-built page, 854 px wide)
+  await settle(page);
   await noSideScroll(page, 'Today in the dark');
 });
 

@@ -79,7 +79,7 @@
       .catch(() => (forecast = null));
   });
   const actOf = $derived(new Map((src?.flowActs ?? []).map((a) => [a.id, a])));
-  const week = $derived(src ? buildWeek({ ...src, forecast, monday, today, goalHours: src.goal?.hours ?? null, actName: (id) => actName(actOf.get(id)) || id }) : null);
+  const week = $derived(src ? buildWeek({ ...src, forecast, monday, today, goalHours: src.goalHours ?? null, actName: (id) => actName(actOf.get(id)) || id }) : null);
   const d = $derived(week?.days.find((x) => x.day === day) ?? null);
   // a suggestion of the app that only looks like a session of your imported plan is folded into one closed line (Noah 24.11.2026)
   const split = $derived(foldSimilar(d?.entries ?? []));
