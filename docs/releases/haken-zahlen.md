@@ -1,6 +1,6 @@
 # Haken-Analysen: ein Schalter, Tagestotal, Wochenpensum
 
-PR #<Nummer> · 27.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5a» (Thread «Abhaken auf einen Blick verbessern», Haken-Analysen an einem Ort, Paket A von drei)
+PR #1842 · 27.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5a» (Thread «Abhaken auf einen Blick verbessern», Haken-Analysen an einem Ort, Paket A von drei)
 
 ## Was ist neu
 - Auswerten › Woche beginnt mit einem Schalter «Zeitraum für alles hier» (10 Tage, 30 Tage, 3 Monate, Jahr). Er gilt für den Haken-Verlauf und die neuen Karten.

@@ -1,6 +1,6 @@
 # Deine Haken, Tag für Tag
 
-PR #<Nummer> · 27.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5a» (Thread «Abhaken auf einen Blick verbessern», Schritt 2 von 3)
+PR #1842 · 27.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5a» (Thread «Abhaken auf einen Blick verbessern», Schritt 2 von 3)
 
 ## Was ist neu
 - Auswerten › Woche beginnt mit der Karte «Haken-Verlauf»: jede Aktivität als Zeile, jeder Tag als Spalte, ein Punkt, wo du abgehakt hast. Zuerst die letzten 10 Tage; ein Tipp schaltet auf 30 Tage, 3 Monate oder ein Jahr (die Wahl bleibt am Gerät).

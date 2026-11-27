@@ -1,6 +1,6 @@
 # Was in deinen Haken auffällt
 
-PR #<Nummer> · 27.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5a» (Thread «Abhaken auf einen Blick verbessern», Schritt 3 von 3)
+PR #1842 · 27.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5a» (Thread «Abhaken auf einen Blick verbessern», Schritt 3 von 3)
 
 ## Was ist neu
 - Auswerten › Woche hat unter dem Haken-Verlauf die Karte «Was auffällt»: bis zu fünf Hinweise über alle Aktivitäten, jeder mit einem Satz «Warum». Fünf Arten: Tage in Folge Bewegung ohne Erholung («Heute erholen?»), eine Lücke gegen den eigenen üblichen Abstand, eine Serie, was du oft zusammen abhakst, ein Wochentag.

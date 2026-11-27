@@ -1,6 +1,6 @@
 # Haken-Analysen: Was Bewegung mit dir macht, Garmin gegen Fitbit
 
-PR #<Nummer> · 27.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5a» (Thread «Abhaken auf einen Blick verbessern», Haken-Analysen an einem Ort, Paket B von drei)
+PR #1842 · 27.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5a» (Thread «Abhaken auf einen Blick verbessern», Haken-Analysen an einem Ort, Paket B von drei)
 
 ## Was ist neu
 - Auswerten › Woche hat unter dem Wochenpensum die Karte «Was Bewegung mit dir macht»: die Aktivzonen-Minuten jeder Woche als Balken, darunter Ruhepuls, HRV oder Schlaf derselben Woche als Linie (Chips), und ein Satz, wie die Woche danach nach Wochen mit mehr Aktivzonen-Minuten aussah («ein Muster, keine Ursache»).
