@@ -339,4 +339,13 @@ export default {
   'Open New ground and choose «Lookout towers», «Suspension bridges» or «Waterfalls».': 'Öffne Neuland und wähle «Aussichtstürme», «Hängebrücken» oder «Wasserfälle».',
   'Tap «Load now» the first time (later it loads by itself once a week).': 'Tippe beim ersten Mal «Jetzt laden» (später lädt es einmal pro Woche von selbst).',
   'Ride past one: it is ticked with the day.': 'Fahr an einem vorbei: er wird mit dem Tag abgehakt.',
+  // the zoom of the map (Noah 27.11.2026)
+  Zoom: 'Zoom',
+  'Zoom in': 'Hineinzoomen',
+  'Zoom out': 'Herauszoomen',
+  'Whole map': 'Ganze Karte',
+  'Ctrl and scroll, or pinch, to zoom': 'Zum Zoomen: Ctrl und scrollen, oder zwei Finger',
+  'Show «{name}» on the map': '«{name}» auf der Karte zeigen',
+  'Show on the map': 'Auf der Karte zeigen',
+  'Full screen': 'Ganzer Bildschirm',
 };
