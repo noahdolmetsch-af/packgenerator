@@ -11,6 +11,10 @@
  * What a fetch does with the plan (the feed shows about 5 days back and 14 ahead, and changes up to 24 hours late):
  *  - sessions with src 'tp' inside that window are taken from the feed; a session the user changed, ticked or took
  *    out by hand is left as the user has it (TP_KEY remembers what the feed said last time, per session);
+ *  - TrainingPeaks gives the same workout a NEW internal id (UID) at every fetch, so a session is named by its day, its
+ *    title and its place among same-titled entries of that day (idOf, «tp2-…»), never by the UID. Before that (until
+ *    27.11.2026) the UID was the name: copies of one workout piled up (a session changed, ticked or synced from the
+ *    other device was never replaced, and every fetch added one more). foldCopies() folds such old copies into one.
  *  - an entry without a duration is left out, never guessed; the card says how many. The exception is a free day
  *    («Recovery Day», Ruhetag …): it has no duration by nature, so it is not a session but a day the weekly plan
  *    keeps free (`rest` in the plan record, Noah 22.11.2026 «Recovery Day ja»).
@@ -55,7 +59,7 @@ const isDay = (s) => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
 export function prefsOf(v) {
   const o = v && typeof v === 'object' ? v : {};
   const seen = {};
-  if (o.seen && typeof o.seen === 'object') for (const [k, sig] of Object.entries(o.seen).slice(0, MAX_SEEN)) if (/^tp-[\w]{1,12}$/.test(k) && typeof sig === 'string') seen[k] = sig.slice(0, 200);
+  if (o.seen && typeof o.seen === 'object') for (const [k, sig] of Object.entries(o.seen).slice(0, MAX_SEEN)) if (/^tp2?-[\w]{1,12}$/.test(k) && typeof sig === 'string') seen[k] = sig.slice(0, 200);
   const n = (x) => (Number.isInteger(x) && x >= 0 && x < 10_000 ? x : 0);
   return { url: cleanLink(o.url), on: o.on !== false, fetchedAt: typeof o.fetchedAt === 'string' ? o.fetchedAt : null, error: typeof o.error === 'string' ? o.error : '', found: n(o.found), skipped: n(o.skipped), rest: n(o.rest), seen };
 }
@@ -98,15 +102,23 @@ export function minutesOf(e) {
   return null;
 }
 
-/** A short stable id from what TrainingPeaks calls the entry (its id, else day and title). */
-export function idOf(e) {
+const norm = (x) => String(x ?? '').trim().slice(0, 60).toLowerCase().replace(/\s+/g, ' ').trim(); // 60: what cleanSession keeps of a title
+/** What names a workout apart from its place on the day: the day and the title (any case, one space). */
+export const keyOf = (s) => `${s.day}|${norm(s.name ?? s.title)}`;
+/**
+ * A short stable id: the day, the title and `n` (the 0, 1 … of entries with the same title on the same day). Never the UID of
+ * the feed: TrainingPeaks gives the same workout another UID at every fetch (checked on two backups, 23. and 24.11.2026).
+ */
+export function idOf(e, n = 0) {
   let h = 5381;
-  for (const c of String(e.uid || `${e.day}|${e.title}`)) h = ((h * 33) ^ c.charCodeAt(0)) >>> 0;
-  return `tp-${h.toString(36)}`;
+  for (const c of `${keyOf(e)}|${n}`) h = ((h * 33) ^ c.charCodeAt(0)) >>> 0;
+  return `tp2-${h.toString(36)}`;
 }
+/** A session of the feed from before the stable id (named by its UID): to be folded into the new one. */
+const isOldId = (s) => s?.src === TP_SRC && !String(s.id).startsWith('tp2-');
 
 /** What identifies a session's content for «did the user change it?». */
-export const sigOf = (s) => `${s.day}|${s.kind}|${s.name}|${s.mins}|${s.zone ?? ''}`;
+export const sigOf = (s) => `${s.day}|${s.kind}|${s.name}|${s.mins}|${s.zone ?? ''}|${s.time ?? ''}`;
 
 /** A free day in the feed: «Recovery Day», «Rest day», «Ruhetag», «Erholungstag», «Day off». Only counts without a duration. */
 export const REST_RE = /(^|[^a-zäöüß])(recovery day|rest day|day off|off day|ruhetag|erholungstag|regenerationstag|freier tag)($|[^a-zäöüß])/i;
@@ -118,6 +130,7 @@ export function sessionsFrom(ics, today) {
   let skipped = 0;
   const seen = new Set();
   const rest = new Set();
+  const nth = new Map(); // key → how many entries with this day and title came before
   for (const e of entries) {
     const mins = minutesOf(e);
     if (!mins && REST_RE.test(String(e.title ?? '')) && /^\d{4}-\d{2}-\d{2}$/.test(e.day ?? '')) {
@@ -125,11 +138,14 @@ export function sessionsFrom(ics, today) {
       continue;
     }
     const zone = zoneOf(e.title, e.note);
-    const s = mins ? cleanSession({ id: idOf(e), day: e.day, kind: kindOf(e.title), name: e.title, mins, zone, src: TP_SRC, time: e.allDay ? '' : e.from }) : null;
+    const k = keyOf(e);
+    const n = nth.get(k) ?? 0;
+    const s = mins ? cleanSession({ id: idOf(e, n), day: e.day, kind: kindOf(e.title), name: e.title, mins, zone, src: TP_SRC, time: e.allDay ? '' : e.from }) : null;
     if (!s) {
       skipped++;
       continue;
     }
+    nth.set(k, n + 1);
     if (seen.has(s.id)) continue;
     seen.add(s.id);
     sessions.push(s);
@@ -140,20 +156,79 @@ export function sessionsFrom(ics, today) {
   return { sessions: sessions.sort((a, b) => a.day.localeCompare(b.day)), rest: [...rest].sort(), skipped, from, to };
 }
 
+const sameContent = (a, b) => sigOf(a) === sigOf(b);
+
 /**
- * The plan with the feed written in. → { plan, seen, added, changed, removed }.
+ * Old copies folded (27.11.2026, Noah: every workout showed three times). A session of the feed from before the stable id is named by
+ * a UID that TrainingPeaks has long replaced. For each day and title:
+ *  - the first old session (ticked first, then changed by hand) takes the id of a session of the feed that is not in the plan yet:
+ *    from now on it is that session, with its tick and its changes; `seen` learns what the feed says, so a change by hand stays;
+ *  - every other old session of the same content (a copy) goes, a tick of it is kept on the one that stays;
+ *  - an old session with its own content (another length, another time) stays: nothing is lost.
+ * → { plan, seen, merged } (merged: the copies that went).
+ */
+export function foldCopies(plan, feed, seen = {}) {
+  const have = new Set(plan.map((s) => s.id));
+  const slots = new Map(); // key → the sessions of the feed not yet in the plan
+  for (const f of feed.sessions) if (!have.has(f.id)) slots.set(keyOf(f), [...(slots.get(keyOf(f)) ?? []), f]);
+  const old = plan.filter(isOldId);
+  if (!old.length) return { plan, seen, merged: 0 };
+  const rank = (s, f) => (s.done === true ? 0 : f && !sameContent(s, f) ? 1 : 2); // ticked first, then changed by hand
+  const nextSeen = { ...seen };
+  const change = new Map(); // a session of the plan → what stays of it (null: it goes)
+  const byKey = new Map();
+  for (const s of old) byKey.set(keyOf(s), [...(byKey.get(keyOf(s)) ?? []), s]);
+  let merged = 0;
+  for (const [k, list] of byKey) {
+    const free = slots.get(k) ?? [];
+    const ordered = list.map((s, i) => ({ s, i })).sort((a, b) => rank(a.s, free[0]) - rank(b.s, free[0]) || a.i - b.i).map((x) => x.s);
+    // what already stands for this day and title: sessions with a stable id (the other device may have folded first)
+    const kept = plan.filter((s) => s.src === TP_SRC && !isOldId(s) && keyOf(s) === k).map((s) => ({ was: s, now: s }));
+    const asFeed = feed.sessions.filter((f) => keyOf(f) === k); // a copy that says what the feed says is no loss
+    for (const s of ordered) {
+      const f = free.shift();
+      if (f) {
+        nextSeen[f.id] = sigOf(f);
+        const now = { ...s, id: f.id };
+        kept.push({ was: s, now });
+        change.set(s, now);
+        continue;
+      }
+      const twin = kept.find((x) => sameContent(x.now, s));
+      const keeper = twin ?? (asFeed.some((f) => sameContent(f, s)) ? kept[0] : null);
+      if (keeper) {
+        if (s.done === true && keeper.now.done !== true) {
+          keeper.now = { ...keeper.now, done: true };
+          change.set(keeper.was, keeper.now);
+        }
+        change.set(s, null);
+        merged++;
+      } else {
+        kept.push({ was: s, now: s });
+      }
+    }
+  }
+  return { plan: plan.flatMap((s) => (change.has(s) ? (change.get(s) ? [change.get(s)] : []) : [s])), seen: nextSeen, merged };
+}
+
+/**
+ * The plan with the feed written in. → { plan, seen, added, changed, removed, merged }.
  * plan: the sessions now; feed: sessionsFrom(); seen: { id: sig } of the last fetch (prefs.seen).
  */
 export function mergeFeed(plan, feed, seen = {}) {
+  const folded = foldCopies(plan, feed, seen);
+  plan = folded.plan;
+  seen = folded.seen;
   const sig = (s) => sigOf(s);
   const inWindow = (s) => s.day >= feed.from && s.day <= feed.to;
   const byId = new Map(plan.map((s) => [s.id, s]));
-  const userOwn = (s) => s.done === true || !seen[s.id] || seen[s.id] !== sig(s); // ticked, unknown or changed by hand: stays
+  const fed = new Map(feed.sessions.map((s) => [s.id, s]));
+  // ticked, or changed by hand: stays. A session the last fetch did not write down (the other device wrote it) that equals the feed is the feed's.
+  const userOwn = (s) => s.done === true || (seen[s.id] ? seen[s.id] !== sig(s) : !(fed.has(s.id) && sig(fed.get(s.id)) === sig(s)));
   const out = [];
   let added = 0;
   let changed = 0;
   let removed = 0;
-  const fed = new Map(feed.sessions.map((s) => [s.id, s]));
   for (const s of plan) {
     if (s.src !== TP_SRC || !inWindow(s)) {
       out.push(s);
@@ -175,7 +250,7 @@ export function mergeFeed(plan, feed, seen = {}) {
   }
   const nextSeen = {};
   for (const f of feed.sessions) nextSeen[f.id] = sig(f);
-  return { plan: out, seen: nextSeen, added, changed, removed };
+  return { plan: out, seen: nextSeen, added, changed, removed, merged: folded.merged };
 }
 
 /** Fetch again? Never when off or without a link, at most every STALE_MIN minutes unless forced. */
@@ -205,7 +280,16 @@ export async function fetchFeed(url, { doFetch = (...a) => fetch(...a), today } 
  * is kept for the card. The record and the plan are read again just before they are written.
  * db: the Dexie database (settings table). → { ok, code?, added, changed, removed, skipped, found } or { skipped: true } when not due.
  */
-export async function refresh(db, { doFetch, now = Date.now(), force = false, today, url = null } = {}) {
+let running = null; // two fetches at once (opening the app and coming back) would each write the plan
+export function refresh(db, opts = {}) {
+  if (running) return running;
+  running = refreshNow(db, opts).finally(() => {
+    running = null;
+  });
+  return running;
+}
+
+async function refreshNow(db, { doFetch, now = Date.now(), force = false, today, url = null } = {}) {
   const rec = prefsOf((await db.settings.get(TP_KEY))?.value);
   const link = url ?? rec.url;
   if (!url && !isStale(rec, now, force)) return { ok: true, notDue: true };
@@ -224,7 +308,7 @@ async function applyFeed(db, feed, { cur, link, now, today }) {
   const m = mergeFeed(plan.map(cleanSession).filter(Boolean), feed, cur.seen);
   await db.settings.put({ key: PLAN_KEY, value: { sessions: prunePlan(m.plan, today), ...(feed.rest?.length ? { rest: feed.rest } : {}) } });
   await db.settings.put({ key: TP_KEY, value: JSON.parse(JSON.stringify({ ...cur, url: link, on: cur.on, fetchedAt: new Date(now).toISOString(), error: '', found: feed.sessions.length, skipped: feed.skipped, rest: feed.rest?.length ?? 0, seen: m.seen })) });
-  return { ok: true, added: m.added, changed: m.changed, removed: m.removed, skipped: feed.skipped, found: feed.sessions.length, rest: feed.rest?.length ?? 0 };
+  return { ok: true, added: m.added, changed: m.changed, removed: m.removed, merged: m.merged, skipped: feed.skipped, found: feed.sessions.length, rest: feed.rest?.length ?? 0 };
 }
 
 /**
