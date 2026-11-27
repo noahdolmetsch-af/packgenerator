@@ -265,12 +265,15 @@ export function moveSuggestions(states, sessions, today) {
  * Null when there is none.
  */
 export function feelToAsk(acts, today) {
+  return feelAllToAsk(acts, today)[0] ?? null;
+}
+
+/** All of them (Noah 27.11.2026 «3b»: the open ones stand as a small list), newest first. */
+export function feelAllToAsk(acts, today) {
   const from = shiftDay(today, -3);
-  return (
-    [...acts]
-      .filter((a) => a.day >= from && a.day <= today && feelOf(a) == null && !a.feelSkip)
-      .sort((a, b) => `${b.day} ${b.time ?? ''}`.localeCompare(`${a.day} ${a.time ?? ''}`))[0] ?? null
-  );
+  return [...acts]
+    .filter((a) => a.day >= from && a.day <= today && feelOf(a) == null && !a.feelSkip)
+    .sort((a, b) => `${b.day} ${b.time ?? ''}`.localeCompare(`${a.day} ${a.time ?? ''}`));
 }
 
 /*
