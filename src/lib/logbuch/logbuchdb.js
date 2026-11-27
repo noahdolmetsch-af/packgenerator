@@ -5,6 +5,7 @@
  */
 import { db } from '../db.js';
 import { makeEntry, changeEntry, reassignEntries } from './logbuch.js';
+import { worksEntry } from './testrunde.js';
 import { KINDS_KEY, DEFAULT_KINDS, STANDARD_ARTS, normalizeKinds, isStandard, removeArt, removeGroup, hasArt, setRoute } from './kinds.js';
 
 /** The user's kinds and groups (L5): the first version when nothing is stored. */
@@ -139,4 +140,15 @@ export async function resetKinds(database = db) {
     await saveKinds(DEFAULT_KINDS, database);
     return { cfg: before, rows };
   });
+}
+
+/**
+ * «Testrunde» (Noah 27.11.2026): «Works» for a release. One entry of the log with the release in it; the text names the title
+ * and the PR so the log reads well on its own. Returns the entry (null when nothing could be made).
+ */
+export async function logWorks({ release, text, pageTitle = '', device, width }, database = db) {
+  const entry = worksEntry({ release, text, pageTitle, device, width, cfg: await loadKinds(database) });
+  if (!entry) return null;
+  await database.logbuch.put(entry);
+  return entry;
 }

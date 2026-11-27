@@ -15,7 +15,7 @@
   import { db } from '../db.js';
   import { takeIntoLog } from './fehler.js';
   import { deviceOf } from './logbuch.js';
-  import { DEFAULT_KINDS } from './kinds.js';
+  import { DEFAULT_KINDS, hasArt } from './kinds.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import { saveFailed } from '../ui/ask.js';
   import { t } from '../i18n.svelte.js';
@@ -91,10 +91,31 @@
     cfg = await loadKinds().catch(() => DEFAULT_KINDS);
     ctx = { page: hash || location.hash || '#/', pageTitle: pageTitleOf(), block, at, device: deviceOf(width()), width: width(), photo: shot.photo, photoNote: shot.note };
   }
+  /** «Does not work» of the test round (know/testact.js): the window opens at once with the kind «Error» and the release in it. */
+  async function failed(ev) {
+    ev.preventDefault();
+    if (ctx || busy) return;
+    cfg = await loadKinds().catch(() => DEFAULT_KINDS);
+    const { release, title } = ev.detail;
+    ctx = { page: hash || location.hash || '#/', pageTitle: pageTitleOf(), block: title, at: new Date().toISOString(), device: deviceOf(width()), width: width(), photo: null, photoNote: null, art: hasArt(cfg, 'fehler') ? 'fehler' : '', release };
+  }
+  $effect(() => {
+    window.addEventListener('pg:test-fail', failed);
+    return () => window.removeEventListener('pg:test-fail', failed);
+  });
   async function save(v) {
     try {
       const entry = await addEntry({ ...v, device: ctx.device, width: ctx.width, now: new Date(ctx.at) });
-      if (entry) offerDone(t('Noted in the log.'), async () => void (await removeEntry(entry.id)));
+      if (entry?.release) {
+        // «Does not work» of the test round: the answer of that release on this device (know/testact.js)
+        const { readResults, writeResult } = await import('../know/wasneuStore.js');
+        const before = readResults().get(entry.release.version) ?? null;
+        writeResult(entry.release.version, 'fail', entry.at);
+        offerDone(t('Noted in the log.'), async () => {
+          await removeEntry(entry.id);
+          writeResult(entry.release.version, before?.result ?? null, before?.at);
+        });
+      } else if (entry) offerDone(t('Noted in the log.'), async () => void (await removeEntry(entry.id)));
     } catch (err) {
       offerDone(saveFailed(err));
     }

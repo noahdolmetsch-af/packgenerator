@@ -8,7 +8,8 @@
  *   page    where it was noticed: the address of the page (#/flow/training) or ''; block: the name of the block or ''
  *   route   what happens with it: 'direct' (a small change, one PR with before and after), 'draft' (first a picture of
  *           how it would look, then the change), 'note' (only a note, nothing changes); decided by the kind (routeOf)
- *   source  'user' (Noah wrote it) or 'auto' (the silent error reporter of the device wrote it); count: how often the same automatic error came
+ *   source  'user' (Noah wrote it), 'auto' (the silent error reporter of the device wrote it) or 'test' (a «Works» of the test round); count: how often the same automatic error came
+ *   release the release an entry is about, { version, pr, title }: a «Does not work» or «Works» of the test round («Was ist neu»), else null
  *   state   'open' | 'draft' (a draft was made) | 'done' | 'noted'
  */
 
@@ -30,12 +31,20 @@ export const URGENT = ['now', 'later'];
 
 const clean = (s, max) => String(s ?? '').trim().slice(0, max);
 
+/** The release an entry is about: { version, pr, title } or null (no version, no release). */
+export function cleanRelease(r) {
+  const version = clean(r?.version, 20);
+  if (!version) return null;
+  const pr = Number.isInteger(Number(r?.pr)) && Number(r.pr) > 0 ? Number(r.pr) : null;
+  return { version, pr, title: clean(r?.title, 120) };
+}
+
 /**
  * A new entry from what the window collected. Returns null without a valid kind or without a text.
  * `now` is a Date (the day is the local calendar day of the device, never a UTC cut).
  */
-export function makeEntry({ art, urgent, text, page, pageTitle = '', block, device, width, now = new Date(), id, photo = null, photoNote = null, source = 'user', cfg = DEFAULT_KINDS }) {
-  if (!artList(cfg).includes(art) && !(source === 'auto' && art === '')) return null; // '' = without a kind: only what the app notes itself, when «Error» is gone
+export function makeEntry({ art, urgent, text, page, pageTitle = '', block, device, width, now = new Date(), id, photo = null, photoNote = null, source = 'user', release = null, cfg = DEFAULT_KINDS }) {
+  if (!artList(cfg).includes(art) && !(source !== 'user' && art === '')) return null; // '' = without a kind: only what the app notes itself, when «Error» is gone
   const body = clean(text, 1000);
   if (!body) return null;
   const route = art === '' ? 'direct' : routeOf(art, cfg);
@@ -57,7 +66,8 @@ export function makeEntry({ art, urgent, text, page, pageTitle = '', block, devi
     state: route === 'note' ? 'noted' : 'open',
     photo,
     photoNote: photo ? null : photoNote === 'cap' || photoNote === 'failed' ? photoNote : null, // why there is no photo: 'failed' or 'cap' (the memory for photos is full)
-    source: source === 'auto' ? 'auto' : 'user',
+    source: source === 'auto' ? 'auto' : source === 'test' ? 'test' : 'user',
+    release: cleanRelease(release),
     count: 1,
   };
 }

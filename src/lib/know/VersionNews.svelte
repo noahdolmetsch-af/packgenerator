@@ -22,10 +22,11 @@
   import { newsWhen } from './neudatum.js';
   import { ChevronRight, Star, Check, Save, Palette, Sparkles, User, Inbox, StickyNote, Wrench, Bike, Shirt, Package, Activity, BookOpen, Blocks, Copy, Backpack, Route, Compass, Sun } from '@lucide/svelte';
 
-  let { e, card = false, level = 3, top = false, onnav = null, extra = null, id = undefined } = $props();
+  let { e, card = false, level = 3, top = false, onnav = null, extra = null, id = undefined, pr = null } = $props();
   const ICON = { star: Star, check: Check, save: Save, palette: Palette, sparkles: Sparkles, user: User, inbox: Inbox, note: StickyNote, wrench: Wrench, bike: Bike, shirt: Shirt, box: Package, activity: Activity, book: BookOpen, blocks: Blocks, copy: Copy, pack: Backpack, route: Route, compass: Compass, sun: Sun };
   // Warteliste 3 (Noah «2a und Uhrzeit»): every entry shows the full day with the weekday, and the time of the merge where it is known
   const full = $derived(newsWhen(e.date, e.time, locale()));
+  const shownPr = $derived(pr ?? e.pr ?? null);
   const when = $derived(top ? t('New · {date}', { date: full }) : full);
   // «1b»: the picture of an entry loads only after a tap (nothing when the page opens); without the internet a short note stands there
   let pic = $state(false);
@@ -44,7 +45,7 @@
 </script>
 
 <article class="vn" class:card data-version={e.version} aria-labelledby={id}>
-  <div class="vn-h"><span class="vn-badge num">{shortVersion(e.version)}</span><small>{when}</small></div>
+  <div class="vn-h"><span class="vn-badge num">{shortVersion(e.version)}</span><small>{when}{shownPr ? ` · ${t('PR {n}', { n: shownPr })}` : ''}</small></div>
   <svelte:element this={`h${level}`} class="vn-t" {id}>{t(e.title)}</svelte:element>
   {#if e.lead}<p class="vn-ld">{t(e.lead)}</p>{/if}
   <!-- the first picture stands open above the lines; more pictures of the same update wait behind one closed line -->
