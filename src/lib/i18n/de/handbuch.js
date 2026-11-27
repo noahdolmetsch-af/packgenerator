@@ -433,9 +433,9 @@ export default {
   // «Bild bearbeiten» (Noah 28.10.2026)
   'Take the screenshot on your phone as always, then open Me › Toolbox › Edit a picture.': 'Mach den Screenshot wie immer am Handy und öffne dann Ich › Werkzeugkasten › Bild bearbeiten.',
   // «Quick Links» (Noah 28.10.2026)
-  'Open Quick Links in the bar (on a computer: in the sidebar).': 'Öffne Quick Links in der Leiste (am Computer: in der Seitenleiste).',
-  'Open Quick Links in the bar.': 'Öffne Quick Links in der Leiste.',
-  'Tap «Add a pin» and pin a function.': 'Tippe auf «Abkürzung hinzufügen» und pinne eine Funktion an.',
+  'Open Quick Links in the bar (on a computer: in the sidebar).': 'Öffne Favoriten in der Leiste (am Computer: in der Seitenleiste).',
+  'Open Quick Links in the bar.': 'Öffne Favoriten in der Leiste.',
+  'Tap «Add a pin» and pin a function.': 'Tippe auf «Favorit hinzufügen» und merke eine Funktion.',
   'Tap a pin: the app goes there.': 'Tippe auf einen Pin: die App geht dorthin.',
   // «Träume und Neuland» N5
   'Counts from New ground: your routes, rides and own ticks.': 'Zählt aus Neuland: deine Routen, Fahrten und eigenen Haken.',
