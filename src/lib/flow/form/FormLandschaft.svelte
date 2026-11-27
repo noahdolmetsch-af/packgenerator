@@ -74,7 +74,7 @@
 
   // the sessions of the chosen day: what you did (each a link to the ride) and what is planned
   const dayActs = $derived(cur ? (actsByDay.get(cur.day) ?? []) : []);
-  const dayPlan = $derived(cur && cur.day >= today ? plan.filter((s) => s.day === cur.day && !doneBy(s, actsByDay.get(cur.day) ?? [])) : []);
+  const dayPlan = $derived(cur && cur.day >= today ? plan.filter((s) => s.day === cur.day && !doneBy(s, actsByDay.get(cur.day) ?? [], plan)) : []);
   const actMeta = (a, l) => [Number.isFinite(a.movingS) ? `${num(Math.round(a.movingS / 60))} min` : null, l ? t('load {n}|ls', { n: num(l.load) }) : null].filter(Boolean).join(' · ');
   const planMeta = (s) => [`${num(s.mins)} min`, s.zone ? `Z${s.zone}` : null, t('~load {n}|ls', { n: num(plannedLoad(s)) })].filter(Boolean).join(' · ');
 

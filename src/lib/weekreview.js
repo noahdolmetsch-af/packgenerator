@@ -209,8 +209,8 @@ export function weekNotes(data, monday, today, bounds) {
   const sessions = (data.sessions ?? []).filter((s) => inWeek(s.day, monday) && s.day <= today);
   if (sessions.length) {
     const acts = data.acts ?? [];
-    const open = sessions.filter((s) => s.day < today && !doneBy(s, acts)).sort((a, b) => a.day.localeCompare(b.day));
-    const done = sessions.length - sessions.filter((s) => !doneBy(s, acts)).length;
+    const open = sessions.filter((s) => s.day < today && !doneBy(s, acts, sessions)).sort((a, b) => a.day.localeCompare(b.day));
+    const done = sessions.length - sessions.filter((s) => !doneBy(s, acts, sessions)).length;
     if (!open.length && done === sessions.length) out.push({ key: 'plan-all', kind: 'good', vars: { n: sessions.length } });
     else if (open.length) out.push({ key: 'plan-open', kind: 'gap', vars: { n: done, m: sessions.length, day: open[0].day } });
   }

@@ -25,6 +25,7 @@ export async function askGemini({ mode = 'ask', text, image = null, lang = 'de',
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ mode, text, lang, today, ...(image ? { image: { mime: image.mime, data: image.data } } : {}) }),
+      signal: AbortSignal.timeout?.(40_000), // the server keeps to about 25 s; a hanging line does not leave «Frage …» for ever
     });
   } catch {
     return { ok: false, reason: 'offline' };

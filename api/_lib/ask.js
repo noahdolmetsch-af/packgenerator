@@ -138,19 +138,31 @@ export function flashModelsOf(list) {
 }
 
 /**
+ * The order to try the models of the key's list: for each of the newest versions first the «lite» model (small, fast and usually
+ * free of the rush that makes a new «flash» answer 503), then the «flash» of the same version; at most `n` models.
+ */
+export function tryOrder(found, n = 4) {
+  const ver = (m) => Number(/-(\d+(?:\.\d+)?)-flash/.exec(m)?.[1] ?? 0);
+  const rank = [...found].sort((a, b) => ver(b) - ver(a) || Number(b.endsWith('-lite')) - Number(a.endsWith('-lite')));
+  return rank.slice(0, n);
+}
+
+/**
  * Asks Gemini, trying the next model when one is unknown (404), refused (400, 403), busy (429) or down (5xx). Models are
  * retired now and then (and a new key may not get the old ones): when every listed model fails, the key's own model list is
  * read and the newest flash model that works is used (and remembered).
  * → { text } or an ApiError: 503 not_set_up (no key), 429 busy (every model over its free limit), 502 ai_unavailable
  * (with `tried`: the model names and HTTP codes, nothing else, so a failure can be understood).
  */
-export async function askGemini(req, { key, models = modelsOf(), doFetch = (...a) => fetch(...a), timeout = 20_000 } = {}) {
+export async function askGemini(req, { key, models = modelsOf(), doFetch = (...a) => fetch(...a), timeout = 8_000, budget = 25_000, pause = 700 } = {}) {
   if (!key) throw new ApiError(503, 'not_set_up', 'Gemini is not set up on the server.');
   let busy = false;
   const tried = [];
-  const attempt = async (model) => {
+  const end = Date.now() + budget; // the whole call stays inside this time, so the page never waits long
+  const left = () => end - Date.now();
+  const once = async (model) => {
     const ctl = new AbortController();
-    const timer = setTimeout(() => ctl.abort(), timeout);
+    const timer = setTimeout(() => ctl.abort(), Math.min(timeout, left()));
     let res;
     try {
       res = await doFetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
@@ -161,18 +173,28 @@ export async function askGemini(req, { key, models = modelsOf(), doFetch = (...a
       });
     } catch {
       tried.push(`${model}:net`);
-      return '';
+      return { text: '' };
     } finally {
       clearTimeout(timer);
     }
     if (res.status === 429) busy = true;
     if (!res.ok) {
       tried.push(`${model}:${res.status}`);
-      return '';
+      return { text: '', status: res.status };
     }
     const text = answerText(await res.json().catch(() => null));
     if (!text) tried.push(`${model}:empty`);
-    return text;
+    return { text };
+  };
+  // a model that says «overloaded» (503) gets one more try after a short pause, if there is time
+  const attempt = async (model) => {
+    if (left() < 1_500) return '';
+    let r = await once(model);
+    if (!r.text && r.status === 503 && left() > 3_000) {
+      await new Promise((ok) => setTimeout(ok, pause));
+      r = await once(model);
+    }
+    return r.text;
   };
   for (const model of [...new Set([remembered, ...models].filter(Boolean))]) {
     const text = await attempt(model);
@@ -188,7 +210,7 @@ export async function askGemini(req, { key, models = modelsOf(), doFetch = (...a
     } catch {
       tried.push('list:net');
     }
-    for (const model of found.filter((m) => !tried.some((t) => t.startsWith(`${m}:`))).slice(0, 3)) {
+    for (const model of tryOrder(found.filter((m) => !tried.some((t) => t.startsWith(`${m}:`))))) {
       const text = await attempt(model);
       if (text) {
         remembered = model;

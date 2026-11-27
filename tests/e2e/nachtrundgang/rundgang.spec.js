@@ -10,10 +10,20 @@ import { test, expect } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { start, sideways, untranslated } from '../gesamttest/lib.js';
+import { adressen } from '../wege-lib.js';
 
-const MAX = Number(process.env.RUNDGANG_MAX) || 400; // addresses per device
+// The robot starts on Today with every address the app's code names (tests/e2e/wege-lib.js: the one list of addresses, also read by
+// the Gesamttest and the Wege-Wächter), then follows the links it finds. A page nobody links to is opened all the same.
+const MAX = Number(process.env.RUNDGANG_MAX) || 700; // addresses per device
 const PER_PATH = 4; // the same page with different ?… at most this often
 const OUT = fileURLToPath(new URL('../../../test-results/rundgang/', import.meta.url));
+
+/**
+ * Findings the robot knows and a person has been told about (key «address | what», value the finding's ID): they are written in the report
+ * as «bekannt» and do not turn the night red. Whoever repairs the page deletes the line (the list only gets shorter). Empty today
+ * (C10, English in Packen › Vorschlag, was repaired on 26.11.2026 with the PR «Packvorschlag auf Deutsch»).
+ */
+const KNOWN = {};
 
 // Addresses that leave the app or start something (a download, a login, a sign-out) are not opened.
 const SKIP = /^#\/(logout|auth|connect|oauth|pay\/|paylink|share\/receive)/;
@@ -34,8 +44,9 @@ test('Rundgang: every page the links reach, without errors', async ({ page, cont
   errors.length = 0; // the start (import) is checked by the Gesamttest
   const seen = new Set();
   const perPath = new Map();
-  const queue = ['#/'];
+  const queue = ['#/', ...adressen()];
   const findings = [];
+  const known = [];
   let visited = 0;
 
   while (queue.length && visited < MAX) {
@@ -70,7 +81,7 @@ test('Rundgang: every page the links reach, without errors', async ({ page, cont
     if (sw.sw > sw.w + 1) problems.push(['schiebt seitlich', `${sw.sw} > ${sw.w} px: ${sw.wide.join(', ')}`]);
     const en = await untranslated(page);
     if (en.exact.length) problems.push(['englisch', en.exact.slice(0, 5).join(' · ')]);
-    for (const [what, detail] of problems) findings.push({ hash, what, detail });
+    for (const [what, detail] of problems) (KNOWN[`${hash} | ${what}`] ? known : findings).push({ hash, what, detail, id: KNOWN[`${hash} | ${what}`] });
 
     // every link inside the app on this page
     const links = await page.evaluate(() => [...document.querySelectorAll('a[href^="#/"]')].map((a) => a.getAttribute('href')));
@@ -82,7 +93,7 @@ test('Rundgang: every page the links reach, without errors', async ({ page, cont
   const lines = [
     `## Rundgang ${name === 'phone' ? 'Handy (390 px)' : 'Computer (1440 px)'}`,
     '',
-    `${visited} Adressen geöffnet, ${findings.length} Funde.`,
+    `${visited} Adressen geöffnet, ${findings.length} Funde${known.length ? `, ${known.length} bekannt (${known.map((k) => `${k.id} ${k.hash}`).join('; ')})` : ''}.`,
     '',
     ...(findings.length ? ['| Adresse | Was | Genau |', '|---|---|---|', ...findings.map((f) => `| \`${f.hash}\` | ${f.what} | ${f.detail.replace(/\|/g, '/').replace(/\n/g, ' ')} |`)] : ['Alles in Ordnung.']),
     '',
