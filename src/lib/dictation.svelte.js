@@ -27,3 +27,12 @@ export function setDict(key, value) {
   dict[key] = value;
   put(key, typeof value === 'boolean' ? (value ? '1' : '0') : String(value));
 }
+
+/* The running microphones (one per field). Save places call flushDictation() first: it stops them and
+   waits until what was said stands in the field (Noah 27.11.2026: «Speichern» lost the spoken text). */
+const running = new Set();
+export function registerDictation(flush) {
+  running.add(flush);
+  return () => running.delete(flush);
+}
+export const flushDictation = () => Promise.all([...running].map((f) => f()));

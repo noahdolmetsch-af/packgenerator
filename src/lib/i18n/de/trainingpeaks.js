@@ -36,6 +36,8 @@ export default {
   '{n} entries without a duration left out': '{n} Einträge ohne Dauer weggelassen',
   '{n} free day kept free': '{n} freier Tag bleibt frei',
   '{n} free days kept free': '{n} freie Tage bleiben frei',
+  '{n} double entry merged': '{n} doppelter Eintrag zusammengeführt',
+  '{n} double entries merged': '{n} doppelte Einträge zusammengeführt',
   'Remove the TrainingPeaks link?': 'TrainingPeaks-Link entfernen?',
   'The link is removed from this device. Planned sessions from TrainingPeaks that are still open and lie ahead are taken out of the plan; ticked and past ones stay. TrainingPeaks itself stays as it is. You can undo this.': 'Der Link wird von diesem Gerät entfernt. Geplante Einheiten aus TrainingPeaks, die noch offen sind und vor dir liegen, verschwinden aus dem Plan; abgehakte und vergangene bleiben. TrainingPeaks selbst bleibt, wie es ist. Du kannst das rückgängig machen.',
   'TrainingPeaks link removed.': 'TrainingPeaks-Link entfernt.',

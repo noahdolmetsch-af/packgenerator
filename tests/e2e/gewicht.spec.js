@@ -28,13 +28,13 @@ test('Gewicht: enter, the two charts, hide one and bring it back', async ({ page
   await expect(page.getByRole('heading', { level: 1, name: 'Gewicht' })).toBeVisible();
   await expect(page.getByText('Ab dem zweiten Eintrag', { exact: false }).or(page.getByText('Trag dein Gewicht einmal ein'))).toBeVisible();
 
-  // the first entry: a wrong number says so, a right one is kept (with «Rückgängig»)
+  // the first entry: no number says so (Noah 22.11.2026 «5a»: an unusual weight is only asked about, see tippfehler-gewicht.spec.js), a right one is kept (with «Rückgängig»)
   await page.locator('[data-weight-add]').click();
   const sheet = page.locator('[data-weight-sheet]');
   await expect(sheet).toBeVisible();
-  await sheet.locator('[data-weight-kg]').fill('7');
+  await sheet.locator('[data-weight-kg]').fill('abc');
   await sheet.getByRole('button', { name: 'Speichern' }).click();
-  await expect(sheet.getByRole('alert')).toContainText('zwischen 30 und 250 kg');
+  await expect(sheet.getByRole('alert')).toContainText('Bitte ein Gewicht in kg eingeben');
   await sheet.locator('[data-weight-kg]').fill('71,6');
   await sheet.getByRole('button', { name: 'Speichern' }).click();
   await expect(sheet).toBeHidden();

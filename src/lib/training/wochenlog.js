@@ -151,7 +151,7 @@ export function tpTicks(sessions, acts, tp) {
   const byId = new Map(sessions.map((s) => [`tp:${s.id}`, s]));
   return tp.map((x) => {
     const s = byId.get(x.id);
-    return { id: x.id, done: !!(s && doneBy(s, acts)), day: s?.day };
+    return { id: x.id, done: !!(s && doneBy(s, acts, sessions)), day: s?.day };
   });
 }
 

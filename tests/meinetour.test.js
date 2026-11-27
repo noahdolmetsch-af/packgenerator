@@ -87,7 +87,7 @@ describe('the tile on the wall', () => {
     expect(TILE.meinetour.sizes).toContain(TILE.meinetour.size);
     expect(SECTION_OF.meinetour).toBe('now');
     expect(sectionOf({ id: 'meinetour', size: 'long' })).toBe('now');
-    expect(ids(READY).slice(0, 3)).toEqual(['haken', 'body', 'meinetour']); // the body band stands right under the greeting (Noah 23.11.2026 «1-4a»), «Meine Tour» after it
+    expect(ids(READY).slice(0, 4)).toEqual(['pins', 'haken', 'body', 'meinetour']); // the body band stands right under the greeting (Noah 23.11.2026 «1-4a»), «Meine Tour» after it
     expect(HEAD_N2).toContain('meinetour');
     expect(KEEP_TOP).toContain('meinetour');
     expect(DE[TILE.meinetour.label]).toBeTruthy();
@@ -102,9 +102,9 @@ describe('the tile on the wall', () => {
     expect(ids(withMeineTour([{ id: 'meditation', size: 'long' }, { id: 'week', size: 'l' }]))).toEqual(['meinetour', 'meditation', 'week']);
     expect(ids(withMeineTour([{ id: 'week', size: 'l' }]))).toEqual(['week']);
     expect(ids(withMeineTour([{ id: 'meinetour', size: 'long' }, { id: 'meditation', size: 'long' }]))).toEqual(['meinetour', 'meditation']);
-    expect(ids(wallOf({ v: 20, tiles: [{ id: 'trip', size: 'l' }] }))).toEqual(['haken', 'meinetour', 'trip']); // (a wall without the body tile: nothing moves)
-    expect(ids(wallOf({ v: 21, tiles: [{ id: 'trip', size: 'l' }] }))).toEqual(['haken', 'trip']);
-    expect(wallRecord([]).v).toBe(23);
+    expect(ids(wallOf({ v: 20, tiles: [{ id: 'trip', size: 'l' }] }))).toEqual(['pins', 'haken', 'meinetour', 'trip']); // (a wall without the body tile: nothing moves)
+    expect(ids(wallOf({ v: 21, tiles: [{ id: 'trip', size: 'l' }] }))).toEqual(['pins', 'haken', 'trip']);
+    expect(wallRecord([]).v).toBe(24);
   });
 });
 

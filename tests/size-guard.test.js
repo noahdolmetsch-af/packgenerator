@@ -7,6 +7,46 @@ import { loadPage, loadedOf } from '../src/lib/nav/lazy.js';
 
 const walk = (dir) => readdirSync(dir).flatMap((n) => (statSync(join(dir, n)).isDirectory() ? walk(join(dir, n)) : [join(dir, n)]));
 
+const HASH_B = 1000003;
+const hashOf = (str) => {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (Math.imul(h, HASH_B) + str.charCodeAt(i)) | 0;
+  return h;
+};
+/** Which of the needles stand somewhere in hay (the same answer as hay.includes(needle) for each, in one pass per length). */
+export function foundIn(hay, needles) {
+  const hit = new Set();
+  const byLen = new Map();
+  for (const n of new Set(needles)) {
+    if (!n.length) {
+      hit.add(n);
+      continue;
+    }
+    if (!byLen.has(n.length)) byLen.set(n.length, new Map());
+    const m = byLen.get(n.length);
+    const h = hashOf(n);
+    if (!m.has(h)) m.set(h, []);
+    m.get(h).push(n);
+  }
+  for (const [L, m] of byLen) {
+    if (hay.length < L) continue;
+    const quick = new Uint8Array(65536);
+    for (const h of m.keys()) quick[h & 0xffff] = 1;
+    let P = 1;
+    for (let i = 1; i < L; i++) P = Math.imul(P, HASH_B);
+    let h = hashOf(hay.slice(0, L));
+    for (let i = 0; ; i++) {
+      if (quick[h & 0xffff]) {
+        const cand = m.get(h);
+        if (cand) for (const n of cand) if (hay.startsWith(n, i)) hit.add(n);
+      }
+      if (i + L >= hay.length) break;
+      h = (Math.imul(h - Math.imul(hay.charCodeAt(i), P), HASH_B) + hay.charCodeAt(i + L)) | 0;
+    }
+  }
+  return hit;
+}
+
 describe('size guard', () => {
   it('flags a JavaScript file over 3 MB, nothing else', () => {
     expect(MAX_JS_BYTES).toBe(3_000_000);
@@ -66,9 +106,19 @@ describe('size guard', () => {
       .filter((f) => /\.(js|svelte)$/.test(f) && !f.replace(/\\/g, '/').startsWith('src/lib/i18n/de/') && !/src[\\/]lib[\\/](handbook\.js|handbook[\\/]texte-de\.js)$/.test(f))
       .map((f) => readFileSync(f, 'utf8').replace(/\\/g, ''))
       .join('\n');
-    const used = Object.keys(LATE).filter((k) => others.includes(k.replace(/\\/g, '').slice(0, 24)));
+    // one pass over the source with a rolling hash instead of one includes() per text (1241 texts x 28 MB took 27 s, the limit was 30 s)
+    const hit = foundIn(others, Object.keys(LATE).map((k) => k.replace(/\\/g, '').slice(0, 24)));
+    const used = Object.keys(LATE).filter((k) => hit.has(k.replace(/\\/g, '').slice(0, 24)));
     expect(used, 'move these texts from handbook/texte-de.js to i18n/de/handbuch.js').toEqual([]);
   }, 30000);
+  it('foundIn answers like includes for each text, also for short ones and repeats', () => {
+    const hay = 'abc def abc\nGeneric text for the test, abcabcabc. Zeitraum »x« ending';
+    const needles = ['abc def', 'abcabc', 'Zeitraum »x«', 'ending', 'nope', 'Generic text for the te', 'x', '', 'Generic text for the tesT', 'abc def abc\nGeneric text', 'ing'];
+    const hit = foundIn(hay, needles);
+    for (const n of needles) expect(hit.has(n), n).toBe(hay.includes(n));
+    expect(foundIn('ab', ['abc']).size).toBe(0);
+    expect(foundIn('', ['']).has('')).toBe(true);
+  });
   it('App.svelte loads only Heute at the start; every other page through PAGES', () => {
     const app = readFileSync('src/App.svelte', 'utf8');
     const eager = [...app.matchAll(/^\s*import (\w+) from '\.\/pages\/(\w+)\.svelte';/gm)].map((m) => m[2]);

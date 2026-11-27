@@ -1,6 +1,6 @@
 // «Wege» (thread «Navigation ohne Sackgassen»): the start of the path comes from the map of the app (nav.js).
 import { describe, it, expect } from 'vitest';
-import { trailOf, keepSteps, placeKeyOf, isRoot } from '../src/lib/nav/wege.js';
+import { trailOf, keepSteps, placeKeyOf, isRoot, withoutPage } from '../src/lib/nav/wege.js';
 
 const keys = (h) => (trailOf(h) ?? []).map((s) => (s.kind === 'place' ? s.place : `${s.place}/${s.entry.key}`));
 
@@ -49,5 +49,22 @@ describe('keepSteps: only what still fits after that start', () => {
     expect(keepSteps('#/bikes?tab=care&bike=b1', s)).toEqual(s);
     expect(isRoot('#/bikes')).toBe(true);
     expect(isRoot('#/bikes?bike=b1')).toBe(false);
+  });
+});
+
+describe('withoutPage: the page is named once (impeccable F-10)', () => {
+  const steps = [{ href: '#/auswerten', label: 'Auswerten' }, { href: '#/auswerten/verlauf', label: 'Verlauf' }, { href: '#/me/abfragen', label: "Wi gaht's?" }];
+  it('a last step with the name of the page goes', () => {
+    expect(withoutPage(steps, "Wi gaht's?").map((x) => x.label)).toEqual(['Auswerten', 'Verlauf']);
+    expect(withoutPage(steps, " Wi gaht's? ").length).toBe(2); // spaces do not matter
+  });
+  it('another name, an empty name or an empty path stays as it is', () => {
+    expect(withoutPage(steps, 'Gewicht')).toBe(steps);
+    expect(withoutPage(steps, '')).toBe(steps);
+    expect(withoutPage([], "Wi gaht's?")).toEqual([]);
+  });
+  it('only the last step counts: the same name further up stays', () => {
+    const s = [{ href: '#/a', label: 'Wi gaht\'s?' }, { href: '#/b', label: 'Verlauf' }];
+    expect(withoutPage(s, "Wi gaht's?")).toBe(s);
   });
 });

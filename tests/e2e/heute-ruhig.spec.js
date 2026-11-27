@@ -77,7 +77,7 @@ test('a trip today: no photo although the bike has one, the 8 buttons in the fir
   // shortcuts (the other functions back through «+»)
   // «Schnell öffnen» (Noah 01.11.2026 «5a», changed on purpose): the 8 shortcuts are one tile with the pins
   await expect(page.locator('.wall [data-fn]')).toHaveCount(0);
-  await expect(page.locator('.wall [data-pins-tile]')).toBeVisible();
+  await expect(page.locator('[data-pins-tile]')).toBeVisible();
   expect(await firstScreen(page.locator('#hello-h'))).toBe(true);
   // «Heute neu» N2 (0.169.0, Noah «5a», changed on purpose): the body and the Aktiv tiles first; on a trip day the
   // trip card right under them; 0.175.0 (Noah 21.10.2026 06:49 «Körperwerte und countdown ok», changed on purpose):

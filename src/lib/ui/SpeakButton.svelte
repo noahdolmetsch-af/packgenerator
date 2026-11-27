@@ -18,7 +18,7 @@
   import { Mic, Square } from '@lucide/svelte';
   import { t, lang } from '../i18n.svelte.js';
   import { ops } from '../bedienung.svelte.js';
-  import { dict } from '../dictation.svelte.js';
+  import { dict, registerDictation } from '../dictation.svelte.js';
   import { speechApi, speechLang, withCommands, lastQuestion, isQuestion, sentences, clock } from '../speak.js';
   import { createDictation } from '../dictate.js';
   import AskAnswer from '../assistent/AskAnswer.svelte';
@@ -43,6 +43,7 @@
   let said = []; // the pieces of this recording, for the question after stop
   let ctl = null;
   let tick = null;
+  let idleWaiters = [];
 
   const ERR = {
     denied: 'The microphone is not allowed. Allow it in the browser (the lock left of the address).',
@@ -87,10 +88,41 @@
         if (s.state !== 'listening') clearInterval(tick), (tick = null);
         if (s.state === 'listening' && was === 'idle') elapsed = 0;
         if (s.state === 'idle' && was !== 'idle' && answer && dict.answer === 'after') asked = cap(lastQuestion(said.join('. ')));
+        if (s.state === 'idle') idleWaiters.splice(0).forEach((done) => done());
       },
     });
     ctl.start();
   }
+  /**
+   * Stop the dictation and wait until its words are in the field. «Save» while the microphone still runs
+   * must not lose what was said (Noah 27.11.2026): the words still being heard become text on stop.
+   */
+  function flush() {
+    if (!ctl || st.state === 'idle') return Promise.resolve();
+    return new Promise((done) => {
+      idleWaiters.push(done);
+      ctl.stop();
+    });
+  }
+  /** A tap on a save button while listening: stop first, so the field holds the words before it saves. */
+  function beforeSave(e) {
+    if (!ctl || st.state === 'idle') return;
+    const b = e.target?.closest?.('button[type="submit"], button.hi, [data-dictation-flush]');
+    if (!b || b.hasAttribute('data-speak') || b.closest('.sp-out')) return;
+    if (engine !== 'whisper') return ctl.stop(); // at once: the words are in the field before the save runs
+    // Whisper writes after the stop: the tap waits for it and then happens again
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    flush().then(() => b.click());
+  }
+  $effect(() => {
+    document.addEventListener('click', beforeSave, true);
+    const off = registerDictation(flush);
+    return () => {
+      document.removeEventListener('click', beforeSave, true);
+      off();
+    };
+  });
   function reading(on) {
     if (on) ctl?.hold();
     else ctl?.release();

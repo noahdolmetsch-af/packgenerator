@@ -45,6 +45,7 @@
   import FavWhy from '../einzeln/FavWhy.svelte'; // Einzelidee 19: a short reason for a favourite
   import WishSolves from '../einzeln/WishSolves.svelte'; // Einzelidee 20: the trouble a wish solves
   import ItemViews from '../einzeln/ItemViews.svelte'; // Einzelidee 22: own views of Material
+  import TypoZeile from '../typo/TypoZeile.svelte';
   import { fullOf } from '../einzeln/material.js'; // Einzelidee 24: empty weight and content apart
   import { materialStats, tripLog, usageOf, lighterAlts, ALT_DISMISSED_KEY, dismissValue, linkPatch, suggestWhy } from './material.js';
   import { inSmallAid, AID_KEY } from '../firstaid.js';
@@ -177,6 +178,9 @@
     openFold = next;
     keepFold('item', next);
   }
+  // Tippfehler-Frage (Noah 22.11.2026 «1-5 a»): the weight is compared with the weights of the same category; the quiet line shows after the field is left
+  let gLeft = $state(false);
+  const ownG = $derived(items.filter((x) => x.id !== item?.id && x.category === draft.category && typeof x.weightG === 'number').map((x) => x.weightG));
   const gramsNow = $derived(String(draft.grams ?? '').trim());
   // The weight as typed (an unreadable entry keeps the saved one), for the line and the suggestions.
   const gramsG = $derived(gramsNow === '' ? null : (parseGrams(gramsNow) ?? item?.weightG ?? null));
@@ -547,8 +551,9 @@
 <!-- v0.72.0 (Noah 1a, 2a): the row «Weight»: the field, then the lighter alternatives. -->
 {#snippet weightBody()}
   <Field id="it-grams" label={t('Weight of one piece (g)')} optional example={t('whole grams, e.g. 320')} error={errors.grams}>
-    {#snippet children(f)}<span class="wfield"><input class="inp num" type="text" inputmode="numeric" {...f.attrs} bind:value={draft.grams} placeholder={t('not weighed')} /><span class="wst">{wState}{#if item.ownership !== 'owned'}{' · '}<b>{t(OWNERSHIP[item.ownership] ?? '')}</b>{/if}</span></span>{/snippet}
+    {#snippet children(f)}<span class="wfield"><input class="inp num" type="text" inputmode="numeric" {...f.attrs} bind:value={draft.grams} onblur={() => (gLeft = true)} placeholder={t('not weighed')} /><span class="wst">{wState}{#if item.ownership !== 'owned'}{' · '}<b>{t(OWNERSHIP[item.ownership] ?? '')}</b>{/if}</span></span>{/snippet}
   </Field>
+  <TypoZeile kind="gearG" text={draft.grams} own={ownG} shown={gLeft} onuse={(v) => (draft.grams = String(v))} />
   <!-- Einzelidee 24 «Leergewicht und Füllung»: the weight above is empty; what goes in (water, gas, food) apart -->
   <Field id="it-fill" label={t('Content when full (g)')} optional help={t('For a bottle, gas cartridge or food box: weigh it empty above, the content here. A trip shows the content on its own line.')} example={t('e.g. {x}', { x: '750' })} error={errors.fillG}>
     {#snippet children(f)}<span class="wfield"><input class="inp num" type="text" inputmode="numeric" {...f.attrs} bind:value={draft.fillG} placeholder={t('nothing goes in')} />{#if Number(draft.fillG) > 0 && Number(draft.grams) > 0}<span class="wst" data-full-weight>{t('full {g} g', { g: fullOf({ weightG: Number(draft.grams), fillG: Number(draft.fillG) }) })}</span>{/if}</span>{/snippet}
@@ -967,8 +972,9 @@
         {@render statusField()}
         <!-- FE14: the «?» sits next to the label, outside it, so the field keeps its name -->
         <Field id="it-grams" class="wide" label={t('Weight of one piece (g)')} optional help={t(FIELD_HELP.grams)} example={t('whole grams, e.g. 320')} error={errors.grams}>
-          {#snippet children(f)}<input class="inp num" type="text" inputmode="numeric" {...f.attrs} bind:value={draft.grams} placeholder={t('not weighed')} />{/snippet}
+          {#snippet children(f)}<input class="inp num" type="text" inputmode="numeric" {...f.attrs} bind:value={draft.grams} onblur={() => (gLeft = true)} placeholder={t('not weighed')} />{/snippet}
         </Field>
+        <TypoZeile kind="gearG" text={draft.grams} own={ownG} shown={gLeft} onuse={(v) => (draft.grams = String(v))} />
         {@render photoRow()}
         {#if moved}{@render movedNote()}{/if}
       </div>

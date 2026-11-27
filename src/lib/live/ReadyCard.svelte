@@ -12,8 +12,13 @@
   import { readiness } from './ready.js';
   import { db } from '../db.js';
   import { t } from '../i18n.svelte.js';
+  import { chargeMinutes, chargeFrom } from './lichter.js';
+  import { LAMP_FRAC } from './lamp.js';
+  import { durText } from './after.js';
 
-  let { line = [], name = '', tripId = null, reserve = null, voice = false, onvoice, points = [] } = $props();
+  let { line = [], name = '', tripId = null, reserve = null, voice = false, onvoice, points = [], lights = [] } = $props();
+  // «Lichter» (Noah 26.11.2026 «4a»): the evening before, how long each light needs to be full (only lights with a charging time)
+  const toCharge = $derived(lights.filter((l) => chargeMinutes(l.charge) > 0).map((l) => ({ name: l.name || t('Light|lamp'), rest: chargeFrom(l.charge, LAMP_FRAC[l.left] ?? 1) > 0, from: durText(chargeFrom(l.charge, LAMP_FRAC[l.left] ?? 1) * 60), all: durText(chargeMinutes(l.charge) * 60) })));
   const stripsQ = liveQuery(() => db.settings.get(STRIPS_KEY));
   const strips = $derived(Array.isArray($stripsQ?.value?.strips) ? $stripsQ.value.strips : []);
   let present = $state(new Set());
@@ -52,6 +57,13 @@
         <small>{t('The phone says the next shop or climb a few km ahead, so you can keep your eyes on the road.')}</small></span>
       {#if !r.voiceOk}<button type="button" class="btn sm" onclick={() => onvoice?.(true)} data-live-ready-voice-on>{t('Switch the voice on')}</button>{/if}
     </li>
+    {#if toCharge.length}
+      <li class="lv-ready-row" data-live-ready-lights>
+        <Circle size={20} aria-hidden="true" />
+        <span class="lv-ready-main"><b>{t('Charge your lights the evening before.')}</b>
+          <small>{toCharge.map((c) => (c.rest ? t('{name}: {from} from what is left, {all} from empty', { name: c.name, from: c.from, all: c.all }) : t('{name}: {all} from empty', { name: c.name, all: c.all }))).join(' · ')}</small></span>
+      </li>
+    {/if}
     <OsmandHandoff route={{ line, name }} {points} {name} />
   </ul>
   {#if r.ready}<p class="rc-note" data-live-ready-say>{t('All set. Have a good ride.')}</p>{/if}

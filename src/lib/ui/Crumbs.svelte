@@ -12,7 +12,7 @@
 
   let { crumbs = [], here = '' } = $props();
   // Durchklick-Fund 3: a one-step path names where you came from (zurueck.js)
-  const steps = $derived(backCrumbsOf(fitSteps(helpHere.route, crumbs)));
+  const steps = $derived(backCrumbsOf(fitSteps(helpHere.route, crumbs, here)));
 </script>
 
 <nav class="crumbs back" aria-label={t('Path')}>
