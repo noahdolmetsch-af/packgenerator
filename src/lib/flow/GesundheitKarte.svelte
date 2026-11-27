@@ -151,7 +151,7 @@
   }
   .pl li {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 52px 52px 76px;
+    grid-template-columns: minmax(0, 1fr) 48px 48px 72px;
     gap: var(--sp-2);
     align-items: baseline;
     padding: 6px 0;
@@ -167,8 +167,6 @@
     text-align: right;
   }
   .pn {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
   }
 </style>
