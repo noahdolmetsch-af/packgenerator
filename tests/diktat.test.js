@@ -149,6 +149,67 @@ describe('the dictation runs until you stop it', () => {
     await tick();
     expect(made.length).toBe(n); // no new start after stop
   });
+  it('words still being heard become text on stop (Android gives them final only later)', async () => {
+    const made = [];
+    class Rec {
+      constructor() {
+        made.push(this);
+      }
+      start() {}
+      stop() {}
+      abort() {}
+    }
+    const words = [];
+    const d = createDictation({ Speech: Rec, now: () => 0, onwords: (w) => words.push(w) });
+    d.start();
+    made[0].onresult({ resultIndex: 0, results: [Object.assign([{ transcript: 'Kette quietscht' }], { isFinal: false })] });
+    expect(words).toEqual([]);
+    d.stop();
+    expect(words).toEqual(['Kette quietscht']);
+    // the browser finalises the same sentence after the stop: it does not stand twice
+    made[0].onresult({ resultIndex: 0, results: [Object.assign([{ transcript: 'Kette quietscht' }], { isFinal: true })] });
+    expect(words).toEqual(['Kette quietscht']);
+  });
+  it('words still being heard become text when the browser ends by itself, and on hold', async () => {
+    const made = [];
+    class Rec {
+      constructor() {
+        made.push(this);
+      }
+      start() {}
+      stop() {}
+      abort() {}
+    }
+    const words = [];
+    const d = createDictation({ Speech: Rec, now: () => 0, onwords: (w) => words.push(w) });
+    d.start();
+    made[0].onresult({ resultIndex: 0, results: [Object.assign([{ transcript: 'Sattel knarzt' }], { isFinal: false })] });
+    made[0].onend();
+    expect(words).toEqual(['Sattel knarzt']);
+    made[1].onresult({ resultIndex: 0, results: [Object.assign([{ transcript: 'Bremse schleift' }], { isFinal: false })] });
+    d.hold();
+    expect(words).toEqual(['Sattel knarzt', 'Bremse schleift']);
+    d.cancel();
+  });
+  it('cancel throws the words still being heard away', async () => {
+    const made = [];
+    class Rec {
+      constructor() {
+        made.push(this);
+      }
+      start() {}
+      stop() {}
+      abort() {
+        this.onend?.();
+      }
+    }
+    const words = [];
+    const d = createDictation({ Speech: Rec, now: () => 0, onwords: (w) => words.push(w) });
+    d.start();
+    made[0].onresult({ resultIndex: 0, results: [Object.assign([{ transcript: 'weg damit' }], { isFinal: false })] });
+    d.cancel();
+    expect(words).toEqual([]);
+  });
   it('gives up when it ends at once again and again', async () => {
     const { Rec } = fakeSpeech([], { endAtOnce: true });
     const errs = [];
