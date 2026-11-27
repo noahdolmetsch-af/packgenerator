@@ -42,12 +42,12 @@
   import { localDay } from '../lib/localday.js';
   import { t, tn, lang } from '../lib/i18n.svelte.js';
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
-  import { Check, Circle, Search, Plus, SlidersHorizontal, Info, Eye, Compass, Flame } from '@lucide/svelte';
+  import { Check, Circle, Search, Plus, SlidersHorizontal, Info, Eye, Compass, Flame, MapPin } from '@lucide/svelte';
   import '../lib/review/review.css';
 
   const today = localDay();
   const year = today.slice(0, 4);
-  const LIST_MAX = 30;
+  const LIST_MAX = 10; // Noah 27.11.2026 «2»: first the 10 newest, then «Show all»
   const LS = 'pg.neuland.sel';
 
   const rawQ = liveQuery(() => readRaw(db));
@@ -100,6 +100,13 @@
   let mode = $state('all'); // 'year' | 'all'
   let q = $state('');
   let showAll = $state(false);
+  // «Show on the map» (Noah 27.11.2026 «1»): the map zooms to that entry; n counts the taps
+  let focus = $state({ id: null, n: 0 });
+  let mapBox = $state(null);
+  function locate(it) {
+    focus = { id: it.id, n: focus.n + 1 };
+    mapBox?.scrollIntoView?.({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  }
 
   const name = (c) => collectionName(c);
   const shownName = (it) => (lang.v !== 'de' && it.en ? it.en : it.name);
@@ -134,7 +141,7 @@
   const mapOf = $derived.by(() => {
     if (!cur) return null;
     const areas = cur.items.filter((i) => i.rings).map((i) => ({ id: i.id, rings: i.rings, bbox: i.bbox, st: stOf(cur, i.id) }));
-    const points = cur.items.filter((i) => Number.isFinite(i.lat) && Number.isFinite(i.lon)).map((i) => ({ id: i.id, lat: i.lat, lon: i.lon, st: stOf(cur, i.id) }));
+    const points = cur.items.filter((i) => Number.isFinite(i.lat) && Number.isFinite(i.lon)).map((i) => ({ id: i.id, lat: i.lat, lon: i.lon, name: shownName(i), st: stOf(cur, i.id) }));
     if (!areas.length && !points.length) return null;
     let view = cur.map ?? 'ch';
     if (!cur.builtIn) view = points.every((p) => p.lat > 45.7 && p.lat < 47.9 && p.lon > 5.9 && p.lon < 10.6) ? 'ch' : 'alps';
@@ -290,8 +297,8 @@
         <div class="nl-lay">
           <div class="nl-col">
             {#if mapOf}
-              <div class="rv-box pad">
-                <NeulandMap {...mapOf} {lines} title={t('Map: {name}', { name: name(cur) })} onpick={(id) => (itemOpen = { cid: cur.id, id })} />
+              <div class="rv-box pad" bind:this={mapBox} data-nl-map>
+                <NeulandMap {...mapOf} {lines} {focus} selId={focus.id} title={t('Map: {name}', { name: name(cur) })} onpick={(id) => (itemOpen = { cid: cur.id, id })} />
                 <p class="legend"><span class="sw year"></span>{mode === 'year' ? t('New in {year}', { year }) : t('Been there')} {#if mode === 'year'}<span class="sw old"></span>{t('Earlier years')}{/if}<span class="sw no"></span>{t('Not yet')}</p>
               </div>
             {/if}
@@ -331,6 +338,9 @@
                         <b>{label}</b>
                         <small>{v ? `${dayLong(v.day)}${v.tripId && tripNames[v.tripId] ? ` · ${tripNames[v.tripId]}` : ''}${v.by === 'hand' ? ` · ${t('by hand')}` : ''}` : state.nope[cur.id]?.[it.id] ? t('Marked «not there»') : t('Not yet')}</small>
                       </button>
+                      {#if mapOf && (it.rings || Number.isFinite(it.lat))}
+                        <button type="button" class="loc" aria-label={t('Show «{name}» on the map', { name: label })} title={t('Show on the map')} data-nl-locate onclick={() => locate(it)}><MapPin size={20} aria-hidden="true" /></button>
+                      {/if}
                     </li>
                   {/each}
                 </ul>
@@ -599,6 +609,27 @@
   .tk.on {
     background: var(--accent);
     color: var(--paper);
+  }
+  .loc {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: var(--ink-3);
+    cursor: pointer;
+  }
+  .loc:hover {
+    color: var(--accent);
+    background: var(--paper-2);
+  }
+  .loc:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: 1px;
   }
   .tk:focus-visible,
   .nm:focus-visible {
