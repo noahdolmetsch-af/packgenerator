@@ -1,6 +1,6 @@
 # Ein Stern statt Pin
 
-PR #<Nummer> · 27.11.2026 · Auftrag: Noah «1-5a» und Freigabe der Karte «Konzept Favoriten freigeben» (Thread «Lieblingsinhalte besser sichtbar machen»)
+PR #1826 · 27.11.2026 · Auftrag: Noah «1-5a» und Freigabe der Karte «Konzept Favoriten freigeben» (Thread «Lieblingsinhalte besser sichtbar machen»)
 
 Schritt 1 von 4 des Konzepts «Favoriten» (Stern statt Pin; danach Heute-Kachel mit «Alle»-Fenster, Sterne an Tour, Packliste und Velo, Suche).
 
