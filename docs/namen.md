@@ -64,5 +64,7 @@ Verbindlich seit 08.11.2026 (Noah «namen ok»; Zeile 1 mit «b»). Quelle: UX-T
 | 56 | Die Liste der Touren auf Touren › Übersicht (gepackte Touren und Fahrten aus GPX zusammen) und die Karte darüber, die Doppelte und Testtouren zum Aufräumen vorschlägt | Mit Packliste, Packmodus, App-Touren | **«Meine Touren»** (Liste), **«Aufräumen»** (Karte mit «Zusammenlegen», «Erst ansehen», «Als Test markieren») (Noah 25.11.2026 «1-5a», Fragen 1a und 2a) |
 | 57 | Die Tabelle «Aktivität mal Tag» oben in Auswerten › Woche (wann du was abgehakt hast) | Haken-Raster, Tick-Grid, Heatmap der Haken | **«Haken-Verlauf»** (Noah 27.11.2026 «3a»); «Verlauf» allein bleibt der Reiter mit HRV, Ruhepuls und Schlaf; «Haken und Rhythmus» bleibt die Auswertung im Sportjahr |
 | 58 | Die Hinweise über alle Aktivitäten aus den Haken (Serie, Lücke, Erholung, oft zusammen, Wochentag) | Muster, Erkenntnisse, Insights, Smarte Hinweise | **«Was auffällt»** (Noah 27.11.2026 «4a»); «Erkenntnisse» bleibt der Reiter in Auswerten mit den Messwert-Mustern |
+| 59 | Die Karte mit den Minuten pro Tag, alle Aktivitäten zusammen, in Auswerten › Woche | Tagessumme, Tageswert, Minuten pro Tag | **«Tagestotal»** (Noah 27.11.2026, eigenes Wort) |
+| 60 | Die Karte mit den Stunden pro Woche gegen die Vorwoche in Auswerten › Woche | Wochensumme, Wochenvergleich, Wochenumfang | **«Wochenpensum»** (Noah 27.11.2026, eigenes Wort); «Wochenplan» bleibt die geplante Woche |
 
 Umgesetzt wird die Umbenennung in eigenen kleinen PRs (nach Bereich). Die Zeilen oben gelten ab heute auch für alles Neue.

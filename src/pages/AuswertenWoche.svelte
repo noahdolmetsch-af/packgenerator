@@ -5,7 +5,7 @@
    * Content first: one sentence about the period (hours, units, days, against the period before), the numbers, the hours by
    * sport as bars (day by day in a week, week by week in a month, month by month in a year), how you recovered in the period
    * against YOUR OWN usual range, and the longest units. The period is the switch of Auswerten (Woche, Monat, Jahr, Alles, own).
-   * 27.11.2026 (Noah «3a»): the card «Haken-Verlauf» (flow/HakenVerlauf.svelte, which activity on which day) stands on top of the page, with its own span, and «Was auffällt» (flow/HakenHinweise.svelte, 4a) under it.
+   * 27.11.2026 (Noah «3a»): the card «Haken-Verlauf» (flow/HakenVerlauf.svelte, which activity on which day) stands on top of the page, under one shared period switch (flow/HakenZeitraum.svelte, 2a) with «Tagestotal» and «Wochenpensum» (Paket A), and «Was auffällt» (flow/HakenHinweise.svelte, 4a) under them.
    * The hours are the same as in the Sports year (flow/einheiten.js, flow/sportjahr.js). Only looking, nothing is judged or saved.
    */
   import { liveQuery } from 'dexie';
@@ -14,6 +14,9 @@
   import PeriodBar from '../lib/flow/PeriodBar.svelte';
   import HakenVerlauf from '../lib/flow/HakenVerlauf.svelte';
   import HakenHinweise from '../lib/flow/HakenHinweise.svelte';
+  import HakenZeitraum from '../lib/flow/HakenZeitraum.svelte';
+  import TagesTotal from '../lib/flow/TagesTotal.svelte';
+  import WochenPensum from '../lib/flow/WochenPensum.svelte';
   import BarChart from '../lib/charts/BarChart.svelte';
   import NormalBand from '../lib/auswerten/NormalBand.svelte';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
@@ -127,7 +130,10 @@
   </header>
 
   {#if d}
+    <HakenZeitraum />
     <HakenVerlauf acts={d.acts} log={d.log} {today} />
+    <TagesTotal {units} {today} />
+    <WochenPensum {units} {today} />
     <HakenHinweise acts={d.acts} log={d.log} {today} />
   {/if}
 

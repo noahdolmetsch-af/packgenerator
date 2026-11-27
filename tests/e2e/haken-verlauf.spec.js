@@ -36,11 +36,13 @@ test('Haken-Verlauf: stands on top, 10 days at first, every activity with a tick
   const card = page.locator('[data-haken-verlauf]');
   await expect(card).toBeVisible();
   await expect(card.getByRole('heading', { name: T('Tick history') })).toBeVisible();
-  // the card is the first block under the page head, above the period switch and the report
+  // the shared switch stands on top, then this card, then the other cards and the report (Paket A, Noah «2a»)
   const first = await page.evaluate(() => {
+    const sw = document.querySelector('[data-haken-zeitraum]');
     const hv = document.querySelector('[data-haken-verlauf]');
-    const rep = document.querySelector('[data-woche-report], [data-page="auswerten-woche"] > section:not([data-haken-verlauf])');
-    return !!(hv.compareDocumentPosition(rep) & Node.DOCUMENT_POSITION_FOLLOWING);
+    const next = document.querySelector('[data-tagestotal]');
+    const after = (a, b) => !!(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+    return after(sw, hv) && after(hv, next);
   });
   expect(first).toBe(true);
   await expect(card.locator('[data-hv-grid]')).toHaveAttribute('data-hv-span-days', '10');
@@ -67,7 +69,7 @@ test('Haken-Verlauf: stands on top, 10 days at first, every activity with a tick
 test('Haken-Verlauf: 30 days, 3 months and a year, and the choice stays', async ({ page, context }) => {
   const errors = await open(page, context);
   const card = page.locator('[data-haken-verlauf]');
-  const chip = (name) => card.getByRole('radio', { name });
+  const chip = (name) => page.locator('[data-haken-zeitraum]').getByRole('radio', { name }); // the one switch of the page (Noah «2a»)
   await chip(T('30 days|hv')).click();
   await expect(card.locator('[data-hv-grid]')).toHaveAttribute('data-hv-span-days', '30');
   await expect(card.locator('[data-hv-act="sauna"] .c')).toHaveCount(30);

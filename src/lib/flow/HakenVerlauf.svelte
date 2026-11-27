@@ -6,44 +6,21 @@
    * taken back on Heute (Tick off) or with «Later» in the tick window, never here. The rules are flow/hakenverlauf.js.
    * acts, log: the activities and the log the page already read; today: the local day.
    */
-  import ChipChoice from '../ui/ChipChoice.svelte';
   import { addDays } from '../flow.js';
   import { tripDayQuery } from './tripdaylist.js';
-  import { SPANS, SPAN_DEFAULT, WEEK_FROM, spanOf, rowsOf, daysWithTick, shadeOf } from './hakenverlauf.js';
+  import { WEEK_FROM, rowsOf, daysWithTick, shadeOf } from './hakenverlauf.js';
+  import { hakenSpan } from './haken-zeitraum.svelte.js';
   import { actName } from './ui.svelte.js';
   import { dnum, wd } from './words.js';
   import { t, tn, num, locale } from '../i18n.svelte.js';
 
   let { acts = [], log = [], today } = $props();
 
-  const KEY = 'pg.hakenverlauf';
-  const read = () => {
-    try {
-      return spanOf(localStorage.getItem(KEY));
-    } catch {
-      return SPAN_DEFAULT;
-    }
-  };
-  let span = $state(read());
-  const pick = (v) => {
-    span = spanOf(v);
-    try {
-      localStorage.setItem(KEY, String(span));
-    } catch {
-      /* not saved: the choice still counts until the page is left */
-    }
-  };
+  const span = $derived(hakenSpan.v);
 
   // a bike trip day counts for «Cycling outdoors» like on Heute
   const tq = tripDayQuery(today);
   const tripList = $derived($tq ?? []);
-
-  const OPTIONS = $derived([
-    { value: 10, label: t('10 days|hv') },
-    { value: 30, label: t('30 days|hv') },
-    { value: 90, label: t('3 months|hv') },
-    { value: 365, label: t('Year|hv') },
-  ]);
 
   const res = $derived(rowsOf({ acts, log, tripDayList: tripList, today, n: span }));
   const cols = $derived(res.cols);
@@ -88,7 +65,6 @@
 
 <section class="card hv" aria-labelledby="hv-h" data-haken-verlauf>
   <h2 id="hv-h" class="h2">{t('Tick history')}</h2>
-  <ChipChoice options={OPTIONS} value={span} onchange={pick} aria-label={t('Period of the tick history')} data-hv-span />
   {#if res.groups.length}
     <p class="det" data-hv-sentence>{sentence}</p>
     <div class="grid" style:--n={cols.length} class:week class:dots class:few={dots} data-hv-grid data-hv-span-days={span}>
