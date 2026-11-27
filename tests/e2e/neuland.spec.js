@@ -75,7 +75,7 @@ test('Neuland: found on the route, bingo, ticks by hand, own collection with Und
   await shot(page, info, 'NL1-kantone');
 
   // 3. one canton opened: the first visit and the trip; «not there» takes it away, a tick by hand brings Tessin
-  await list.locator('li', { hasText: T('Canton {name}', { name: 'Uri' }) }).getByRole('button', { name: new RegExp(T('Canton {name}', { name: 'Uri' })) }).last().click();
+  await list.locator('li', { hasText: T('Canton {name}', { name: 'Uri' }) }).locator('button.nm').click();
   const sheet = page.locator('dialog.nl-item');
   await expect(sheet).toContainText(T('Found by the app on your route.'));
   await expect(sheet.getByRole('link', { name: T('On the trip «{name}»', { name: `${P}Klausen-Runde` }) })).toHaveAttribute('href', `#/debrief/${P}klausen`);
