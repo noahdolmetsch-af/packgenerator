@@ -64,7 +64,7 @@
       <label for="fo-m-{trip.id}">{t('Fog top in m (if you know it)')}</label>
       <input id="fo-m-{trip.id}" type="number" inputmode="numeric" min="0" max="4000" bind:value={topM} data-fog-top />
       <div class="acts">
-        <button type="button" class="btn hi" onclick={keep} data-fog-keep><CloudFog size={16} aria-hidden="true" />{t('Yes, keep the day')}</button>
+        <button type="button" class="btn" onclick={keep} data-fog-keep><CloudFog size={16} aria-hidden="true" />{t('Yes, keep the day')}</button>
         <button type="button" class="btn" onclick={leave} data-fog-leave><X size={16} aria-hidden="true" />{t('No thanks')}</button>
       </div>
     </div>

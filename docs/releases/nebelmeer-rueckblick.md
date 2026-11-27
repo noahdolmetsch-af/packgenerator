@@ -14,6 +14,7 @@ PR #<Nummer> · 27.11.2026 · Auftrag: Noah «wieder aufnehmen» (die 4b-Frage a
 ## Selbst entschieden
 - Gefragt wird nur bei Touren mit einem Tag zwischen Oktober und März (der Winter des Regals) und nicht, wenn der Tag schon gemerkt ist; ohne Ziel, ohne Serie, nichts wird ohne Tippen gemerkt (Noahs 4a).
 - Kein neues Feld an der Tour: die abgelehnten Touren stehen in der eigenen Einstellung `fogSeaAsk` (wie `declined` beim Tourenpass), damit weder das Tour-Format noch das Backup-Format sich ändert.
+- «Ja, Tag merken» ist ein ruhiger Knopf, kein Hauptknopf: auf dem Rückblick ist «Abstempeln» der eine Hauptknopf (der Wächter lässt einen pro Bildschirm zu).
 - Die Frage steht nach dem Stempel, nicht davor: der Stempel ist die ältere Frage und die Nebelfrage nur im Winter.
 - Die Fertig-Regel: Seite und Absprung sind der Rückblick selbst (kein neuer Eintrag in `features.js`, das Regal «Nebelmeer» bleibt die Funktion `f.collectwall`); «Gut zu wissen» und leerer Zustand ändern sich nicht (die Frage fehlt einfach, wenn nichts zu fragen ist).
 
