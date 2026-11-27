@@ -1,6 +1,6 @@
 # Packvorschläge nach Wetter und Lieblingsteilen pro Tasche
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Noah «1-5» (Punkt 2; Thread «Packen nach Taschen am Bike ausbauen»)
+PR #1819 · 24.11.2026 · Auftrag: Noah «1-5» (Punkt 2; Thread «Packen nach Taschen am Bike ausbauen»)
 
 ## Was ist neu
 - Unter dem Titel einer Tasche steht, wenn das Wetter ein Teil verlangt, das noch nicht gepackt ist, eine Zeile «Fürs Wetter noch in diese Tasche: + Regenjacke · Regen, + Überschuhe ★ …». Ein Tipp auf den Namen packt das Teil in diese Tasche (mit «Rückgängig» in der Meldung), das × daneben schlägt es auf dieser Tour nicht mehr vor. Lieblingsteile (★) stehen zuerst.
