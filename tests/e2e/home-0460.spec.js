@@ -136,7 +136,8 @@ test('lubed right on Today, with Undo; a function tile opens its page', async ({
   // v0.94.0 «Kachel-Wand»: every function is its own tile; the wall keeps the order the user set
   // «Heute neu» A (0.165.0): «Note» is one of the 8 shortcuts
   // «Schnell öffnen» (Noah 01.11.2026 «5a»): a pin opens its page
-  await page.locator('[data-pins-tile] [data-pin="f.heatmap"]').click();
+  await page.locator('[data-pins-tile] [data-pins-all]').click();
+  await page.locator('[data-fav-all] [data-fav-row="f.heatmap"] .fa-go').click();
   await expect(page).not.toHaveURL(/#\/?$/);
 });
 

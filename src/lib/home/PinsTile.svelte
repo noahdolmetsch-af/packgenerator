@@ -95,7 +95,7 @@
 
 <section class="pt" data-pins-tile aria-label={t('Favourites|quick')}>
   <div class="pt-head">
-    <h2 class="pt-n"><Star size={20} fill="currentColor" aria-hidden="true" />{t('Favourites|quick')}</h2>
+    <h2 class="pt-n"><a class="pt-nl" href="#/quick" data-pins-quick><Star size={20} fill="currentColor" aria-hidden="true" />{t('Favourites|quick')}</a></h2>
     <button type="button" class="pt-edit" data-pins-edit aria-pressed={editing} onclick={() => ((editing = !editing), (open = null), (adding = false))}>
       {#if editing}<Check size={16} aria-hidden="true" />{t('Done')}{:else}<Pencil size={16} aria-hidden="true" />{t('Change favourites')}{/if}
     </button>
@@ -199,6 +199,14 @@
     font-size: var(--fs-sub);
     font-weight: 700;
     color: var(--ink);
+  }
+  .pt-nl {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    color: inherit;
+    text-decoration: none;
   }
   .pt-n :global(svg) {
     color: var(--hi);
