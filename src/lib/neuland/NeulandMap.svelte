@@ -341,7 +341,7 @@
     gap: 1px;
     border-radius: var(--r-ctl);
     overflow: hidden;
-    box-shadow: var(--shadow-1, 0 1px 4px rgb(0 0 0 / 0.18));
+    box-shadow: var(--shadow-1);
     background: var(--line);
   }
   .nm-zoom button {
@@ -369,9 +369,9 @@
     margin: 0;
     padding: 8px 14px;
     border-radius: var(--r-ctl);
-    background: rgb(0 0 0 / 0.72);
-    color: #fff;
-    font-size: var(--fs-sm, 0.9rem);
+    background: var(--ink);
+    color: var(--paper);
+    font-size: var(--fs-small);
     pointer-events: none;
     text-align: center;
   }
