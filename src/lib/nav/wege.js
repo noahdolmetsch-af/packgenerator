@@ -54,3 +54,14 @@ export function keepSteps(hash = '', passed = []) {
   const place = placeKeyOf(hash);
   return (passed ?? []).filter((s) => s?.href && !isRoot(s.href) && placeKeyOf(s.href) === place);
 }
+
+/**
+ * The path ends before the page itself: when its last step carries the name of the page («Auswerten › Verlauf › Wi gaht's?» above
+ * the page «Wi gaht's?»), that step goes, so the page is named once (impeccable F-10, Noah 27.11.2026 «gerne normal einreihen»).
+ * steps: [{ href, label }] (labels already translated), page: the name the head shows for the page.
+ */
+export function withoutPage(steps = [], page = '') {
+  const name = String(page ?? '').trim();
+  if (!name || !steps.length) return steps;
+  return String(steps[steps.length - 1]?.label ?? '').trim() === name ? steps.slice(0, -1) : steps;
+}
