@@ -183,7 +183,7 @@ test('b) every finished trip of the period by month with its values; grey rows k
 test('c) «Filter»: counts, the active filters as chips, «Filter löschen», a saved filter under «Meine Filter»', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   const all = await list(page).locator('li[data-row]').count();
-  await page.getByRole('button', { name: T('Filter'), exact: true }).click();
+  await page.getByRole('button', { name: T('More filters'), exact: true }).click();
   const dlg = page.getByRole('dialog', { name: T('Filter') });
   await expect(dlg).toBeVisible();
   for (const fl of ['FL1', 'FL2', 'FL3', 'FL4', 'FL5', 'FL6', 'FL7', 'FL8']) await expect(dlg.locator(`[data-fs="${fl}"]`)).toBeVisible();
@@ -228,7 +228,7 @@ test('c) «Filter»: counts, the active filters as chips, «Filter löschen», a
   await page.locator('section[data-finished] [data-clear-filters]').click();
   await expect(list(page).locator('li[data-row]')).toHaveCount(all);
   // FL4 several days and FL6 rain together («and»): only multi-day trips with rain
-  await page.getByRole('button', { name: T('Filter'), exact: true }).click();
+  await page.getByRole('button', { name: T('More filters'), exact: true }).click();
   await dlg.locator('[data-fs="FL4"]').getByRole('button', { name: new RegExp(`^${T('Several days|duration')}`) }).click();
   await dlg.locator('[data-fs="FL6"] [data-value="rain"]').click();
   await dlg.locator('[data-apply]').click();
@@ -309,7 +309,7 @@ test('e) the tiles: «Offene Rückblicke» and «Karte» follow a filter, «Gute
   expect(routes).toBeGreaterThan(0);
   await expect(tiles.locator('[data-filtered]')).toHaveCount(0);
   // a filter: Velo Rennrad Blau (its one trip has a Rückblick)
-  await page.getByRole('button', { name: T('Filter'), exact: true }).click();
+  await page.getByRole('button', { name: T('More filters'), exact: true }).click();
   const dlg = page.getByRole('dialog', { name: T('Filter') });
   await dlg.locator('[data-fs="FL2"] [data-value="bike-road"]').click();
   await dlg.locator('[data-apply]').click();
@@ -331,5 +331,56 @@ test('e) the tiles: «Offene Rückblicke» and «Karte» follow a filter, «Gute
   await tiles.locator('[data-show-tile="o1"]').click();
   await expect(tiles.locator('[data-tile="o1"]')).toBeVisible();
   await noSideways(page);
+  expect(errors).toEqual([]);
+});
+
+test('f) one filter: the field and four buttons on top filter the trip list, no box beside it', async ({ page, context }, info) => {
+  const errors = await start(page, context, info);
+  const all = await list(page).locator('li[data-row]').count();
+  expect(all).toBeGreaterThan(2);
+  // Noah 26.11.2026 «Ja», «a»: one place to filter; the box «Liste filtern» beside the list is gone
+  await expect(page.locator('[data-side-filter]')).toHaveCount(0);
+  const bar = page.locator('[data-tour-bar]');
+  await expect(bar.locator('input')).toHaveAttribute('placeholder', T('Find a trip or ride'));
+  await expect(bar.locator('[data-suche-filter]')).toHaveCount(4);
+  await expect(bar.getByRole('button', { name: T('More filters'), exact: true })).toBeVisible();
+  // the field filters the list itself
+  const first = (await list(page).locator('li[data-row] a').first().innerText()).trim().split(/\s+/)[0];
+  await bar.locator('input').fill(first);
+  await expect.poll(() => list(page).locator('li[data-row]').count()).toBeLessThanOrEqual(all);
+  expect(await list(page).locator('li[data-row]').count()).toBeGreaterThan(0);
+  await expect(page.locator('[data-list-sub]')).toContainText(T('filtered').toLowerCase().slice(0, 4));
+  // a line under the buttons says how many trips the list shows now, and leads to it
+  await expect(bar.locator('[data-tour-sum]')).toContainText(T('To the list'));
+  await bar.locator('[data-tour-sum-go]').click();
+  await expect(page.locator('#trips-done')).toBeInViewport();
+  await bar.locator('input').fill('zzzqqq');
+  await expect(list(page).locator('li[data-row]')).toHaveCount(0);
+  await bar.locator('input').fill('');
+  await expect(list(page).locator('li[data-row]')).toHaveCount(all);
+  // the button «Velo»: the same filter as in the window, with its chip to tap away
+  await bar.locator('[data-suche-filter="bike"]').click();
+  await bar.locator('[data-suche-choice="bike-road"]').click();
+  await expect(list(page).locator('li[data-row]')).toHaveCount(ROAD_TRIPS.length);
+  await expect(page.locator('[data-filter-n]')).toHaveText('1');
+  await expect(page.locator('section[data-finished] [data-active-filters] [data-chip="bike:bike-road"]')).toBeVisible();
+  await page.locator('section[data-finished] [data-clear-filters]').click();
+  await expect(list(page).locator('li[data-row]')).toHaveCount(all);
+  // the button «Distanz» sets the km range of the window's filter
+  await bar.locator('[data-suche-filter="dist"]').click();
+  await bar.locator('[data-suche-choice="long"]').click();
+  await expect(page.locator('[data-filter-n]')).toHaveText('1');
+  await expect.poll(() => list(page).locator('li[data-row]').count()).toBeLessThan(all);
+  await page.locator('section[data-finished] [data-clear-filters]').click();
+  // the button «Jahr»: a calendar year takes the place of the period until a period is tapped
+  await bar.locator('[data-suche-filter="year"]').click();
+  await bar.locator('[data-suche-choice="2025"]').click();
+  await expect(bar.locator('[data-suche-filter="year"]')).toHaveText(/2025/);
+  await expect.poll(() => list(page).locator('li[data-row]').count()).toBeGreaterThan(0);
+  const tools = page.locator('section[data-finished] .tools');
+  await tools.getByRole('button', { name: T('All|period'), exact: true }).click();
+  await expect(bar.locator('[data-suche-filter="year"]')).toHaveText(new RegExp(`^${T('Year')}\\s*▾$`));
+  await noSideways(page);
+  await shot(page, info, 'ein-filter');
   expect(errors).toEqual([]);
 });

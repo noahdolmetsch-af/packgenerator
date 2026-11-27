@@ -19,7 +19,7 @@ export default {
   '{n} of {all} · filtered': '{n} von {all} · gefiltert',
   'newest first, by month': 'neueste zuerst, nach Monat',
   'My filters': 'Meine Filter',
-  'Active|filter': 'Heute abhaken',
+  'Active|filter': 'Aktiv',
   'Remove filter {name}': 'Filter {name} entfernen',
   'Another filter or period shows more.': 'Ein anderer Filter oder Zeitraum zeigt mehr.',
   'Show all trips of the period': 'Alle Touren im Zeitraum zeigen',

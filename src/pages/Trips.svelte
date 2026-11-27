@@ -76,7 +76,7 @@
   import { stravaName } from '../lib/stravanames.js';
   import Help from '../lib/ui/Help.svelte';
   import { FIELD_HELP } from '../lib/daumen.js'; // FE14
-  import { Plus, ChevronRight, ChevronDown, Route, Upload, Flag, Star, SlidersHorizontal, Bookmark, X, Zap, ZapOff, Info, Calendar, Backpack, Search, Activity, ExternalLink } from '@lucide/svelte';
+  import { Plus, ChevronRight, ChevronDown, Route, Upload, Flag, Star, Bookmark, X, Zap, ZapOff, Info, Calendar, Backpack, Search, Activity, ExternalLink } from '@lucide/svelte';
   // SN4g: the rows, their values and the filters
   import { loadReview } from '../lib/review/load.js';
   import { tripFacts, periodOf, withActs } from '../lib/review/rueckblick.js';
@@ -93,7 +93,9 @@ import { normState, skKey } from '../lib/sk/tiles.js';
   import { TOUR_VIEW_KEY } from '../lib/review/pastcols.js';
   import { tourViewOf, bikeOfRow } from '../lib/review/tourzahlen.js';
   import { n0, n1, temps, dates, monthLong, rainText, DASH } from '../lib/review/fmt.js';
-  import { TOURS_KEY, KINDS, toursOf, emptyFilter, normFilter, filterRows, activeChips, withoutChip, kindOf, sameFilter, saveFilter, dropFilter } from '../lib/touren/filter.js';
+  import { TOURS_KEY, KINDS, toursOf, emptyFilter, normFilter, filterRows, activeChips, withoutChip, kindOf, sameFilter, saveFilter, dropFilter, choiceCounts } from '../lib/touren/filter.js';
+  import TourBar from '../lib/touren/TourBar.svelte';
+  import { wordRows, kindCounts, yearsOf, yearPeriod } from '../lib/touren/tourbar.js';
   import InZahlen from '../lib/review/InZahlen.svelte';
   import PackBand from '../lib/touren/PackBand.svelte';
   import FilterSheet from '../lib/touren/FilterSheet.svelte';
@@ -278,7 +280,11 @@ import { normState, skKey } from '../lib/sk/tiles.js';
     { key: 'year', name: year },
     { key: 'all', name: t('All|period') },
   ]);
-  const period = $derived(periodOf(mode, today));
+  // «Ein Filter auf Touren» (Noah 26.11.2026 «Ja», «a»): the field and the four buttons on top filter this list; a chosen calendar year
+  // takes the place of the period (12 months, this year, all) until one of those is tapped
+  let word = $state('');
+  let yearSel = $state('');
+  const period = $derived(yearSel ? yearPeriod(yearSel, today) : periodOf(mode, today));
   const inPeriod = $derived(facts.filter((r) => (!period.from || r.start >= period.from) && r.start <= period.to));
   let st = $state('all');
   let filter = $state(emptyFilter());
@@ -287,14 +293,19 @@ import { normState, skKey } from '../lib/sk/tiles.js';
   // «Touren-Liste aufräumen»: the open debriefs stand once at the top. On a computer that is the tile «Offene Rückblicke»;
   // while it is hidden, and on a phone, the line under the title is the way (no button on every row any more).
   const openTop = $derived(!phone.matches && !normState($tilesQ?.value).hidden.includes('o2'));
-  const rows = $derived(filterRows(inPeriod, filter, ctx).filter((r) => matchesState(states, r.id, st)));
+  const rows = $derived(wordRows(filterRows(inPeriod, filter, ctx), word, rowBike).filter((r) => matchesState(states, r.id, st)));
+  const barCounts = $derived(choiceCounts(inPeriod, ctx));
+  const barKinds = $derived(kindCounts(inPeriod, KINDS));
+  const barYears = $derived(yearsOf(facts));
   const chips = $derived(activeChips(filter, bikeName));
-  const filtered = $derived(chips.length > 0 || st !== 'all');
-  const filterWords = $derived([...(st !== 'all' ? [t(st === 'rated' ? 'Rated|state' : 'Completed|state')] : []), ...chips.map((c) => t(c.label, c.vars))].join(', '));
+  const filtered = $derived(chips.length > 0 || st !== 'all' || !!word.trim() || !!yearSel);
+  const filterWords = $derived([...(st !== 'all' ? [t(st === 'rated' ? 'Rated|state' : 'Completed|state')] : []), ...(yearSel ? [yearSel] : []), ...(word.trim() ? [`«${word.trim()}»`] : []), ...chips.map((c) => t(c.label, c.vars))].join(', '));
   let sheet = $state(false);
   const clearAll = () => {
     filter = emptyFilter();
     st = 'all';
+    word = '';
+    yearSel = '';
   };
   const setSaved = (s) => (filter = sameFilter(filter, s.f) ? emptyFilter() : normFilter(s.f));
 
@@ -330,6 +341,15 @@ import { normState, skKey } from '../lib/sk/tiles.js';
     await tick();
     document.getElementById('trips-done')?.scrollIntoView({ block: 'start' });
   }
+  // «Ein Filter auf Touren»: a field or button above filters the list, so on a phone the list opens by itself; «To the list» goes there
+  $effect(() => {
+    if (word.trim() || yearSel || chips.length) packOpen = true;
+  });
+  async function showList() {
+    packOpen = true;
+    await tick();
+    document.getElementById('trips-done')?.scrollIntoView({ block: 'start' });
+  }
   const shortDone = $derived(phone.matches && !doneAll);
   // Tempo (Noah 19.10.2026 «3a»): 20 rows first on every screen, «Show n more» adds 20 at a time; a new
   // filter or period starts at 20 again. Before, every trip and ride was drawn at once.
@@ -339,7 +359,7 @@ import { normState, skKey } from '../lib/sk/tiles.js';
     untrack(() => tidyAllTitles(db, { t, loc: locale(), name: stravaName }));
   });
   $effect(() => {
-    void [JSON.stringify(filter), st, mode];
+    void [JSON.stringify(filter), st, mode, word, yearSel];
     untrack(() => (tourLimit = TOUR_ROWS));
   });
   const cap = $derived(shortDone ? PHONE_ROWS : tourLimit);
@@ -384,9 +404,9 @@ import { normState, skKey } from '../lib/sk/tiles.js';
   // «309 in 12 months · 1440 in all», so it agrees with the page it opens
   const shownActs = $derived(actRows.filter((r) => !r.hidden));
   const actsInPeriod = $derived(inPeriodRows(shownActs, period).length);
-  const actsWords = $derived(!shownActs.length ? t('No activity yet') : mode === 'all' ? tn(shownActs.length, '{n} activity', '{n} activities') : `${tn(actsInPeriod, '{n} activity', '{n} activities')} ${periodWords} · ${t('{n} in all', { n: num(shownActs.length) })}`);
-  const periodWords = $derived(mode === '12m' ? t('in 12 months') : mode === 'year' ? t('in {year}', { year }) : t('since the start'));
-  const periodName = $derived(PERIODS.find((p) => p.key === mode)?.name ?? '');
+  const actsWords = $derived(!shownActs.length ? t('No activity yet') : mode === 'all' && !yearSel ? tn(shownActs.length, '{n} activity', '{n} activities') : `${tn(actsInPeriod, '{n} activity', '{n} activities')} ${periodWords} · ${t('{n} in all', { n: num(shownActs.length) })}`);
+  const periodWords = $derived(yearSel ? t('in {year}', { year: yearSel }) : mode === '12m' ? t('in 12 months') : mode === 'year' ? t('in {year}', { year }) : t('since the start'));
+  const periodName = $derived(yearSel || (PERIODS.find((p) => p.key === mode)?.name ?? ''));
   const scope = $derived([periodName, filtered ? t('{n} of {all} trips', { n: num(rows.length), all: num(inPeriod.length) }) : tn(inPeriod.length, 'the {n} trip', 'all {n} trips')].join(', '));
 
   /* ---- SN4i: the tiles (O1 the forecast, O2 and O5 the rows shown) ---- */
@@ -442,9 +462,8 @@ import { normState, skKey } from '../lib/sk/tiles.js';
 
 {#snippet filterTools()}
   <div class="tools">
-    <Seg full={false} label={t('Period')} value={mode} options={PERIODS} onchange={(v) => (mode = v)} />
+    <Seg full={false} label={t('Period')} value={yearSel ? '' : mode} options={PERIODS} onchange={(v) => ((yearSel = ''), (mode = v))} />
     <StateChips value={st} counts={stCounts} onchange={(v) => (st = v)} />
-    <button type="button" class="btn k fbtn" aria-haspopup="dialog" onclick={() => (sheet = true)} data-filter-open><SlidersHorizontal size={16} aria-hidden="true" /><span class="kl">{t('Filter')}</span>{#if chips.length}<span class="fn num" data-filter-n>{chips.length}</span>{/if}</button>
   </div>
   {#if tours.saved.length}
     <div class="mine" role="group" aria-label={t('My filters')} data-my-filters>
@@ -533,6 +552,8 @@ import { normState, skKey } from '../lib/sk/tiles.js';
       <Btn icon={Upload} label={t('Upload ride')} href="#/debrief/ride" />
     </div>
   </header>
+  <!-- «Ein Filter auf Touren» (Noah 26.11.2026 «Ja», «a»): one field and four buttons behind the title, they filter the list «Meine Touren» -->
+  {#if !onRides}<TourBar bind:word bind:year={yearSel} bind:filter counts={barCounts} years={barYears} {bikes} kinds={barKinds} n={chips.length} shown={rows.length} total={inPeriod.length} onlist={showList} onmore={() => (sheet = true)} />{/if}
   {#if !onRides}<PackKarten />{/if}
   <!-- «332 Use Cases» (Noah 24.10.2026 «2b»): pages for every tour that were only reachable through search -->
   <!-- «Alles hier» (Noah 03.11.2026 «1a»): every Touren function as a tile on top; the row «More for your tours» keeps only komoot (an outside page), its other links are tiles now -->
@@ -573,12 +594,6 @@ import { normState, skKey } from '../lib/sk/tiles.js';
            scroll: period and filter of the list, the open debriefs, the new sport band and the tip of the day -->
       {#if side}
         <aside class="tside" aria-label={t('Beside the trips')} data-trips-side>
-          {#if !tableOn}
-            <section class="card sidef" aria-labelledby="trips-side-f" data-side-filter>
-              <h2 id="trips-side-f">{t('Filter the list')}</h2>
-              {@render filterTools()}
-            </section>
-          {/if}
           {#if $dataQ}<TourTiles top {wx} open={tileData.open} {map} filtered={filtered ? filterWords : ''} go={openRow} {rateHref} extraOf={tileExtra} />{/if}
           {#if oldRows.length}{@render saBand()}{/if}
           <TipLine page="trips" name={t('Trips|place')} />
@@ -686,7 +701,7 @@ import { normState, skKey } from '../lib/sk/tiles.js';
         </div>
         <!-- «Computer-Breite» (Noah 26.10.2026 «1a»): from 1200 px period and filter stand in the right column -->
         <AufraeumKarte {doubles} tests={testRows} onlook={() => (doublesOpen = true)} />
-        {#if !side}{@render filterTools()}{/if}
+        {@render filterTools()}
         {@render activeRow()}
 
         {#if tableOn}
@@ -696,7 +711,7 @@ import { normState, skKey } from '../lib/sk/tiles.js';
         {:else if !$dataQ}
           <Skeleton rows={3} />
         {:else if !rows.length}
-          <div class="none"><Empty icon={Search} title={t('No trip matches.')} text={filtered ? t('Another filter or period shows more.') : t('No trip in this period.')} action={filtered ? { label: t('Clear filters'), onclick: clearAll, explain: t('Show all trips of the period') } : mode !== 'all' ? { label: t('Show all|filter'), onclick: () => (mode = 'all'), explain: t('Show all years') } : null} /></div>
+          <div class="none"><Empty icon={Search} title={t('No trip matches.')} text={filtered ? t('Another filter or period shows more.') : t('No trip in this period.')} action={filtered ? { label: t('Clear filters'), onclick: clearAll, explain: t('Show all trips of the period') } : mode !== 'all' || yearSel ? { label: t('Show all|filter'), onclick: () => ((yearSel = ''), (mode = 'all')), explain: t('Show all years') } : null} /></div>
         {:else}
           <!-- Impeccable Touren 2: what is missing, said once; the «?» of the values explained here once -->
           <div class="vhead" data-values-head>
@@ -757,7 +772,7 @@ import { normState, skKey } from '../lib/sk/tiles.js';
       {:else}
       {#if phone.matches}<TipLine page="trips" name={t('Trips|place')} />{/if}
       {#if $dataQ && facts.length}
-        <InZahlen tours {rows} {facts} {vals} {mode} {today} {scope} {states} {bikes} items={$dataQ.items} containers={$dataQ.containers} entries={$moreQ?.entries ?? []} view={izView} onview={saveIz} hrefOf={(id) => facts.find((x) => x.id === id)?.href ?? null} go={(id) => openRow(facts.find((x) => x.id === id) ?? {})} />
+        <InZahlen tours {rows} {facts} {vals} mode={yearSel ? 'all' : mode} {today} {scope} {states} {bikes} items={$dataQ.items} containers={$dataQ.containers} entries={$moreQ?.entries ?? []} view={izView} onview={saveIz} hrefOf={(id) => facts.find((x) => x.id === id)?.href ?? null} go={(id) => openRow(facts.find((x) => x.id === id) ?? {})} />
       {/if}
 
       <PageMore page="trips" name={t('Trips|place')} />
@@ -1061,24 +1076,6 @@ import { normState, skKey } from '../lib/sk/tiles.js';
     align-items: center;
     gap: var(--sp-2) var(--sp-3);
     margin: 0 0 var(--sp-2);
-  }
-  .fbtn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    min-height: 44px;
-    margin-left: auto;
-  }
-  .fn {
-    display: inline-grid;
-    place-items: center;
-    min-width: 22px;
-    height: 22px;
-    padding: 0 6px;
-    border-radius: 999px;
-    background: var(--ink);
-    color: var(--paper);
-    font: 600 var(--fs-tiny) / 1 var(--font-body);
   }
   .mine,
   .active {
@@ -1436,9 +1433,6 @@ import { normState, skKey } from '../lib/sk/tiles.js';
     .tools :global(.stchips .sc) {
       flex: none;
     }
-    .fbtn {
-      margin-left: 0;
-    }
     /* on a phone every trip is one compact card; the details (values in a box of 4 columns, the power below
        with its own head) open on a tap */
     .tr {
@@ -1559,21 +1553,6 @@ import { normState, skKey } from '../lib/sk/tiles.js';
         linear-gradient(transparent, var(--tside-ground) 70%) bottom / 100% 28px no-repeat local,
         radial-gradient(farthest-side at 50% 0, color-mix(in srgb, var(--shadow) 70%, transparent), transparent) top / 100% 10px no-repeat scroll,
         radial-gradient(farthest-side at 50% 100%, color-mix(in srgb, var(--shadow) 70%, transparent), transparent) bottom / 100% 10px no-repeat scroll;
-    }
-    .tside .sidef {
-      display: grid;
-      gap: var(--sp-2);
-      padding: var(--sp-3) var(--sp-4);
-    }
-    .tside .sidef h2 {
-      margin: 0;
-      font: 600 var(--fs-body) / 1.3 var(--font-body);
-    }
-    .tside .sidef .tools {
-      margin: 0;
-    }
-    .tside .sidef .fbtn {
-      margin-left: 0;
     }
     .tside .sa-band {
       margin: 0;
