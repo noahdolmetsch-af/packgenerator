@@ -19,6 +19,16 @@ Noah 24.11.2026 17:19: «ich möchte für jeden PR vor merge bilder sehen … di
 - Merge-Prüfung (Basis `main`, konfliktfrei, linearer Zweig): `CLAUDE.md`.
 ~~~~
 
+## Ersetzt am 27.11.2026 17:38: «Ein PR pro Seite, kleine Änderungen derselben Seite gebündelt» (Block 4)
+
+Noah «a» 27.11.2026 17:38 (auf «Kleine Pakete desselben Threads: a) dürfen zusammen in einen PR · b) bleiben einzeln»). Das erweitert die Fassung in `docs/regeln.md` Block 4 bis 27.11.2026 17:38, wörtlich:
+
+~~~~markdown
+- **Ein PR pro Seite**, kleine Änderungen derselben Seite gebündelt. Einzeln bleiben Datenänderungen (Dexie, Backup, Sync, `api/`) und Test-Fixes.
+~~~~
+
+Und der Satz am Ende von «Freie Plätze sofort füllen» (Noah «a» 25.11.2026 20:08), wörtlich: «Bereiche mit mehreren Teilen (zum Beispiel Mein Tag) bringen **jeden Teil als eigenen PR** mit eigenen Bildern und eigener Karte.»
+
 ## Ersetzt am 25.11.2026 20:09: «höchstens 5 PRs gleichzeitig in der Prüfung» (Block 4)
 
 Noah «neu 5 gleichzeitig» 25.11.2026 01:26 (Fassung in `docs/regeln.md` Block 4 bis 25.11.2026 20:09), wörtlich: «**höchstens 5 PRs gleichzeitig in der Prüfung auf GitHub** (4 seit 24.11.2026 23:18, davor 5–6), **bis 8 offen insgesamt; 6–10 Threads arbeiten gleichzeitig.** Ein neuer PR wird erst geöffnet, wenn in der Prüfung weniger als 5 sind und insgesamt weniger als 8 offen; sonst wartende PRs abbauen helfen.» Ersetzt durch Noah «a» 25.11.2026 20:09 (Frage «6 statt 5 gleichzeitig: a) ja, mit Notbremse, b) bei 5 bleiben»): höchstens 6, mit Notbremse (zweimal main rot an einem Tag: für den Rest des Tages wieder 5).
