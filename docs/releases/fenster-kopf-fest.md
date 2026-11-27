@@ -1,6 +1,6 @@
 # Fenster: Kopf und Fuss bündig
 
-PR folgt · 27.11.2026 · Auftrag: Noah «1, 2, 3, 4» (Punkt 3) im Thread «Lieblingsinhalte besser sichtbar machen»
+PR #1848 · 27.11.2026 · Auftrag: Noah «1, 2, 3, 4» (Punkt 3) im Thread «Lieblingsinhalte besser sichtbar machen»
 
 ## Was ist neu
 - In einem langen Fenster (zum Beispiel «Alle» bei den Favoriten) blitzte beim Scrollen die nächste Zeile über der Kopfzeile auf, und unter «Fertig» war ein Streifen. Kopf und Fuss kleben jetzt bündig am Rand des Fensters (`app.css`: `top`/`bottom` der festen Teile von `.vdlg` gleichen den Innenabstand des Fensters aus).
