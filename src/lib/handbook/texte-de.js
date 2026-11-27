@@ -1218,9 +1218,9 @@ export default {
   'Tap «Choose pictures»; per page turn, cut or draw (pen, highlighter, text, arrow).': 'Tippe «Bilder auswählen»; pro Seite drehen, zuschneiden oder zeichnen (Stift, Markierstift, Text, Pfeil).',
   'Choose «One PDF» or «Single pictures», then «Save or share».': 'Wähle «Ein PDF» oder «Einzelne Bilder», dann «Speichern oder teilen».',
   'Example: three screenshots of a booking → cut, the price highlighted → one PDF of 3 pages.': 'Beispiel: drei Screenshots einer Buchung → zugeschnitten, der Preis markiert → ein PDF mit 3 Seiten.',
-  'Tap «Add a pin», search a function and tap «Pin».': 'Tippe auf «Abkürzung hinzufügen», suche eine Funktion und tippe auf «Anpinnen».',
+  'Tap «Add a pin», search a function and tap «Pin».': 'Tippe auf «Favorit hinzufügen», suche eine Funktion und tippe auf «Merken».',
   'Tap «Edit»: rename, add a note, move with the arrows or drag, unpin.': 'Tippe auf «Bearbeiten»: umbenennen, Notiz dazu, mit Pfeilen oder Ziehen verschieben, entfernen.',
-  'Example: pin «Wear» into the group «Bike» with the note «after rain».': 'Beispiel: «Verschleiss» in die Gruppe «Velo» pinnen, mit der Notiz «nach Regen».',
+  'Example: pin «Wear» into the group «Bike» with the note «after rain».': 'Beispiel: «Verschleiss» in die Gruppe «Velo» als Favorit merken, mit der Notiz «nach Regen».',
   // Vorlagen mit Feldern (Noah 27.10.2026)
   'Open Notes and tap «Choose templates».': 'Öffne Notizen und tippe «Vorlagen auswählen».',
   'Tap «Use» on the templates you want; the pencil changes their fields.': 'Tippe bei den gewünschten Vorlagen auf «Verwenden»; der Stift ändert ihre Felder.',

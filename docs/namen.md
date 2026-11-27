@@ -14,7 +14,7 @@ Verbindlich seit 08.11.2026 (Noah «namen ok»; Zeile 1 mit «b»). Quelle: UX-T
 | 6 | Akku und Powerbank | Strom, Strombudget | **«Strom»** |
 | 7 | Backup | Jetzt sichern, Backup herunterladen, Backup speichern, Sicherung prüfen | **«Backup speichern»**, **«Backup prüfen»**, **«Backup-Datei»** |
 | 8 | Fitbit | Fitbit verbinden, Fitbit über Google, Fitbit und Gesundheit | **«Fitbit»** |
-| 9 | Schnellzugriffe | Abkürzung, Pin, Anpinnen, Schnell öffnen, Quick Links | **«Abkürzung»** für die Sache, **«anpinnen»** nur für das Tun, **«Quick Links»** für Seite, Leiste und Heute-Kachel |
+| 9 | Schnellzugriffe | Abkürzung, Pin, Anpinnen, Schnell öffnen, Quick Links | **«Favorit»** für die Sache, **«merken»** (mit dem Stern) für das Tun, **«Favoriten»** für Seite, Leiste und Heute-Kachel (Noah «1-5a» 27.11.2026, ersetzt «Abkürzung / anpinnen / Quick Links» von 08.11.2026; die Wörter «Quick Links», «Pin» und «Abkürzung» finden die Seite weiter in der Suche) |
 | 10 | Erste Einführung | Rundgang, Einführung, Einstieg | **«Rundgang»** |
 | 11 | Neue Versionen der App | Updates, Versionen, Neuigkeiten | **«Update»** |
 | 12 | Was die App kann | Funktionen, Ideen | **«Funktion»**. **«Idee»** nur in der Ideenliste «Meine Ideen für die App» |
