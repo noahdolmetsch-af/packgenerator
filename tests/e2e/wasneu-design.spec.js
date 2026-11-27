@@ -60,8 +60,9 @@ async function shot(page, info, name) {
   await page.screenshot({ path: `${process.env.SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
 }
 const noSideways = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
-// «Heute abhaken» stands under the chips, outside the wall, while not customising (Noah 23.11.2026 «1a», changed on purpose): it counts as the first tile
-const ids = (page) => page.locator('[data-haken-top], .wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile ?? 'haken'));
+// «Favoriten» (Noah 27.11.2026 «1-5a») and «Heute abhaken» (Noah 23.11.2026 «1a», changed on purpose) stand under the greeting, outside the wall,
+// while not customising: they count as the first tiles, in this order
+const ids = (page) => page.locator('[data-pins-top], [data-haken-top], .wall [data-tile]').evaluateAll((els) => els.map((e) => (e.hasAttribute('data-pins-top') ? 'pins' : (e.dataset.tile ?? 'haken'))));
 const rows = (page) => page.locator('.wn-rows > li').evaluateAll((els) => els.map((e) => e.dataset.feature));
 /** A calendar day n days from D0 (Europe/Zurich has no time in it: plain dates). */
 const dayFrom = (n) => {
@@ -135,7 +136,7 @@ test('I11: Ich, Was ist neu: the newest version, every function, all versions an
   else await expect(page.locator('.wn-rows .wn-new')).toHaveCount(0);
   await page.getByRole('button', { name: T('Name A–Z'), exact: true }).click();
   await expect(page.locator('.wn-rows > li')).toHaveCount(FEATURE_N);
-  await page.getByRole('searchbox', { name: T('Find a function') }).fill('Diebstahl');
+  await page.getByRole('searchbox', { name: T('Find a function') }).fill('Rahmennummer'); // a word only the theft sheet says (the word «Diebstahl» is in the text of «Wertliste» too since PR 1833)
   await expect(page.locator('.wn-rows > li')).toHaveCount(1);
   await expect(page.locator('.wn-rows > li').first()).toHaveAttribute('data-feature', 'f.theft');
   await page.getByRole('searchbox', { name: T('Find a function') }).fill('');
