@@ -1,6 +1,6 @@
 # Tests «Heute neu» und «Was ist neu»: die neuen Karten mitzählen
 
-PR #NNNN · 27.11.2026 · Auftrag: Meldung des Bündlers (heute-neu.spec.js:165 rot) und des Releases-Threads (I11 und I11e rot auf main)
+PR #1850 · 27.11.2026 · Auftrag: Meldung des Bündlers (heute-neu.spec.js:165 rot) und des Releases-Threads (I11 und I11e rot auf main)
 
 ## Was ist neu
 - Nichts Sichtbares geändert, nur Test für `tests/e2e/heute-neu.spec.js` («a stored wall of before (v 4) gets the new order once …») und `tests/e2e/wasneu-design.spec.js` (I11, I11e).
