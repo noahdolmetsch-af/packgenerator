@@ -16,6 +16,10 @@
    * at once (duration and feeling are optional there); the message after the tick is closed, the page has its own «Rückgängig».
    * Exceptions: a tick that wins a new star stays (the star window and the message with the link), and the line «almost a star»
    * stays as the message on the page. A tap that takes a tick back stays here. Heute does not jump.
+   * «Abhaken auf einen Blick» (Noah 27.11.2026 «1a»): `dense` (with `compact`) draws every activity of «Heute abhaken» as a small field,
+   * three per row on a phone and as many as fit on a computer, the symbol and the name in one line. There is no «•••» in a dense
+   * field (it would take a third of the width): a long press, a right click or the context-menu key opens the sheet, and the page
+   * Aktiv keeps the «•••».
    */
   import { Check, Hand, Ellipsis } from '@lucide/svelte';
   import ActIcon from './ActIcon.svelte';
@@ -26,7 +30,7 @@
   import { t } from '../i18n.svelte.js';
   import { tickPop, tickFlash } from '../ui/rowout.js'; // «Bewegung» 4a: the tick of a tile that was just ticked pops once
   import { buzz } from '../bedienung.svelte.js'; // «Rückmeldung beim Tippen» (Noah 25.11.2026 «1a», «2a»): a short buzz and a soft ring when something gets ticked
-  let { states = [], today, cols = 2, onmed = null, big = false, compact = false, help = false, medHelp = false, jump = false } = $props();
+  let { states = [], today, cols = 2, onmed = null, big = false, compact = false, dense = false, help = false, medHelp = false, jump = false } = $props();
   const tap = async (s, el) => {
     if (onmed && isMedAct(s.act)) return onmed(s);
     const ticking = !s.todayDone;
@@ -45,7 +49,7 @@
   };
 </script>
 
-<ul class="tg" class:big class:compact style:--cols={cols} style:--min={cols > 2 ? '150px' : '0px'}>
+<ul class="tg" class:big class:compact class:dense style:--cols={cols} style:--min={cols > 2 ? '150px' : '0px'}>
   {#each states as s (s.act.id)}
     <li>
       <button
@@ -62,7 +66,7 @@
         <span class="tx"><b>{actName(s.act)}</b>{#if compact}<small class="sr">{tileSub(s)}</small>{:else}<small>{tileSub(s)}</small>{/if}</span>
       </button>
       <!-- KT (2a): the long press as a button, for everyone who does not know it -->
-      <button type="button" class="more" data-more={s.act.id} aria-label={t('More for {name}: duration, place or stopwatch', { name: actName(s.act) })} onclick={() => (ui.tick = s.act.id)}><Ellipsis size={16} strokeWidth={2.5} aria-hidden="true" /></button>
+      {#if !dense}<button type="button" class="more" data-more={s.act.id} aria-label={t('More for {name}: duration, place or stopwatch', { name: actName(s.act) })} onclick={() => (ui.tick = s.act.id)}><Ellipsis size={16} strokeWidth={2.5} aria-hidden="true" /></button>{/if}
     </li>
   {/each}
 </ul>
@@ -309,6 +313,64 @@
   .compact .ic :global(svg) {
     width: 16px;
     height: 16px;
+  }
+  /* «Abhaken auf einen Blick» (Noah 27.11.2026 «1a»): the dense fields of Heute. Written with the long selector so the narrow-tile rules above
+     (container query, small phone) do not undo it. Phone: 3 per row, name 12 px in up to two lines; computer: as many as fit, 13 px. */
+  .tg.dense {
+    grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    gap: 6px;
+  }
+  .tg.dense:not(.big) .tile {
+    min-height: 48px;
+    gap: 3px;
+    padding: 5px 4px 5px 5px;
+    border-radius: 12px;
+  }
+  .tg.dense:not(.big) .ic {
+    width: 16px;
+    height: 16px;
+    border: 0;
+    border-radius: 0;
+  }
+  .tg.dense:not(.big) .ic :global(svg) {
+    width: 16px;
+    height: 16px;
+  }
+  .tg.dense:not(.big) .tile.done .ic {
+    background: none;
+    color: var(--accent);
+  }
+  .tg.dense:not(.big) .tx b {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3; /* «Stretching + Mini-Workout» needs three short lines on a phone; a name is never cut with «…» */
+    line-clamp: 3;
+    overflow: hidden;
+    font-size: var(--fs-tiny);
+    line-height: 1.15;
+  }
+  /* a very small phone (320): two per row, or a name like «Spaziergang» would break in the middle */
+  @media (max-width: 359px) {
+    .tg.dense {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 600px) {
+    .tg.dense {
+      grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+    }
+    .tg.dense:not(.big) .tile {
+      gap: 8px;
+      padding: 6px 10px;
+    }
+    .tg.dense:not(.big) .ic,
+    .tg.dense:not(.big) .ic :global(svg) {
+      width: 18px;
+      height: 18px;
+    }
+    .tg.dense:not(.big) .tx b {
+      font-size: var(--fs-small);
+    }
   }
   /* a small phone: the words need the room, the symbol goes (a done button keeps its tick) */
   @media (max-width: 359px) {

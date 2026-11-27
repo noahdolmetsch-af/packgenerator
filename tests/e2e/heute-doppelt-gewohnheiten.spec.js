@@ -26,14 +26,14 @@ test('Aktiv heute leaves out the habits on top and names them in one line', asyn
   }
 });
 
-test('without that habit the activity is back in Aktiv heute and no line stands', async ({ page, context }, info) => {
+test('with the block on top every activity stands there once, a habit too', async ({ page, context }, info) => {
   await openHome(page, context, info, { data: withHabits([{ kind: 'act', id: 'pushups' }]), hour: 9 });
-  // «Heute abhaken» (Noah 23.11.2026 «1a 2a», changed on purpose): without that habit the activity stands in the first block «Heute abhaken», once, not again in «Aktiv heute»
+  // «Heute abhaken» (Noah 23.11.2026 «1a 2a», changed on purpose; Noah 27.11.2026 «1a»: the block shows ALL activities, also the habits): every activity
+  // stands in the first block «Heute abhaken» exactly once, not again in «Aktiv heute»
   const acts = page.locator('[data-section="acts"]');
   const haken = page.locator('[data-section="haken"]');
   await expect(haken.locator('[data-act="yoga"]')).toHaveCount(1);
-  await expect(haken.locator('[data-act="pushups"]')).toHaveCount(0);
+  await expect(haken.locator('[data-act="pushups"]')).toHaveCount(1);
   await expect(acts.locator('[data-act="yoga"]')).toHaveCount(0);
   await expect(acts.locator('[data-act="pushups"]')).toHaveCount(0);
-  await expect(acts.locator('[data-acts-up]')).toContainText(/Liegestütze/);
 });

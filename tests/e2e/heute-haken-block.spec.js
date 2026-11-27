@@ -38,16 +38,25 @@ test('Heute: the haken block is the first tile and ticks with one tap', async ({
   });
   expect(before).toEqual({ chips: true, wall: true, noTile: true });
   await expect(block.getByRole('heading', { name: T('Tick off today') })).toBeVisible();
+  // «Abhaken auf einen Blick» (Noah 27.11.2026 «2a»): the chip «Abhaken» would only repeat the block, so it is not there; the other chips stay
+  await expect(page.locator('[data-goals] [data-goal="tick"]')).toHaveCount(0);
+  await expect(page.locator('[data-goals] [data-goal="ride"]')).toBeVisible();
   const tiles = block.locator('[data-act]');
   expect(await tiles.count()).toBeGreaterThan(0);
-  expect(await tiles.count()).toBeLessThanOrEqual(info.project.name === 'phone' ? 4 : 8);
-  const firstId = await tiles.first().getAttribute('data-act');
+  // «Abhaken auf einen Blick» (Noah 27.11.2026 «1a», changed on purpose): ALL activities of today are in the block, not only 4 or 8
+  await expect(tiles.first()).toBeVisible();
+  const total = Number(((await block.locator('.sd').first().textContent()) ?? '').match(/von (\d+)/)?.[1]);
+  await expect(tiles).toHaveCount(total); // the header counts the same fields it shows
+  await expect(block.locator('[data-more]')).toHaveCount(0); // a dense field has no «•••», the long press opens the sheet
+  await expect(block.locator('.hd .sd, .th .sd')).toContainText(`0 von ${total}`);
+  // the tap on the meditation opens its start sheet instead of ticking (MedStartSheet), so the check takes the first other field
+  const firstId = await block.locator('[data-act]:not([data-act="meditation"])').first().getAttribute('data-act');
   const tile = block.locator(`[data-act="${firstId}"]`);
   await expect(tile).toHaveAttribute('aria-pressed', 'false');
   await press(tile, info);
   await expect(tile).toHaveAttribute('aria-pressed', 'true');
   // nothing jumps after the tick: the tile stays where it was
-  expect(await block.locator('[data-act]').first().getAttribute('data-act')).toBe(firstId);
+  expect(await block.locator('[data-act]:not([data-act="meditation"])').first().getAttribute('data-act')).toBe(firstId);
   await press(page.locator('.ftoast').getByRole('button', { name: T('Undo') }), info);
   await expect(tile).toHaveAttribute('aria-pressed', 'false');
   expect(errors).toEqual([]);

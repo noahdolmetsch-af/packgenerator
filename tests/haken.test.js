@@ -9,30 +9,29 @@ const st = (id, extra = {}) => ({ act: { id }, resting: false, todayDone: false,
 const ids = (l) => l.map((x) => x.id);
 
 describe('hakenPick', () => {
-  it('shows the first n ticks in the order of the states and does not move a done one', () => {
-    const states = [st('a'), st('b', { todayDone: true }), st('c'), st('d'), st('e')];
-    const p = hakenPick(states, new Set(), 4);
-    expect(p.shown.map((s) => s.act.id)).toEqual(['a', 'b', 'c', 'd']);
+  it('shows ALL ticks in the order of the states, a done one stays where it is', () => {
+    const states = [st('a'), st('b', { todayDone: true }), st('c'), st('d'), st('e'), st('f'), st('g'), st('h'), st('i'), st('j')];
+    const p = hakenPick(states);
+    expect(p.shown.map((s) => s.act.id)).toEqual(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']);
     expect(p.done).toBe(1);
-    expect(p.total).toBe(5);
+    expect(p.total).toBe(10);
   });
-  it('leaves the resting ones out and names the habit cards instead of showing them twice', () => {
+  it('leaves only the resting ones out; the habit cards are in the grid too', () => {
     const states = [st('a'), st('rest', { resting: true }), st('med'), st('b')];
-    const p = hakenPick(states, new Set(['med']), 8);
-    expect(p.shown.map((s) => s.act.id)).toEqual(['a', 'b']);
-    expect(p.up.map((s) => s.act.id)).toEqual(['med']);
+    const p = hakenPick(states);
+    expect(p.shown.map((s) => s.act.id)).toEqual(['a', 'med', 'b']);
     expect(p.total).toBe(3);
   });
   it('counts the open ticks like the menu at «Plan» (not resting, a daily goal not reached)', () => {
     const states = [st('a', { open: true }), st('b', { open: false, todayDone: true }), st('r', { open: true, resting: true }), st('c', { open: true })];
-    expect(hakenPick(states, new Set(), 4).open).toBe(2);
+    expect(hakenPick(states).open).toBe(2);
   });
   it('is empty without activities', () => {
-    expect(hakenPick([], new Set(), 4)).toEqual({ shown: [], up: [], done: 0, total: 0, open: 0 });
+    expect(hakenPick([])).toEqual({ shown: [], done: 0, total: 0, open: 0 });
   });
   it('hakenIds are the ones «Active today» must not show again', () => {
-    const states = [st('a'), st('b'), st('c')];
-    expect([...hakenIds(states, new Set(), 2)]).toEqual(['a', 'b']);
+    const states = [st('a'), st('b'), st('c', { resting: true })];
+    expect([...hakenIds(states)]).toEqual(['a', 'b']);
   });
 });
 
