@@ -1243,7 +1243,7 @@ test('Scenario 4: gear care: log km, the due chain on Today and in Bike care, a 
   // v0.46.0: "Log km" is one of the 16 functions; v0.94.0 «Kachel-Wand»: a small tile on the wall.
   // v0.155.0 (HN4 3a, changed on purpose): «Log km» lives in the day card's evening (one tap on the clock by day)
   // «Heute neu» A (0.165.0, Noah «4a», changed on purpose): «Log km» is one of the 8 shortcuts again
-  await rec.click(page.locator('.wall [data-pins-tile] [data-pin="km"]'));
+  await rec.click(page.locator('[data-pins-tile] [data-pin="km"]'));
   const km = page.getByRole('dialog', { name: T('Log km') });
   await rec.select(km.locator('select').first(), BIKE.spark);
   await rec.fill(km.getByLabel(T('km on the counter')), '5100');
