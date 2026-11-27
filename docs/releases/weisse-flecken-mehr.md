@@ -1,6 +1,6 @@
 # Weisse Flecken ausbauen
 
-PR #<Nummer> · 27.11.2026 · Auftrag: Noah «1b 2a 3a 4a 5b» (27.11.2026 16:47) auf seine Frage «Neuland oder Weisse Flecken in der Nähe?» (Thread «Touren-Seite klarer machen»)
+PR #1831 · 27.11.2026 · Auftrag: Noah «1b 2a 3a 4a 5b» (27.11.2026 16:47) auf seine Frage «Neuland oder Weisse Flecken in der Nähe?» (Thread «Touren-Seite klarer machen»)
 
 ## Was ist neu
 - «Weisse Flecken in der Nähe» (Touren › Träume): der Umkreis hat fünf Knöpfe (10, 25, 50, 75, 100 km) und ein Feld «Anderer Umkreis» zum Eintippen (5 bis 200 km, `src/lib/neuland/flecken.js`: `SPOT_RADII`, `SPOT_MIN`, `SPOT_MAX`). Die Wahl bleibt gespeichert wie bisher.
