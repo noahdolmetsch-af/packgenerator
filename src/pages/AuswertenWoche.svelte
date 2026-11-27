@@ -5,7 +5,7 @@
    * Content first: one sentence about the period (hours, units, days, against the period before), the numbers, the hours by
    * sport as bars (day by day in a week, week by week in a month, month by month in a year), how you recovered in the period
    * against YOUR OWN usual range, and the longest units. The period is the switch of Auswerten (Woche, Monat, Jahr, Alles, own).
-   * 27.11.2026 (Noah «3a»): the card «Haken-Verlauf» (flow/HakenVerlauf.svelte, which activity on which day) stands on top of the page, with its own span.
+   * 27.11.2026 (Noah «3a»): the card «Haken-Verlauf» (flow/HakenVerlauf.svelte, which activity on which day) stands on top of the page, with its own span, and «Was auffällt» (flow/HakenHinweise.svelte, 4a) under it.
    * The hours are the same as in the Sports year (flow/einheiten.js, flow/sportjahr.js). Only looking, nothing is judged or saved.
    */
   import { liveQuery } from 'dexie';
@@ -13,6 +13,7 @@
   import Empty from '../lib/ui/Empty.svelte';
   import PeriodBar from '../lib/flow/PeriodBar.svelte';
   import HakenVerlauf from '../lib/flow/HakenVerlauf.svelte';
+  import HakenHinweise from '../lib/flow/HakenHinweise.svelte';
   import BarChart from '../lib/charts/BarChart.svelte';
   import NormalBand from '../lib/auswerten/NormalBand.svelte';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
@@ -125,7 +126,10 @@
     <p class="sub">{t('What you did and how you recovered. Only to look at, nothing is graded.')}</p>
   </header>
 
-  {#if d}<HakenVerlauf acts={d.acts} log={d.log} {today} />{/if}
+  {#if d}
+    <HakenVerlauf acts={d.acts} log={d.log} {today} />
+    <HakenHinweise acts={d.acts} log={d.log} {today} />
+  {/if}
 
   <section class="card blk" aria-label={t('Period')}>
     <PeriodBar {today} hint={false} />

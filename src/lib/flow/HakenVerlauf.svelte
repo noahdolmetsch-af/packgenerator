@@ -6,11 +6,9 @@
    * taken back on Heute (Tick off) or with «Later» in the tick window, never here. The rules are flow/hakenverlauf.js.
    * acts, log: the activities and the log the page already read; today: the local day.
    */
-  import { liveQuery } from 'dexie';
   import ChipChoice from '../ui/ChipChoice.svelte';
-  import { db } from '../db.js';
-  import { tripDays, addDays } from '../flow.js';
-  import { homeTrips } from '../home/heute.js';
+  import { addDays } from '../flow.js';
+  import { tripDayQuery } from './tripdaylist.js';
   import { SPANS, SPAN_DEFAULT, WEEK_FROM, spanOf, rowsOf, daysWithTick, shadeOf } from './hakenverlauf.js';
   import { actName } from './ui.svelte.js';
   import { dnum, wd } from './words.js';
@@ -36,11 +34,8 @@
     }
   };
 
-  // a bike trip day counts for «Cycling outdoors» like on Heute (flow.js tripDays)
-  const tq = liveQuery(async () => {
-    const [trips, rode] = await Promise.all([db.trips.toArray(), db.kmBook.where('date').equals(today).count()]);
-    return tripDays(homeTrips(trips), today, { rodeToday: rode > 0 });
-  });
+  // a bike trip day counts for «Cycling outdoors» like on Heute
+  const tq = tripDayQuery(today);
   const tripList = $derived($tq ?? []);
 
   const OPTIONS = $derived([
