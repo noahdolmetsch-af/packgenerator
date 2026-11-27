@@ -16,7 +16,7 @@ export default {
   '{n} °C': '{n} °C',
   'Tips on all pages': 'Tipps auf allen Seiten',
   'Tip line under the page title': 'Tipp-Zeile unter dem Seitentitel',
-  'One tip a day under the title of a page. Off: the tips stay in «Tips for this page» at the page end.': 'Ein Tipp pro Tag unter dem Titel einer Seite. Aus: die Tipps stehen weiter unter «Tipps für diese Seite» am Seitenende.',
+  'One tip a day under the title of a page. Off: the tips stay in «Tips for this page» in the «?» window.': 'Ein Tipp pro Tag unter dem Titel einer Seite. Aus: die Tipps stehen weiter unter «Tipps für diese Seite» im «?»-Fenster.',
   'Off: no tips at all, also not in «Tips for this page».': 'Aus: gar keine Tipps, auch nicht unter «Tipps für diese Seite».',
   'Off: only useful tips, no «Did you know».': 'Aus: nur nützliche Tipps, kein «Wusstest du».',
   'Ideas for activities': 'Ideen für Aktivitäten',

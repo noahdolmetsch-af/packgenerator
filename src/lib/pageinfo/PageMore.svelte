@@ -3,29 +3,22 @@
    * «Inhalte Flow» IF1 + IF2 (Noah 14.10.2026 «1b», mockups approved 04:32): at the end of a page the fold
    * «What the app can do here» (closed; IF2 shows it open), each row opens the place. The tiles «Next» (3a)
    * are the page tiles of SK (PageTiles), which the page shows right after this.
-   * When the tip line is not on the page (tips off, hidden today), a quiet «Tips for this page ›» here
-   * still opens the tips. page: a key of PAGES; name: the page's name; base: for the hrefs.
+   * «Tips for this page ›» no longer stands here (Noah «Ja» 26.11.2026): it is in the «?» window (nav/HelpButton).
+   * page: a key of PAGES; name: the page's name; base: for the hrefs.
    * «Mehr Inhalt» 3a (Noah 15.10.2026): a page's examples to take over, each a closed fold; «Save as
    * note» keeps it as an own note with a checklist (Ich › Notizen), nothing else changes.
    */
   import { ChevronDown, NotebookPen, Check } from '@lucide/svelte';
   import { db } from '../db.js';
   import { newKeptNote } from '../notebook.js';
-  import TipsSheet from './TipsSheet.svelte';
   import { pageInfo } from './store.svelte.js';
-  import { PAGES, tipOfDay, examplesOf, exampleNote } from '../pageinfo.js';
-  import { localDay } from '../localday.js';
+  import { examplesOf, exampleNote } from '../pageinfo.js';
   import { t } from '../i18n.svelte.js';
   import { sayHere } from './here.svelte.js';
 
   let { page, name, base = '', open = false } = $props();
   const pi = pageInfo();
   $effect(() => sayHere({ can: page, name, base }));
-  const today = localDay();
-  // Hilfen 3b: with the tip line off (the default) the link at the page end is the way to the tips
-  const noTip = $derived(pi.loaded && (!pi.info.lineOn || !tipOfDay(pi.info, page, today)) && PAGES[page]?.tips?.length);
-
-  let tipsOpen = $state(false);
   const examples = $derived(examplesOf(page));
   let saved = $state({});
   async function keep(ex) {
@@ -56,9 +49,6 @@
   {/each}
 {/if}
 
-{#if noTip}<button type="button" class="lk tipsl" onclick={() => (tipsOpen = true)}>{t('Tips for this page ›')}</button>{/if}
-
-{#if tipsOpen}<TipsSheet {page} {name} onclose={() => (tipsOpen = false)} />{/if}
 
 <style>
   .can {
@@ -127,10 +117,6 @@
     gap: 6px;
     margin: 8px 16px 14px;
     color: var(--ink-2);
-  }
-  .tipsl {
-    justify-self: start;
-    padding: 4px 0;
   }
   /* Paket A: «Save as note» is a tap target of 44 px on a computer too (small buttons are 32 px there) */
   .keep {

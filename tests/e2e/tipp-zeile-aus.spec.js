@@ -35,7 +35,9 @@ test('the tip line is off by default, the switch in Eigene Werte brings it back'
   await page.goto('./#/me');
   await ready(page);
   await expect(line).toHaveCount(0);
-  // the tips are still one tap away at the end of the page
-  await expect(page.getByRole('button', { name: T('Tips for this page ›') })).toBeVisible();
+  // the tips are still one tap away: in the «?» window (26.11.2026, no longer at the page end)
+  await expect(page.getByRole('button', { name: T('Tips for this page ›') })).toHaveCount(0);
+  await page.locator('[data-help-open]:visible').first().click();
+  await expect(page.locator('dialog[data-help] [data-help-tips]')).toBeVisible();
   expect(errors).toEqual([]);
 });

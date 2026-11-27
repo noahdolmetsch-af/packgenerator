@@ -170,7 +170,7 @@
       <ul class="ich-list">
         <li class="ew-row">
           <div class="ew-top">
-            <span class="ich-m"><b id="ew-line">{t('Tip line under the page title')}</b><small>{t('One tip a day under the title of a page. Off: the tips stay in «Tips for this page» at the page end.')}</small></span>
+            <span class="ich-m"><b id="ew-line">{t('Tip line under the page title')}</b><small>{t('One tip a day under the title of a page. Off: the tips stay in «Tips for this page» in the «?» window.')}</small></span>
             <label class="ew-sw"><input type="checkbox" role="switch" data-own-line aria-labelledby="ew-line" checked={pi.info.lineOn} onchange={(e) => ((on) => pi.save((v) => setLineOn(v, on)))(e.currentTarget.checked)} /></label>
           </div>
         </li>

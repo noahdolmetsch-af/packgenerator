@@ -8,7 +8,7 @@
    * own. The one line behind the page's title (ui/SeitenInhalt.svelte) opens this window (event pg:help).
    * 4a (Noah 21.11.2026): one place for help, the round «?» at the top (phone: top bar; computer: top right of the page).
    */
-  import { CircleQuestionMark, X, ChevronRight, BookOpen, Search as SearchIcon, NotebookPen } from '@lucide/svelte';
+  import { CircleQuestionMark, X, ChevronRight, BookOpen, Search as SearchIcon, NotebookPen, Lightbulb } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
   import { helpHere } from '../pageinfo/here.svelte.js';
   import { canRows } from '../pageinfo.js';
@@ -16,6 +16,8 @@
   import HintCard from '../pageinfo/HintCard.svelte';
   import SeitenInhaltListe from '../ui/SeitenInhaltListe.svelte';
   import GehoertDazu from '../know/GehoertDazu.svelte';
+  import TipsSheet from '../pageinfo/TipsSheet.svelte';
+  import { PAGES } from '../pageinfo.js';
   import { helpRows, pagePattern } from '../seiteninhalt.js';
   import { loadWissen } from '../wissen/load.js';
   import { loadHandbook } from '../handbook/load.js';
@@ -24,6 +26,13 @@
   let dlg = $state();
   let btn = $state();
   let open = $state(false);
+  // «Tips for this page ›» (Noah «Ja» 26.11.2026): the way to the tips of the page is here, not at the page end
+  let tipsOpen = $state(false);
+  const tipPage = $derived(helpHere.can && PAGES[helpHere.can]?.tips?.length ? helpHere.can : null);
+  function showTips() {
+    close();
+    tipsOpen = true;
+  }
   const hash = $derived(helpHere.route);
   // the tips and the steps load with the first opening, not at the start (scripts/size-guard.mjs)
   let know = $state({});
@@ -89,6 +98,7 @@
     <div class="more">
       <a class="go" href="#/features" onclick={close} data-help-all><b>{t('Help and functions')}</b><small>{t('Everything the app can do, the handbook and how it decides')}</small><ChevronRight size={20} aria-hidden="true" /></a>
       <div class="lks">
+        {#if tipPage}<button type="button" onclick={showTips} data-help-tips><Lightbulb size={16} aria-hidden="true" />{t('Tips for this page ›')}</button>{/if}
         <a href="#/me/handbook" onclick={close}><BookOpen size={16} aria-hidden="true" />{t('Handbook')}</a>
         <button type="button" onclick={search}><SearchIcon size={16} aria-hidden="true" />{t('Search|page')}</button>
         <!-- Sitemap 24.11.2026 (Noah «Logbuch nach vorne»): what is missing goes into the log from every page, no new block -->
@@ -97,6 +107,8 @@
     </div>
   {/if}
 </dialog>
+
+{#if tipsOpen && tipPage}<TipsSheet page={tipPage} name={helpHere.name} onclose={() => (tipsOpen = false)} />{/if}
 
 <style>
   .hic {
