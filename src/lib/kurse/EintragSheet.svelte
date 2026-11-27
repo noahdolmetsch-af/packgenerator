@@ -3,17 +3,22 @@
    * «Kursblick» Journal (Noah 23.11.2026 «kurskäufe und verkäufe loggen»): one window to write down a buy, a sale, a dividend or a
    * split, or to change one. A buy or a sale has a day, how many pieces (grams for gold), the price of one in francs and a fee.
    * eintrag: the entry to change, or null; titel: the title a new one starts with; vorschlaege: the titles to pick from
-   * [{ key, name }]; onsave(data) saves and returns '' or the text of an error. PRIVATE: nothing typed here leaves the device.
+   * [{ key, name }]; onsave(data) saves and returns '' or the text of an error; kurs(titel, tag) → { preis, tag } | null is the close of
+   * that day in francs (Noah 24.11.2026 «2a»): a new buy or sale starts with it in the price field, changeable, until the person
+   * types a price of their own. PRIVATE: nothing typed here leaves the device (only the symbol is asked of the price service).
    */
+  import { untrack } from 'svelte';
   import { X } from '@lucide/svelte';
   import DateInput from '../ui/DateInput.svelte';
   import Seg from '../ui/Seg.svelte';
   import { backClose } from '../ui/backclose.js';
   import { t } from '../i18n.svelte.js';
   import { localDay } from '../localday.js';
+  import { titelKey } from './journal.js';
+  import { zahl, tagKurz } from './format.js';
   import '../bikes/velo-dlg.css';
 
-  let { eintrag = null, titel = 'gold', vorschlaege = [], onsave, onclose } = $props();
+  let { eintrag = null, titel = 'gold', vorschlaege = [], kurs = null, onsave, onclose } = $props();
 
   // svelte-ignore state_referenced_locally
   let art = $state(eintrag?.art ?? 'kauf');
@@ -40,6 +45,40 @@
 
   const istGold = $derived(wahl.trim().toLowerCase() === 'gold');
   const handel = $derived(art === 'kauf' || art === 'verkauf');
+
+  // the close of the day: asked after a short pause, only for a new entry and while the price is not the person's own
+  // svelte-ignore state_referenced_locally
+  let preisEigen = $state(!!eintrag);
+  let schluss = $state.raw(null); // { preis, tag } | 'none' | 'wait' | null
+  let frage = 0;
+  const preisText = (v) => String(Math.round(v * (v < 10 ? 1e4 : 1e2)) / (v < 10 ? 1e4 : 1e2));
+  async function holeKurs(erzwingen = false) {
+    const key = titelKey(wahl);
+    const n = ++frage;
+    if (!kurs || !key || !tag) return (schluss = null);
+    schluss = 'wait';
+    let r = null;
+    try {
+      r = await kurs(key, tag);
+    } catch {
+      /* the price service did not answer: nothing is filled in */
+    }
+    if (n !== frage) return;
+    schluss = r ?? 'none';
+    // what the person typed while the answer was on its way is not overwritten
+    if (r && (erzwingen || !preisEigen)) preis = preisText(r.preis);
+  }
+  $effect(() => {
+    void wahl;
+    void tag;
+    if (!kurs || !handel) return;
+    const timer = setTimeout(() => untrack(() => holeKurs()), 400);
+    return () => clearTimeout(timer);
+  });
+  const nimmKurs = () => {
+    if (schluss && typeof schluss === 'object') ((preis = preisText(schluss.preis)), (preisEigen = false));
+    else holeKurs(true).then(() => (preisEigen = false));
+  };
 
   async function save(e) {
     e?.preventDefault();
@@ -71,7 +110,16 @@
       <label>{t('Day')} <DateInput bind:value={tag} aria-label={t('Day')} /></label>
       {#if handel}
         <label>{istGold ? t('Grams') : t('Pieces')} <input class="inp num" type="text" inputmode="decimal" bind:value={menge} autocomplete="off" data-eintrag-menge /></label>
-        <label>{istGold ? t('Price per gram in CHF') : t('Price per piece in CHF')} <input class="inp num" type="text" inputmode="decimal" bind:value={preis} autocomplete="off" data-eintrag-preis /></label>
+        <label>{istGold ? t('Price per gram in CHF') : t('Price per piece in CHF')} <input class="inp num" type="text" inputmode="decimal" bind:value={preis} autocomplete="off" oninput={() => (preisEigen = true)} data-eintrag-preis /></label>
+        {#if kurs}
+          <p class="kurs" data-eintrag-kurs-text aria-live="polite">
+            {#if schluss === 'wait'}{t('Looking up the close …')}
+            {:else if schluss === 'none'}{t('No close found for this title and day. Write the price yourself.')}
+            {:else if schluss}{t('Close of {day}: CHF {p}.', { day: tagKurz(schluss.tag), p: zahl(schluss.preis, schluss.preis < 10 ? 4 : 2) })}{#if schluss.tag !== tag}{' '}{t('That day had no trading, so this is the last trading day before it.')}{/if}
+              {#if preisEigen}{' '}<button type="button" class="link" onclick={nimmKurs} data-eintrag-kurs>{t('Use this close')}</button>{/if}
+            {/if}
+          </p>
+        {/if}
         <label>{t('Fee in CHF')} <input class="inp num" type="text" inputmode="decimal" bind:value={gebuehr} autocomplete="off" placeholder={t('Optional')} data-eintrag-gebuehr /></label>
       {:else if art === 'dividende'}
         <label>{t('Amount received, CHF')} <input class="inp num" type="text" inputmode="decimal" bind:value={betrag} autocomplete="off" data-eintrag-betrag /></label>
@@ -108,6 +156,20 @@
     margin: var(--sp-3) 0 0;
     font-size: var(--fs-small);
     color: var(--ink-2);
+  }
+  .kurs {
+    margin: calc(var(--sp-1) * -1) 0 0;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .link {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--accent);
+    text-decoration: underline;
+    font: inherit;
+    cursor: pointer;
   }
   .err {
     margin: var(--sp-2) 0 0;

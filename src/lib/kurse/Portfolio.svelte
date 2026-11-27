@@ -28,8 +28,9 @@
   import {
     JOURNAL_KEY, GOLD, lies, neuesDepot, aendereDepot, loescheDepot, schiebeDepot, neuerEintrag, aendereEintrag, loescheEintrag, geordnet, rechne, bewerteRechnung, symbole, uebernehmen,
   } from './journal.js';
-  import { ladeJournalPreise, preiseChf, titelText } from './preise.js';
+  import { ladeJournalPreise, ladeTitelReihe, preiseChf, schlussAm, titelText } from './preise.js';
   import { zahl, anzahl, vorzeichen, tagKurz } from './format.js';
+  import { reihenId } from './maerkte.js';
 
   let { reihen = {}, goldChf = [] } = $props();
 
@@ -107,6 +108,15 @@
   }
 
   // ---- entries
+  // the close of a title on a day (the series of the title and its rate are fetched when missing)
+  async function kursAm(key, tag) {
+    let b = basis;
+    if (key !== GOLD && !b[reihenId(key)]) {
+      b = await ladeTitelReihe(key, b);
+      extra = { ...extra, ...b };
+    }
+    return schlussAm(key, tag, b);
+  }
   const zuvielText = (gehalten) => t('You hold {n} at that day, so this sale is too big. Write the buy first, or a smaller amount.', { n: anzahl(gehalten, 4) });
   async function saveEintrag(d) {
     const e = eintragEdit;
@@ -270,7 +280,7 @@
   <DepotSheet depot={depotEdit.depot ?? null} onsave={saveDepot} onclose={() => (depotEdit = null)} />
 {/if}
 {#if eintragEdit && depot}
-  <EintragSheet eintrag={eintragEdit.eintrag ?? null} titel={GOLD} {vorschlaege} onsave={saveEintrag} onclose={() => (eintragEdit = null)} />
+  <EintragSheet eintrag={eintragEdit.eintrag ?? null} titel={GOLD} {vorschlaege} kurs={kursAm} onsave={saveEintrag} onclose={() => (eintragEdit = null)} />
 {/if}
 {#if depotLoeschen}
   <GroupDeleteSheet
