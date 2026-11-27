@@ -72,6 +72,7 @@ export default {
   'very hard': 'sehr hart',
   'all out': 'alles gegeben',
   'How hard was your ride?': 'Wie anstrengend war deine Fahrt?',
+  'Only on this device.': 'Nur auf diesem Gerät.',
   'Your answer helps the training plans when there is no heart rate. Only on this device.': 'Deine Antwort hilft den Trainingsplänen, wenn kein Puls da ist. Nur auf diesem Gerät.',
   'Skip|feel': 'Überspringen',
   'How hard was it?': 'Wie anstrengend war es?',
