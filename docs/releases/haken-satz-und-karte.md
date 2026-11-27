@@ -1,6 +1,6 @@
 # Haken-Auswertung selbst: Satz nach dem Haken, Art der Sportart, «Dein Tag und deine Woche», «Nach harten Tagen»
 
-27.11.2026 · Auftrag: Noah «1b 2a 3b 4a 5b» (Thread «Abhaken auf einen Blick verbessern», die 22 Fragen «App wertet meine Aktivitäten selbst aus»)
+PR #1860 · 27.11.2026 · Auftrag: Noah «1b 2a 3b 4a 5b» (Thread «Abhaken auf einen Blick verbessern», die 22 Fragen «App wertet meine Aktivitäten selbst aus»)
 
 ## Was ist neu
 - **Der Satz nach dem Haken:** auf der Seite Geschafft steht als erste Karte «Was dieser Haken sagt» mit höchstens zwei Zeilen (Serie mit deinem Rekord, lange Pause gegen deinen üblichen Abstand, wie oft diese Woche gegen dein Übliches, Dauer gegen deine übliche, Wochenziel, was du oft dazu abhakst). In der kurzen Meldung nach dem Haken steht die erste Zeile.
