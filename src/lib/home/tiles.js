@@ -62,7 +62,7 @@ export const TILES = [
   // P6 «Heute ergänzen» SN2l (Noah 21.10.2026 «2b»): the weight once a week, only while no weight for 7 days
   { id: 'weighin', area: 'flow', label: 'Weight this week?', icon: 'scale', sizes: ['long'], size: 'long', pitch: 'Asks for your weight once a week; the same weight as under Me › Weight.' },
   // «Heute abhaken» (Noah 23.11.2026 «2a»): the most used function stands FIRST on Heute, in the first area
-  { id: 'haken', area: 'today', label: 'Tick off today', icon: 'flame', sizes: ['long'], size: 'long', pitch: 'Your things of today as buttons: one tap ticks, with Undo; «All» opens the whole list.' },
+  { id: 'haken', area: 'today', label: 'Tick off today', icon: 'flame', sizes: ['long'], size: 'long', pitch: 'All your things of today as fields: one tap ticks, with Undo; «All» opens the whole page.' },
   { id: 'acts', area: 'flow', label: 'Active today', icon: 'flame', sizes: ['l', 'long'], size: 'l', since: '0.169.0', pitch: 'Your activities to tick off in one tap; meditation opens its start.' },
   { id: 'du', area: 'flow', label: 'You today', icon: 'flow', sizes: ['l', 'long'], size: 'l', since: '0.165.0', pitch: 'Your balance of 7 days, sleep, resting pulse and km, only to look at.' },
   { id: 'flow', area: 'flow', label: 'In the flow', icon: 'flow', sizes: ['l', 'long'], size: 'l', pitch: 'Tick off today, your rings and the daily check.' },

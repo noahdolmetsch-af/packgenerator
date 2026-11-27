@@ -26,7 +26,8 @@ async function shot(page, info, name) {
   await page.screenshot({ path: `${SHOTS}/${name}-${w}.png`, clip: { x: 0, y: 0, width: w, height: 420 } });
 }
 
-test('Heute has the chip «Abhaken» next to «Heute fahren»; one tap opens «Heute abhaken»', async ({ page, context }, info) => {
+// Noah 27.11.2026 «2a»: the chip stands only where the block «Heute abhaken» does not (a fresh device has none; with activities the block does, see heute-haken-block.spec.js)
+test('Heute has the chip «Abhaken» next to «Heute fahren» while the block is not there; one tap opens «Heute abhaken»', async ({ page, context }, info) => {
   const errors = await open(page, context, info);
   const chips = page.locator('[data-goals]');
   const chip = chips.locator('[data-goal="tick"]');

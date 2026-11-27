@@ -39,7 +39,7 @@
   const N = $derived(phone.matches ? 4 : 8);
   const upIds = $derived(top && $rq ? new Set(habitActIds(cfg, states.map((s) => s.act), $rq.routine.items ?? [], isMedAct)) : new Set());
   const up = $derived(states.filter((s) => upIds.has(s.act.id)));
-  const hk = $derived(haken ? hakenIds(states, upIds, phone.matches ? 4 : 8) : new Set());
+  const hk = $derived(haken ? hakenIds(states) : new Set());
   const rest = $derived(states.filter((s) => !upIds.has(s.act.id) && !hk.has(s.act.id)));
   const sorted = $derived([...rest.filter((s) => !s.resting), ...rest.filter((s) => s.resting)]);
   // the habits load a moment after the activities: wait for them, or a tile shows for a blink and then moves up to the habit cards

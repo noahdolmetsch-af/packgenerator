@@ -17,15 +17,17 @@
   import { t } from '../i18n.svelte.js';
 
   // next: the next trip (debrief.js nextTrip) for the countdown chip; now: the clock of Heute
+  // hideTick: «Heute abhaken» stands right under the chips with every activity, so the chip «Abhaken» would only repeat it (Noah 27.11.2026 «2a»);
+  // it is back as soon as the block is taken off Heute
   // hideTrip: «My tour» is on Today and already shows the countdown (Noah 17.11.2026 «1-5a»)
-  let { editing = false, onride = () => {}, ontrip = () => {}, next = null, now = new Date(), hideTrip = false } = $props();
+  let { editing = false, onride = () => {}, ontrip = () => {}, next = null, now = new Date(), hideTrip = false, hideTick = false } = $props();
   const ICON = { count: Hourglass, ride: Bike, tick: CircleCheck, trip: MapIcon, care: Wrench, week: CalendarDays, diary: NotebookPen };
   // the countdown chip: the trip's own name (never through t()) and «In 5 days», «Tomorrow · 22 h to go», «On the way · day 2 of 3»
   // a long trip name ends in «…» on a phone; the title keeps the full name for a tooltip and a screen reader
   const cd = $derived(next?.startDate ? countdown(next, now) : null);
   const q = liveQuery(() => db.settings.get(GOALS_KEY));
   const list = $derived(goalsOf($q?.value));
-  const shown = $derived(list.filter((g) => g.on && (!g.trip || (cd && !hideTrip))));
+  const shown = $derived(list.filter((g) => g.on && (!g.trip || (cd && !hideTrip)) && !(g.key === 'tick' && hideTick)));
   const save = (l) => db.settings.put({ key: GOALS_KEY, value: goalsRecord(l) });
   const run = (g) => (g.key === 'ride' ? onride() : g.key === 'trip' ? ontrip() : null);
 </script>
