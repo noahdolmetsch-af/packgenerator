@@ -20,6 +20,7 @@
   import { balance, CATS, CAT } from '../../lib/balance.js';
   import { LISTS_KEY, IDEAS_ID, NOT_NOW_KEY, HIDDEN_AREAS_KEY, ideasList, addPoint, togglePoint, removePoint, tipHidden, weakest } from '../../lib/ownlists.js';
   import { loadLists, uid } from '../../lib/listsdb.js';
+  import { TIPS, TIP_IX_KEY, pickTip, nextIx } from '../../lib/ideentipps.js';
   import { dayLabel } from '../../lib/merken/when.js';
   import { offerDone } from '../../lib/ui/rename.svelte.js';
   import { localDay } from '../../lib/localday.js';
@@ -29,8 +30,8 @@
   const bq = balanceQuery(today);
   const b = $derived($bq ? balance({ ...$bq, today }) : null);
   const q = liveQuery(async () => {
-    const [l, n, h, m] = await Promise.all([db.settings.get(LISTS_KEY), db.settings.get(NOT_NOW_KEY), db.settings.get(HIDDEN_AREAS_KEY), db.settings.get(MERKEN_KEY)]);
-    return { list: (l?.value ?? []).find((x) => x.id === IDEAS_ID) ?? null, notNow: n?.value ?? {}, hidden: h?.value ?? [], todos: m?.value ?? [] };
+    const [l, n, h, m, ix] = await Promise.all([db.settings.get(LISTS_KEY), db.settings.get(NOT_NOW_KEY), db.settings.get(HIDDEN_AREAS_KEY), db.settings.get(MERKEN_KEY), db.settings.get(TIP_IX_KEY)]);
+    return { list: (l?.value ?? []).find((x) => x.id === IDEAS_ID) ?? null, notNow: n?.value ?? {}, hidden: h?.value ?? [], todos: m?.value ?? [], tipIx: ix?.value ?? {} };
   });
   const hidden = $derived($q?.hidden ?? []);
   /** «Erinnern …» (7a): the reminder of an idea is a to-do with src idea:<id> (shows in Kalender › Merken). */
@@ -53,6 +54,11 @@
   const ranked = $derived(b ? weakest(b.cats).filter((c) => !hidden.includes(c.key)) : []);
   const top = $derived(ranked.filter((c) => !tipHidden(notNow, c.key, today)).slice(0, 3));
   const others = $derived(CATS.filter((c) => !hidden.includes(c.key) && !top.some((x) => x.key === c.key)).map((c) => ({ ...c, value: b?.cats.find((x) => x.key === c.key)?.value ?? null })));
+
+  /** The tip shown for an area: from the stored place on the first one that is not yet among your ideas (all of them: null). */
+  const taken = $derived(new Set((list?.items ?? []).map((x) => x.text)));
+  const tipOf = (key) => pickTip(TIPS[key], $q?.tipIx?.[key] ?? 0, taken, t);
+  const putIx = (before, key, ix) => db.settings.put({ key: TIP_IX_KEY, value: { ...before, [key]: ix } });
 
   let text = $state('');
   let area = $state('');
@@ -80,10 +86,18 @@
     date = '';
     offerDone(t('Idea saved.'), undo);
   }
-  async function like(c) {
-    const undo = await change((l) => addPoint(l, t(CAT[c.key].tip), { id: uid('id'), area: c.key }));
-    offerDone(t('In your ideas.'), undo);
+  /** «I like it»: the tip goes to your ideas and the next tip of the area comes (Noah 27.11.2026 «ich kann nicht mehr ideen laden»). */
+  async function like(c, tip) {
+    const before = $q?.tipIx ?? {};
+    const undo = await change((l) => addPoint(l, t(tip.key), { id: uid('id'), area: c.key }));
+    await putIx(before, c.key, nextIx(TIPS[c.key], tip.ix));
+    offerDone(t('In your ideas.'), async () => {
+      await undo();
+      await db.settings.put({ key: TIP_IX_KEY, value: before });
+    });
   }
+  /** «Another idea»: the next tip of the area, nothing is saved; it stays after a reload. */
+  const other = (c, tip) => putIx($q?.tipIx ?? {}, c.key, nextIx(TIPS[c.key], tip.ix));
   /** «Not now»: the tip rests for 7 days; the note says so and «Undo» brings it back (Noah 23.11.2026 «1-5a», 1a). */
   async function later(c) {
     const before = (await db.settings.get(NOT_NOW_KEY))?.value ?? {};
@@ -96,6 +110,25 @@
     offerDone(t('«{name}» removed.', { name: x.text }), undo);
   }
 </script>
+
+{#snippet tipCard(c, first)}
+  {@const tip = tipOf(c.key)}
+  <article class="card tip" data-tip={first ? c.key : undefined} data-tip-other={first ? undefined : c.key}>
+    <div class="th"><b>{t(CAT[c.key].label)}</b><span class="num">{c.value ?? '–'}</span></div>
+    {#if c.value != null}<span class="bar" aria-hidden="true"><span style:width="{c.value}%"></span></span>{/if}
+    {#if tip}
+      <p>{t(tip.key)}</p>
+      <div class="acts">
+        <button type="button" class="btn sm hi" onclick={() => like(c, tip)}>{t('I like it → my ideas')}</button>
+        {#if tip.n > 1}<button type="button" class="btn sm" onclick={() => other(c, tip)} data-tip-other-btn>{t('Another idea')}</button>{/if}
+        {#if first}<button type="button" class="lnk" onclick={() => later(c)}>{t('Not now')}</button>{/if}
+      </div>
+    {:else}
+      <p class="rest">{t('All ideas of this area are already in your ideas.')}</p>
+      {#if first}<div class="acts"><button type="button" class="lnk" onclick={() => later(c)}>{t('Not now')}</button></div>{/if}
+    {/if}
+  </article>
+{/snippet}
 
 <div class="ideas">
   <header class="ph">
@@ -119,21 +152,13 @@
         <p class="card none">{t('As soon as you answer «Wi gaht\'s?» or tick an activity, the tips for your weakest areas come here.')}</p>
       {:else}
         {#each top as c (c.key)}
-          <article class="card tip" data-tip={c.key}>
-            <div class="th"><b>{t(CAT[c.key].label)}</b><span class="num">{c.value}</span></div>
-            <span class="bar" aria-hidden="true"><span style:width="{c.value}%"></span></span>
-            <p>{t(CAT[c.key].tip)}</p>
-            <div class="acts">
-              <button type="button" class="btn sm hi" onclick={() => like(c)}>{t('I like it → my ideas')}</button>
-              <button type="button" class="lnk" onclick={() => later(c)}>{t('Not now')}</button>
-            </div>
-          </article>
+          {@render tipCard(c, true)}
         {/each}
         <button type="button" class="fold" aria-expanded={more} onclick={() => (more = !more)}>{#if more}<ChevronDown size={16} aria-hidden="true" />{:else}<ChevronRight size={16} aria-hidden="true" />{/if}{t('{n} more areas', { n: others.length })}</button>
         {#if more}
-          <ul class="card others">
-            {#each others as c (c.key)}<li><b>{t(c.label)}</b><span class="num">{c.value ?? '–'}</span><small>{t(c.tip)}</small></li>{/each}
-          </ul>
+          {#each others as c (c.key)}
+            {@render tipCard(c, false)}
+          {/each}
         {/if}
       {/if}
     </section>
@@ -251,8 +276,7 @@
   }
   .tip,
   .none,
-  .add,
-  .others {
+  .add {
     padding: 14px 16px;
   }
   .tip p {
@@ -299,22 +323,7 @@
   .lnk {
     text-decoration: underline;
   }
-  .others {
-    list-style: none;
-    margin: 0;
-  }
-  .others li {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 2px 8px;
-    padding: 8px 0;
-    border-top: 1px solid var(--line);
-  }
-  .others li:first-child {
-    border-top: 0;
-  }
-  .others small {
-    grid-column: 1 / -1;
+  .rest {
     color: var(--ink-2);
   }
   .add {
