@@ -1,6 +1,6 @@
 # Ideen gehen nicht aus
 
-PR #NNNN · 27.11.2026 · Auftrag: Noah («ich kann nicht mehr ideen laden. bitte verbessern»)
+PR #1849 · 27.11.2026 · Auftrag: Noah («ich kann nicht mehr ideen laden. bitte verbessern»)
 
 ## Was ist neu
 - Jeder Bereich in Auswerten › Verlauf › Ideen hat sechs Tipps. «Andere Idee» zeigt den nächsten, «Mag ich» legt den Tipp in deine Ideen und bringt den nächsten.
