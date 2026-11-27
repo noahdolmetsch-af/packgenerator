@@ -22,6 +22,14 @@
 
   let { hash = '' } = $props();
 
+  // The floating button must never cover the end of a page (Noah 27.11.2026, Gemini page, «Nie abgeschnitten»): while it floats,
+  // the page gets room at the bottom (see `html[data-improve-fab]` below), the same on every page.
+  $effect(() => {
+    if (on) return;
+    document.documentElement.setAttribute('data-improve-fab', '');
+    return () => document.documentElement.removeAttribute('data-improve-fab');
+  });
+
   let cfg = $state(DEFAULT_KINDS); // the kinds and groups the user set (L5), read when the window opens
 
   let on = $state(false); // the mode: a tap picks a block
@@ -132,6 +140,16 @@
 {/if}
 
 <style>
+  /* On a phone the button sits above the bottom bar (86 px + 44 px high), on a computer in the corner (16 px + 44 px high):
+     the room is a margin below the page's main part (not on `body`, so the side bar keeps its full height). */
+  :global(html[data-improve-fab] main) {
+    margin-bottom: 48px;
+  }
+  @media (min-width: 720px) {
+    :global(html[data-improve-fab] main) {
+      margin-bottom: 72px;
+    }
+  }
   .imp-btn {
     position: fixed;
     z-index: 6;
