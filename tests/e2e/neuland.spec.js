@@ -75,12 +75,14 @@ test('Neuland: found on the route, bingo, ticks by hand, own collection with Und
   await shot(page, info, 'NL1-kantone');
 
   // 3. one canton opened: the first visit and the trip; «not there» takes it away, a tick by hand brings Tessin
-  await list.locator('li', { hasText: T('Canton {name}', { name: 'Uri' }) }).getByRole('button', { name: new RegExp(T('Canton {name}', { name: 'Uri' })) }).last().click();
+  await list.locator('li', { hasText: T('Canton {name}', { name: 'Uri' }) }).locator('button.nm').click();
   const sheet = page.locator('dialog.nl-item');
   await expect(sheet).toContainText(T('Found by the app on your route.'));
   await expect(sheet.getByRole('link', { name: T('On the trip «{name}»', { name: `${P}Klausen-Runde` }) })).toHaveAttribute('href', `#/debrief/${P}klausen`);
   await sheet.getByRole('button', { name: T('I was not there') }).click();
   await expect(sheet).toHaveCount(0);
+  // the list shows the 10 newest first: «Uri» is no longer visited, so open the whole list
+  await main.locator('button.more').click();
   await expect(list.locator('li', { hasText: T('Canton {name}', { name: 'Uri' }) })).toContainText(T('Marked «not there»'));
   await list.locator('li', { hasText: T('Canton {name}', { name: 'Tessin' }) }).getByRole('button', { name: T('Tick: {name}', { name: T('Canton {name}', { name: 'Tessin' }) }) }).click();
   await expect(list.locator('li', { hasText: T('Canton {name}', { name: 'Tessin' }) })).toContainText(T('by hand'));

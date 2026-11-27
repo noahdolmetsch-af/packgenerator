@@ -5,12 +5,19 @@
    * Content first: one sentence about the period (hours, units, days, against the period before), the numbers, the hours by
    * sport as bars (day by day in a week, week by week in a month, month by month in a year), how you recovered in the period
    * against YOUR OWN usual range, and the longest units. The period is the switch of Auswerten (Woche, Monat, Jahr, Alles, own).
+   * 27.11.2026 (Noah «3a»): the card «Haken-Verlauf» (flow/HakenVerlauf.svelte, which activity on which day) stands on top of the page, under one shared period switch (flow/HakenZeitraum.svelte, 2a) with «Tagestotal» and «Wochenpensum» (Paket A), and «Was auffällt» (flow/HakenHinweise.svelte, 4a) under them.
    * The hours are the same as in the Sports year (flow/einheiten.js, flow/sportjahr.js). Only looking, nothing is judged or saved.
    */
   import { liveQuery } from 'dexie';
   import { Dumbbell, ChevronRight } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import PeriodBar from '../lib/flow/PeriodBar.svelte';
+  import HakenVerlauf from '../lib/flow/HakenVerlauf.svelte';
+  import HakenHinweise from '../lib/flow/HakenHinweise.svelte';
+  import HakenZeitraum from '../lib/flow/HakenZeitraum.svelte';
+  import TagesTotal from '../lib/flow/TagesTotal.svelte';
+  import WochenPensum from '../lib/flow/WochenPensum.svelte';
+  import GesundheitKarte from '../lib/flow/GesundheitKarte.svelte';
   import BarChart from '../lib/charts/BarChart.svelte';
   import NormalBand from '../lib/auswerten/NormalBand.svelte';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
@@ -39,8 +46,9 @@
   enterPage('woche');
   const today = localDay();
   const q = liveQuery(async () => {
-    const [log, activities, acts, usual, ticks, table] = await Promise.all([db.flowLog.toArray(), readLite(db, (T) => T.toArray()), db.flowActs.toArray(), db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY), loadTable(db)]);
-    return { log, activities, acts, usual: usualMap(usual?.value), map: prefsOf(ticks?.value).map, table };
+    const [log, activities, acts, usual, ticks, table, healthAll] = await Promise.all([db.flowLog.toArray(), readLite(db, (T) => T.toArray()), db.flowActs.toArray(), db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY), loadTable(db), db.healthDays.toArray()]);
+    const health = healthAll.filter((h) => Array.isArray(h?.exercises) && h.exercises.length); // the watch's own workouts, for «Garmin gegen Fitbit»
+    return { log, activities, acts, usual: usualMap(usual?.value), map: prefsOf(ticks?.value).map, table, health };
   });
   const d = $derived($q);
   const units = $derived(d ? training(einheiten({ log: d.log, activities: d.activities, acts: d.acts, usual: d.usual, map: d.map })) : []);
@@ -122,6 +130,15 @@
     <h1 class="title">{t('Analysis|place')}</h1>
     <p class="sub">{t('What you did and how you recovered. Only to look at, nothing is graded.')}</p>
   </header>
+
+  {#if d}
+    <HakenZeitraum />
+    <HakenVerlauf acts={d.acts} log={d.log} {today} />
+    <TagesTotal {units} {today} />
+    <WochenPensum {units} {today} />
+    <GesundheitKarte table={d.table} health={d.health} activities={d.activities} {today} />
+    <HakenHinweise acts={d.acts} log={d.log} {today} />
+  {/if}
 
   <section class="card blk" aria-label={t('Period')}>
     <PeriodBar {today} hint={false} />

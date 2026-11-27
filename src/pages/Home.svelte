@@ -148,6 +148,7 @@
   import GoalChips from '../lib/home/GoalChips.svelte';
   import ActsTile from '../lib/home/ActsTile.svelte';
   import HakenBlock from '../lib/home/HakenBlock.svelte';
+  import HakenHinweis from '../lib/home/HakenHinweis.svelte';
   import { SERIES_STEPS } from '../lib/home/series.js';
   import { readSeries, seriesTables } from '../lib/home/series-data.js';
   import { FUNCTIONS, USAGE_KEY, usageOf, dataUsed, usedFunctions } from '../lib/home/functions.js';
@@ -1187,7 +1188,7 @@
       </div>
     </div>
     {#if pinsTop}<div class="pntop" data-pins-top><PinsTile /></div>{/if}
-    {#if hakenTop}<div class="hktop" data-haken-top><HakenBlock {today} top={shownWall.some((w) => w.id === 'meditation' && w.size === 'long')} cfg={S[HABITS_KEY] ?? null} /></div>{/if}
+    {#if hakenTop}<div class="hktop" data-haken-top><HakenBlock {today} top={shownWall.some((w) => w.id === 'meditation' && w.size === 'long')} cfg={S[HABITS_KEY] ?? null} /><HakenHinweis {today} /></div>{/if}
     {#if ready && !editing && bannerEntries.length}<NewsBanner entries={bannerEntries} from={newsUpdate?.from ?? BEFORE} onclose={() => (bannerOff = true)} />{/if}
     <!-- «Heute neu» A: one personal sentence; the idea for today moved into «Up now» -->
     {#if sentence}<p class="say" data-say>{#each sentence as p, i (i)}{#if i}{' '}{/if}{#if p.to}<a class="jump" href={`#${p.to}`} data-say-jump onclick={(e) => jumpTo(e, p.to)}>{p.text}</a>{:else}<span class:hi={p.hi}>{p.text}</span>{/if}{/each}</p>{/if}

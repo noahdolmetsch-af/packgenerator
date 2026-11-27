@@ -36,7 +36,7 @@ export default {
 
   // the page
   'New ground': 'Neuland',
-  'What you experienced for the first time. The app finds it from your routes and rides; you can tick everything yourself. After a ride, «New since yesterday» shows what is new; «New kilometres» counts new roads. «Towers, bridges, waterfalls» come from OpenStreetMap, once a week by themselves.': 'Was du zum ersten Mal erlebt hast. Die App findet es aus deinen Routen und Fahrten; du kannst alles selbst abhaken. Nach einer Fahrt zeigt «Neu seit gestern», was neu ist; «Neue Kilometer» zählt neue Strassen. «Türme, Brücken, Wasserfälle» kommen einmal pro Woche von selbst aus OpenStreetMap.',
+  'What you experienced for the first time, found from your routes and rides.': 'Was du zum ersten Mal erlebt hast, gefunden aus deinen Routen und Fahrten.',
   'Choose collections': 'Sammlungen wählen',
   "The maps couldn't be loaded. Reload the page; your ticks are safe.": 'Die Karten liessen sich nicht laden. Lade die Seite neu; deine Häkchen bleiben.',
   'No collection switched on': 'Keine Sammlung eingeschaltet',
@@ -339,4 +339,13 @@ export default {
   'Open New ground and choose «Lookout towers», «Suspension bridges» or «Waterfalls».': 'Öffne Neuland und wähle «Aussichtstürme», «Hängebrücken» oder «Wasserfälle».',
   'Tap «Load now» the first time (later it loads by itself once a week).': 'Tippe beim ersten Mal «Jetzt laden» (später lädt es einmal pro Woche von selbst).',
   'Ride past one: it is ticked with the day.': 'Fahr an einem vorbei: er wird mit dem Tag abgehakt.',
+  // the zoom of the map (Noah 27.11.2026)
+  Zoom: 'Zoom',
+  'Zoom in': 'Hineinzoomen',
+  'Zoom out': 'Herauszoomen',
+  'Whole map': 'Ganze Karte',
+  'Ctrl and scroll, or pinch, to zoom': 'Zum Zoomen: Ctrl und scrollen, oder zwei Finger',
+  'Show «{name}» on the map': '«{name}» auf der Karte zeigen',
+  'Show on the map': 'Auf der Karte zeigen',
+  'Full screen': 'Ganzer Bildschirm',
 };
