@@ -1,6 +1,6 @@
 # Favoriten: ruhigere Karten, Farbe pro Bereich
 
-PR folgt (Nummer beim Öffnen) · 27.11.2026 · Auftrag: Noah «1, 2, 3, 4» (Punkte 2 und 4) und Freigabe der Bilder 27.11.2026 im Thread «Lieblingsinhalte besser sichtbar machen»
+PR #1858 · 27.11.2026 · Auftrag: Noah «1, 2, 3, 4» (Punkte 2 und 4) und Freigabe der Bilder 27.11.2026 im Thread «Lieblingsinhalte besser sichtbar machen»
 
 ## Was ist neu
 - Die Karten der Kachel «Favoriten» auf Heute sind niedriger (80 px). Die zweite Zeile steht nur noch, wenn du selbst eine Notiz an den Favoriten geschrieben hast; der Gruppenname steht nicht mehr dort (`favCards` in `src/lib/quick/favcards.js`).
