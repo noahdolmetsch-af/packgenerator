@@ -1,7 +1,7 @@
 // «Haken-Analysen an einem Ort» (Noah 27.11.2026 «1a 2a 3a 4a 5a», Paket A): Zeitraum-Schalter, Tagestotal, Wochenpensum, src/lib/flow/
 export default {
   'Period for everything here': 'Zeitraum für alles hier',
-  'One switch for the tick history, the day total and the week volume.': 'Ein Schalter für den Haken-Verlauf, das Tagestotal und das Wochenpensum.',
+  'One switch for the tick history, the day total, the week volume and your health.': 'Ein Schalter für den Haken-Verlauf, das Tagestotal, das Wochenpensum und deine Gesundheit.',
   'Day total': 'Tagestotal',
   'Minutes of movement per day, all activities together.': 'Minuten Bewegung pro Tag, alle Aktivitäten zusammen.',
   'Minutes of movement per day, all activities together. The last 90 days; weeks are in «Week volume».': 'Minuten Bewegung pro Tag, alle Aktivitäten zusammen. Die letzten 90 Tage; Wochen findest du im «Wochenpensum».',

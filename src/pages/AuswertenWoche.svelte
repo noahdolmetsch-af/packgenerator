@@ -17,6 +17,7 @@
   import HakenZeitraum from '../lib/flow/HakenZeitraum.svelte';
   import TagesTotal from '../lib/flow/TagesTotal.svelte';
   import WochenPensum from '../lib/flow/WochenPensum.svelte';
+  import GesundheitKarte from '../lib/flow/GesundheitKarte.svelte';
   import BarChart from '../lib/charts/BarChart.svelte';
   import NormalBand from '../lib/auswerten/NormalBand.svelte';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
@@ -134,6 +135,7 @@
     <HakenVerlauf acts={d.acts} log={d.log} {today} />
     <TagesTotal {units} {today} />
     <WochenPensum {units} {today} />
+    <GesundheitKarte table={d.table} {today} />
     <HakenHinweise acts={d.acts} log={d.log} {today} />
   {/if}
 

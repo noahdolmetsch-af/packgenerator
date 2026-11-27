@@ -89,3 +89,43 @@ test('Haken-Analysen: without any movement both cards say so and point to Aktiv'
   await expect(page.locator('[data-tagestotal] [data-plot]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+// «Was Bewegung mit dir macht» (Paket B): 28 weeks of fictional Fitbit days, the resting pulse of a week is lower after a week with more active zone minutes.
+function health() {
+  const monday = '2026-10-05';
+  const healthDays = [];
+  const azmOf = (j) => (((j * 3) % 5) + 1) * 15;
+  for (let j = 0; j < 28; j++) {
+    const start = addDays(monday, -7 * (28 - j));
+    for (let i = 0; i < 7; i++) healthDays.push({ date: addDays(start, i), restingHr: 62 - (j ? azmOf(j - 1) / 15 : 3), azm: azmOf(j), hrvMs: 40 + (j ? azmOf(j - 1) / 15 : 3), src: 'file' });
+  }
+  return { healthDays };
+}
+
+test('Haken-Analysen: health card sets the active zone minutes against the resting pulse and says it is a pattern', async ({ page, context }) => {
+  const errors = await open(page, context, { ...sessions(), ...health() });
+  const card = page.locator('[data-gesundheit]');
+  await expect(card.getByRole('heading', { name: T('What movement does for you'), level: 2 })).toBeVisible();
+  await expect(card.locator('[data-chart="gesundheit-azm"] [data-plot]')).toHaveAttribute('data-n', '12');
+  await expect(card.locator('[data-chart="gesundheit-line"] [data-plot]')).toHaveAttribute('data-n', '12');
+  const s = card.locator('[data-gk-sentence]');
+  await expect(s).toContainText('Ruhepuls');
+  await expect(s).toContainText('tiefer');
+  await expect(s).toContainText(T('A pattern, not a cause.'));
+  // HRV is set against it too, and the line changes with the chip
+  await card.getByRole('radio', { name: 'HRV' }).click();
+  await expect(card.locator('[data-gk-sentence]')).toContainText('HRV');
+  await expect(card.locator('[data-gk-sentence]')).toContainText('höher');
+  await page.locator('[data-haken-zeitraum]').getByRole('radio', { name: T('Year|hv') }).click();
+  await expect(card.locator('[data-chart="gesundheit-azm"] [data-plot]')).toHaveAttribute('data-n', '52');
+  const w = page.viewportSize().width;
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(w);
+  expect(errors).toEqual([]);
+});
+
+test('Haken-Analysen: without Fitbit days the health card says where they come from', async ({ page, context }) => {
+  const errors = await open(page, context, sessions());
+  await expect(page.locator('[data-gk-none]')).toBeVisible();
+  await expect(page.locator('[data-gesundheit] [data-plot]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
