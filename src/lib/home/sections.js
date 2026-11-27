@@ -63,7 +63,7 @@ export const SECTION_OF = {
   bikes: 'away',
   yearago: 'away',
   year: 'away',
-  pins: 'quick', // «Schnell öffnen»: the tile with your pins
+  pins: 'now', // «Favoriten» (Noah 27.11.2026 «1-5a», 1a; was «Schnell öffnen» in its own area): the very first tile of the first area, even before «Heute abhaken»
   news: 'discover',
   tipweek: 'discover',
 };

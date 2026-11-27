@@ -35,7 +35,7 @@ export function weekRows({ stored, log, sessions, planner, acts }, monday, today
   const end = shiftDay(monday, 6);
   for (const s of sessions) {
     if (s.day < monday || s.day > end) continue;
-    const a = doneBy(s, acts);
+    const a = doneBy(s, acts, sessions);
     const m = a && !a.byHand && a.movingS > 0 ? Math.round(a.movingS / 60) : s.mins;
     rows.push({ id: `s:${s.id}`, src: 'session', type: 'session', kind: s.kind, name: s.name || null, d: dayIndex(monday, s.day), t: '', mins: s.mins, done: !!a, doneMins: a ? m : 0, doneDay: a ? s.day : null, released: false, byHand: !!a?.byHand, tp: s.src === TP_SRC });
   }

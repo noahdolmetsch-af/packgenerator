@@ -1,11 +1,12 @@
 <script>
   /**
-   * «Schnell öffnen» on Heute (Noah 01.11.2026 «1a 2a 3b 4a 5a»): your Quick Links pins as one calm tile. All pins
-   * show; the pencil changes them right here (add from all functions, rename, unpin with Undo, order with arrows and
-   * drag, back to the suggestions). Groups, notes and the other device stay on the page Quick Links. Same record as
-   * that page (lib/quick/quicklinks.js), so a change here shows there and the other way round.
+   * «Favoriten» on Heute (was «Schnell öffnen», Noah 01.11.2026 «1a 2a 3b 4a 5a»; since Noah 27.11.2026 «1-5a», step 2): your favourites as
+   * small cards right under the greeting (1a, 2a), the first six (3a), behind them «All n ›» (the window FavoritenAlle: all by group, rename
+   * and delete a group, order, take one out). On a phone the cards stand big, two by two (Noah 27.11.2026 «a»). «Often used» suggests two
+   * pages you open often, quietly: the page name with «×» (5a). «Change» edits right here (add from all functions, rename, take out with
+   * Undo, order with arrows and drag, back to the suggestions). Same record as the page Favoriten (lib/quick/quicklinks.js).
    */
-  import { Pencil, Check, Plus, Trash2, RotateCcw, Search as SearchIcon } from '@lucide/svelte';
+  import { Pencil, Check, Plus, Trash2, RotateCcw, Search as SearchIcon, Star, X, Compass, Backpack, BookOpen, Bike, Leaf, Save, ArrowUpRight } from '@lucide/svelte';
   import { liveQuery } from 'dexie';
   import SortArrows from '../ui/SortArrows.svelte';
   import SortGrip from '../ui/SortGrip.svelte';
@@ -16,6 +17,7 @@
   import { goFeature, runOf } from '../know/featureRun.js';
   import { glowFeature } from '../quick/findcard.js';
   import { USAGE_KEYS, cleanUsage, usePin, suggestions, pathOf } from '../quick/usage.js';
+  import { favCards, favTotal, FAV_SUGGESTED } from '../quick/favcards.js';
   import { QUICK_KEYS, deviceKind, cleanQuick, starter, pinLabel, flatPins, moveFlat, addPin, addView, removePin, editPin, findForPin } from '../quick/quicklinks.js';
   import { localDay } from '../localday.js';
   import { t } from '../i18n.svelte.js';
@@ -30,6 +32,9 @@
   let adding = $state(false);
   let q = $state('');
   let open = $state(null); // the pin being renamed
+  let Alle = $state(null); // the window «All favourites» loads on first use (not part of the start)
+  let alleOpen = $state(false);
+  const ICONS = { compass: Compass, backpack: Backpack, book: BookOpen, bike: Bike, leaf: Leaf, save: Save, link: ArrowUpRight, star: Star };
   let u = $state(cleanUsage(null)); // what this device opened (for the suggestion to pin a page you open often)
 
   $effect(() => {
@@ -42,9 +47,14 @@
   db.bikes.toCollection().first().then((b) => (bikeId = b?.id ?? null)).catch(() => {});
 
   const pins = $derived(flatPins(s));
-  // Noah 05.11.2026 «6a»: the same suggestion as in Quick Links, here where the shortcuts are seen (one at a time, «No, thanks» holds 30 days)
-  const suggest = $derived(suggestions(u, s, localDay())[0] ?? null);
+  const cards = $derived(favCards(s, t));
+  // Noah 27.11.2026 «5a»: up to two pages you open often, quietly under the cards («×» holds one back for 30 days)
+  const suggested = $derived(suggestions(u, s, localDay(), FAV_SUGGESTED));
   const pinSuggested = (r) => change(addView(s, r.href, r.title, s.groups.at(-1)?.id ?? '', localDay()), t('«{name}» pinned.', { name: r.title }));
+  async function showAll() {
+    Alle ??= (await import('./FavoritenAlle.svelte')).default;
+    alleOpen = true;
+  }
   const noThanks = (r) => db.settings.put({ key: USED, value: JSON.parse(JSON.stringify({ ...u, no: { ...u.no, [pathOf(r.href)]: localDay() } })) });
   const hits = $derived(findForPin(FEATURES, q, t).filter((f) => !pins.some((p) => p.feature === f.id)).slice(0, 8));
 
@@ -83,31 +93,42 @@
   const reset = () => change(starter(), t('Back to the suggestions.'));
 </script>
 
-<section class="pt" data-pins-tile aria-label={t('Open quickly')}>
+<section class="pt" data-pins-tile aria-label={t('Favourites|quick')}>
   <div class="pt-head">
-    <span class="pt-n">{pins.length ? t('Your shortcuts') : t('No shortcuts yet')}</span>
+    <h2 class="pt-n"><a class="pt-nl" href="#/quick" data-pins-quick><Star size={20} fill="currentColor" aria-hidden="true" />{t('Favourites|quick')}</a></h2>
     <button type="button" class="pt-edit" data-pins-edit aria-pressed={editing} onclick={() => ((editing = !editing), (open = null), (adding = false))}>
-      {#if editing}<Check size={16} aria-hidden="true" />{t('Done')}{:else}<Pencil size={16} aria-hidden="true" />{t('Change shortcuts')}{/if}
+      {#if editing}<Check size={16} aria-hidden="true" />{t('Done')}{:else}<Pencil size={16} aria-hidden="true" />{t('Change favourites')}{/if}
     </button>
   </div>
 
   {#if !editing}
-    <div class="pt-grid" role="list">
-      {#each pins as p (p.id)}
-        <button type="button" class="pt-pin" role="listitem" data-pin={p.feature || p.href} onclick={() => go(p)}>{pinLabel(p, t)}</button>
-      {/each}
-    </div>
-    <!-- V4a: «Quick Links» is no row of the bar any more; its way in is this line (and «g q») -->
-    <a class="pt-more" href="#/quick" data-pins-quick>{t('Groups and notes: Quick Links')} ›</a>
-    {#if suggest}
-      <div class="pt-tip" role="status" data-pins-suggest={suggest.href}>
-        <p>{t('You often open «{name}». Pin it here?', { name: suggest.title })}</p>
-        <div class="pt-tools">
-          <button type="button" class="btn sm hi" onclick={() => pinSuggested(suggest)}><Plus size={16} aria-hidden="true" />{t('Pin|quick')}</button>
-          <button type="button" class="btn sm" onclick={() => noThanks(suggest)}>{t('No, thanks')}</button>
-        </div>
+    {#if cards.length}
+      <div class="pt-grid" role="list">
+        {#each cards as c (c.pin.id)}
+          {@const I = ICONS[c.icon] ?? Star}
+          <button type="button" class="pt-pin" role="listitem" data-pin={c.pin.feature || c.pin.href} onclick={() => go(c.pin)}>
+            <span class="pt-i" aria-hidden="true"><I size={18} /></span>
+            <span class="pt-tx"><span class="pt-name">{c.label}</span>{#if c.sub}<span class="pt-sub">{c.sub}</span>{/if}</span>
+          </button>
+        {/each}
       </div>
+    {:else}
+      <p class="pt-empty" data-pins-empty>{t('No favourites yet. Tap the small star on a card, or «Change favourites».')}</p>
     {/if}
+    <div class="pt-foot">
+      {#if suggested.length}
+        <div class="pt-sug" data-pins-suggested>
+          <span class="pt-sl">{t('Often used')}</span>
+          {#each suggested as r (r.href)}
+            <span class="pt-chip" data-pins-suggest={r.href}>
+              <button type="button" class="pt-chip-go" aria-label={t('Add «{name}» to your favourites', { name: r.title })} onclick={() => pinSuggested(r)}><Star size={14} aria-hidden="true" />{r.title}</button>
+              <button type="button" class="pt-chip-x" aria-label={t('No, thanks')} onclick={() => noThanks(r)}><X size={14} aria-hidden="true" /></button>
+            </span>
+          {/each}
+        </div>
+      {/if}
+      <button type="button" class="pt-more" data-pins-all onclick={showAll}>{t('All {n}', { n: favTotal(s) })} ›</button>
+    </div>
   {:else}
     <ul class="pt-list" use:sortable={{ onmove: move, row: ':scope > li.pt-row' }}>
       {#each pins as p, i (p.id)}
@@ -133,7 +154,7 @@
     <div class="pt-tools">
       <button type="button" class="btn sm" data-pins-add aria-expanded={adding} onclick={() => (adding = !adding)}><Plus size={16} aria-hidden="true" />{t('Add a shortcut')}</button>
       <button type="button" class="btn sm" data-pins-reset onclick={reset}><RotateCcw size={16} aria-hidden="true" />{t('Back to the suggestions')}</button>
-      <a class="pt-more" href="#/quick">{t('Groups and notes: Quick Links')} ›</a>
+      <a class="pt-more" href="#/quick" data-pins-quick>{t('Groups and notes: Quick Links')} ›</a>
     </div>
     {#if adding}
       <div class="pt-add">
@@ -148,6 +169,10 @@
     {/if}
   {/if}
 </section>
+
+{#if alleOpen && Alle}
+  <Alle {s} {change} {go} onclose={() => (alleOpen = false)} />
+{/if}
 
 <style>
   .pt {
@@ -167,8 +192,24 @@
     gap: var(--sp-2);
   }
   .pt-n {
-    color: var(--ink-2);
-    font-size: var(--fs-small);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: var(--fs-sub);
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .pt-nl {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    color: inherit;
+    text-decoration: none;
+  }
+  .pt-n :global(svg) {
+    color: var(--hi);
   }
   .pt-edit {
     display: inline-flex;
@@ -185,37 +226,114 @@
   }
   .pt-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(168px, 100%), 1fr)); /* «Werkzeugkasten» needs about 130 px of text: 150 px broke it mid-word (frontend walk E1-006) */
+    grid-template-columns: repeat(auto-fill, minmax(min(160px, 100%), 1fr)); /* two by two on a phone, big cards (Noah 27.11.2026 «a»); «Werkzeugkasten» needs about 130 px of text (frontend walk E1-006) */
     gap: var(--sp-2);
   }
   .pt-pin {
-    min-height: 48px;
-    padding: 8px var(--sp-3);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    min-height: 96px;
+    padding: 10px 12px;
     border: 1px solid var(--line);
-    border-radius: 12px;
+    border-radius: var(--r-3);
     background: var(--paper);
     color: var(--ink);
     font: inherit;
     text-align: left;
-    overflow-wrap: break-word;
-    hyphens: auto;
+    min-width: 0;
     cursor: pointer;
   }
   .pt-pin:hover {
     background: var(--paper-2);
   }
-  .pt-tip {
+  .pt-i {
+    flex: none;
     display: grid;
-    gap: var(--sp-2);
-    padding: var(--sp-2) var(--sp-3);
-    border: 1px dashed var(--line);
-    border-radius: 12px;
-    background: var(--paper-2);
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: var(--r-2);
+    background: var(--hi-soft, var(--paper-2));
+    color: var(--hi);
   }
-  .pt-tip p {
-    margin: 0;
-    font-size: var(--fs-small);
+  .pt-tx {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+    width: 100%;
+  }
+  .pt-name {
+    font-weight: 600;
+    line-height: 1.2;
+    overflow-wrap: break-word;
+  }
+  .pt-sub {
     color: var(--ink-2);
+    font-size: var(--fs-small);
+    line-height: 1.2;
+    overflow-wrap: break-word;
+  }
+  .pt-empty {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .pt-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px var(--sp-3);
+  }
+  .pt-sug {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+  .pt-sl {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .pt-chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    border: 1px dashed var(--ink-3, var(--line));
+    border-radius: var(--r-pill);
+    background: var(--paper);
+    overflow: hidden;
+    max-width: 100%;
+  }
+  .pt-chip-go,
+  .pt-chip-x {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    font-size: var(--fs-small);
+    cursor: pointer;
+  }
+  .pt-chip-go {
+    gap: 6px;
+    padding: 0 6px 0 12px;
+    font-weight: 600;
+    min-width: 0;
+  }
+  .pt-chip-go :global(svg) {
+    flex: none;
+    color: var(--hi);
+  }
+  .pt-chip-x {
+    justify-content: center;
+    width: 40px;
+    color: var(--ink-3, var(--ink-2));
   }
   .pt-list,
   .pt-hits {
@@ -271,7 +389,14 @@
     display: inline-flex;
     align-items: center;
     min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--hi);
+    font: inherit;
     font-size: var(--fs-small);
+    font-weight: 600;
+    cursor: pointer;
   }
   .pt-add {
     display: grid;

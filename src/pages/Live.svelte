@@ -105,7 +105,11 @@
   import { mergePois } from '../lib/race/more.js';
   import { lastShopBeforeNight } from '../lib/live/lastshop.js';
   import { nearestExit } from '../lib/live/exit.js';
-  import { lampPlan, LAMP_H, LAMP_FRAC } from '../lib/live/lamp.js';
+  import { restStops, REST_RANGE_KM } from '../lib/live/rast.js';
+  import { arrivalReport, atGoal } from '../lib/live/ankunft.js';
+  import { durText } from '../lib/live/after.js';
+  import LiveLichter from '../lib/live/LiveLichter.svelte';
+  import { LIGHTS_KEY, cleanLights, fromOldLamp, starterLight, lightsPlan, modeOf, ratePerMin, chargeGain, modeHours } from '../lib/live/lichter.js';
   import { nextHours, cellFlags, wearTip } from '../lib/live/next3h.js';
   import { nextWater, drinkPerH, BOTTLE_ML, DRINK_ML_H } from '../lib/live/water.js';
   import { withSampleFine } from '../lib/race/sample.js';
@@ -233,6 +237,9 @@
     if (e) return (err = t(e));
     eatFromKm = null;
     batFirst = null;
+    doneAt = 0;
+    report = null;
+    reportHide = false;
   }
   // after the app loaded anew in the middle of a ride: go on by itself, once (resume.js)
   let resumed = $state(false);
@@ -392,25 +399,31 @@
     } catch {}
   };
   const WATER_FRAC = { full: 1, half: 0.5, low: 0.15 };
-  // «Licht» (Noah 02.11.2026, Vorschlag 4): does the bike lamp last through the dark part still ahead?
-  // How long it burns on a full charge and what is left are yours to change; kept in this browser.
-  const LAMP_KEY = 'pg-live-lamp';
-  const lampOwn = (() => {
+  // «Lichter» (Noah 26.11.2026 «1a 2b 3 4a»): any number of lights, each with modes and charging as «% in minutes»; kept in this browser.
+  // The lamp of the first version (pg-live-lamp) becomes the first light.
+  const readLights = () => {
     try {
-      const o = JSON.parse(localStorage.getItem(LAMP_KEY) || '{}');
-      return { burn: Number(o.burn) > 0 ? Number(o.burn) : LAMP_H, left: ['full', 'half', 'low'].includes(o.left) ? o.left : 'full' };
-    } catch {
-      return { burn: LAMP_H, left: 'full' };
-    }
-  })();
-  let lampBurn = $state(lampOwn.burn);
-  let lampLeft = $state(lampOwn.left);
-  const keepLamp = () => {
-    try {
-      localStorage.setItem(LAMP_KEY, JSON.stringify({ burn: lampBurn, left: lampLeft }));
+      const raw = localStorage.getItem(LIGHTS_KEY);
+      if (raw) return cleanLights(JSON.parse(raw));
+      const old = localStorage.getItem('pg-live-lamp');
+      if (old) return fromOldLamp(JSON.parse(old), t('Light|lamp'));
     } catch {}
+    return [starterLight(t('Light|lamp'))];
   };
-  const lamp = $derived(me && hasRoute ? lampPlan({ lat: me.lat, lon: me.lon, now, endAt: arr?.eta ?? null, burnH: lampBurn, frac: LAMP_FRAC[lampLeft] }) : null);
+  let lights = $state(readLights());
+  $effect(() => {
+    const json = JSON.stringify(lights);
+    try {
+      localStorage.setItem(LIGHTS_KEY, json);
+    } catch {}
+  });
+  const lightPlans = $derived(lightsPlan(lights, { lat: me?.lat, lon: me?.lon, now, endAt: arr?.eta ?? null }));
+  // dusk is near (within an hour) or has come, and a light does not last through the dark ahead: say it once, while you ride
+  let lightAlertOff = $state(false);
+  const lightAlert = $derived(rec.on && !lightAlertOff ? lightPlans.filter((p) => p.plan?.state === 'short' && p.plan.from != null && p.plan.from - now <= 36e5).map((p) => p.light.name || t('Light|lamp')) : []);
+  // «Rast suchen» (Pausen-Planer, Noah 26.11.2026 «1a 2a»): on a tap, three places to stop in the next 20 km, the shortest detour first
+  let restOpen = $state(false);
+  const rest = $derived(restOpen && hasRoute && km != null ? restStops({ pois, km, now, pace, profile }) : null);
   const waterHave = $derived(Math.round(waterCap * WATER_FRAC[waterLeft]));
   const waterRateNow = $derived(waterRate > 0 ? waterRate : drinkPerH(null, DRINK_ML_H));
   const exitNear = $derived(hasRoute && km != null ? nearestExit({ pois, km, now, pace, profile }) : null);
@@ -837,6 +850,21 @@
   }
   $effect(() => {
     if (cfg.battery && hasBattery) untrack(readBattery);
+  });
+  // «Ankunfts-Bericht» (Noah 26.11.2026 «4a»): at the end of the route the report shows by itself, «Later» folds it away
+  let doneAt = 0;
+  let report = $state(null);
+  let reportHide = $state(false);
+  const doneNow = $derived(rec.on && hasRoute && pts.length > 1 && km != null && rec.km >= pts.at(-1).km * 0.5 && atGoal({ km, totalKm: pts.at(-1).km }));
+  $effect(() => {
+    if (doneNow && !doneAt) {
+      untrack(() => {
+        doneAt = Date.now();
+        report = arrivalReport({ startAt: rec.startAt, endAt: doneAt, movingS: movingLive, stops: pz.stops, plan: running ? plan : null, totalKm: pts.at(-1).km, bat: bat && batFirst ? { from: batFirst.level, to: bat.level } : null, lat: me?.lat, lon: me?.lon, lights: lightPlans.map((p) => ({ name: p.light.name || t('Light|lamp'), pctPerMin: ratePerMin(p.mode?.pct, p.mode?.min) })) });
+        reportHide = false;
+      });
+    }
+    if (!rec.on && doneAt) untrack(() => ((doneAt = 0), (report = null)));
   });
   const hoursLeft = $derived(arr ? (arr.eta - now) / 36e5 : null);
   const batEst = $derived(bat ? batteryEnough({ level: bat.level, drainPerH: drainOf(batFirst, bat), hoursLeft, saver: cfg.battery }) : null);
@@ -1338,7 +1366,7 @@
     {#if resumed && rec.on}<p class="rc-note" role="status" data-live-resumed>{t('The app had loaded anew: your ride goes on. What you rode is saved; the time between is a gap in the travel track.')}</p>{/if}
     {#if err || rec.error}<p class="rc-warn" role="alert">{err || t(rec.error)}</p>{/if}
     <p class="rc-note">{t('Your position runs only while this page is open and the screen stays on. That needs battery: best with the phone on the handlebar and on power. The ride is recorded in the travel track at the same time.')}</p>
-    {#if !rec.on && hasRoute}<ReadyCard line={route?.line ?? []} name={routeName} tripId={tid || null} reserve={trip ? reserveOf(trip) : null} voice={cfg.voice} onvoice={(v) => setOpt('voice', v)} points={pois} />{/if}
+    {#if !rec.on && hasRoute}<ReadyCard line={route?.line ?? []} name={routeName} tripId={tid || null} reserve={trip ? reserveOf(trip) : null} voice={cfg.voice} onvoice={(v) => setOpt('voice', v)} points={pois} {lights} />{/if}
     {#if !rec.on}
       <details class="lv-tip" data-live-flight-tip>
         <summary>{t('Save battery: ride in flight mode')}</summary>
@@ -1475,6 +1503,7 @@
               <button type="button" class="btn sm" onclick={() => (shelterSkip = true)} data-live-shelter-skip>{t('Not now')}</button>
             </p>
           {/if}{/if}
+        {#if lightAlert.length}<p class="lvf-alert lvf-bad" role="alert" data-live-light-alert><TriangleAlert size={20} aria-hidden="true" /><span>{t('It gets dark soon. Not enough light for the dark: {names}. Charge them, use a lower mode or take a spare light.', { names: lightAlert.join(', ') })}</span> <button type="button" class="btn sm" onclick={() => (lightAlertOff = true)}>{t('Understood')}</button></p>{/if}
         {#if cfg.eatHm && eatGain >= 300}<p class="lvf-alert" role="alert"><Utensils size={20} aria-hidden="true" /><span>{t('{m} m up since you last ate: time to eat.', { m: eatGain })}</span> <button type="button" class="btn sm" onclick={ateNow}>{t('Eaten')}</button></p>{/if}
         {#if msg}<p class="lvf-alert lvf-bad" role="alert">{msg}</p>{/if}
         <LiveWetter {me} />
@@ -1531,6 +1560,17 @@
               <button type="button" class="btn sm" onclick={endDetour} data-live-detour-end>{t('End navigation')}</button>
             </span>
             <button type="button" class="lvf-ic lv-detour-x" onclick={() => setDetour({ ...detour, small: true }, false)} aria-label={t('Fold up')} data-live-detour-off><X size={20} aria-hidden="true" /></button>
+          </div>
+        {/if}
+        {#if report && !reportHide}
+          <div class="lvf-alert lvf-report" role="status" data-live-report>
+            <b>{t('You have arrived: {at}', { at: when(report.arrivedAt) })}</b>
+            {#if report.plan}<span data-live-report-plan>{report.plan.lateMin === 0 ? t('Right on the plan.') : report.plan.lateMin > 0 ? t('{n} later than planned.', { n: minText(report.plan.lateMin) }) : t('{n} earlier than planned.', { n: minText(-report.plan.lateMin) })}</span>{/if}
+            <span data-live-report-time>{t('{total} on the way, {ride} riding, {rest} stopped.', { total: durText(report.totalS), ride: durText(report.movingS), rest: durText(report.restS) })}{#if report.plan?.restDiffMin != null}{' '}{report.plan.restDiffMin > 0 ? t('{n} more rest than planned.', { n: minText(report.plan.restDiffMin) }) : report.plan.restDiffMin < 0 ? t('{n} less rest than planned.', { n: minText(-report.plan.restDiffMin) }) : ''}{/if}</span>
+            {#if report.stops.n}<span data-live-report-stops>{tn(report.stops.n, '{n} stop, the longest {d}.', '{n} stops, the longest {d}.', { d: durText(report.stops.longestS) })}</span>{/if}
+            {#if report.battery}<span data-live-report-battery>{t('Phone battery: {from} % to {to} %.', { from: report.battery.from, to: report.battery.to })}</span>{/if}
+            {#if report.dark.min > 0}<span data-live-report-dark>{t('{n} of the ride in the dark.', { n: durText(report.dark.min * 60) })}{#each report.dark.lights as lt, i (i)}{' '}{t('{name}: about {p} % of a full charge.', { name: lt.name, p: lt.pct })}{/each}</span>{/if}
+            <button type="button" class="btn sm" onclick={() => (reportHide = true)} data-live-report-later>{t('Later')}</button>
           </div>
         {/if}
         {#if offline}<p class="lvf-alert" role="status" data-live-offline><WifiOff size={20} aria-hidden="true" /><span>{t('Offline: the map shows what is stored, the ride goes on.')}</span></p>{/if}
@@ -1798,23 +1838,44 @@
                   </details>
                 </div>
               {/if}
-              {#if hasRoute && lamp}
-                <div class="lv-lastshop" data-live-lamp={lamp.state}>
-                  <h3 class="lv-h3"><Lightbulb size={16} aria-hidden="true" />{t('Light|lamp')}</h3>
-                  {#if lamp.state === 'day'}<p class="rc-note" data-live-lamp-say>{t('No darkness ahead on this ride: your lamp is not needed.')}</p>
-                  {:else if lamp.state === 'short'}<p class="rc-warn lv-line" data-live-lamp-say><TriangleAlert size={20} aria-hidden="true" /><span>{t('Your lamp will not last: it burns until about {at}, but you ride about {d} h in the dark. Charge it, use a lower mode or take a spare light.', { at: when(lamp.untilAt), d: num(lamp.darkH) })}</span></p>
-                  {:else if lamp.state === 'tight'}<p class="rc-note" data-live-lamp-say>{t('Your lamp just lasts: it burns until about {at}, you ride about {d} h in the dark.', { at: when(lamp.untilAt), d: num(lamp.darkH) })}</p>
-                  {:else}<p class="rc-note" data-live-lamp-say>{t('Your lamp lasts: it burns until about {at}, you ride about {d} h in the dark.', { at: when(lamp.untilAt), d: num(lamp.darkH) })}</p>{/if}
-                  <div role="group" aria-label={t('What is left in your lamp?')}>
-                    <span class="rc-note">{t('What is left in your lamp?')}</span>
-                    <Seg small options={[{ key: 'full', name: t('Full|lamp') }, { key: 'half', name: t('Half|lamp') }, { key: 'low', name: t('Almost empty|lamp') }]} value={lampLeft} onchange={(k) => ((lampLeft = k), keepLamp())} />
-                  </div>
-                  <details class="lv-water-set" data-live-lamp-set>
-                    <summary>{t('Change lamp')}</summary>
-                    <label class="lv-water-f">{t('Your lamp burns on a full charge (hours)')}<input class="inp" type="number" inputmode="decimal" min="0.5" max="100" step="0.5" value={lampBurn} onchange={(e) => ((lampBurn = Math.max(0.5, Math.min(100, Number(e.currentTarget.value) || LAMP_H))), keepLamp())} data-live-lamp-burn /></label>
-                  </details>
+              {#if hasRoute && km != null}
+                {#if report && reportHide}<button type="button" class="btn sm" onclick={() => (reportHide = false)} data-live-report-open>{t('Show the arrival report')}</button>{/if}
+                <div class="lv-lastshop" data-live-rest>
+                  <h3 class="lv-h3"><Utensils size={16} aria-hidden="true" />{t('Rest stop')}</h3>
+                  {#if !rest}
+                    <button type="button" class="btn sm" onclick={() => (restOpen = true)} data-live-rest-find>{t('Find a rest')}</button>
+                  {:else}
+                    <p class="rc-note">{t('Places to stop in the next {n} km of the route, the shortest detour first.', { n: REST_RANGE_KM })}</p>
+                    {#each rest.rows as s (s.id)}
+                      {@const l = navLinks({ lat: Number(s.lat), lon: Number(s.lon) })}
+                      <div class="rc-row lv-srow" data-live-rest-row={s.kind}>
+                        <KindIcon kind={s.kind} size={18} />
+                        <span class="rc-row-main">
+                          <b>{s.name || kindName(s.kind)}</b>
+                          <small>{kindName(s.kind)} · {t('{d} km', { d: fmtKm(s.distKm) })} · {s.detourKm > 0 ? t('detour {d} km', { d: fmtKm(s.detourKm) }) : t('on the route')} · {t('there about {at}', { at: when(s.eta) })}{#if openLine(s)}{' '}· {openLine(s)}{/if}</small>
+                        </span>
+                        <details class="lv-nav">
+                          <summary class="btn sm"><Navigation size={16} aria-hidden="true" />{t('Navigate')}</summary>
+                          <div class="lv-nav-menu">
+                            <a class="btn sm" href={l.google} target="_blank" rel="noopener noreferrer">{t('Google Maps')}</a>
+                            <a class="btn sm" href={l.osmand} target="_blank" rel="noopener noreferrer">{t('OsmAnd')}</a>
+                          </div>
+                        </details>
+                      </div>
+                    {:else}
+                      <p class="rc-empty" data-live-rest-none>{rest.next ? t('Nothing in the next {n} km. The next place is {name}, {d} km ahead.', { n: REST_RANGE_KM, name: rest.next.name || kindName(rest.next.kind), d: fmtKm(rest.next.distKm) }) : t('No place to stop found ahead. Load the stops along the route to see some.')}</p>
+                    {/each}
+                    {#if rest.rows?.length}
+                      {#each lightPlans as p, i (i)}
+                        {@const g = chargeGain(p.light, 30, p.mode, p.restH / (p.fullH || 1))}
+                        {#if g && g.pct > 0}<p class="rc-note" data-live-rest-charge>{t('If you can charge there: 30 minutes give «{name}» {p} % ({h} h of light).', { name: p.light.name || t('Light|lamp'), p: num(g.pct), h: num(g.hours) })}</p>{/if}
+                      {/each}
+                    {/if}
+                    <button type="button" class="btn sm" onclick={() => (restOpen = false)} data-live-rest-close>{t('Hide')}</button>
+                  {/if}
                 </div>
               {/if}
+              {#if hasRoute}<LiveLichter bind:lights plans={lightPlans} {when} />{/if}
               {#if stops.length}
                 <ul class="rc-list">
                   {#each stops as s (s.id)}
