@@ -1071,8 +1071,12 @@
   // «Heute abhaken» right under the chips (Noah 23.11.2026 «1a 2a»): not in the wall then, so the cards above the wall (adventure, ideas, news …) stand under it.
   // While customising it stays a tile of the wall (move, hide, size); a wall without it shows nothing here.
   const hakenTop = $derived(!editing && ready && !emptyDevice && on('haken'));
-  const wallTiles = $derived(hakenTop ? timeWall.filter((x) => x.id !== 'haken') : timeWall);
+  // «Favoriten» (Noah 27.11.2026 «1-5a», 1a): right under the greeting, even before «Heute abhaken»; same way: not in the wall then, a tile of the wall while customising
+  const pinsTop = $derived(!editing && ready && !emptyDevice && on('pins'));
+  const wallTiles = $derived(timeWall.filter((x) => !(hakenTop && x.id === 'haken') && !(pinsTop && x.id === 'pins')));
   const hakenTile = $derived(timeWall.find((x) => x.id === 'haken') ?? null);
+  const pinsTile = $derived(timeWall.find((x) => x.id === 'pins') ?? null);
+  const keepTop = (kept) => [...(pinsTop && pinsTile ? [pinsTile] : []), ...(hakenTop && hakenTile ? [hakenTile] : []), ...kept];
   const saveShown = (tiles) => saveWall(keepHidden(tiles, wall, hiddenTiles));
   const toggleTile = (id) => saveWall(onWall.has(id) ? removeTile(wall, id) : addTile(wall, id));
   // «Reset» (Noah 3a): the ready wall again; the old layout no longer counts after that
@@ -1183,6 +1187,7 @@
         {#if placeOpen}<div class="pf"><HomePlaceForm onchosen={() => (placeOpen = false)} /></div>{/if}
       </div>
     </div>
+    {#if pinsTop}<div class="pntop" data-pins-top><PinsTile /></div>{/if}
     {#if hakenTop}<div class="hktop" data-haken-top><HakenBlock {today} top={shownWall.some((w) => w.id === 'meditation' && w.size === 'long')} cfg={S[HABITS_KEY] ?? null} /><HakenHinweis {today} /></div>{/if}
     {#if ready && !editing && bannerEntries.length}<NewsBanner entries={bannerEntries} from={newsUpdate?.from ?? BEFORE} onclose={() => (bannerOff = true)} />{/if}
     <!-- «Heute neu» A: one personal sentence; the idea for today moved into «Up now» -->
@@ -1477,7 +1482,7 @@
     <!-- what is due today never hides (rule 11), also with a calendar and nothing else: without the body tile it stands here -->
     {#if !emptyTiles.some((x) => x.id === 'body')}<DueToday todos={S[MERKEN_KEY] ?? []} {today} care={due.points} sp={spDue} />{/if}
     <p class="muted emptywall" data-empty-wall>{t('Everything else (body, up now, weather) shows up as soon as you have data.')} <button type="button" class="linkq" onclick={() => (wallAnyway = true)}>{t('Show everything now')}</button></p>
-  {:else if ready}<Wall tiles={wallTiles} body={tileBody} {editing} sections={secOn} areas={areasCfg} onedit={() => (editing = true)} onchange={(kept) => saveShown(hakenTop && hakenTile ? [hakenTile, ...kept] : kept)} onadd={() => (catalogOpen = true)} />
+  {:else if ready}<Wall tiles={wallTiles} body={tileBody} {editing} sections={secOn} areas={areasCfg} onedit={() => (editing = true)} onchange={(kept) => saveShown(keepTop(kept))} onadd={() => (catalogOpen = true)} />
   {:else}<Skeleton kind="home" rows={2} />{/if}
   <!-- «Heute neu» A: the half-width trip card has no room for the weekly km check; it shows under the wall then -->
   {#if ready && !editing && timeWall.some((x) => x.id === 'trip' && x.size === 'l')}<div class="kmrow"><KmCard {today} /></div>{/if}
@@ -2537,6 +2542,9 @@
     background: var(--ink-3);
   }
   .hktop {
+    margin: 12px 0 4px;
+  }
+  .pntop {
     margin: 12px 0 4px;
   }
   /* «Heute neu» A «Ein Blick» (Noah 20.10.2026 «1A»): the personal sentence, the row icons of «Up now» */
