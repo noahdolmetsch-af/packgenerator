@@ -21,6 +21,7 @@
   import { t } from './i18n.svelte.js';
   import SpeakButton from './ui/SpeakButton.svelte';
   import { appendSpoken } from './speak.js';
+  import { flushDictation } from './dictation.svelte.js';
   import InputBar from './eingabe/InputBar.svelte'; // «Eingaben überall» (Noah 26.10.2026): voice note, file, place, templates
   import { cleanInputs, hasInputs } from './eingabe/inputs.js';
 
@@ -121,6 +122,7 @@
 
   async function save(event) {
     event.preventDefault();
+    await flushDictation(); // a running microphone ends first: what was said is in the field
     if (!written() && !photo && !hasInputs(inputs)) return (msg = t('Write a few words or add a photo.'));
     clearTimeout(autoTimer);
     const r = record();
@@ -193,7 +195,7 @@
       <PhotoPick onfile={addPhoto} busy={reading} has={!!photo} camera={text.startsWith(t('Workshop receipt: ')) ? 'Photograph the receipt' : 'Take photo'} big={text.startsWith(t('Workshop receipt: '))} />
       {#if photo}<img class="th" src={photo} alt={t('Photo of the note')} /><button type="button" class="link" onclick={() => (photo = null)}>{t('Remove photo')}</button>{/if}
       <!-- FE10 (Noah 13.10.2026): speak instead of type, where the browser can -->
-      <SpeakButton answer onsaid={(w) => (text = appendSpoken(text, w))} />
+      <SpeakButton answer onsaid={(w) => ((text = appendSpoken(text, w)), (msg = ''))} />
     </div>
     <InputBar place="inbox" {text} ontext={(s) => (text = s)} {inputs} oninputs={(x) => (inputs = x)} />
     <p class="ctx">
