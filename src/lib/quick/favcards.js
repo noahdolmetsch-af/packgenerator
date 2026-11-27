@@ -1,10 +1,10 @@
 /**
  * «Favoriten» on Heute (Noah 27.11.2026 «1-5a», step 2): the first six favourites as small cards (3a), the rest behind «All n ›».
  * Pure functions (tests/favcards.test.js); the tile (home/PinsTile.svelte) and the window (home/FavoritenAlle.svelte) draw them.
- * The quiet second line of a card is your own note, else the group the favourite sits in (a typed group name is never translated).
+ * The quiet second line of a card is your own note, nothing else (Noah 27.11.2026 «1, 2, 3, 4», point 2: calmer cards; the group is in the window «All»).
  */
 import { FEATURE } from '../features.js';
-import { flatPins, pinLabel, groupLabel } from './quicklinks.js';
+import { flatPins, pinLabel } from './quicklinks.js';
 
 /** Noah 3a: this many favourites show as cards on Heute. */
 export const FAV_SHOWN = 6;
@@ -17,10 +17,9 @@ export const favIcon = (p) => (p.feature ? (ICON[FEATURE[p.feature]?.group] ?? '
 
 /** The cards of the tile: [{ pin, label, sub, icon }], in the order the person sees the favourites. */
 export function favCards(s, tr = (x) => x, n = FAV_SHOWN) {
-  const group = new Map(s.groups.map((g) => [g.id, g]));
   return flatPins(s)
     .slice(0, n)
-    .map((p) => ({ pin: p, label: pinLabel(p, tr), sub: p.note || (group.has(p.group) ? groupLabel(group.get(p.group), tr) : ''), icon: favIcon(p) }));
+    .map((p) => ({ pin: p, label: pinLabel(p, tr), sub: p.note || '', icon: favIcon(p) }));
 }
 
 /** How many favourites are behind «All n ›» (0: all show). */
