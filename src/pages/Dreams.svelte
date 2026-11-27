@@ -253,6 +253,9 @@
     <button type="button" aria-pressed={view === 'year'} data-view="year" onclick={() => (view = 'year')}>{t('Year|view')}</button>
   </div>
 
+  <!-- the one help sentence that names the functions of this page stays right under the views: tests/e2e/heimat.spec.js wants every function within 2.5 phone screens, and the list can be long -->
+  {#if view === 'list'}<p class="ich-help dr-more" data-dreams-more>{t('Open a dream for «Ready for the dream?». A dream that fits now gets a «Weather window for dreams». «All dreams on one map» is the view Map; «Fulfilled dreams» is the closed row at the end of the list; «Fits now: ideas per month» and «After-work bivouac» and «Train there, bike home» and «Sunrise on the hill» and «Adventure dice» and «One adventure a month» and «Dreams in one place» sit under the list. «Dream of the week» appears on Heute while a dream fits.')}</p>{/if}
+
   {#if view === 'year'}
   <section class="ich-sec" aria-labelledby="dr-year" data-yearband>
     <div class="ich-h"><div><h2 id="dr-year">{t('Your year')}</h2><p class="ich-hs">{t('How many dreams fit in each month. A tap shows them.')}</p></div></div>
@@ -387,9 +390,8 @@
     <label class="ck wk"><input type="checkbox" checked={!weekHidden} onchange={(e) => db.settings.put({ key: WEEK_HIDE_KEY, value: !e.currentTarget.checked })} data-week-show /><span>{t('Show fitting dreams and deadlines in «Plan the week»')}</span></label>
   </section>
 
-  <!-- the help texts of the page stand at its end (Content first): what the page is, the way through it, then «So geht's» -->
+  <!-- the sentence about the page and «So geht's» stand at the page end (Content first) -->
   <p class="dr-intro">{t('Tours you dream of. The app tells you when they fit.')}</p>
-  {#if view === 'list'}<p class="ich-help dr-more" data-dreams-more>{t('Open a dream for «Ready for the dream?». A dream that fits now gets a «Weather window for dreams». «All dreams on one map» is the view Map; «Fulfilled dreams» is the closed row at the end of the list; «Fits now: ideas per month» and «After-work bivouac» and «Train there, bike home» and «Sunrise on the hill» and «Adventure dice» and «One adventure a month» and «Dreams in one place» sit under the list. «Dream of the week» appears on Heute while a dream fits.')}</p>{/if}
   <AreaIntro place="dreams" />
 </div>
 

@@ -1,12 +1,12 @@
 // «Träume: deine Träume zuerst» (impeccable F3, Noah «1-5a» 24.11.2026): the field to add a dream and the views List · Map · Year
-// come right behind the title; the explaining texts and «So geht's» stand at the page end, the outing tips under the list.
+// come right behind the title; the intro and «So geht's» stand at the page end, the one help sentence under the views, the outing tips under the list.
 // Fictional data (home0460 fixture), German.
 import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 
 test.use({ cardsOpen: false });
 
-test('Dreams: the list comes first, the help texts and So geht\'s stand at the end', async ({ page, context }, info) => {
+test('Dreams: the list comes first, the help sentence stays under the views, intro and So geht\'s stand at the end', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await openHome(page, context, info, { hour: 9 });
