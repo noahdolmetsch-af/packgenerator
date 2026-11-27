@@ -339,7 +339,7 @@
                         <small>{v ? `${dayLong(v.day)}${v.tripId && tripNames[v.tripId] ? ` · ${tripNames[v.tripId]}` : ''}${v.by === 'hand' ? ` · ${t('by hand')}` : ''}` : state.nope[cur.id]?.[it.id] ? t('Marked «not there»') : t('Not yet')}</small>
                       </button>
                       {#if mapOf && (it.rings || Number.isFinite(it.lat))}
-                        <button type="button" class="loc" aria-label={t('Show «{name}» on the map', { name: label })} title={t('Show on the map')} data-nl-locate onclick={() => locate(it)}><MapPin size={18} aria-hidden="true" /></button>
+                        <button type="button" class="loc" aria-label={t('Show «{name}» on the map', { name: label })} title={t('Show on the map')} data-nl-locate onclick={() => locate(it)}><MapPin size={20} aria-hidden="true" /></button>
                       {/if}
                     </li>
                   {/each}

@@ -278,9 +278,9 @@
 </svg>
 {#if zoomable}
   <div class="nm-zoom" role="group" aria-label={t('Zoom')}>
-    <button type="button" aria-label={t('Zoom in')} onclick={() => zoomBy(1.7)} disabled={view_.z >= maxZoom - 0.01} data-zoom-in><Plus size={18} aria-hidden="true" /></button>
-    <button type="button" aria-label={t('Zoom out')} onclick={() => zoomBy(1 / 1.7)} disabled={!zoomed} data-zoom-out><Minus size={18} aria-hidden="true" /></button>
-    <button type="button" aria-label={t('Whole map')} onclick={reset} disabled={!zoomed} data-zoom-reset><LocateFixed size={18} aria-hidden="true" /></button>
+    <button type="button" aria-label={t('Zoom in')} onclick={() => zoomBy(1.7)} disabled={view_.z >= maxZoom - 0.01} data-zoom-in><Plus size={20} aria-hidden="true" /></button>
+    <button type="button" aria-label={t('Zoom out')} onclick={() => zoomBy(1 / 1.7)} disabled={!zoomed} data-zoom-out><Minus size={20} aria-hidden="true" /></button>
+    <button type="button" aria-label={t('Whole map')} onclick={reset} disabled={!zoomed} data-zoom-reset><LocateFixed size={20} aria-hidden="true" /></button>
     {#if !big_}<button type="button" aria-label={t('Full screen')} onclick={() => (big_ = true)} data-zoom-full><Maximize2 size={16} aria-hidden="true" /></button>{/if}
   </div>
   {#if hint}<p class="nm-hint" role="status">{t('Ctrl and scroll, or pinch, to zoom')}</p>{/if}
