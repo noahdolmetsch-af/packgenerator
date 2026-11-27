@@ -19,11 +19,11 @@ const PER_PATH = 4; // the same page with different ?… at most this often
 const OUT = fileURLToPath(new URL('../../../test-results/rundgang/', import.meta.url));
 
 /**
- * Findings the robot knows and a person has been told about (key «address | what»): they are written in the report as «bekannt» and do
- * not turn the night red. Whoever repairs the page deletes the line (the list only gets shorter).
- *  C10 (26.11.2026, first found when the robot opened every address of the code): Packen › Vorschlag shows «Legs · Hands · Head · Feet» in English.
+ * Findings the robot knows and a person has been told about (key «address | what», value the finding's ID): they are written in the report
+ * as «bekannt» and do not turn the night red. Whoever repairs the page deletes the line (the list only gets shorter). Empty today
+ * (C10, English in Packen › Vorschlag, was repaired on 26.11.2026 with the PR «Packvorschlag auf Deutsch»).
  */
-const KNOWN = { '#/pack/vorschlag | englisch': 'C10' };
+const KNOWN = {};
 
 // Addresses that leave the app or start something (a download, a login, a sign-out) are not opened.
 const SKIP = /^#\/(logout|auth|connect|oauth|pay\/|paylink|share\/receive)/;
