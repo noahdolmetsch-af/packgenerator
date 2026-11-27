@@ -1,6 +1,6 @@
 # Test «size-guard»: Handbuch-Texte in einem Durchgang suchen
 
-PR #NNNN · 27.11.2026 · Auftrag: Wackel-Wächter, PR 1826 meldete 30,9 s von 30 s Limit auch auf main
+PR #1839 · 27.11.2026 · Auftrag: Wackel-Wächter, PR 1826 meldete 30,9 s von 30 s Limit auch auf main
 
 ## Was ist neu
 - Nichts Sichtbares geändert, nur Test für `tests/size-guard.test.js` («the handbook-only German is not used by any other place»).
