@@ -1,6 +1,6 @@
 # Favoriten als Karten auf Heute
 
-PR folgt · 27.11.2026 · Auftrag: Noah «1-5a», «a» (grosse Karten am Handy) und «Priorität» (Thread «Lieblingsinhalte besser sichtbar machen»)
+PR #1837 · 27.11.2026 · Auftrag: Noah «1-5a», «a» (grosse Karten am Handy) und «Priorität» (Thread «Lieblingsinhalte besser sichtbar machen»)
 
 Schritt 2 von 4 des Konzepts «Favoriten» (Schritt 1: Stern statt Pin, online).
 
