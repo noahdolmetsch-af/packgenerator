@@ -56,6 +56,15 @@ async function findings(page) {
     const mains = [...dlg.querySelectorAll('.btn.hi, button[type="submit"]')].filter((el) => el.getBoundingClientRect().width > 0);
     const main = mains.at(-1);
     if (main && seen(main.getBoundingClientRect()) < 0.98) out.push(`the main button «${label(main)}» is not whole on screen`);
+    // scrolled to the end: head and foot stay flush at the window's edges, no strip of content above the head or under the foot (Noah 27.11.2026 «3»)
+    if (scrolls) {
+      dlg.scrollTop = dlg.scrollHeight;
+      const head = dlg.querySelector('.vd-head');
+      const foot = dlg.querySelector('.vd-foot');
+      if (head && Math.abs(head.getBoundingClientRect().top - box.top) > 1.5) out.push(`the head is not flush at the top when scrolled (${Math.round(head.getBoundingClientRect().top - box.top)} px off)`);
+      if (foot && Math.abs(foot.getBoundingClientRect().bottom - box.bottom) > 1.5) out.push(`the foot is not flush at the bottom when scrolled (${Math.round(box.bottom - foot.getBoundingClientRect().bottom)} px off)`);
+      dlg.scrollTop = 0;
+    }
     return out;
   });
 }
