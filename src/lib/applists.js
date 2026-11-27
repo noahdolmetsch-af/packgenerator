@@ -17,7 +17,7 @@
 // techniques: the riding techniques of the Fahrtechnik-Tagebuch (Persönliches Lernen Idee 3, technik.js)
 // changeReasons: why a tour went differently (Persönliches Lernen Idee 4, gruende.js)
 // debrief.weather / debrief.amount / debrief.bags: the answers of «How was it?» in the debrief (rename only, debrief.js choices)
-export const APP_LISTS = ['pointKinds', 'bikeKinds', 'awayTypes', 'journalQuestions', 'journalMoods', 'medMoods', 'daySports', 'sayings', 'changeReasons', 'techniques', 'debrief.weather', 'debrief.amount', 'debrief.bags'];
+export const APP_LISTS = ['sportArts', 'pointKinds', 'bikeKinds', 'awayTypes', 'journalQuestions', 'journalMoods', 'medMoods', 'daySports', 'sayings', 'changeReasons', 'techniques', 'debrief.weather', 'debrief.amount', 'debrief.bags'];
 
 // a plain object like the other lists (domains.js, care.js): App.svelte draws the page again when the
 // lists arrive (listsReady); plain, so the pure files and the browser tests can import it in Node

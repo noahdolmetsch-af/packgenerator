@@ -1,0 +1,22 @@
+// «Der Satz nach dem Haken» (Noah 27.11.2026 «1b 2a»): src/lib/flow/satz.js, die Karte auf «Geschafft» und die Kurzfassung in der Meldung
+export default {
+  'What this tick says': 'Was dieser Haken sagt',
+  'Counted from your ticks. Only a look, nothing is graded.': 'Aus deinen Haken gerechnet. Nur ein Blick, nichts wird bewertet.',
+  '{name}: the first time this week, usually about {u} a week.': '{name}: das erste Mal diese Woche, sonst etwa {u}-mal pro Woche.',
+  '{name}: the first time this week, usually about every {k} weeks.': '{name}: das erste Mal diese Woche, sonst etwa alle {k} Wochen.',
+  '{name}: the first time this week.': '{name}: das erste Mal diese Woche.',
+  '{name}: time {n} this week, usually about {u} a week.': '{name}: das {n}. Mal diese Woche, sonst etwa {u}-mal pro Woche.',
+  '{name}: time {n} this week, usually only about every {k} weeks.': '{name}: das {n}. Mal diese Woche, sonst nur etwa alle {k} Wochen.',
+  '{name}: time {n} this week.': '{name}: das {n}. Mal diese Woche.',
+  '{name}: day {n} in a row, your longest series so far.': '{name}: der {n}. Tag in Folge, deine längste Serie bisher.',
+  '{name}: day {n} in a row, as long as your longest series.': '{name}: der {n}. Tag in Folge, so lang wie deine längste Serie.',
+  '{name}: day {n} in a row.': '{name}: der {n}. Tag in Folge.',
+  '{name}: the first time you tick this.': '{name}: das erste Mal, dass du das abhakst.',
+  '{name}: {n} days since the last time, usually {u} days between two.': '{name}: {n} Tage seit dem letzten Mal, sonst liegen {u} Tage dazwischen.',
+  '{name}: {n} days since the last time.': '{name}: {n} Tage seit dem letzten Mal.',
+  '{min} minutes is shorter than usual, {name} usually takes about {u} minutes.': '{min} Minuten sind kürzer als sonst, {name} dauert meist etwa {u} Minuten.',
+  '{min} minutes is longer than usual, {name} usually takes about {u} minutes.': '{min} Minuten sind länger als sonst, {name} dauert meist etwa {u} Minuten.',
+  'Weekly goal reached: {n} of {of}.': 'Wochenziel erreicht: {n} von {of}.',
+  'Weekly goal: {n} of {of} so far.': 'Wochenziel: bisher {n} von {of}.',
+  'After {name} you often tick {other} too (on {k} of {n} days), not yet today.': 'Nach {name} hakst du oft auch {other} ab (an {k} von {n} Tagen), heute noch nicht.',
+};

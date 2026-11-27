@@ -23,6 +23,7 @@
   import { liveQuery } from 'dexie';
   import { GROUPS_KEY } from './sportgroups.js';
   import { SPORT_TEMPLATES, applyTemplate } from './sporttemplates.js';
+  import { artOptions, artOf } from './arten.js';
   import { goalHint } from './goalhint.js';
   import { actGoalText, goalsText, oneGoal } from './words.js';
   import { DEFAULT_MIN, CHOICES, usualFor, standardFor, readUsual, saveUsual } from './usualmin.js';
@@ -245,6 +246,12 @@
       </div>
       <p class="lbl" id="ed-ring">{t('Category · ring')}</p>
       <Seg chips full={false} labelledby="ed-ring" value={a.ring} onchange={(k) => (a.ring = k)} options={RING_OPTS} />
+
+      <p class="lbl" id="ed-art">{t('Kind of sport')} <span class="quiet">· {t('optional')}</span></p>
+      <div data-art-row>
+        <Seg chips full={false} labelledby="ed-art" value={artOf(a) ?? 'none'} onchange={(k) => (a.art = k === 'none' ? null : k)} options={[{ key: 'none', name: t('No kind') }, ...artOptions(a.art)]} />
+      </div>
+      <p class="hint">{t('Used for the mix of your week in the analysis. Rename or add kinds: Me › Lists and types.')} <a href="#/me/lists?sportArts" data-art-kinds>{t('Change the kinds')} ›</a></p>
 
       {#if groups.length}
         <p class="lbl" id="ed-group">{t('Group')}</p>

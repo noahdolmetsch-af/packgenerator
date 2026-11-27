@@ -34,6 +34,7 @@
   import { WEEKLOG_KEY } from '../../lib/training/wochenlog.js';
   import { UNIT_NAME } from '../../lib/training/wochenplan-text.js';
   import { entryToShow, sourceKey, nthThisWeek, weekNumbers, hhmm, hoursGoal, openGoals, compareLast, nextUnit, plannedFor, plannedWeek, zoneVsPlan } from '../../lib/flow/geschafft.js';
+  import { actFacts, satzLines } from '../../lib/flow/satz.js';
   import { localDay } from '../../lib/localday.js';
   import { t, tn, num, locale } from '../../lib/i18n.svelte.js';
 
@@ -60,7 +61,8 @@
       const [goal, weekplan, weeklog, plan, sp] = await Promise.all([db.settings.get(GOAL_KEY), db.settings.get(WEEKPLAN_KEY), db.settings.get(WEEKLOG_KEY), db.settings.get(PLAN_KEY), db.settings.get(SP_KEY)]);
             const activities = e.stravaId ? await readLite(db, (T) => T.toArray()).catch(() => []) : [];
       const stars = await db.flowStars.toArray().catch(() => []);
-      if (!stale) more = { goal: goal?.value ?? null, weekplan: weekplan?.value ?? null, weeklog: weeklog?.value ?? null, plan: plan?.value ?? null, team: teamSessions(spPrefsOf(sp?.value)), activities, stars };
+      const allLog = await db.flowLog.toArray().catch(() => []);
+      if (!stale) more = { allLog, goal: goal?.value ?? null, weekplan: weekplan?.value ?? null, weeklog: weeklog?.value ?? null, plan: plan?.value ?? null, team: teamSessions(spPrefsOf(sp?.value)), activities, stars };
     })();
     return () => (stale = true);
   });
@@ -87,6 +89,10 @@
   const dayShort = (d) => fmt(d, { weekday: 'short' }).replace('.', '').slice(0, 2);
   const unitText = $derived(next ? `${fmt(next.day, { weekday: 'short' }).replace('.', '')} ${next.t} · ${t(UNIT_NAME[next.type] ?? next.type)}` : '');
   const pct = $derived(goalH && week ? Math.min(100, Math.round((week.mins / 60 / goalH) * 100)) : 0);
+
+  // «Der Satz nach dem Haken» (Noah 27.11.2026 «1b 2a»): two lines on top, the strongest first (rules: lib/flow/satz.js)
+  const ownGoal = $derived(entry ? goals.list.find((g) => g.act.id === entry.actId) : null);
+  const satz = $derived(more && entry && act ? satzLines(actFacts({ act, acts, log: more.allLog, entry, goal: ownGoal ? { n: ownGoal.n, of: ownGoal.of, met: ownGoal.met } : null }), actName(act), actName) : []);
 
   const FEEL_TEXT = FEEL_KEY;
   // «Haken zuerst»: both are optional and can be taken back by tapping the chosen chip again
@@ -151,6 +157,18 @@
         <p class="src" data-geschafft-source>{when} · {t(SOURCE[sourceKey(entry)])}</p>
       </div>
     </section>
+
+    {#if satz.length}
+      <section class="card gs satz" data-geschafft-satz aria-label={t('What this tick says')}>
+        {#each satz as l, i (l.kind)}
+          <p class:big={i === 0} data-satz-kind={l.kind}>{l.text}</p>
+        {/each}
+        <small>{t('Counted from your ticks. Only a look, nothing is graded.')}</small>
+      </section>
+    {:else if !more && entry}
+      <!-- the card comes a moment later (it reads all ticks): keep its place, so the chips below do not jump under a finger -->
+      <section class="card gs satz sk" aria-hidden="true" data-geschafft-satz-wait></section>
+    {/if}
 
     <section class="card gs how" data-geschafft-how aria-label={t('Optional: how long and how was it')}>
       {#if canSetMinutes(entry)}
@@ -313,6 +331,28 @@
     margin: 2px 0 0;
     color: var(--ink-3);
     font-size: var(--fs-small);
+  }
+  .satz {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+  }
+  .satz p {
+    margin: 0;
+    color: var(--ink-2);
+    overflow-wrap: break-word;
+  }
+  .satz p.big {
+    color: var(--ink);
+    font-size: var(--fs-body);
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  .satz.sk {
+    min-height: 112px;
+  }
+  .satz small {
+    color: var(--ink-3);
   }
   .lay {
     display: grid;
