@@ -1,3 +1,10 @@
+<script module>
+  // A note that is open when the page is drawn again stays open: App.svelte draws a page again when the changed lists
+  // arrive (listsReady) or another trip is chosen. The address «?open=» is cleared at the first drawing, so the new one
+  // takes the note from here.
+  let carry = null;
+</script>
+
 <script>
   import CameraButton from '../lib/ui/CameraButton.svelte'; // P3b Teil 3: the camera wherever a photo is added
   /**
@@ -282,7 +289,16 @@
   }
 
   // Paket NE: #/notes?open=<id> opens that note (back from «Scan» into a note)
-  let open = $state(typeof location !== 'undefined' ? (decodeURIComponent((location.hash.match(/[?&]open=([^&]+)/) ?? [])[1] ?? '') || null) : null);
+  // svelte-ignore state_referenced_locally
+  let open = $state(typeof location !== 'undefined' ? (decodeURIComponent((location.hash.match(/[?&]open=([^&]+)/) ?? [])[1] ?? '') || carry) : null);
+  // The new drawing is made before the old one is taken down, so the open note is kept here as it changes, and the old
+  // drawing clears it when it is left for another page.
+  $effect(() => {
+    carry = open;
+    return () => {
+      if (typeof location !== 'undefined' && !location.hash.startsWith('#/notes')) carry = null;
+    };
+  });
   if (open && typeof history !== 'undefined') history.replaceState(history.state, '', `${location.pathname}#/notes`);
   let made = $state('');
   const openNote = $derived(open ? notes.find((n) => n.id === open) : null);
