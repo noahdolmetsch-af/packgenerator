@@ -23,7 +23,8 @@ import { FEATURES_JS, FEATREG_SRC } from './featsrc.js';
 // «Heute ruhiger» 3a (changed on purpose): Heute shows the tiles in areas, inside an area in wall order
 // 17.11.2026 (changed on purpose, «Tour nur einmal»): while «My tour» stands, «Your moment» about the trip is away (the fixture's trip is tomorrow)
 // «Heute entdecken» (Noah 23.11.2026 «2b», changed on purpose): the old tile «Entdecken» left the wall; the row under the chips replaces it
-const SHOWN = inAreas(atHour(tripUp(READY.filter((x) => !VALUE_TILES.includes(x.id) && x.id !== 'moment' && x.id !== 'discover'), true), 9));
+// «Favoriten Schritt 2» (PR 1837): the pins card sits above the wall, not in `.wall`, so it is not part of this list
+const SHOWN = inAreas(atHour(tripUp(READY.filter((x) => !VALUE_TILES.includes(x.id) && x.id !== 'moment' && x.id !== 'discover' && x.id !== 'pins'), true), 9));
 
 const NEWEST = WHATS_NEW[0];
 // the newest function (highest since-version) and whether the newest version brought it
@@ -136,8 +137,8 @@ test('I11: Ich, Was ist neu: the newest version, every function, all versions an
   await page.getByRole('button', { name: T('Name A–Z'), exact: true }).click();
   await expect(page.locator('.wn-rows > li')).toHaveCount(FEATURE_N);
   await page.getByRole('searchbox', { name: T('Find a function') }).fill('Diebstahl');
-  await expect(page.locator('.wn-rows > li')).toHaveCount(1);
-  await expect(page.locator('.wn-rows > li').first()).toHaveAttribute('data-feature', 'f.theft');
+  // «Wertliste» (PR 1833) also mentions the theft sheet, so the search finds the theft function among its rows, not as the only one
+  await expect(page.locator('.wn-rows > li[data-feature="f.theft"]')).toHaveCount(1);
   await page.getByRole('searchbox', { name: T('Find a function') }).fill('');
   await page.goBack();
   await expect(page).toHaveURL(/#\/me\/news$/);
