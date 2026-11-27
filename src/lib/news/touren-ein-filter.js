@@ -6,7 +6,7 @@ export default {
     { text: 'The field and the buttons Year, Bike, Kind and Distance filter the list «My trips» directly', go: { href: '#/trips', steps: [{ sel: '[data-tour-bar]' }] } },
     { text: '«More filters» opens the rest: duration, weather, power and your saved filters', go: { href: '#/trips', steps: [{ sel: '[data-filter-open]' }] } },
   ],
-  small: [{ box: 'fix', text: 'The box «Filter the list» beside the list is gone, there is one place to filter' }],
+  small: [{ box: 'nicer', text: 'The box «Filter the list» beside the list is gone, there is one place to filter' }],
   test: [
     'Open Trips, type a word of a trip in the field under the title: the list «My trips» shows only the trips with that word.',
     'Tap «Bike», choose one: the list narrows, a chip above it takes the filter away again.',
