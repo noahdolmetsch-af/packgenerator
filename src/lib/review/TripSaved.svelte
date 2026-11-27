@@ -34,6 +34,7 @@
   import TemplateOffer from '../debrief/TemplateOffer.svelte';
   import MoreActions from '../ui/MoreActions.svelte';
   import StempelOffer from '../tourenpass/StempelOffer.svelte'; // Paket E 18: «Tourenpass mit Stempel»
+  import NebelOffer from '../sammlung/NebelOffer.svelte'; // Noah 27.11.2026: «Warst du über dem Nebel?» (winter trips)
   // SN2+ SN2e/SN2f: «Puls und Leistung» and «Aus Vorlage» in «Nicht gebraucht»
   import { liveQuery } from 'dexie';
   import { tick } from 'svelte';
@@ -827,6 +828,7 @@
           </section>
           <!-- Paket E 18 (Noah 03.11.2026 «E und F»): the stamp for the tour pass, after the look back -->
           <StempelOffer {trip} km={routeKm} />
+          <NebelOffer {trip} />
           <!-- Impeccable Runde 2 (Rückblick einer Tour 3): «Weiter» ends with one clear button (was the row «Packliste {Tour}») -->
           <p class="goon" data-go-next>
             {#if next}<Btn label={t('To the next trip: {name}', { name: next.title })} href="#/pack" onclick={() => openTrip(next.id)} />

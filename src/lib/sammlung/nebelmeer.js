@@ -92,3 +92,41 @@ export function winterCount(days, today) {
   const winter = winterOf(today) ?? y - 1;
   return { winter, n: (days ?? []).filter((d) => winterOf(d.date) === winter).length };
 }
+
+/**
+ * «Warst du über dem Nebel?» (Noah 27.11.2026 «wieder aufnehmen», the question left over from 4b): on the saved Rückblick of a
+ * trip in winter, a quiet question. «Yes» keeps the day on the Sammel-Wand (with the trip, so it is asked only once),
+ * «No thanks» is remembered for the trip. Nothing is asked about trips outside October to March, about days that are
+ * already kept and about trips that were turned down. No goal, no streak, nothing is kept without a tap.
+ * The turned-down trips live in their own setting (in every backup, no schema change): { declined: [tripId] }.
+ */
+export const ASK_KEY = 'fogSeaAsk';
+
+/** The stored ask state: only the trip ids that were turned down. */
+export function askStateOf(value) {
+  const list = Array.isArray(value?.declined) ? value.declined : [];
+  return { declined: [...new Set(list.filter((k) => typeof k === 'string' && k))].slice(-MAX_DAYS) };
+}
+
+/** The state with one trip turned down / asked again (the Undo of «No thanks»). */
+export const declineAsk = (state, tripId) => askStateOf({ declined: [...askStateOf(state).declined, tripId] });
+export const reopenAsk = (state, tripId) => askStateOf({ declined: askStateOf(state).declined.filter((k) => k !== tripId) });
+
+const addDays = (iso, n) => {
+  const d = new Date(`${iso}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+};
+
+/**
+ * What the question can offer for a trip: the days of the trip that lie in a winter and are not kept yet, in order.
+ * [] when there is nothing to ask: the trip has no start day, was turned down, already has a kept day, or no day is in a winter.
+ */
+export function askDays(trip, days, state) {
+  const start = trip?.startDate;
+  if (!trip?.id || !DAY.test(start ?? '')) return [];
+  if (askStateOf(state).declined.includes(trip.id)) return [];
+  if ((days ?? []).some((d) => d.tripId === trip.id)) return [];
+  const n = Math.max(1, Math.min(30, Math.round(Number(trip.days) || 1)));
+  return Array.from({ length: n }, (_, i) => addDays(start, i)).filter((date) => winterOf(date) != null && !hasDay(days, date));
+}
