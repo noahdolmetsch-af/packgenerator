@@ -408,8 +408,44 @@ export const feelZone = (f) => (Number.isFinite(f) && f >= 1 && f <= 10 ? Math.c
 /** The felt effort a zone stands for, as a span: Z2 → [3, 4]. */
 export const zoneFeel = (z) => (z >= 1 && z <= 5 ? [z * 2 - 1, z * 2] : null);
 
-/** A planned session is done when an activity of its kind is on its day. */
-export const doneBy = (s, acts) => acts.find((a) => a.day === s.day && (a.kind === s.kind || s.kind === 'other')) ?? (s.done ? { day: s.day, kind: s.kind, byHand: true } : null);
+const clock = (t) => (/^([01]\d|2[0-3]):[0-5]\d/.test(String(t ?? '')) ? Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5)) : null);
+
+/**
+ * Which activity fulfils which session of one day (Noah 27.11.2026: one Zwift ride of 28 minutes ticked both bike sessions of the
+ * day): each activity fulfils at most one session, the one that fits best. A session of the same sport comes before an «other»
+ * session; the fit is the distance between the start times when both have one, else between the minutes. → Map session id → activity.
+ */
+export function matchDay(sessions, acts) {
+  const pairs = [];
+  for (const s of sessions) {
+    for (const a of acts) {
+      if (a.day !== s.day || !(a.kind === s.kind || s.kind === 'other')) continue;
+      const ts = clock(s.time);
+      const ta = clock(a.time);
+      const gap = ts != null && ta != null ? Math.abs(ts - ta) : Math.abs((s.mins || 0) - Math.round((a.movingS || 0) / 60));
+      pairs.push({ s, a, same: a.kind === s.kind ? 0 : 1, gap });
+    }
+  }
+  pairs.sort((x, y) => x.same - y.same || x.gap - y.gap);
+  const out = new Map();
+  const used = new Set();
+  for (const { s, a } of pairs) {
+    if (out.has(s.id) || used.has(a)) continue;
+    out.set(s.id, a);
+    used.add(a);
+  }
+  return out;
+}
+
+/**
+ * A planned session is done when an activity of its kind is on its day. With `same` (the sessions of the plan) an activity
+ * fulfils only one of the sessions of its day (matchDay); without it every session of the kind counts as done (the old rule).
+ */
+export function doneBy(s, acts, same = null) {
+  const hand = s.done ? { day: s.day, kind: s.kind, byHand: true } : null;
+  if (!same) return acts.find((a) => a.day === s.day && (a.kind === s.kind || s.kind === 'other')) ?? hand;
+  return matchDay(same.filter((x) => x.day === s.day), acts.filter((a) => a.day === s.day)).get(s.id) ?? hand;
+}
 
 /** The plan for a new week from last week's, each session 7 days later (new ids). */
 export const copyWeek = (sessions, monday) =>
