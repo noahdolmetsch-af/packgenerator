@@ -14,6 +14,7 @@ export default {
   'Gemini is not set up on the server yet.': 'Gemini ist auf dem Server noch nicht eingerichtet.',
   'The question or the photo is too big. Make it shorter or take a smaller photo.': 'Die Frage oder das Foto ist zu gross. Mach die Frage kürzer oder nimm ein kleineres Foto.',
   'Gemini did not answer. Try again, or ask further below.': 'Gemini hat nicht geantwortet. Versuch es nochmals oder frag unten weiter.',
+  'Technical detail: {d}': 'Technische Angabe: {d}',
   'e.g. What do I wear at 5 °C in light rain?': 'z. B. Was ziehe ich bei 5 °C und leichtem Regen an?',
   'Your question for Gemini': 'Deine Frage an Gemini',
   'Do it for me': 'Mach es für mich',

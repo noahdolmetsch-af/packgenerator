@@ -7,6 +7,7 @@
    * Only the question and the photo go out (client.js), never your data. Without internet or when the free limit is used
    * up, the page says so and «Weiter fragen bei …» is there.
    */
+  import { tick } from 'svelte';
   import { Volume2, VolumeX, Camera, X, Sparkles, Check } from '@lucide/svelte';
   import { db } from '../db.js';
   import { t, lang } from '../i18n.svelte.js';
@@ -30,12 +31,14 @@
   let photo = $state(null); // { mime, data, preview }
   let busy = $state(false);
   let reason = $state(''); // why the last call failed
+  let detail = $state(''); // what the server says about a failed call (model names and codes), to understand it
   let answer = $state(''); // the last answer
   let askedText = $state(''); // the question it belongs to
   let plan = $state(null); // { actions, text } the preview of «Mach es für mich»
   let planNone = $state(false);
   let reading = $state(false);
   let fileEl = $state(null);
+  let rootEl = $state(null);
 
   const ERR = {
     offline: 'No internet. Gemini needs it. Ask the app, or write the question down for later.',
@@ -48,6 +51,7 @@
   function reset() {
     stopRead();
     reason = '';
+    detail = '';
     answer = '';
     plan = null;
     planNone = false;
@@ -71,7 +75,10 @@
     askedText = text;
     const r = await askGemini({ mode: 'ask', text, image: photo, lang: lang.v, today });
     busy = false;
-    if (!r.ok) return (reason = r.reason);
+    if (!r.ok) {
+      detail = r.detail ?? '';
+      return (reason = r.reason);
+    }
     answer = r.text ?? '';
     if (!answer) return (reason = 'failed');
     if (dict.read && canRead) read();
@@ -85,7 +92,10 @@
     askedText = text;
     const r = await askGemini({ mode: 'command', text, lang: lang.v, today });
     busy = false;
-    if (!r.ok) return (reason = r.reason);
+    if (!r.ok) {
+      detail = r.detail ?? '';
+      return (reason = r.reason);
+    }
     const actions = toActions(r.actions);
     if (!actions.length) return (planNone = true);
     plan = { actions, text };
@@ -112,11 +122,17 @@
     reason = '';
     photo = p;
   }
+  // The result (answer, plan or the reason it failed) comes to the top of the screen: on a phone it would sit under the bottom bar and
+  // the floating «Improve» button (it covered the first service button of a failed question, Noah 27.11.2026).
+  $effect(() => {
+    if (!answer && !reason && !plan) return;
+    tick().then(() => rootEl?.querySelector('.ag-res')?.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }));
+  });
   const spoken = (w) => (q = appendSpoken(q, w));
   $effect(() => () => reading && stopReading());
 </script>
 
-<section class="card ag" aria-labelledby="ag-h" data-gemini>
+<section class="card ag" aria-labelledby="ag-h" data-gemini bind:this={rootEl}>
   <h2 id="ag-h" class="ag-h">{t('Ask Gemini')}</h2>
   <form class="ag-row" onsubmit={ask}>
     <input class="inp" type="search" bind:value={q} placeholder={t('e.g. What do I wear at 5 °C in light rain?')} aria-label={t('Your question for Gemini')} autocomplete="off" data-gemini-q />
@@ -148,6 +164,7 @@
   {#if reason}
     <div class="ag-res" role="status" data-gemini-error={reason}>
       <p>{t(ERR[reason] ?? ERR.failed)}</p>
+      {#if detail && reason === 'failed'}<p class="ag-detail" data-gemini-detail>{t('Technical detail: {d}', { d: detail })}</p>{/if}
       {#if askedText && reason !== 'not_set_up'}<AskElsewhere q={askedText} />{/if}
     </div>
   {/if}
@@ -187,6 +204,15 @@
 </section>
 
 <style>
+  .ag-res {
+    scroll-margin-top: 72px;
+  }
+  .ag-detail {
+    margin: 4px 0 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    overflow-wrap: break-word;
+  }
   .ag {
     padding: var(--sp-3);
     border: 1px solid var(--card-line);

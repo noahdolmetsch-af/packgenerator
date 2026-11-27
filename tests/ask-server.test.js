@@ -1,6 +1,6 @@
 // «Frag Gemini» (Noah 23.11.2026): /api/ask hands a question to Gemini's free tier. Gemini is replaced by a fake answer here.
-import { describe, it, expect } from 'vitest';
-import { cleanBody, geminiRequest, answerText, parseJson, pointsOf, actionsOf, modelsOf, askGemini, shape, instructionFor, DEFAULT_MODEL, MAX_TEXT } from '../api/_lib/ask.js';
+import { describe, it, expect, beforeEach } from 'vitest';
+import { cleanBody, geminiRequest, answerText, parseJson, pointsOf, actionsOf, modelsOf, askGemini, flashModelsOf, forgetModel, shape, instructionFor, DEFAULT_MODEL, MAX_TEXT } from '../api/_lib/ask.js';
 import { makeHandler } from '../api/ask.js';
 import { DAY_CAPS } from '../api/_lib/daycap.js';
 
@@ -76,6 +76,7 @@ describe('request and answer', () => {
 });
 
 describe('askGemini', () => {
+  beforeEach(forgetModel);
   const req = { mode: 'ask', text: 'Hi', image: null, lang: 'de' };
   it('uses the default model and the key in a header, never in the address', async () => {
     const seen = [];
@@ -94,9 +95,47 @@ describe('askGemini', () => {
   it('says busy when every model is over its free limit', async () => {
     await expect(askGemini(req, { key: 'k', models: ['a', 'b'], doFetch: async () => stat(429) })).rejects.toMatchObject({ status: 429, code: 'busy' });
   });
-  it('says not set up without a key, and unavailable when Gemini refuses', async () => {
+  it('tries the next model also when one refuses the request (400, 403)', async () => {
+    const calls = [];
+    const doFetch = async (url) => (calls.push(url), calls.length === 1 ? stat(403) : calls.length === 2 ? stat(400) : okRes(gem('ok')));
+    expect(await askGemini(req, { key: 'k', models: ['a', 'b', 'c'], doFetch })).toEqual({ text: 'ok' });
+    expect(calls).toHaveLength(3);
+  });
+  it('reads the key own model list when every listed model fails, takes the newest flash and remembers it', async () => {
+    const list = { models: [
+      { name: 'models/gemini-2.5-flash', supportedGenerationMethods: ['generateContent'] },
+      { name: 'models/gemini-3.8-flash-lite', supportedGenerationMethods: ['generateContent'] },
+      { name: 'models/gemini-3.8-flash', supportedGenerationMethods: ['generateContent'] },
+      { name: 'models/gemini-3.8-flash-image', supportedGenerationMethods: ['generateContent'] },
+      { name: 'models/gemini-3.9-flash', supportedGenerationMethods: ['embedContent'] },
+    ] };
+    const seen = [];
+    const doFetch = async (url) => {
+      seen.push(url);
+      if (url.includes('/models?')) return okRes(list);
+      return url.includes('/models/gemini-3.8-flash:') ? okRes(gem('neu')) : stat(404);
+    };
+    expect(await askGemini(req, { key: 'k', models: ['old-a', 'old-b'], doFetch })).toEqual({ text: 'neu' });
+    expect(seen.filter((u) => u.includes('/models?'))).toHaveLength(1);
+    // the next question goes straight to the model that worked
+    const seen2 = [];
+    expect(await askGemini(req, { key: 'k', models: ['old-a'], doFetch: async (u) => (seen2.push(u), okRes(gem('zwei'))) })).toEqual({ text: 'zwei' });
+    expect(seen2).toHaveLength(1);
+    expect(seen2[0]).toContain('/models/gemini-3.8-flash:');
+  });
+  it('lists only text models: flash and flash-lite with a version, newest first', () => {
+    expect(flashModelsOf({ models: [
+      { name: 'models/gemini-2.5-flash-lite', supportedGenerationMethods: ['generateContent'] },
+      { name: 'models/gemini-3.5-flash', supportedGenerationMethods: ['generateContent'] },
+      { name: 'models/gemini-3.5-flash-lite', supportedGenerationMethods: ['generateContent'] },
+      { name: 'models/gemini-3.5-flash-tts', supportedGenerationMethods: ['generateContent'] },
+      { name: 'models/gemini-2.5-pro', supportedGenerationMethods: ['generateContent'] },
+    ] })).toEqual(['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-2.5-flash-lite']);
+    expect(flashModelsOf(null)).toEqual([]);
+  });
+  it('says not set up without a key, and unavailable (with the codes it saw) when Gemini refuses', async () => {
     await expect(askGemini(req, { key: '' })).rejects.toMatchObject({ status: 503, code: 'not_set_up' });
-    await expect(askGemini(req, { key: 'k', doFetch: async () => stat(403) })).rejects.toMatchObject({ status: 502, code: 'ai_unavailable' });
+    await expect(askGemini(req, { key: 'k', models: ['zz-never'], doFetch: async () => stat(403) })).rejects.toMatchObject({ status: 502, code: 'ai_unavailable', extra: { tried: ['zz-never:403', 'list:403'] } });
     await expect(askGemini(req, { key: 'k', models: ['a'], doFetch: async () => { throw new Error('net'); } })).rejects.toMatchObject({ code: 'ai_unavailable' });
   });
   it('reads the model list from the settings', () => {
