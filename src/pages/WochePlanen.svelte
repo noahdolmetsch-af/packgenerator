@@ -41,7 +41,7 @@
       .then((f) => (forecast = f))
       .catch(() => (forecast = null));
   });
-  const week = $derived(src ? buildWeek({ ...src, forecast, hide: [], monday, today, goalHours: src.goal?.hours ?? null, actName: (id) => actName(actOf.get(id)) || id }) : null);
+  const week = $derived(src ? buildWeek({ ...src, forecast, hide: [], monday, today, goalHours: src.goalHours ?? null, actName: (id) => actName(actOf.get(id)) || id }) : null);
 
   const STEPS = [
     { n: 1, name: 'What is fixed' },
@@ -173,7 +173,7 @@
       {:else if step === 2}
         <h2 id="wpl-h">{t('Spread the training')}</h2>
         <p class="why">
-          {#if src.goal?.hours}{t('Training plan: {goal} a week · planned {have}', { goal: hours(Math.round(src.goal.hours * 60)), have: hours(plannedMins) })}{:else}{t('Planned this week: {have}', { have: hours(plannedMins) })}{/if}
+          {#if src.goalHours}{t('Training plan: {goal} a week · planned {have}', { goal: hours(Math.round(src.goalHours * 60)), have: hours(plannedMins) })}{:else}{t('Planned this week: {have}', { have: hours(plannedMins) })}{/if}
         </p>
         <ul class="rows">
           {#each sessions as s (s.id)}

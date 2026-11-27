@@ -54,7 +54,7 @@
       .then((f) => (forecast = f))
       .catch(() => (forecast = null));
   });
-  const week = $derived(src ? buildWeek({ ...src, forecast, monday, today, goalHours: src.goal?.hours ?? null, actName: (id) => actName(actOf.get(id)) || id }) : null);
+  const week = $derived(src ? buildWeek({ ...src, forecast, monday, today, goalHours: src.goalHours ?? null, actName: (id) => actName(actOf.get(id)) || id }) : null);
   // «Planen als verbindende Mitte» 5a: «For 2.–8. Nov.» instead of a bare number range
   const rangeLong = $derived(`${new Date(`${monday}T12:00:00Z`).getUTCDate()}.–${new Date(`${shiftDay(monday, 6)}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', day: 'numeric', month: 'short' })}`);
   const range = $derived(`${shortDate(monday)}–${shortDate(shiftDay(monday, 6))}`);
