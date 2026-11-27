@@ -5,9 +5,11 @@
    */
   import { Plus, Minus, Maximize2, LocateFixed, X } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
+  import MapTip from './MapTip.svelte';
 
   let { zoom, title = '', children } = $props();
   let full = $state(false);
+  let frameW = $state(0);
   $effect(() => {
     if (!full) return;
     const old = document.body.style.overflow;
@@ -17,15 +19,16 @@
 </script>
 
 <svelte:window onkeydown={(e) => full && e.key === 'Escape' && ((full = false), e.stopPropagation())} />
-<div class="zb" class:full role={full ? 'dialog' : undefined} aria-modal={full ? 'true' : undefined} aria-label={full ? title || t('Map') : undefined}>
+<div class="zb" bind:clientWidth={frameW} class:full role={full ? 'dialog' : undefined} aria-modal={full ? 'true' : undefined} aria-label={full ? title || t('Map') : undefined}>
   {#if full}<div class="zb-top"><b>{title || t('Map')}</b><button type="button" class="zb-x" onclick={() => (full = false)} data-zoom-close aria-label={t('Close')}><X size={20} aria-hidden="true" /></button></div>{/if}
   {@render children()}
   <div class="zb-btns" role="group" aria-label={t('Zoom')}>
-    <button type="button" aria-label={t('Zoom in')} onclick={() => zoom.zoomBy(1.7)} disabled={zoom.z >= zoom.max - 0.01} data-zoom-in><Plus size={18} aria-hidden="true" /></button>
-    <button type="button" aria-label={t('Zoom out')} onclick={() => zoom.zoomBy(1 / 1.7)} disabled={!zoom.zoomed} data-zoom-out><Minus size={18} aria-hidden="true" /></button>
-    <button type="button" aria-label={t('Whole map')} onclick={() => zoom.reset()} disabled={!zoom.zoomed} data-zoom-reset><LocateFixed size={18} aria-hidden="true" /></button>
+    <button type="button" aria-label={t('Zoom in')} onclick={() => zoom.zoomBy(1.7)} disabled={zoom.z >= zoom.max - 0.01} data-zoom-in><Plus size={20} aria-hidden="true" /></button>
+    <button type="button" aria-label={t('Zoom out')} onclick={() => zoom.zoomBy(1 / 1.7)} disabled={!zoom.zoomed} data-zoom-out><Minus size={20} aria-hidden="true" /></button>
+    <button type="button" aria-label={t('Whole map')} onclick={() => zoom.reset()} disabled={!zoom.zoomed} data-zoom-reset><LocateFixed size={20} aria-hidden="true" /></button>
     {#if !full}<button type="button" aria-label={t('Full screen')} onclick={() => (full = true)} data-zoom-full><Maximize2 size={16} aria-hidden="true" /></button>{/if}
   </div>
+  <MapTip tip={zoom.tip} width={frameW} />
   {#if zoom.hint}<p class="zb-hint" role="status">{t('Ctrl and scroll, or pinch, to zoom')}</p>{/if}
 </div>
 
@@ -78,7 +81,7 @@
     gap: 1px;
     border-radius: var(--r-ctl);
     overflow: hidden;
-    box-shadow: var(--shadow-1, 0 1px 4px rgb(0 0 0 / 0.18));
+    box-shadow: var(--shadow-1);
     background: var(--line);
   }
   .full .zb-btns {
@@ -110,9 +113,9 @@
     margin: 0;
     padding: 8px 14px;
     border-radius: var(--r-ctl);
-    background: rgb(0 0 0 / 0.72);
-    color: #fff;
-    font-size: var(--fs-sm, 0.9rem);
+    background: var(--ink);
+    color: var(--paper);
+    font-size: var(--fs-small);
     pointer-events: none;
     text-align: center;
   }

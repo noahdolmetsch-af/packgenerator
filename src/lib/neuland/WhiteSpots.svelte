@@ -68,7 +68,7 @@
     for (const x of spots.near) b = [Math.min(b[0], x.bbox[0]), Math.min(b[1], x.bbox[1]), Math.max(b[2], x.bbox[2]), Math.max(b[3], x.bbox[3])];
     const vb = `${(b[0] * k).toFixed(4)} ${(-b[3]).toFixed(4)} ${((b[2] - b[0]) * k).toFixed(4)} ${(b[3] - b[1]).toFixed(4)}`;
     const r = ((b[2] - b[0]) * k) / 70;
-    return { vb, base: [b[0] * k, -b[3], (b[2] - b[0]) * k, b[3] - b[1]], k, r, home: [Number(home.lon) * k, -Number(home.lat)], areas: spots.near.map((x) => ({ id: x.id, been: x.been, d: pathOf(x.rings, k, 4) })) };
+    return { vb, base: [b[0] * k, -b[3], (b[2] - b[0]) * k, b[3] - b[1]], k, r, home: [Number(home.lon) * k, -Number(home.lat)], areas: spots.near.map((x) => ({ id: x.id, name: x.kt ? `${x.name} (${x.kt})` : x.name, been: x.been, d: pathOf(x.rings, k, 4) })) };
   });
   // Noah 27.11.2026 «karte zoombar»: + − «Whole map», Ctrl and wheel, two fingers, drag, full screen (kartezoom.svelte.js, ZoomBox.svelte)
   const zoom = createZoom({ base: () => map?.base ?? [0, 0, 1, 1] });
@@ -121,7 +121,7 @@
           <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions, a11y_no_noninteractive_tabindex -->
           <svg class="ws-map" class:zoomed={zoom.zoomed} viewBox={zoom.vb} role="img" aria-label={t('Map of the municipalities around your home')} tabindex="0" use:zoom.attach {...zoom.events} onclick={zoom.tap(tapMap)} style:--zk={1 / zoom.z} data-ws-map data-zoom={zoom.z.toFixed(2)}>
             {#each map.areas as a (a.id)}
-              <path d={a.d} class:been={a.been} class:on={a.id === picked} stroke-width={map.r / 6 / zoom.z} data-ws-area={a.id}></path>
+              <path d={a.d} class:been={a.been} class:on={a.id === picked} stroke-width={map.r / 6 / zoom.z} data-ws-area={a.id} data-name={a.name}></path>
             {/each}
             <circle cx={map.home[0]} cy={map.home[1]} r={map.r / Math.pow(zoom.z, 0.7)} class="home" stroke-width={map.r / 2.5 / Math.pow(zoom.z, 0.7)}></circle>
           </svg>

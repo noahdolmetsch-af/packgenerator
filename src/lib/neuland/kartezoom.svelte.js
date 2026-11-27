@@ -6,12 +6,13 @@
  * zoom.z is the zoom now (1 = the whole map); draw strokes and dots with 1 / zoom.z so they keep their size on the screen.
  * Buttons, the hint and the full screen come with ZoomBox.svelte.
  */
-import { zoomAt, clampView, pinch, MAX_ZOOM, visibleBox } from './kartezoom.js';
+import { zoomAt, clampView, pinch, MAX_ZOOM, visibleBox, tipOf } from './kartezoom.js';
 
 export function createZoom({ base, max = () => MAX_ZOOM }) {
   let view = $state({ z: 1, cx: null, cy: null });
   let svg = null;
   let hint = $state(false);
+  let tip = $state(null);
   let hintTimer;
   let moved = false;
   let last = null;
@@ -65,6 +66,7 @@ export function createZoom({ base, max = () => MAX_ZOOM }) {
       last = null;
     },
     onpointermove(e) {
+      tip = pts.size ? null : tipOf(e, svg?.parentElement);
       if (!pts.has(e.pointerId)) return;
       const prev = pts.get(e.pointerId);
       const now = { x: e.clientX, y: e.clientY };
@@ -103,6 +105,9 @@ export function createZoom({ base, max = () => MAX_ZOOM }) {
         if (now - lastTap < 320 && !e.target?.closest?.('[data-zoom-keep]')) zoomBy(2.2, toSvg(e.clientX, e.clientY));
         lastTap = now;
       }
+    },
+    onpointerleave() {
+      tip = null;
     },
     onpointercancel(e) {
       pts.delete(e.pointerId);
@@ -143,6 +148,9 @@ export function createZoom({ base, max = () => MAX_ZOOM }) {
     },
     get hint() {
       return hint;
+    },
+    get tip() {
+      return tip;
     },
     zoomBy,
     reset() {
