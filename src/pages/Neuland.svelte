@@ -295,6 +295,10 @@
                 <p class="legend"><span class="sw year"></span>{mode === 'year' ? t('New in {year}', { year }) : t('Been there')} {#if mode === 'year'}<span class="sw old"></span>{t('Earlier years')}{/if}<span class="sw no"></span>{t('Not yet')}</p>
               </div>
             {/if}
+            <!-- «Weisse Flecken ausbauen» (Noah 27.11.2026 «2a»): from the municipalities to the ones you have never been to around home -->
+            {#if cur.id === 'municipalities'}
+              <a class="btn btn-link nl-spots" href="#/trips/dreams?spots=1" data-nl-spots>{t('White spots nearby')} ›</a>
+            {/if}
             {#if cur.id === 'cantons' && card}
               <div class="rv-box pad">
                 <h3 class="nl-h3">{t('Canton bingo {year}', { year })}</h3>
@@ -488,6 +492,9 @@
   .nl-hint :global(svg) {
     flex: none;
     margin-top: 1px;
+  }
+  .nl-spots {
+    justify-self: start;
   }
   .nl-sec {
     margin-top: 18px;

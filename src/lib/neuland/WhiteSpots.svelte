@@ -2,22 +2,25 @@
   /**
    * «Weisse Flecken in der Nähe» (Träume und Neuland N1, Noah 27.10.2026 «1-5 a»), on Touren › Träume: the
    * municipalities around your home place on a small map, the ones you have been to filled, the others with a
-   * dashed edge, and the nearest «never been» as a list. Radius 10, 25 or 50 km (setting SPOTS_KEY). A tap on
+   * dashed edge, and the nearest «never been» as a list. Radius 10 to 100 km or typed (setting SPOTS_KEY). A tap on
    * a place shows its name and distance. Visits come from Neuland (routes, rides and your own ticks), even
    * when the collection «Municipalities» is switched off there. No home place: one button sets it.
    * The data (2134 municipalities) loads only here, as its own file.
    * N2 «Neuland-Runde»: a picked place offers «Round through it» (SpotRoundSheet.svelte, runde.js).
+   * «Weisse Flecken ausbauen» (Noah 27.11.2026 «1b 2a 3a 4a 5b»): radius 10, 25, 50, 75, 100 km or typed (5 to 200); «Where is the
+   * most new?» per direction; far places hint at «Train there, bike home»; a link to New ground (and back: #/trips/dreams?spots=1
+   * scrolls here).
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { readRaw, computeFrom } from './store.js';
-  import { whiteSpots, spotsCfg, SPOTS_KEY, SPOT_RADII } from './flecken.js';
+  import { whiteSpots, spotsCfg, directions, SPOTS_KEY, SPOT_RADII, SPOT_MIN, SPOT_MAX, TRAIN_KM } from './flecken.js';
   import { pathOf } from './geo.js';
   import Seg from '../ui/Seg.svelte';
   import HomePlaceSheet from '../ich/HomePlaceSheet.svelte';
   import SpotRoundSheet from './SpotRoundSheet.svelte'; // N2 «Neuland-Runde»
   import { t, tn, num } from '../i18n.svelte.js';
-  import { MapPin, Route } from '@lucide/svelte';
+  import { MapPin, Route, TrainFront } from '@lucide/svelte';
 
   const rawQ = liveQuery(() => readRaw(db));
   const cfgQ = liveQuery(() => db.settings.get(SPOTS_KEY));
@@ -44,6 +47,16 @@
   let placeOpen = $state(false);
   let roundTo = $state(null); // N2: the place a round goes through
   const LIST = 5;
+  const where = $derived(spots ? directions(spots.near, home).slice(0, 4) : []);
+  // #/trips/dreams?spots=1 (the link in New ground): scroll to this part once the map is there
+  let box = $state(null);
+  let jumped = false;
+  $effect(() => {
+    if (jumped || !box || !spots || typeof location === 'undefined' || !/[?&]spots=1/.test(location.hash)) return;
+    jumped = true;
+    box.scrollIntoView({ block: 'start' });
+  });
+  const goTrain = () => document.querySelector('[data-train-home]')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
 
   // the map: a box around the near places, x = lon · cos(lat)
   const map = $derived.by(() => {
@@ -60,11 +73,15 @@
     const id = e.target?.closest?.('[data-ws-area]')?.getAttribute('data-ws-area');
     if (id) picked = id;
   }
-  const setRadius = (v) => db.settings.put({ key: SPOTS_KEY, value: { radius: Number(v) } });
+  const setRadius = (v) => db.settings.put({ key: SPOTS_KEY, value: { radius: Math.min(SPOT_MAX, Math.max(SPOT_MIN, Math.round(Number(v)) || cfg.radius)) } });
+  const typed = (e) => {
+    setRadius(e.currentTarget.value);
+    e.currentTarget.value = String(Math.min(SPOT_MAX, Math.max(SPOT_MIN, Math.round(Number(e.currentTarget.value)) || cfg.radius)));
+  };
   const kmText = (x) => `${num(x.km)} km`;
 </script>
 
-<section class="ich-sec" aria-labelledby="ws-h" data-white-spots>
+<section class="ich-sec" aria-labelledby="ws-h" data-white-spots bind:this={box}>
   <div class="ich-h">
     <div>
       <h2 id="ws-h">{t('White spots nearby')}</h2>
@@ -84,7 +101,10 @@
     <div class="card ich-body ws">
       <div class="ws-top">
         <p class="ws-sum" data-ws-sum>{tn(spots.open.length, '{n} municipality you have never been to', '{n} municipalities you have never been to')} · {t('{n} of {all} within {km} km visited', { n: spots.been, all: spots.near.length, km: cfg.radius })}</p>
-        <Seg small full={false} label={t('Radius|spots')} value={String(cfg.radius)} onchange={setRadius} options={SPOT_RADII.map((r) => ({ key: String(r), name: `${r} km` }))} />
+        <div class="ws-rad">
+          <Seg small full={false} label={t('Radius|spots')} value={String(cfg.radius)} onchange={setRadius} options={SPOT_RADII.map((r) => ({ key: String(r), name: `${r} km` }))} />
+          <label class="ws-own"><span>{t('Other radius')}</span><input type="number" inputmode="numeric" min={SPOT_MIN} max={SPOT_MAX} step="1" value={cfg.radius} onchange={typed} data-ws-radius /><span aria-hidden="true">km</span></label>
+        </div>
       </div>
       {#if map}
         <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
@@ -101,6 +121,18 @@
           <p class="ws-pick" role="status" data-ws-pick>{pick.name} · {kmText(pick)} · {pick.been ? t('been there') : t('never been')}</p>
           <button type="button" class="btn sm" onclick={() => (roundTo = pick)} data-ws-round><Route size={16} aria-hidden="true" />{t('Round through it')}</button>
         </div>
+        {#if pick.km >= TRAIN_KM}
+          <p class="ws-train" data-ws-train><TrainFront size={16} aria-hidden="true" /><span>{t('Far away: by train there and by bike home is easier.')} <button type="button" class="btn btn-link" onclick={goTrain}>{t('Train there, bike home')} ›</button></span></p>
+        {/if}
+      {/if}
+      {#if where.length}
+        <h3 class="ws-lh">{t('Where is the most new?')}</h3>
+        <p class="ws-lead">{t('Never visited, of all municipalities within {km} km, by direction.', { km: cfg.radius })}</p>
+        <ul class="ws-list" data-ws-where>
+          {#each where as d (d.sector)}
+            <li><span class="ws-row"><span>{t(d.sector)} · {t('{n} of {all}', { n: d.open, all: d.all })}</span><small class="num">{t('from {km} km', { km: num(d.nearest) })}</small></span></li>
+          {/each}
+        </ul>
       {/if}
       {#if spots.open.length}
         <h3 class="ws-lh">{t('Nearest never visited')}</h3>
@@ -115,6 +147,7 @@
       {:else}
         <p class="ich-help">{t('You have been to every municipality within {km} km. Try a bigger radius.', { km: cfg.radius })}</p>
       {/if}
+      <a class="btn btn-link ws-nl" href="#/neuland" data-ws-neuland>{t('All municipalities in New ground')} ›</a>
     </div>
   {/if}
 </section>
@@ -132,6 +165,44 @@
     gap: var(--sp-2) var(--sp-3);
     align-items: center;
     justify-content: space-between;
+  }
+  .ws-rad {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2) var(--sp-3);
+    align-items: center;
+  }
+  .ws-own {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .ws-own input {
+    width: 72px;
+    min-height: 44px;
+    padding: 0 8px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-ctl);
+    background: var(--paper);
+    color: var(--ink);
+    font: 500 var(--fs-body, 16px) var(--font-body);
+  }
+  .ws-train {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .ws-train :global(svg) {
+    flex-shrink: 0;
+    margin-top: 14px;
+  }
+  .ws-nl {
+    justify-self: start;
   }
   .ws-pickrow {
     display: flex;
@@ -239,7 +310,13 @@
   .ws-row.on span {
     font-weight: 600;
   }
+  .ws-lead {
+    margin: calc(var(--sp-2) * -1) 0 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
   .ws-row small {
+    white-space: nowrap;
     color: var(--ink-2);
   }
 </style>
