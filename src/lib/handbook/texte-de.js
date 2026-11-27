@@ -39,7 +39,7 @@ export default {
   'Example: the sleeping bag weighs 812 g instead of the guessed 900 g.': 'Beispiel: der Schlafsack wiegt 812 g statt der geschätzten 900 g.',
   'Open an item and tap the ★.': 'Öffne ein Teil und tippe auf den ★.',
   'Example: ★ on your best headlamp and lightest jacket.': 'Beispiel: ★ auf deine beste Stirnlampe und die leichteste Jacke.',
-  'Open Gear › Shopping and add what you want to buy, with price and weight.': 'Öffne Material › Einkauf und trage ein, was du kaufen willst, mit Preis und Gewicht.',
+  'Open Gear › Shopping and add what you want to buy, with price and weight.': 'Öffne Material › Wunschliste und trage ein, was du kaufen willst, mit Preis und Gewicht.',
   'The list shows which buy saves the most grams per franc.': 'Die Liste zeigt, welcher Kauf am meisten Gramm pro Franken spart.',
   'Example: a 300 g lighter tent for 250 francs beats a 40 g lighter cup for 30.': 'Beispiel: ein 300 g leichteres Zelt für 250 Franken schlägt eine 40 g leichtere Tasse für 30.',
   'Needs items and trips from at least a few months.': 'Braucht Teile und Touren aus mindestens ein paar Monaten.',

@@ -14,7 +14,7 @@ async function openGear(page, context, info, hash = '#/gear') {
   await page.evaluate(() => localStorage.setItem('gear.display', 'cards'));
   await page.goto(`./${hash}`);
   // Impeccable (18.10.2026): the tab «Einkauf» has its own title
-  await expect(page.getByRole('heading', { level: 1, name: hash.includes('view=wish') ? 'Einkauf' : 'Material' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: hash.includes('view=wish') ? 'Wunschliste' : 'Material' })).toBeVisible();
 }
 const views = (page) => page.getByRole('group', { name: 'Ansichten' });
 const cards = (page) => page.locator('.cards .mcard');
@@ -39,7 +39,7 @@ test('the views: counts on the buttons, each filters the cards and stays in the 
   await expect(views(page).locator('[data-view="wish"]')).toHaveCount(0);
   await page.goto('./#/gear?view=wish');
   await expect(cards(page)).toHaveCount(COUNTS.wish);
-  await expect(page.getByRole('heading', { level: 1, name: 'Einkauf' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Wunschliste' })).toBeVisible();
   await page.goto('./#/gear');
   // the right items in the views
   await openViews(page);
@@ -66,11 +66,11 @@ test('Einkauf: own head with the numbers, «Gekauft» moves a wish to my gear wi
   await openGear(page, context, info, '#/gear?view=wish');
   await page.evaluate(() => localStorage.setItem('gear.display', 'list'));
   await page.reload();
-  await expect(page.getByRole('heading', { level: 1, name: 'Einkauf' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Wunschliste' })).toBeVisible();
   await expect(page.locator('.page-sub')).toHaveText('2 Wünsche · 360 g · 2 ohne Preis');
   await expect(page.getByText('Noch nicht gekauft und in keiner Summe.', { exact: false })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Wunschliste & zu kaufen' })).toHaveCount(0);
-  const wish = page.getByRole('region', { name: 'Einkauf' });
+  const wish = page.getByRole('region', { name: 'Wunschliste' });
   await wish.getByRole('button', { name: 'Gekauft: Ultralight tarp' }).click();
   const bar = page.getByRole('status').filter({ hasText: '«Ultralight tarp» ist jetzt in deinem Material.' });
   await expect(bar).toBeVisible();

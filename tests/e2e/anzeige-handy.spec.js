@@ -11,7 +11,7 @@ test('Einkauf empty: the card speaks of wishes and offers to add one', async ({ 
   await expect(page.getByText('No wishes yet')).toBeVisible();
   await expect(page.getByText('No gear yet')).toHaveCount(0);
   await expect(page.getByText('No wishlist items match.')).toHaveCount(0);
-  await page.getByRole('button', { name: 'Add a wish' }).click();
+  await page.getByRole('button', { name: 'Add a wish' }).first().click(); // the card; the thumb button at the bottom has the same name
   await expect(page.getByRole('dialog')).toBeVisible();
 });
 
