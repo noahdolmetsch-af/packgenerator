@@ -1,6 +1,6 @@
 # Wetter: ein Weg weiter zum Packen
 
-PR #NNNN · 27.11.2026 · Auftrag: Nachtlauf 27.11. rot, Wege-Wächter (Sackgasse auf `#/wetter`)
+PR #1825 · 27.11.2026 · Auftrag: Nachtlauf 27.11. rot, Wege-Wächter (Sackgasse auf `#/wetter`)
 
 ## Was ist neu
 - In der leisen Zeile «Als Nächstes:» am Ende von Wetter (erster Teil) steht ein dritter Schritt «Packen für den Tag» (Link auf `#/pack`). Sonst ändert sich nichts an der Wetter-Seite.
