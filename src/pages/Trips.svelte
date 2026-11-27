@@ -549,9 +549,14 @@ import { normState, skKey } from '../lib/sk/tiles.js';
       {#if !onRides && plan.length}<a class="btn btn-link racelink" href="#/ride" data-to-ontheway><Route size={16} aria-hidden="true" />{t('On the way')} ›</a>{/if}
       <!-- «Knopf-Formen» (Noah 24.11.2026 «7»): three kinds in this row: the main action, the side actions as quiet text links (an outside page gets the arrow) -->
       {#if !onRides}<button type="button" class="btn btn-link racelink" data-to-komoot onclick={() => window.open(komootFindUrl(), '_blank', 'noopener')}><ExternalLink size={16} aria-hidden="true" />{t('Tour from komoot')}</button>{/if}
-      <Btn icon={Upload} label={t('Upload ride')} href="#/debrief/ride" />
+      <!-- «Touren: laufende Tour zuerst» (Noah «1-5a» 24.11.2026, impeccable F2): «Upload ride» is a quiet link under «Planned» once there are trips -->
+      {#if onRides || view?.empty}<Btn icon={Upload} label={t('Upload ride')} href="#/debrief/ride" />{/if}
     </div>
   </header>
+  <!-- the band of the running trip («On the way · day n of m», or «Packing mode») comes first, right under the title -->
+  {#if !onRides && view && !view.empty && tours.band !== 'hidden' && topBand}
+    <PackBand band={topBand} extra={!ride && bandRow ? extraOf(bandRow) : ''} onhide={() => saveTours({ band: 'hidden' })} />
+  {/if}
   <!-- «Ein Filter auf Touren» (Noah 26.11.2026 «Ja», «a»): one field and four buttons behind the title, they filter the list «Meine Touren» -->
   {#if !onRides}<TourBar bind:word bind:year={yearSel} bind:filter counts={barCounts} years={barYears} {bikes} kinds={barKinds} n={chips.length} shown={rows.length} total={inPeriod.length} onlist={showList} onmore={() => (sheet = true)} />{/if}
   {#if !onRides}<PackKarten />{/if}
@@ -563,7 +568,6 @@ import { normState, skKey } from '../lib/sk/tiles.js';
     <!-- Gesamttest 20.10.2026 B3 (Noah «3a»): every Strava activity, with its filters, tiles, map and calendar (AT1, Tour-Seite) -->
     {#if $actsQ}{@render actList()}{:else}<Skeleton rows={4} />{/if}
   {:else}
-  {#if oldRows.length && !side}{@render saBand()}{/if}
   {#if view}
     {#if view.empty}
       <!-- Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
@@ -581,9 +585,6 @@ import { normState, skKey } from '../lib/sk/tiles.js';
       <HintCard page="trips" intro="touren" foldedOnPhone only={phone.matches ? 'card' : ''} />
       {#if !phone.matches && !side}<TipLine page="trips" name={t('Trips|place')} />{/if}
       <!-- SN4g: the band «Packmodus» (answer 1b), a suggestion: «×» hides it, a quiet link brings it back -->
-      {#if tours.band !== 'hidden' && topBand}
-        <PackBand band={topBand} extra={!ride && bandRow ? extraOf(bandRow) : ''} onhide={() => saveTours({ band: 'hidden' })} />
-      {/if}
 
       <!-- Paket M (#1002, Noah «5a» 14.10.2026): «Offene Rückblicke» first, what is still to talk about -->
       <!-- Handy kurz: on a phone the open debriefs stay in the folded tiles at the end («Packmodus» counts them) -->
@@ -624,6 +625,10 @@ import { normState, skKey } from '../lib/sk/tiles.js';
             <a class="qa" href="#/pack/templates">{t('All templates')}<ChevronRight size={16} aria-hidden="true" /></a>
           </div>
         {/if}
+        <!-- «Touren: laufende Tour zuerst»: «Upload ride» is a quiet link here instead of a button on top (komoot stays the quiet link in the head, «Knopf-Formen») -->
+        <p class="quietrow" data-trips-quiet>
+          <a href="#/debrief/ride" data-upload-ride>{t('Upload ride')}</a>
+        </p>
         {#if plan.length}
           <ul class="pcards">
             {#each planShown as r (r.id)}
@@ -784,6 +789,8 @@ import { normState, skKey } from '../lib/sk/tiles.js';
     <Skeleton rows={4} />
   {/if}
   {/if}
+  <!-- «Touren: laufende Tour zuerst»: the band «New: every trip has a sport» waits at the end of the page, before «All here» -->
+  {#if !onRides && !side && oldRows.length}{@render saBand()}{/if}
   <!-- Hilfen neu 1b (Noah 21.11.2026): «Alles hier» at the end of the page, as one line -->
   {#if !onRides}<AllHere area="trips" />{/if}
 </div>
@@ -812,6 +819,27 @@ import { normState, skKey } from '../lib/sk/tiles.js';
     justify-content: space-between;
     gap: 8px 16px;
     margin: 0 0 var(--sp-4);
+  }
+  .quietrow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 10px;
+    margin: 0 0 8px;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .quietrow a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    color: var(--hi);
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
   }
   .ph-acts {
     display: flex;

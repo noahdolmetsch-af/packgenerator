@@ -72,3 +72,16 @@ test('the tour line on Starte hier starts the Rundgang der Stärken', async ({ p
   await expect(page).toHaveURL(/#\/race\/race-sample/);
   expect(errors).toEqual([]);
 });
+
+// Noah 27.11.2026 «1a»: the tour is also at the end of Heute for everybody, not only on the empty app («Starte hier»)
+test('the end of Heute has the tour for every app and it starts the Rundgang der Staerken', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('./');
+  const end = page.locator('[data-home-end] [data-tour-end]');
+  await expect(end).toContainText(T('Tour of the strengths'));
+  await end.click();
+  await expect(page.locator('#tour-h')).toHaveText(T(S[0].title));
+  await expect(page.locator('.tcard')).toContainText(T('Station {n} of {of}').replace('{n}', '1').replace('{of}', '4'));
+  expect(errors).toEqual([]);
+});
