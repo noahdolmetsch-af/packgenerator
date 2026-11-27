@@ -20,7 +20,7 @@ const bpm = (v) => (Number.isFinite(Number(v)) && Number(v) > 30 ? Math.round(Nu
  * from, to: YYYY-MM-DD, both inside.
  */
 export function pulsePairs({ health = [], activities = [], from, to }) {
-  const out = [];
+  const byAct = new Map(); // one Strava recording counts once, even when the watch kept several workouts inside it
   for (const h of health) {
     const day = h?.date;
     if (!day || day < from || day > to || !Array.isArray(h.exercises)) continue;
@@ -31,9 +31,13 @@ export function pulsePairs({ health = [], activities = [], from, to }) {
       const g = bpm(a.hrAvg);
       const f = bpm(ex.hr);
       if (g == null || f == null) continue;
-      out.push({ day, name: a.name || ex.name || '', garmin: g, fitbit: f, diff: f - g });
+      const pair = { day, name: a.name || ex.name || '', garmin: g, fitbit: f, diff: f - g, min: Number(ex.min) || 0 };
+      const key = a.id ?? `${day}|${a.time}|${a.name}`;
+      const had = byAct.get(key);
+      if (!had || pair.min > had.min) byAct.set(key, pair);
     }
   }
+  const out = [...byAct.values()].map(({ min, ...p }) => p);
   return out.sort((x, y) => (x.day < y.day ? 1 : x.day > y.day ? -1 : 0));
 }
 

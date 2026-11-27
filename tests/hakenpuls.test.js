@@ -12,6 +12,13 @@ describe('Garmin gegen Fitbit', () => {
     expect(p).toEqual([{ day: '2026-11-20', name: 'Abendrunde', garmin: 140, fitbit: 128, diff: -12 }]);
   });
 
+  it('counts one Garmin recording once, even when the watch kept several workouts inside it', () => {
+    const health = [{ date: '2026-11-20', exercises: [bike('18:05', 10, 120), bike('18:40', 30, 128), bike('19:10', 5, 90)] }];
+    const p = pulsePairs({ health, activities: [ride('2026-11-20', '18:00', 140)], from: '2026-11-01', to: '2026-11-25' });
+    expect(p.length).toBe(1);
+    expect(p[0].fitbit).toBe(128);
+  });
+
   it('leaves out Strava rides that are not from a Garmin, plain walks, other days and missing pulses', () => {
     const health = [
       { date: '2026-11-20', exercises: [bike('18:05', 55, 128), { type: 'WALKING', name: 'Gehen', start: '12:00', min: 30, hr: 90 }] },
