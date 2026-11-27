@@ -29,6 +29,14 @@ test('Neuland map: zoom in and out, jump from the list, full screen, ten entries
   await page.keyboard.press('Escape');
   await expect(page.locator('[data-zoom-close]')).toHaveCount(0);
 
+  // the mouse on a canton shows its name (Noah 27.11.2026 «bei Mouseover erscheint der Name»)
+  const bb = await map.boundingBox();
+  await page.mouse.move(bb.x + bb.width * 0.55, bb.y + bb.height * 0.5);
+  await page.mouse.move(bb.x + bb.width * 0.56, bb.y + bb.height * 0.5);
+  await expect(page.locator('[data-map-tip]').first()).toBeVisible();
+  await page.mouse.move(bb.x - 40, bb.y - 40);
+  await expect(page.locator('[data-map-tip]')).toHaveCount(0);
+
   // the list starts with ten entries
   expect(await page.locator('.nl-list .row').count()).toBeLessThanOrEqual(10);
 });

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { visibleBox, clampView, zoomAt, pinch, MAX_ZOOM } from '../src/lib/neuland/kartezoom.js';
+import { visibleBox, clampView, zoomAt, pinch, MAX_ZOOM, tipOf } from '../src/lib/neuland/kartezoom.js';
 
 const base = [0, 0, 400, 200];
 
@@ -34,5 +34,18 @@ describe('kartezoom', () => {
     expect(b).toEqual({ z: 1, cx: null, cy: null });
     const c = pinch(base, { z: 2, cx: 200, cy: 100 }, { px: 200, py: 100, ratio: 1, dx: 20, dy: 0 });
     expect(c.cx).toBe(180); // fingers right → the map follows, the view middle goes left
+  });
+});
+
+describe('tipOf', () => {
+  const frame = { getBoundingClientRect: () => ({ left: 10, top: 20 }) };
+  const ev = (over) => ({ pointerType: 'mouse', clientX: 110, clientY: 70, target: { closest: () => ({ getAttribute: () => 'Uri' }) }, ...over });
+  it('gives the name and the place inside the frame for the mouse', () => {
+    expect(tipOf(ev(), frame)).toEqual({ text: 'Uri', x: 100, y: 50 });
+  });
+  it('gives nothing for touch, for a place without a name or without a frame', () => {
+    expect(tipOf(ev({ pointerType: 'touch' }), frame)).toBeNull();
+    expect(tipOf(ev({ target: { closest: () => null } }), frame)).toBeNull();
+    expect(tipOf(ev(), null)).toBeNull();
   });
 });

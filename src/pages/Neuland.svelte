@@ -140,7 +140,7 @@
   // the map of the chosen collection
   const mapOf = $derived.by(() => {
     if (!cur) return null;
-    const areas = cur.items.filter((i) => i.rings).map((i) => ({ id: i.id, rings: i.rings, bbox: i.bbox, st: stOf(cur, i.id) }));
+    const areas = cur.items.filter((i) => i.rings).map((i) => ({ id: i.id, name: itemLabel(cur.id, { ...i, name: shownName(i) }), rings: i.rings, bbox: i.bbox, st: stOf(cur, i.id) }));
     const points = cur.items.filter((i) => Number.isFinite(i.lat) && Number.isFinite(i.lon)).map((i) => ({ id: i.id, lat: i.lat, lon: i.lon, name: shownName(i), st: stOf(cur, i.id) }));
     if (!areas.length && !points.length) return null;
     let view = cur.map ?? 'ch';

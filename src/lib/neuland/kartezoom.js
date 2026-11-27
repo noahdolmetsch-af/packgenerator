@@ -3,6 +3,16 @@
  * drawing units of NeulandMap: base = the whole map [x, y, w, h]; a view = { z, cx, cy } (zoom 1 = the whole map, cx/cy = the middle of
  * what is shown, null = the middle of the map). Tested in tests/kartezoom.test.js.
  */
+/** The name under the mouse: { text, x, y } inside the frame of the map, or null (touch has no hover). Places carry data-name. */
+export function tipOf(e, frame) {
+  if (e.pointerType !== 'mouse' || !frame) return null;
+  const el = e.target?.closest?.('[data-name]');
+  const text = el?.getAttribute('data-name');
+  if (!text) return null;
+  const r = frame.getBoundingClientRect();
+  return { text, x: e.clientX - r.left, y: e.clientY - r.top };
+}
+
 export const MAX_ZOOM = 40;
 
 /** The part of the map that is shown: [x, y, w, h]. */
