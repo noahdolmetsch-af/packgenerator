@@ -9,8 +9,9 @@
  */
 export const WEIGHT_KEY = 'me.weight';
 export const RIDER_KEY = 'riderWeightG';
-export const KG_MIN = 30;
-export const KG_MAX = 250;
+/** Only nonsense is invalid (Noah 22.11.2026 «5a»): an unusual weight is asked about («Did you mean …?», src/lib/typo/frage.js), never refused. */
+export const KG_MIN = 1;
+export const KG_MAX = 1000;
 
 /** A weight in kg with one decimal, or null when it is none. */
 export function cleanKg(v) {

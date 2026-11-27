@@ -50,6 +50,9 @@
     return parts.join(' · ');
   };
 
+  // Noah 27.11.2026: copies of one workout that the app folded into one say so once
+  const mergedLine = (r) => (r.merged ? ` · ${tn(r.merged, '{n} double entry merged', '{n} double entries merged')}` : '');
+
   async function add(e) {
     e?.preventDefault();
     msg = '';
@@ -67,7 +70,7 @@
         msg = withStatus(r.code, r.status);
         return;
       }
-      msg = `${t('Done.')} ${resultLine(r)}`;
+      msg = `${t('Done.')} ${resultLine(r)}${mergedLine(r)}`;
       added = true;
       good = true;
       link = '';
@@ -86,7 +89,7 @@
     try {
       const r = await refresh(db, { today, force: true });
       good = r.ok;
-      msg = r.ok ? `${t('Up to date.')} ${resultLine(prefsOf((await db.settings.get(TP_KEY))?.value))}` : withStatus(r.code, r.status);
+      msg = r.ok ? `${t('Up to date.')} ${resultLine(prefsOf((await db.settings.get(TP_KEY))?.value))}${mergedLine(r)}` : withStatus(r.code, r.status);
     } finally {
       busy = '';
     }
@@ -111,7 +114,7 @@
         msg = errorText(r.code === 'not_calendar' ? 'file_not_calendar' : r.code);
         return;
       }
-      msg = `${t('Done.')} ${resultLine(r)}`;
+      msg = `${t('Done.')} ${resultLine(r)}${mergedLine(r)}`;
       added = true;
       good = true;
     } catch (err) {

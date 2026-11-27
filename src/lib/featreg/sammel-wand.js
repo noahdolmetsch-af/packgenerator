@@ -1,9 +1,9 @@
 // «Sammel-Wand» (Neuer Schwung, Idee F, Noah 05.11.2026 «A, B, F und G jetzt»)
 export default {
   features: [
-    { id: 'f.collectwall', group: 'after', title: 'Collection wall', text: 'Stamps, passes, summits, new ground and stars on one page: a few of each and what was added lately. Only to look at, with no goal and no count of what is missing; every shelf is changed where it lives.', href: '#/debrief/sammlung', words: 'sammel wand sammlung sammeln stempel pässe gipfel gipfelbuch neuland sterne übersicht alles gesammelt trophäen vitrine regal', moment: 'zurueck' },
+    { id: 'f.collectwall', group: 'after', title: 'Collection wall', text: 'Stamps, passes, summits, new ground and stars on one page: a few of each and what was added lately. Only to look at, with no goal and no count of what is missing; every shelf is changed where it lives.', href: '#/debrief/sammlung', words: 'nebelmeer nebelmeer-tag nebel foto sammel wand sammlung sammeln stempel pässe gipfel gipfelbuch neuland sterne übersicht alles gesammelt trophäen vitrine regal', moment: 'zurueck' },
   ],
-  howto: { 'f.collectwall': ['Open Trips › Look back › Collection wall.', 'Look at «Added lately» and the shelves: tour pass, passes, summit book, new ground, stars.', 'Tap «All» on a shelf to open its full list and change things there.'] },
+  howto: { 'f.collectwall': ['Open Trips › Look back › Collection wall.', 'Look at «Added lately» and the shelves: stamps, passes, summits, fog sea, new ground.', 'Tap «All» to open a list. Only «Fog sea» is changed right here.'] },
   handbook: {
     'f.collectwall': {
       on: null,

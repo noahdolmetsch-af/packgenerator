@@ -5,13 +5,16 @@
  */
 import { placeLabel, tabLabel } from '../anpassen.svelte.js';
 import { t } from '../i18n.svelte.js';
-import { trailOf, keepSteps, ME } from './wege.js';
+import { trailOf, keepSteps, withoutPage, ME } from './wege.js';
 
-/** hash: the address (helpHere.route; empty at the very start: the address of the window). passed: [{ href, label }]. */
-export function fitSteps(hash, passed = []) {
+/**
+ * hash: the address (helpHere.route; empty at the very start: the address of the window). passed: [{ href, label }].
+ * page: the name the head shows for the page itself; a last step with the same name is left out (the page is named once).
+ */
+export function fitSteps(hash, passed = [], page = '') {
   const h = hash || (typeof location !== 'undefined' ? location.hash : '');
   const trail = trailOf(h);
-  if (!trail) return passed;
+  if (!trail) return withoutPage(passed, page);
   const start = trail.map((s) => ({ href: s.href, label: s.kind === 'place' ? (s.entry === ME ? t(ME.label) : placeLabel(s.entry)) : tabLabel(s.place, s.entry) }));
   const out = [];
   for (const s of [...start, ...keepSteps(h, passed)]) {
@@ -19,5 +22,5 @@ export function fitSteps(hash, passed = []) {
     if (out.length && out[out.length - 1].label.trim() === String(s.label ?? '').trim()) continue;
     out.push(s);
   }
-  return out;
+  return withoutPage(out, page);
 }
