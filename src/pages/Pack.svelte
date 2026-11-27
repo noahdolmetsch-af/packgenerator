@@ -18,7 +18,6 @@
   import PlaceSuggest from '../lib/pack/PlaceSuggest.svelte';
   import { RIDES, layerSuggest, openRows, waterOn } from '../lib/layers.js';
   import { weatherByBag } from '../lib/pack/wetterbag.js'; // «Fürs Wetter noch in diese Tasche»
-  import { offerDone } from '../lib/ui/rename.svelte.js';
   import { applyContext, hasContext, carryHint, activeBlocks, OFFER_ONLY } from '../lib/context.js';
   import { ridesIntoDark } from '../lib/blockplan.js';
   import { aidLevel, aidChosen } from '../lib/firstaid.js';
