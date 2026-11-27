@@ -1,6 +1,6 @@
 # Test «Heute entdecken»: die Zeile steht mit den Favoriten oben innerhalb der ersten zwei Bildschirme
 
-PR #NNNN · 27.11.2026 · Auftrag: Meldung des Bündlers (entdecken-karte.spec.js:7 rot auf PR 1842, auch auf reinem main)
+PR #1853 · 27.11.2026 · Auftrag: Meldung des Bündlers (entdecken-karte.spec.js:7 rot auf PR 1842, auch auf reinem main)
 
 ## Was ist neu
 - Nichts Sichtbares geändert, nur Test für `tests/e2e/entdecken-karte.spec.js` («Heute entdecken: one idea with its reason on the first screen …»).
