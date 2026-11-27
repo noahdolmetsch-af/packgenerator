@@ -1,6 +1,6 @@
 # Heute-Test im dunklen Modus: Breite erst messen, wenn Heute fertig ist
 
-PR #NNNN · 27.11.2026 · Auftrag: Hinweis des Wachs-/Wunschlisten-Threads (home-0460.spec.js:167 einmal rot bei zwei Workern), Wackel-Wächter
+PR #1822 · 27.11.2026 · Auftrag: Hinweis des Wachs-/Wunschlisten-Threads (home-0460.spec.js:167 einmal rot bei zwei Workern), Wackel-Wächter
 
 ## Was ist neu
 - Nichts Sichtbares geändert, nur Test für `home-0460.spec.js:167` («colour worlds and dark mode in More; every choice stays», Computer).
