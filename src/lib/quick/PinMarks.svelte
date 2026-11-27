@@ -73,7 +73,8 @@
       if (pending?.hash === hash && pending.title === title) count(hash, title);
       else (pending = { hash, title }), setTimeout(refind, 900);
     }
-    if (!main || /^#\/quick(\/|\?|$)/.test(hash)) return (found = []);
+    // Heute holds the favourites itself (the tile on top): no star on its cards, so none flashes up while it draws (Noah 27.11.2026 «1-5a»)
+    if (!main || /^#\/quick(\/|\?|$)/.test(hash) || !hash.replace(/^#\/?/, '')) return (found = []);
     found = findCards(hash, null, { forPin: true }); // not on a bare link or button: it is a chip, no card (Noah 27.11.2026)
     // the page itself, with its filter (not on Today, which is always one tap away)
     if (h1 && hash.replace(/^#\/?/, '') && !found.some((f) => f.title === h1 || f.card === h1)) found.push({ id: `view:${hash}`, view: hash, viewTitle: h1.innerText.trim(), card: h1, title: h1 });

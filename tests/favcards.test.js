@@ -16,23 +16,22 @@ describe('Favoriten cards', () => {
     expect(favHidden({ ...s, pins: s.pins.slice(0, 4) })).toBe(0);
     expect(favCards({ ...s, pins: s.pins.slice(0, 4) })).toHaveLength(4);
   });
-  it('2a: a card has the name, a quiet second line (the note, else the group) and an icon', () => {
+  it('2a: a card has the name, an icon and a quiet second line only when it says something of its own (the note)', () => {
     const s = starter();
     const c = favCards(s)[0];
     expect(c.label).toBeTruthy();
-    expect(c.sub).toBeTruthy(); // the group it sits in
+    expect(c.sub).toBe(''); // no note: calmer cards (Noah 27.11.2026 «1, 2, 3, 4», point 2), the group shows in the window «All»
     expect(c.icon).toBeTruthy();
     const noted = { ...s, pins: s.pins.map((p, i) => (i === 0 ? { ...p, note: 'my note' } : p)) };
     const first = favCards(noted)[0];
     expect(first.pin.note).toBe('my note');
     expect(first.sub).toBe('my note');
   });
-  it('a typed group name is not translated; no group: no second line', () => {
+  it('the group name never shows as the second line, typed or not', () => {
     let s = addGroup({ groups: [], pins: [] }, 'Weekend');
     s = addPin(s, 'f.sos', s.groups[0].id);
-    expect(favCards(s, (x) => `DE ${x}`)[0].sub).toBe('Weekend');
-    const loose = addPin({ groups: [], pins: [] }, 'f.sos', '');
-    expect(favCards(loose)[0].sub).toBe('');
+    expect(favCards(s, (x) => `DE ${x}`)[0].sub).toBe('');
+    expect(favCards(addPin({ groups: [], pins: [] }, 'f.sos', ''))[0].sub).toBe('');
   });
   it('the icon follows the group of the function; a view gets the link icon', () => {
     const ids = Object.keys(FEATURE).filter((f) => FEATURE[f].group);

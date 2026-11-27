@@ -34,6 +34,8 @@
   let open = $state(null); // the pin being renamed
   let Alle = $state(null); // the window «All favourites» loads on first use (not part of the start)
   let alleOpen = $state(false);
+  // the colour of a card's symbol follows its area (Noah 27.11.2026 «1, 2, 3, 4», point 4): tokens only, so every colour world and dark mode keep them apart
+  const TONE = { compass: 'var(--l3)', backpack: 'var(--hi)', book: 'var(--l4)', bike: 'var(--l2)', leaf: 'var(--l1)', save: 'var(--ink-2)', link: 'var(--ink-2)', star: 'var(--hi)' };
   const ICONS = { compass: Compass, backpack: Backpack, book: BookOpen, bike: Bike, leaf: Leaf, save: Save, link: ArrowUpRight, star: Star };
   let u = $state(cleanUsage(null)); // what this device opened (for the suggestion to pin a page you open often)
 
@@ -107,7 +109,7 @@
         {#each cards as c (c.pin.id)}
           {@const I = ICONS[c.icon] ?? Star}
           <button type="button" class="pt-pin" role="listitem" data-pin={c.pin.feature || c.pin.href} onclick={() => go(c.pin)}>
-            <span class="pt-i" aria-hidden="true"><I size={18} /></span>
+            <span class="pt-i" style:--tone={TONE[c.icon] ?? 'var(--hi)'} aria-hidden="true"><I size={18} /></span>
             <span class="pt-tx"><span class="pt-name">{c.label}</span>{#if c.sub}<span class="pt-sub">{c.sub}</span>{/if}</span>
           </button>
         {/each}
@@ -234,7 +236,7 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
-    min-height: 96px;
+    min-height: 80px;
     padding: 10px 12px;
     border: 1px solid var(--line);
     border-radius: var(--r-3);
@@ -255,8 +257,8 @@
     width: 30px;
     height: 30px;
     border-radius: var(--r-2);
-    background: var(--hi-soft, var(--paper-2));
-    color: var(--hi);
+    background: color-mix(in srgb, var(--tone, var(--hi)) 16%, var(--paper));
+    color: color-mix(in srgb, var(--tone, var(--hi)) 72%, var(--ink));
   }
   .pt-tx {
     display: grid;
