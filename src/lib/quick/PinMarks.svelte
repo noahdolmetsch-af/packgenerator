@@ -1,6 +1,6 @@
 <script>
   /**
-   * «Quick Links» step 2 (Noah 28.10.2026 «1a 2a»): the small grey pin at the top right of every card,
+   * «Favoriten» (Noah 27.11.2026 «1-5a»): the pin is a star now («Quick Links» step 2, Noah 28.10.2026 «1a 2a»): the small star at the top right of every card,
    * table and tab that is a function of the catalogue. A tap pins it into the Quick Links of this device
    * (into the first group), a second tap unpins it; both with Undo. The first note says what the pin does.
    *
@@ -9,7 +9,7 @@
    * where it covers nothing to tap (else at the end of the title, else none). Switched off in Quick Links.
    * Step 3 (Noah «18a»): the pin at the page title keeps the view, the page with its filter as it is now.
    */
-  import { Pin } from '@lucide/svelte';
+  import { Star } from '@lucide/svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { FEATURE } from '../features.js';
@@ -74,7 +74,7 @@
       else (pending = { hash, title }), setTimeout(refind, 900);
     }
     if (!main || /^#\/quick(\/|\?|$)/.test(hash)) return (found = []);
-    found = findCards(hash);
+    found = findCards(hash, null, { forPin: true }); // not on a bare link or button: it is a chip, no card (Noah 27.11.2026)
     // the page itself, with its filter (not on Today, which is always one tap away)
     if (h1 && hash.replace(/^#\/?/, '') && !found.some((f) => f.title === h1 || f.card === h1)) found.push({ id: `view:${hash}`, view: hash, viewTitle: h1.innerText.trim(), card: h1, title: h1 });
   }
@@ -250,7 +250,7 @@
         data-pinmark={m.view ? null : m.id}
         data-pinview={m.view ?? null}
         onclick={() => toggle(m)}
-      ><span class="pm-dot"><Pin size={16} aria-hidden="true" /></span></button>
+      ><span class="pm-dot"><Star size={16} fill={pinned ? 'currentColor' : 'none'} aria-hidden="true" /></span></button>
     {/each}
   </div>
 {/if}

@@ -16,8 +16,12 @@ const CARD = 'section, article, details, li, [role=tab], table, .card, [class*="
 // titles first (a card's heading), then folds, tabs and table heads, buttons and links last
 const rank = (e) => (/^H[1-4]$/.test(e.tagName) ? 0 : /^(SUMMARY|TH|LABEL)$/.test(e.tagName) || e.getAttribute('role') === 'tab' ? 1 : 2);
 
-/** The shown title and card of each function of this page: [{ id, card, title }], one per card. ids: only these. */
-export function findCards(hash, ids = null) {
+/**
+ * The shown title and card of each function of this page: [{ id, card, title }], one per card. ids: only these.
+ * `forPin` (the stars of PinMarks.svelte, Noah 27.11.2026 «1-5a»): a bare link or button with no card around it is a chip, not a card; it gets no star
+ * (a tap on its favourite still finds and lights it: without `forPin` it is found as before).
+ */
+export function findCards(hash, ids = null, { forPin = false } = {}) {
   const main = document.querySelector('main');
   if (!main) return [];
   const els = [...main.querySelectorAll(SEL)]
@@ -32,6 +36,7 @@ export function findCards(hash, ids = null) {
     if (!title) continue;
     let card = title.closest(CARD);
     if (!card || !main.contains(card) || card.getBoundingClientRect().height > innerHeight * 1.5) card = title;
+    if (forPin && card === title && /^(A|BUTTON)$/.test(title.tagName) && title.getAttribute('role') !== 'tab') continue;
     if (used.has(card)) continue;
     used.add(card);
     out.push({ id, card, title });

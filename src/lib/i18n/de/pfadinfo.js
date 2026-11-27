@@ -3,7 +3,7 @@ export default {
   'Where does this come from?': 'Woher kommt das?',
   'The data comes from': 'Die Daten kommen von',
   'Belongs together': 'Gehört zusammen',
-  'You also find it in the search, in «What the app can do» and in Quick Links.': 'Du findest es auch in der Suche, in «Was die App alles kann» und in den Quick Links.',
+  'You also find it in the search, in «What the app can do» and in Quick Links.': 'Du findest es auch in der Suche, in «Was die App alles kann» und in den Favoriten.',
   'Monday to Sunday: a dot for each activity you ticked and for each ride, today framed.': 'Montag bis Sonntag: ein Punkt für jede abgehakte Aktivität und für jede Fahrt, heute umrahmt.',
   'What you tick in Active': 'Was du in «Heute abhaken» abhakst',
   'Your rides, also those counted from Strava': 'Deine Fahrten, auch die von Strava gezählten',
