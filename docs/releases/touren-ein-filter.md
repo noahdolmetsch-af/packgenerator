@@ -1,6 +1,6 @@
 # Ein Filter auf Touren
 
-PR #(folgt) · 27.11.2026 · Auftrag: Noah «Ja» (26.11.2026 18:07) und Wahl «a» (26.11.2026 23:25) auf die offene Frage 1 aus «Touren-Seite klarer» (Thread «Touren-Seite klarer machen»); drittes Folge-Paket nach «Gehört zu ins ?-Fenster» und «Tipps ins ?-Fenster»
+PR #1827 · 27.11.2026 · Auftrag: Noah «Ja» (26.11.2026 18:07) und Wahl «a» (26.11.2026 23:25) auf die offene Frage 1 aus «Touren-Seite klarer» (Thread «Touren-Seite klarer machen»); drittes Folge-Paket nach «Gehört zu ins ?-Fenster» und «Tipps ins ?-Fenster»
 
 ## Was ist neu
 - Unter dem Titel von Touren steht eine Leiste (`src/lib/touren/TourBar.svelte`, Regeln in `tourbar.js`): das Wortfeld, die Knöpfe Jahr, Velo, Art und Distanz und «Mehr Filter». Sie filtern die Liste «Meine Touren» selbst; es gibt keine zweite Trefferliste mehr.
