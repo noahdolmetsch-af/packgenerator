@@ -90,7 +90,10 @@ test('the line under the chips opens the same window, and closing it counts the 
   await banner.locator('[data-news-more]').click();
   const sheet = page.locator('[data-neu-seit-sheet]');
   await expect(sheet).toBeVisible();
-  await expect(sheet.locator('details.grp').first()).toBeVisible({ timeout: 10_000 });
+  // «Testrunde» (Noah 27.11.2026): from the line the window opens by update (every news with its steps); a switch brings the places
+  await expect(sheet.locator('[data-nss-release]').first()).toBeVisible({ timeout: 10_000 });
+  await sheet.locator('[data-nss-mode="place"]').click();
+  await expect(sheet.locator('details.grp').first()).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(sheet).toHaveCount(0);
   // the line is closed for this update, and the card at the end counts as seen too

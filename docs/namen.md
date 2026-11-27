@@ -67,5 +67,6 @@ Verbindlich seit 08.11.2026 (Noah «namen ok»; Zeile 1 mit «b»). Quelle: UX-T
 | 59 | Die Hinweise über alle Aktivitäten aus den Haken (Serie, Lücke, Erholung, oft zusammen, Wochentag) | Muster, Erkenntnisse, Insights, Smarte Hinweise | **«Was auffällt»** (Noah 27.11.2026 «4a»); «Erkenntnisse» bleibt der Reiter in Auswerten mit den Messwert-Mustern |
 | 60 | Die Karte mit den Minuten pro Tag, alle Aktivitäten zusammen, in Auswerten › Woche | Tagessumme, Tageswert, Minuten pro Tag | **«Tagestotal»** (Noah 27.11.2026, eigenes Wort) |
 | 61 | Die Karte mit den Stunden pro Woche gegen die Vorwoche in Auswerten › Woche | Wochensumme, Wochenvergleich, Wochenumfang | **«Wochenpensum»** (Noah 27.11.2026, eigenes Wort); «Wochenplan» bleibt die geplante Woche |
+| 62 | Nach einem Update jede Neuheit prüfen und dem Logbuch sagen, ob es klappt | Abnahme, Release-Test, QA | **«Testrunde»**; die zwei Antworten **«Klappt»** und **«Klappt nicht»**; die Anleitung dazu **«So testest du es»** (Noah 27.11.2026 «1b 2a 3b 4b 5a») |
 
 Umgesetzt wird die Umbenennung in eigenen kleinen PRs (nach Bereich). Die Zeilen oben gelten ab heute auch für alles Neue.

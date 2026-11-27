@@ -56,7 +56,7 @@ const place = (g) => (g.page ? t('Page «{title}» ({address})', { title: g.titl
 
 function line(i, e, nums, cfg) {
   const head = [e.urgent === 'now' ? t('Bothers me now') : null, artLabel(e.art, cfg)].filter(Boolean).join(', ');
-  const block = e.block ? ` · ${t('Block «{name}»', { name: e.block })}` : '';
+  const block = (e.block ? ` · ${t('Block «{name}»', { name: e.block })}` : '') + (e.release ? ` · ${e.release.pr ? t('Release {v}, PR {n}', { v: e.release.version, n: e.release.pr }) : t('Release {v}', { v: e.release.version })}` : '');
   const how = e.route === 'draft' ? t('picture first') : t('small change');
   const pic = nums.has(e.id) ? `, ${t('picture {n}', { n: nums.get(e.id) })}` : '';
   return `${i}. [${head}]${block}: ${e.text} (${how}${pic})`;

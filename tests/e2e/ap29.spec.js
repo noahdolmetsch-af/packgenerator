@@ -276,8 +276,8 @@ test('Neu in den letzten Updates on #/features; Today says it once after an upda
   // and ×; × closes it until the next update
   await expect(page.locator('dialog.news[open]')).toHaveCount(0);
   const banner = page.locator('[data-news-banner]');
-  await expect(banner.getByRole('heading', { name: T('New in {v}|banner', { v: short(WHATS_NEW[0].version) }) })).toBeAttached();
-  await expect(banner.locator('[data-news-title]')).toHaveAttribute('href', '#/me/news');
+  await expect(banner.getByRole('heading', { name: T('New since your last visit') })).toBeAttached(); // «Testrunde» (Noah 27.11.2026, changed on purpose): the line became a small card
+  await expect(banner.locator('[data-news-title]').first()).toHaveAttribute('href', '#/me/news');
   await shot(page, info, 'today-hint');
   expect(await page.evaluate(() => localStorage.getItem('whatsnew.seen'))).toBe(WHATS_NEW[0].version);
   await banner.getByRole('button', { name: T('Close the hint') }).click();

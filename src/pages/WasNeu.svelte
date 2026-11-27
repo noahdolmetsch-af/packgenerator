@@ -24,13 +24,15 @@
   import { tick as settled } from 'svelte';
   import { phone } from '../lib/media.svelte.js';
   import { shortVersion, compareVersions, itemsOf } from '../lib/whatsnew.js';
-  import { WHATS_NEW } from '../lib/whatsnew-all.js'; // the whole list with all its texts: it loads with this page
+  import { WHATS_NEW, RELEASES_OHNE, prOf } from '../lib/whatsnew-all.js'; // the whole list with all its texts: it loads with this page
   import { FEATURES, FEATURE_GROUPS, PAGE_GROUPS } from '../lib/features.js';
   import { isUsed } from '../lib/tips.js';
   import { featureData, usedOf } from '../lib/know/featureData.js';
   import { goFeature } from '../lib/know/featureRun.js';
   import { SORTS, sortKey, rowsOf, sortRows, searchRows, newSince, neverTried, messageOn, BANNER_DAYS, PLANNED, LIST_ROWS, NEWS_HREF } from '../lib/know/wasneu.js';
-  import { readUses, readUpdate, writeUpdate, readMute, writeMute, readTested, writeTested } from '../lib/know/wasneuStore.js';
+  import { readUses, readUpdate, writeUpdate, readMute, writeMute, readTested, writeTested, readResults } from '../lib/know/wasneuStore.js';
+  import TestRow from '../lib/know/TestRow.svelte';
+  import { stepsOf, filterReleases, matchRelease } from '../lib/logbuch/testrunde.js';
   import { nextTrip } from '../lib/debrief.js';
   import { sortBikes } from '../lib/bikes.js';
   import { localDay } from '../lib/localday.js';
@@ -138,11 +140,26 @@
   let active = $state(null);
   const today = localDay();
   const forYou = $derived(update?.from ? WHATS_NEW.filter((e) => compareVersions(e.version, update.from) > 0 && compareVersions(e.version, current) <= 0) : []);
-  const hayOf = (e) => [e.version, e.title, t(e.title), e.lead ?? '', e.lead ? t(e.lead) : '', ...itemsOf(e).flatMap((p) => [p.text, t(p.text)])].join(' ').toLowerCase();
+  const hayOf = (e) => [e.version, e.title, t(e.title ?? ''), e.lead ?? '', e.lead ? t(e.lead) : '', prOf(e) ?? '', ...itemsOf(e).flatMap((p) => [p.text, t(p.text)])].join(' ').toLowerCase();
+  // «Testrunde» (Noah 27.11.2026 «1b 2a 3b 4b 5a»): every update shows its PR, how to test it and «Works» / «Does not work»; the chips
+  // filter by answer; «Not visible» holds the releases nobody sees (a test, a rule, a repair): nothing to test there
+  let results = $state(readResults());
+  $effect(() => {
+    const again = () => (results = readResults());
+    window.addEventListener('pg:tested', again);
+    return () => window.removeEventListener('pg:tested', again);
+  });
+  const hidden = RELEASES_OHNE.map((x) => ({ ...x, hidden: true }));
+  const rest = WHATS_NEW.slice(1);
+  const count = $derived({
+    open: filterReleases(rest, { filter: 'open', results }).length,
+    ok: filterReleases(rest, { filter: 'ok', results }).length,
+    fail: filterReleases(rest, { filter: 'fail', results }).length,
+  });
   const verFound = $derived.by(() => {
     const words = vq.toLowerCase().trim().split(/\s+/).filter(Boolean);
-    const pool = only === 'you' ? forYou : WHATS_NEW.slice(1);
-    return words.length ? pool.filter((e) => ((h) => words.every((w) => h.includes(w)))(hayOf(e))) : pool;
+    const pool = only === 'hidden' ? hidden : filterReleases(rest, { filter: only, results, forYou });
+    return words.length ? pool.filter((e) => matchRelease(prOf(e), words, hayOf(e))) : pool;
   });
   const searching = $derived(!!vq.trim() || only !== 'all');
   const days = $derived(byDay(verFound, today));
@@ -208,7 +225,7 @@
       {#if !all}
         <!-- I11 / W2: the newest version as a card, in its own words -->
         <section class="wn-top" data-newest={current}>
-          <VersionNews e={newest} card top level={2} id="wn-top-h">
+          <VersionNews e={newest} pr={prOf(newest)} card top level={2} id="wn-top-h">
             {#snippet extra()}
               <div class="ich-acts wn-topacts">
                 <a class="btn k hi" href={hrefOf(tryRow?.g) ?? NEWS_HREF} onclick={tryIt} data-news-try>{t('Try it')}<ChevronRight size={16} aria-hidden="true" /></a>
@@ -288,12 +305,14 @@
               <Search size={20} aria-hidden="true" />
               <input type="search" bind:value={vq} placeholder={t('Find an update')} aria-label={t('Find an update')} autocomplete="off" />
             </label>
-            {#if forYou.length}
-              <div class="wn-sort" role="group" aria-label={t('Show')}>
-                <button type="button" class="vd-chip wn-chip" aria-pressed={only === 'all'} onclick={() => (only = 'all')}>{t('All')} <span class="num">{WHATS_NEW.length - 1}</span></button>
-                <button type="button" class="vd-chip wn-chip" aria-pressed={only === 'you'} data-only="you" onclick={() => (only = 'you')}>{t('New for you')} <span class="num">{forYou.length}</span></button>
-              </div>
-            {/if}
+            <div class="wn-sort" role="group" aria-label={t('Show')}>
+              <button type="button" class="vd-chip wn-chip" aria-pressed={only === 'all'} onclick={() => (only = 'all')}>{t('All')} <span class="num">{WHATS_NEW.length - 1}</span></button>
+              {#if forYou.length}<button type="button" class="vd-chip wn-chip" aria-pressed={only === 'you'} data-only="you" onclick={() => (only = 'you')}>{t('New for you')} <span class="num">{forYou.length}</span></button>{/if}
+              <button type="button" class="vd-chip wn-chip" aria-pressed={only === 'open'} data-only="open" onclick={() => (only = 'open')}>{t('Not tested yet')} <span class="num">{count.open}</span></button>
+              {#if count.ok}<button type="button" class="vd-chip wn-chip" aria-pressed={only === 'ok'} data-only="ok" onclick={() => (only = 'ok')}>{t('Works|test')} <span class="num">{count.ok}</span></button>{/if}
+              {#if count.fail}<button type="button" class="vd-chip wn-chip" aria-pressed={only === 'fail'} data-only="fail" onclick={() => (only = 'fail')}>{t('Does not work|test')} <span class="num">{count.fail}</span></button>{/if}
+              <button type="button" class="vd-chip wn-chip" aria-pressed={only === 'hidden'} data-only="hidden" onclick={() => (only = 'hidden')}>{t('Not visible')} <span class="num">{hidden.length}</span></button>
+            </div>
           </ListBar>
           <!-- SL1 (answer 2a): the jump bar, on a phone as chips -->
           <div class="wn-jump-ph"><ListNav groups={jumps} {active} onjump={jump} /></div>
@@ -303,14 +322,18 @@
                 {#snippet row(e)}
                   <button type="button" class="wn-vr" aria-expanded={openV === e.version} data-row={e.version} onclick={() => (openV = openV === e.version ? null : e.version)}>
                     <span class="wn-vb num">{shortVersion(e.version)}</span>
-                    <span class="wn-vm"><b>{t(e.title)}</b>{#if e.lead}<small>{t(e.lead)}</small>{/if}</span>
+                    <span class="wn-vm"><b>{e.title ? t(e.title) : t('No title')}</b>{#if e.lead}<small>{t(e.lead)}</small>{/if}{#if prOf(e)}<small class="num" data-pr>{t('PR {n}', { n: prOf(e) })}</small>{/if}</span>
                     {#if openV === e.version}<ChevronUp size={20} aria-hidden="true" />{:else}<ChevronDown size={20} aria-hidden="true" />{/if}
                   </button>
-                  {#if openV === e.version}<div class="wn-vopen"><VersionNews {e} level={4} /></div>{/if}
+                  {#if openV === e.version}
+                    <div class="wn-vopen">
+                      {#if e.hidden}<p class="wn-vnone" data-test-none>{t('Nothing to test')} · {t('a change nobody sees')}</p>{:else}<VersionNews {e} pr={prOf(e)} level={4} /><TestRow {e} pr={prOf(e)} result={results.get(e.version)?.result ?? null} />{/if}
+                    </div>
+                  {/if}
                 {/snippet}
               </ListGroup>
             {/each}
-            {#if !days.length}<p class="wn-none" role="status">{t('No update found for «{q}».', { q: vq.trim() })}</p>{/if}
+            {#if !days.length}<p class="wn-none" role="status">{vq.trim() ? t('No update found for «{q}».', { q: vq.trim() }) : only === 'open' ? t('Everything with test steps is answered. Nice.') : t('No update here yet. Tap «Works» or «Does not work» under an update, and it shows up here.')}</p>{/if}
           </div>
           {#if !searching}<p class="wn-end"><Check size={16} aria-hidden="true" />{t('That is all: {n} updates on {d} days.', { n: WHATS_NEW.length, d: new Set(WHATS_NEW.map((e) => e.date)).size })}</p>{/if}
         </section>
@@ -751,6 +774,18 @@
   }
   .wn-vr[aria-expanded='true'] small {
     white-space: normal;
+  }
+  .wn-chip :global(.num) {
+    margin-left: 6px;
+  }
+  .wn-vnone {
+    margin: 0;
+    padding: 4px 0 8px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .wn-vopen :global(.tr) {
+    padding: 0 4px 8px;
   }
   .wn-vopen {
     padding: 0 0 12px 56px;

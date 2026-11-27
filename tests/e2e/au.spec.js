@@ -51,11 +51,13 @@ test('A-U1: after an update ONE calm line on Today, no window; the text opens th
   await updated(page);
   await expect(page.locator('div.home')).toBeVisible();
   const banner = page.locator('[data-news-banner]');
-  await expect(banner.getByRole('heading', { name: T('New in {v}|banner', { v: shortVersion(NEWEST.version) }) })).toBeAttached();
-  await expect(banner.locator('[data-news-title]')).toContainText(T('New: {title}', { title: T(NEWEST.title) }));
+  await expect(banner.getByRole('heading', { name: T('New since your last visit') })).toBeAttached(); // «Testrunde» (Noah 27.11.2026, changed on purpose): the line became a small card
+  await expect(banner.locator('[data-news-title]').first()).toContainText(T('New: {title}', { title: T(NEWEST.title) }));
   await expect(page.locator('dialog[open]')).toHaveCount(0);
-  // one narrow line: directly under the chips, above the wall of tiles
-  expect((await banner.boundingBox()).height).toBeLessThan(64);
+  // «Testrunde» (Noah 27.11.2026, changed on purpose): a small card instead of one narrow line, directly under the chips, above the wall of tiles;
+  // it stays within the screen (never cut off) and its text is not cut: the title has no ellipsis
+  expect((await banner.boundingBox()).height).toBeLessThan(page.viewportSize().height);
+  expect(await banner.locator('[data-news-title]').first().evaluate((el) => getComputedStyle(el).textOverflow)).not.toBe('ellipsis');
   expect((await banner.boundingBox()).y).toBeLessThan((await page.locator('.wall [data-tile]').first().boundingBox()).y);
   await noSideways(page);
   await shot(page, info, 'au1-heute-banner');
@@ -68,7 +70,7 @@ test('A-U1: after an update ONE calm line on Today, no window; the text opens th
   // the text opens Ich › Was ist neu (the whole news stay there) and closes the banner for this update
   await page.goto('./#/');
   await expect(banner).toBeVisible();
-  await banner.locator('[data-news-title]').click();
+  await banner.locator('[data-news-title]').first().click();
   await expect.poll(() => new URL(page.url()).hash).toBe('#/me/news');
   await expect(page.getByRole('heading', { level: 1, name: T('What is new'), exact: true })).toBeVisible();
   await shot(page, info, 'au1-was-ist-neu');

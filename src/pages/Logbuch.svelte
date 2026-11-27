@@ -120,7 +120,7 @@
             {:else if e.photoNote}
               <small class="lb-meta" data-lb-nophoto>{t('Photo not possible')}</small>
             {/if}
-            <small class="lb-meta">{[e.page, when(e.at), e.device === 'computer' ? t('Computer|logbuch') : t('Phone|logbuch')].filter(Boolean).join(' · ')}</small>
+            <small class="lb-meta">{[e.release ? (e.release.pr ? t('Release {v}, PR {n}', { v: e.release.version, n: e.release.pr }) : t('Release {v}', { v: e.release.version })) : '', e.page, when(e.at), e.device === 'computer' ? t('Computer|logbuch') : t('Phone|logbuch')].filter(Boolean).join(' · ')}</small>
             <div class="lb-acts">
               {#if routeOf(e.art, cfg) !== 'note'}
                 <button type="button" class="btn" data-lb-done onclick={() => done(e)}><Check size={16} aria-hidden="true" />{e.state === 'done' ? t('Open again') : t('Done|logbuch')}</button>

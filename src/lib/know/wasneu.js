@@ -22,6 +22,8 @@ export const UPDATE_KEY = 'wasneu.update';
 export const PIN_KEY = 'wasneu.pin';
 /** localStorage: { version: [step indexes] } the ticks of «How to test it». */
 export const TESTED_KEY = 'wasneu.tested';
+/** «Testrunde» (Noah 27.11.2026): the answer per version on this device, { '0.1312.2': { r: 'ok' | 'fail', at } }; the log holds the entries themselves. */
+export const RESULTS_KEY = 'wasneu.results';
 /** v0.127.0 A-U1: the banner on Today stays this many days after an update (or until ×). */
 export const BANNER_DAYS = 7;
 /** The tile «New» stays on top this many days after an update. */
