@@ -129,3 +129,33 @@ test('Haken-Analysen: without Fitbit days the health card says where they come f
   await expect(page.locator('[data-gesundheit] [data-plot]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('Haken-Analysen: Garmin against Fitbit lists the sessions both recorded, the Garmin pulse first', async ({ page, context }) => {
+  const rows = health();
+  const day = (back) => addDays(TODAY, -back);
+  const ex = (hr) => [{ type: 'OUTDOOR_BIKE', name: 'Radfahren im Freien', start: '18:05', end: '19:00', min: 55, hr }];
+  const garmin = (back, hr) => ({ id: `test_hp_${back}`, day: day(back), time: '18:00', start: `${day(back)}T16:00:00Z`, name: `Abendrunde ${back}`, type: 'Ride', kind: 'bike', km: 30, movingS: 3300, elapsedS: 3600, hrAvg: hr, device: 'Garmin Edge 1040' });
+  // four rides, the Fitbit shows 10 beats less on each; the Fitbit days exist already from health(), the workouts are added to them
+  const backs = [6, 8, 10, 12]; // days inside the seeded Fitbit weeks (they end on Sunday 4 October)
+  rows.healthDays = rows.healthDays.map((h) => (backs.some((b) => h.date === day(b)) ? { ...h, exercises: ex(130) } : h));
+  rows.activities = backs.map((b) => garmin(b, 140));
+  const errors = await open(page, context, rows);
+  const card = page.locator('[data-gesundheit]');
+  const box = card.locator('[data-gk-pulse]');
+  await expect(box).toBeVisible();
+  await expect(box.getByRole('heading', { name: T('Garmin against Fitbit') })).toBeVisible();
+  await expect(box.locator('[data-gk-pulse-sentence]')).toContainText('10');
+  await expect(box.locator('[data-gk-pulse-sentence]')).toContainText('weniger');
+  await expect(box.locator('[data-gk-pairs] li:not(.ph)')).toHaveCount(4);
+  await expect(box.locator('[data-gk-pairs] li:not(.ph)').first()).toContainText('140');
+  const w = page.viewportSize().width;
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(w);
+  expect(errors).toEqual([]);
+});
+
+test('Haken-Analysen: no block for Garmin against Fitbit without double recordings', async ({ page, context }) => {
+  const errors = await open(page, context, { ...sessions(), ...health() });
+  await expect(page.locator('[data-gesundheit]')).toBeVisible();
+  await expect(page.locator('[data-gk-pulse]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

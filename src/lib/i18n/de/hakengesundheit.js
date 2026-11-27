@@ -18,4 +18,11 @@ export default {
   'In weeks with more active zone minutes, your HRV in the week after was lower: {a} instead of {b} ms ({n} weeks since {y}).': 'In Wochen mit mehr Aktivzonen-Minuten war deine HRV in der Woche danach tiefer: {a} statt {b} ms ({n} Wochen seit {y}).',
   'In weeks with more active zone minutes, your sleep in the week after was longer: {a} instead of {b} ({n} weeks since {y}).': 'In Wochen mit mehr Aktivzonen-Minuten schliefst du in der Woche danach länger: {a} statt {b} ({n} Wochen seit {y}).',
   'In weeks with more active zone minutes, your sleep in the week after was shorter: {a} instead of {b} ({n} weeks since {y}).': 'In Wochen mit mehr Aktivzonen-Minuten schliefst du in der Woche danach kürzer: {a} statt {b} ({n} Wochen seit {y}).',
+  'Garmin against Fitbit': 'Garmin gegen Fitbit',
+  'Same session, two recordings: the mean pulse. The Garmin recording is the one that counts. Last {d} days.': 'Dieselbe Einheit, zwei Aufzeichnungen: der mittlere Puls. Zählen tut die Aufzeichnung von Garmin. Letzte {d} Tage.',
+  'On {n} sessions that both recorded, the Fitbit showed {x} beats per minute less than the Garmin on average.': 'Bei {n} Einheiten, die beide aufgezeichnet haben, zeigte die Fitbit im Schnitt {x} Schläge pro Minute weniger als der Garmin.',
+  'On {n} sessions that both recorded, the Fitbit showed {x} beats per minute more than the Garmin on average.': 'Bei {n} Einheiten, die beide aufgezeichnet haben, zeigte die Fitbit im Schnitt {x} Schläge pro Minute mehr als der Garmin.',
+  'On {n} sessions that both recorded, the Fitbit and the Garmin showed about the same pulse.': 'Bei {n} Einheiten, die beide aufgezeichnet haben, zeigten Fitbit und Garmin etwa denselben Puls.',
+  'Too few sessions with both recordings for a mean yet.': 'Noch zu wenige Einheiten mit beiden Aufzeichnungen für einen Mittelwert.',
+  'Session|pulse': 'Einheit',
 };

@@ -1,0 +1,10 @@
+# Haken-Analysen: Was Bewegung mit dir macht, Garmin gegen Fitbit
+
+27.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5a» auf den Vorschlag «Haken-Analysen an einem Ort» (Thread «Abhaken auf einen Blick verbessern»), Paket B von drei
+
+- Noah 27.11.2026 14:52: «auswirkungen von aktivitäten auf gesundheit zb. aktivzonenminuten pro woche vgl mit ruheherzfrequenz pro Woche oder andere sinnvolle».
+- **4a** Ruhepuls, HRV und Schlaf gegen die Aktivzonen-Minuten, dazu der Vergleich Garmin gegen Fitbit (verworfen: nur Ruhepuls, Vergleich später).
+- Die Karte zeigt die Aktivzonen-Minuten je Woche als Balken und darunter, in einem eigenen Linien-Diagramm mit derselben Wochen-Achse, Ruhepuls, HRV oder Schlaf derselben Woche (Chips). Zwei Diagramme statt einem mit zwei Achsen: so bleibt jede Achse ehrlich und die App-Diagramme (Tippen, Tabelle, Pfeiltasten) gelten für beide.
+- Der Satz sagt, wie die Woche **danach** nach Wochen mit mehr Aktivzonen-Minuten aussah: die vollen Wochen werden am Median der Aktivzonen-Minuten geteilt, verglichen wird der Mittelwert des Werts der Folgewoche. Ab 20 Wochen mit beiden Werten, nur bei einem Unterschied ab 0,3 Schlägen (Ruhepuls), 1 ms (HRV) oder 5 Minuten (Schlaf) und einer Korrelation von mindestens 0,2; sonst steht «kein klarer Unterschied». Immer «ein Muster, keine Ursache». Eine Woche zählt mit mindestens 4 Tagen mit Aktivzonen-Minuten, die anderen Werte mit mindestens 3 Tagen.
+- **Garmin gegen Fitbit** (Noah 27.11.2026 14:59): wo dieselbe Einheit von Garmin (über Strava) und von der Fitbit aufgezeichnet wurde, stehen der mittlere Puls beider nebeneinander, mit dem Mittel des Unterschieds ab 3 Einheiten und den letzten 5 Einheiten als Liste. Die Zuordnung ist die eine Regel der App (`flow/dieselbe.js`, `coveredBy`, «Eine Fahrt = ein Eintrag», Abstimmung mit dem Thread «Wie war's?»): Garmin gewinnt, nichts wird doppelt gezählt. Es wird nichts verändert oder gewählt, nur angeschaut. Nur Strava-Aktivitäten von einem Garmin-Gerät, keine reinen Spaziergänge der Uhr, Fitbit-Teilstücke werden vorher zu einer Einheit verbunden.
+- Fenster der Puls-Gegenüberstellung: mindestens die letzten 90 Tage, bei «Jahr» 365.

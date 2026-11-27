@@ -46,8 +46,9 @@
   enterPage('woche');
   const today = localDay();
   const q = liveQuery(async () => {
-    const [log, activities, acts, usual, ticks, table] = await Promise.all([db.flowLog.toArray(), readLite(db, (T) => T.toArray()), db.flowActs.toArray(), db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY), loadTable(db)]);
-    return { log, activities, acts, usual: usualMap(usual?.value), map: prefsOf(ticks?.value).map, table };
+    const [log, activities, acts, usual, ticks, table, healthAll] = await Promise.all([db.flowLog.toArray(), readLite(db, (T) => T.toArray()), db.flowActs.toArray(), db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY), loadTable(db), db.healthDays.toArray()]);
+    const health = healthAll.filter((h) => Array.isArray(h?.exercises) && h.exercises.length); // the watch's own workouts, for «Garmin gegen Fitbit»
+    return { log, activities, acts, usual: usualMap(usual?.value), map: prefsOf(ticks?.value).map, table, health };
   });
   const d = $derived($q);
   const units = $derived(d ? training(einheiten({ log: d.log, activities: d.activities, acts: d.acts, usual: d.usual, map: d.map })) : []);
@@ -135,7 +136,7 @@
     <HakenVerlauf acts={d.acts} log={d.log} {today} />
     <TagesTotal {units} {today} />
     <WochenPensum {units} {today} />
-    <GesundheitKarte table={d.table} {today} />
+    <GesundheitKarte table={d.table} health={d.health} activities={d.activities} {today} />
     <HakenHinweise acts={d.acts} log={d.log} {today} />
   {/if}
 
